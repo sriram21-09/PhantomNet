@@ -1,0 +1,96 @@
+version: '3.9'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: phantomnet_db
+    environment:
+      POSTGRES_USER: ${DB_USER:-phantomnet}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-password}
+      POSTGRES_DB: ${DB_NAME:-phantomnet}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - phantomnet
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-phantomnet}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # FastAPI Backend
+  api:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    container_name: phantomnet_api
+    command: uvicorn api.main:app --host 0.0.0.0 --port 8000 --reload
+    ports:
+      - "8000:8000"
+    environment:
+      DATABASE_URL: postgresql://${DB_USER:-phantomnet}:${DB_PASSWORD:-password}@postgres:5432/${DB_NAME:-phantomnet}
+      ENVIRONMENT: ${ENVIRONMENT:-development}
+      API_LOG_LEVEL: ${API_LOG_LEVEL:-INFO}
+    volumes:
+      - ./backend:/app/backend
+      - ./data/logs:/app/data/logs
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - phantomnet
+
+  # SSH Honeypot
+  ssh-honeypot:
+    build:
+      context: .
+      dockerfile: backend/honeypots/ssh/Dockerfile
+    container_name: phantomnet_ssh
+    ports:
+      - "${SSH_HONEYPOT_PORT:-2222}:22"
+    environment:
+      LOG_PATH: /logs/ssh
+    volumes:
+      - ./data/logs/ssh:/logs/ssh
+    networks:
+      - phantomnet
+
+  # HTTP Honeypot
+  http-honeypot:
+    build:
+      context: .
+      dockerfile: backend/honeypots/http/Dockerfile
+    container_name: phantomnet_http
+    ports:
+      - "${HTTP_HONEYPOT_PORT:-8080}:80"
+    environment:
+      LOG_PATH: /logs/http
+    volumes:
+      - ./data/logs/http:/logs/http
+    networks:
+      - phantomnet
+
+  # FTP Honeypot
+  ftp-honeypot:
+    build:
+      context: .
+      dockerfile: backend/honeypots/ftp/Dockerfile
+    container_name: phantomnet_ftp
+    ports:
+      - "${FTP_HONEYPOT_PORT:-2121}:21"
+    environment:
+      LOG_PATH: /logs/ftp
+    volumes:
+      - ./data/logs/ftp:/logs/ftp
+    networks:
+      - phantomnet
+
+volumes:
+  postgres_data:
+
+networks:
+  phantomnet:
+    driver: bridge
