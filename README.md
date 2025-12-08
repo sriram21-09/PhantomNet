@@ -35,7 +35,6 @@
 - [🔒 Security](#-security)
 - [📈 Roadmap](#-roadmap)
 - [💡 Contributing](#-contributing)
-- [📄 License](#-license)
 - [📞 Contact](#-contact)
 
 ---
@@ -580,12 +579,6 @@ git push origin feature/your-feature-name
 - Add tests for new features
 - Update documentation
 - Make one feature per PR
-
----
-
-## 📄 License
-
-This project is licensed under the **MIT License** – see [`LICENSE`](LICENSE) file for details.
 
 ---
 
