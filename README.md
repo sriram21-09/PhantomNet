@@ -266,7 +266,7 @@ docker --version          # For containerization
 git --version             # Version control
 ```
 
-### Clone & Setup (5 minutes)
+### Clone & Setup
 
 ```
 # Clone repository
@@ -293,7 +293,7 @@ cp .env.example .env
 docker-compose up -d
 ```
 
-### Run Services (2 minutes)
+### Run Services 
 
 ```
 # Terminal 1: Backend API
@@ -330,7 +330,7 @@ python3 backend/honeypots/start_honeypots.py
 
 #### 1. Install Python Dependencies
 
-``
+```
 # Navigate to backend
 cd backend
 
