@@ -8,7 +8,6 @@
 ![React](https://img.shields.io/badge/React-18.0%2B-61DAFB?style=flat-square&logo=react)
 ![Docker](https://img.shields.io/badge/Docker-Enabled-2496ED?style=flat-square&logo=docker)
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15%2B-336791?style=flat-square&logo=postgresql)
-![License](https://img.shields.io/badge/License-MIT-green?style=flat-square)
 ![Status](https://img.shields.io/badge/Status-In%20Development-orange?style=flat-square)
 
 **An intelligent, distributed honeypot system powered by AI/ML to detect, analyze, and adapt to cyber threats in real-time**
