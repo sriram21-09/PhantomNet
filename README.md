@@ -34,7 +34,6 @@
 - [🔒 Security](#-security)
 - [📈 Roadmap](#-roadmap)
 - [💡 Contributing](#-contributing)
-- [📞 Contact](#-contact)
 
 ---
 
@@ -257,7 +256,7 @@ Month 8: Finalization & Submission
 
 ### Prerequisites
 
-`
+```
 # Check versions
 python3 --version          # Should be 3.9 or higher
 pip --version             # Python package manager
@@ -265,11 +264,11 @@ node --version            # Should be 16 or higher
 npm --version             # Node package manager
 docker --version          # For containerization
 git --version             # Version control
-`
+```
 
 ### Clone & Setup (5 minutes)
 
-``
+```
 # Clone repository
 git clone https://github.com/yourusername/phantomnet.git
 cd phantomnet
@@ -292,11 +291,11 @@ cp .env.example .env
 
 # Start Docker containers
 docker-compose up -d
-`
+```
 
 ### Run Services (2 minutes)
 
-``
+```
 # Terminal 1: Backend API
 cd backend
 python3 -m uvicorn api.main:app --reload --port 8000
@@ -307,7 +306,7 @@ npm run dev
 
 # Terminal 3: Honeypots
 python3 backend/honeypots/start_honeypots.py
-``
+```
 
 ### Access Services
 
@@ -342,21 +341,21 @@ source venv/bin/activate
 # Install requirements
 pip install --upgrade pip
 pip install -r requirements.txt
-`
+```
 
 #### 2. Install Frontend Dependencies
 
-``
+```
 # Navigate to frontend
 cd frontend
 
 # Install Node packages
 npm install
-``
+```
 
 #### 3. Setup Database
 
-``
+```
 # PostgreSQL must be running
 # Create database
 createdb phantomnet
@@ -364,11 +363,11 @@ createdb phantomnet
 # Run migrations
 cd backend
 python3 -m alembic upgrade head
-``
+```
 
 #### 4. Setup Environment Variables
 
-``
+```
 # Copy example env file
 cp .env.example .env
 
@@ -377,24 +376,24 @@ DATABASE_URL=postgresql://user:password@localhost:5432/phantomnet
 API_PORT=8000
 JWT_SECRET=your-secret-key-here
 FRONTEND_URL=http://localhost:5173
-``
+```
 
 #### 5. Build Docker Images
 
-``
+```
 # Build all containers
 docker-compose build
 
 # Verify builds
 docker images | grep phantomnet
-``
+```
 ---
 
 ## 🚀 Getting Started
 
 ### First Run
 
-``
+```
 # Start all services
 docker-compose up
 
@@ -403,21 +402,21 @@ docker-compose exec api python3 seed_db.py
 
 # Access dashboard
 open http://localhost:5173
-``
+```
 
 ### Create Test Data
 
-``
+```
 # Run honeypot simulator
 python3 backend/tools/simulate_attacks.py
 
 # Generate attack traffic
 python3 backend/tools/generate_traffic.py --duration 5m --intensity high
-``
+```
 
 ### Monitor Logs
 
-``
+```
 # View all logs
 docker-compose logs -f
 
@@ -425,7 +424,7 @@ docker-compose logs -f
 docker-compose logs -f api
 docker-compose logs -f frontend
 docker-compose logs -f ssh-honeypot
-``
+```
 
 ---
 
@@ -456,7 +455,7 @@ docker-compose logs -f ssh-honeypot
 
 ### Run Tests
 
-``
+```
 # Backend unit tests
 cd backend
 pytest tests/ -v
@@ -473,7 +472,7 @@ npm run test:coverage
 
 # Integration tests
 docker-compose -f docker-compose.test.yml up
-``
+```
 
 ### Test Coverage
 
@@ -602,7 +601,7 @@ Developers who complete PhantomNet will have:
 
 | Role | Name | GitHub | Email |
 |------|------|--------|-------|
-| Team Lead | Kasukurthi Sriram| [@sriram21-09](https://github.com/sriram21-09/) | sriramkasukurthi2109.com |
+| Team Lead | Kasukurthi Sriram| [@sriram21-09](https://github.com/sriram21-09/) | sriramkasukurthi2109@gmail.com |
 | Security Dev | Muramreddy Vivekanandareddy | [@VivekanandaReddy2006](https://github.com/VivekanandaReddy2006) | vivekuses2006@gmail.com|
 | AI/ML Dev | Nattala Vikranth Chakravarthi  | [@Vikranth-tech](https://github.com/Vikranth-tech) | nvikranth007@gmail.com |
 | Frontend Dev | Satti Sai ram manideep reddy | [@sairammanideepreddy2123](https://github.com/sairammanideepreddy2123) | sairammanideepreddy2123@gmail.com |
@@ -645,5 +644,3 @@ Your stars help other students discover PhantomNet
 
 **Last Updated**: December 8, 2025  
 **Status**: 🟡 In Development  
-**Next Release**: December 21, 2025 (Week 1 Complete)
-
