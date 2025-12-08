@@ -1,9 +1,21 @@
-__pycache__/
-*.log
-.env
-node_modules/
+# Python
 venv/
-.idea/
-.DS_Store
+__pycache__/
+*.pyc
+
+# Node
+node_modules/
 dist/
 build/
+
+# System
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+
+# Others
+.env
+*.log
