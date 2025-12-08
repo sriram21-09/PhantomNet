@@ -257,7 +257,7 @@ Month 8: Finalization & Submission
 
 ### Prerequisites
 
-```
+`
 # Check versions
 python3 --version          # Should be 3.9 or higher
 pip --version             # Python package manager
@@ -265,11 +265,11 @@ node --version            # Should be 16 or higher
 npm --version             # Node package manager
 docker --version          # For containerization
 git --version             # Version control
-```
+`
 
 ### Clone & Setup (5 minutes)
 
-```
+``
 # Clone repository
 git clone https://github.com/yourusername/phantomnet.git
 cd phantomnet
@@ -292,11 +292,11 @@ cp .env.example .env
 
 # Start Docker containers
 docker-compose up -d
-```
+`
 
 ### Run Services (2 minutes)
 
-```
+``
 # Terminal 1: Backend API
 cd backend
 python3 -m uvicorn api.main:app --reload --port 8000
@@ -307,7 +307,7 @@ npm run dev
 
 # Terminal 3: Honeypots
 python3 backend/honeypots/start_honeypots.py
-```
+``
 
 ### Access Services
 
@@ -331,7 +331,7 @@ python3 backend/honeypots/start_honeypots.py
 
 #### 1. Install Python Dependencies
 
-```
+``
 # Navigate to backend
 cd backend
 
@@ -342,21 +342,21 @@ source venv/bin/activate
 # Install requirements
 pip install --upgrade pip
 pip install -r requirements.txt
-```
+`
 
 #### 2. Install Frontend Dependencies
 
-```
+``
 # Navigate to frontend
 cd frontend
 
 # Install Node packages
 npm install
-```
+``
 
 #### 3. Setup Database
 
-```
+``
 # PostgreSQL must be running
 # Create database
 createdb phantomnet
@@ -364,11 +364,11 @@ createdb phantomnet
 # Run migrations
 cd backend
 python3 -m alembic upgrade head
-```
+``
 
 #### 4. Setup Environment Variables
 
-```
+``
 # Copy example env file
 cp .env.example .env
 
@@ -377,25 +377,24 @@ DATABASE_URL=postgresql://user:password@localhost:5432/phantomnet
 API_PORT=8000
 JWT_SECRET=your-secret-key-here
 FRONTEND_URL=http://localhost:5173
-```
+``
 
 #### 5. Build Docker Images
 
-```
+``
 # Build all containers
 docker-compose build
 
 # Verify builds
 docker images | grep phantomnet
-```
-
+``
 ---
 
 ## 🚀 Getting Started
 
 ### First Run
 
-```
+``
 # Start all services
 docker-compose up
 
@@ -404,21 +403,21 @@ docker-compose exec api python3 seed_db.py
 
 # Access dashboard
 open http://localhost:5173
-```
+``
 
 ### Create Test Data
 
-```
+``
 # Run honeypot simulator
 python3 backend/tools/simulate_attacks.py
 
 # Generate attack traffic
 python3 backend/tools/generate_traffic.py --duration 5m --intensity high
-```
+``
 
 ### Monitor Logs
 
-```
+``
 # View all logs
 docker-compose logs -f
 
@@ -426,7 +425,7 @@ docker-compose logs -f
 docker-compose logs -f api
 docker-compose logs -f frontend
 docker-compose logs -f ssh-honeypot
-```
+``
 
 ---
 
@@ -443,13 +442,6 @@ docker-compose logs -f ssh-honeypot
 | [`docs/user_guide.md`](docs/user_guide.md) | How to use the dashboard |
 | [`docs/dev_guide.md`](docs/dev_guide.md) | Developer contribution guide |
 
-### 🎬 Video Tutorials
-
-- Getting Started (5 min)
-- Dashboard Walkthrough (10 min)
-- Adding Custom Honeypots (15 min)
-- ML Model Training (20 min)
-
 ### 🔗 External Resources
 
 - [OWASP Honeypot Guide](https://owasp.org/)
@@ -464,7 +456,7 @@ docker-compose logs -f ssh-honeypot
 
 ### Run Tests
 
-```
+``
 # Backend unit tests
 cd backend
 pytest tests/ -v
@@ -481,7 +473,7 @@ npm run test:coverage
 
 # Integration tests
 docker-compose -f docker-compose.test.yml up
-```
+``
 
 ### Test Coverage
 
@@ -501,12 +493,6 @@ docker-compose -f docker-compose.test.yml up
 ✅ **Rate Limiting**: API rate limiting implemented  
 ✅ **CORS**: Configured CORS policies  
 ✅ **SQL Injection**: Protected via SQLAlchemy ORM  
-
-### Reporting Security Issues
-
-Found a vulnerability? Email security@phantomnet-project.dev
-
-**DO NOT** open a public issue for security vulnerabilities.
 
 ---
 
@@ -611,23 +597,15 @@ Developers who complete PhantomNet will have:
 
 ---
 
-## 📞 Contact & Support
-
-### Get Help
-
-- 📧 **Email**: team@phantomnet-project.dev
-- 💬 **Discord**: [Join our community](https://discord.gg/phantomnet)
-- 📋 **GitHub Issues**: [Report bugs here](https://github.com/yourusername/phantomnet/issues)
-- 📚 **Wiki**: [Community wiki](https://github.com/yourusername/phantomnet/wiki)
 
 ### Team Members
 
 | Role | Name | GitHub | Email |
 |------|------|--------|-------|
-| Team Lead | Your Name | [@username](https://github.com/username) | email@example.com |
-| Security Dev | Your Name | [@username](https://github.com/username) | email@example.com |
-| AI/ML Dev | Your Name | [@username](https://github.com/username) | email@example.com |
-| Frontend Dev | Your Name | [@username](https://github.com/username) | email@example.com |
+| Team Lead | Kasukurthi Sriram| [@sriram21-09](https://github.com/sriram21-09/) | sriramkasukurthi2109.com |
+| Security Dev | Muramreddy Vivekanandareddy | [@VivekanandaReddy2006](https://github.com/VivekanandaReddy2006) | vivekuses2006@gmail.com|
+| AI/ML Dev | Nattala Vikranth Chakravarthi  | [@Vikranth-tech](https://github.com/Vikranth-tech) | nvikranth007@gmail.com |
+| Frontend Dev | Satti Sai ram manideep reddy | [@sairammanideepreddy2123](https://github.com/sairammanideepreddy2123) | sairammanideepreddy2123@gmail.com |
 
 ---
 
@@ -669,104 +647,3 @@ Your stars help other students discover PhantomNet
 **Status**: 🟡 In Development  
 **Next Release**: December 21, 2025 (Week 1 Complete)
 
-</div>
-```
-
-***
-
-## 📋 How to Use This README
-
-1. **Copy the entire content above** (starting from `# 🛡️ PhantomNet`)
-2. **Go to your GitHub repository**
-3. **Click "Add file" → "Create new file"**
-4. **Name it**: `README.md`
-5. **Paste the content**
-6. **Edit the following sections with your info**:
-   - Replace `yourusername` with your actual GitHub username
-   - Replace team member names and emails
-   - Replace email addresses
-   - Update contact information
-   - Add real Discord link (if you have one)
-
-***
-
-## 🎨 Additional Files to Create
-
-While you're at it, create these supporting files:
-
-### `.env.example`
-```bash
-# Database
-DATABASE_URL=postgresql://user:password@localhost:5432/phantomnet
-DB_HOST=localhost
-DB_PORT=5432
-DB_USER=phantomnet
-DB_PASSWORD=your-password
-DB_NAME=phantomnet
-
-# API
-API_HOST=0.0.0.0
-API_PORT=8000
-API_DEBUG=False
-API_LOG_LEVEL=INFO
-
-# Frontend
-REACT_APP_API_URL=http://localhost:8000
-
-# Security
-JWT_SECRET=your-super-secret-key-change-in-production
-JWT_ALGORITHM=HS256
-JWT_EXPIRY=7d
-
-# Honeypots
-SSH_PORT=2222
-HTTP_PORT=8080
-FTP_PORT=2121
-
-# Environment
-ENVIRONMENT=development
-```
-
-### `LICENSE`
-```
-MIT License
-
-Copyright (c) 2025 PhantomNet Team
-
-Permission is hereby granted, free of charge, to any person obtaining a copy...
-[Full MIT license text]
-```
-
-### `.gitignore` (Python + Node.js)
-```
-# Python
-__pycache__/
-*.py[cod]
-*$py.class
-venv/
-env/
-.env
-*.db
-*.sqlite
-
-# Node.js
-node_modules/
-npm-debug.log
-dist/
-build/
-
-# IDEs
-.vscode/
-.idea/
-*.swp
-
-# OS
-.DS_Store
-Thumbs.db
-
-# Project
-data/logs/*
-*.log
-```
-
-***
