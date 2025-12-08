@@ -1,0 +1,7 @@
+venv/
+ai-ml-dev/venv/
+frontend-dev/node_modules/
+security-dev/venv/
+*.dll
+*.pyd
+*.exe
