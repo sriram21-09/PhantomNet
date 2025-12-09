@@ -1,149 +1,219 @@
+/* -----------------------
+   Global App Layout
+------------------------ */
+
 .app {
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
   min-height: 100vh;
-  background-color: #f5f5f5;
+  background-color: #f3f4f6; /* light grey background */
+  color: #111827;
 }
 
-/* Navbar styling */
+/* Wrapper for routed pages */
+.main-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 24px 24px 40px;
+}
+
+/* -----------------------
+   Navbar
+------------------------ */
+
 .navbar {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 12px 24px;
-  background-color: #111827;
-  color: #ffffff;
+  padding: 12px 32px;
+  background-color: #111827; /* dark navy */
+  color: #f9fafb;
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
 }
 
 .navbar-logo {
-  font-weight: 600;
+  font-weight: 700;
+  font-size: 18px;
+  letter-spacing: 0.03em;
 }
 
 .navbar-links a {
-  margin-left: 16px;
+  margin-left: 20px;
   text-decoration: none;
+  font-size: 14px;
   color: #e5e7eb;
+  padding-bottom: 3px;
+  border-bottom: 2px solid transparent;
+  transition: color 0.15s ease, border-color 0.15s ease;
+}
+
+.navbar-links a:hover {
+  color: #ffffff;
+  border-color: #60a5fa;
 }
 
 .navbar-links a.active {
   font-weight: 600;
-  text-decoration: underline;
+  color: #ffffff;
+  border-color: #3b82f6;
 }
 
-/* Main content area */
-.main-content {
-  padding: 24px;
+/* -----------------------
+   Page Headers
+------------------------ */
+
+.dashboard,
+.events {
+  background-color: #ffffff;
+  border-radius: 12px;
+  padding: 24px 24px 32px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  margin-top: 24px;
 }
 
-/* Page heading spacing */
 .dashboard h1,
 .events h1 {
-  margin-bottom: 12px;
-}
-.dashboard {
-  color: #000000; /* black text */
-}
-
-.events {
-  color: #000000; /* black text */
-}
-.dashboard, .events {
-  padding: 20px;
-  color: #000;
-}
-.dashboard, .events {
-  padding: 20px;
-  background-color: #ffffff;
-  color: #000;
-  min-height: 100vh;
-}
-.dashboard, .events {
-  color: #000;
-}
-/* ---- Metric card basic styling (border, padding, centered text) ---- */
-
-.metric-card {
-  background-color: #ffffff;
-  border-radius: 8px;
-  border: 1px solid #e5e7eb; /* light grey border */
-  padding: 20px;              /* padding */
-  text-align: center;         /* center text */
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
-}
-
-.metric-icon {
-  font-size: 32px;
   margin-bottom: 8px;
+  font-size: 32px;
+  font-weight: 700;
 }
 
+.dashboard p,
+.events p {
+  margin-bottom: 16px;
+  color: #4b5563;
+  font-size: 14px;
+}
+
+/* -----------------------
+   Metric Cards (Dashboard)
+------------------------ */
+
+.metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 20px;
+  margin-top: 16px;
+}
+
+/* Base card style */
+.metric-card {
+  border-radius: 12px;
+  padding: 20px;
+  text-align: center;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+  min-height: 120px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
+}
+
+/* For your JSX with metric-title / metric-value */
 .metric-title {
   font-size: 14px;
-  color: #6b7280;
+  font-weight: 500;
+  color: #374151;
 }
 
 .metric-value {
-  font-size: 26px;
-  font-weight: 600;
-  margin-top: 4px;
+  margin-top: 8px;
+  font-size: 28px;
+  font-weight: 700;
 }
-/* ---- Metrics grid layout ---- */
 
-.metrics-grid {
-  display: grid; /* using CSS Grid */
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 16px;
-  margin-top: 20px;
+/* Hover effect */
+.metric-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
 }
-.dashboard,
-.events {
-  padding: 20px;
-  color: #000;
+
+/* Colour per card */
+.metrics-grid .metric-card:nth-child(1) {
+  background-color: #dbeafe; /* light blue */
+  border-color: #93c5fd;
 }
-/* ------- Events page table styling (Day 3) ------- */
+
+.metrics-grid .metric-card:nth-child(2) {
+  background-color: #dcfce7; /* light green */
+  border-color: #bbf7d0;
+}
+
+.metrics-grid .metric-card:nth-child(3) {
+  background-color: #fee2e2; /* light red */
+  border-color: #fecaca;
+}
+
+/* -----------------------
+   Events Table
+------------------------ */
 
 .events-table {
   width: 100%;
   border-collapse: collapse;
   margin-top: 20px;
-  background-color: #ffffff;
   font-size: 14px;
+  background-color: #ffffff;
 }
 
 .events-table th,
 .events-table td {
-  border: 1px solid #e5e7eb;        /* borders */
-  padding: 8px 12px;                 /* padding */
+  border: 1px solid #e5e7eb;
+  padding: 8px 10px;
   text-align: left;
 }
 
 .events-table th {
-  background-color: #111827;         /* dark header */
+  background-color: #111827;
   color: #f9fafb;
   font-weight: 600;
 }
 
+/* Alternate row colours (base) */
 .events-table tbody tr:nth-child(even) {
-  background-color: #f9fafb;         /* alternating row colors */
+  background-color: #f9fafb;
 }
 
+/* Hover highlight */
 .events-table tbody tr:hover {
-  background-color: #e5f1ff;         /* hover highlight */
+  outline: 1px solid #3b82f6;
 }
-/* --- Color-coded rows --- */
+
+/* -----------------------
+   Row severity colours
+------------------------ */
+
 .row-danger {
   background-color: #ffe5e5 !important; /* light red */
-  color: #b30000;
+  color: #7f1d1d;
 }
 
 .row-safe {
-  background-color: #eaffea !important; /* light green */
-  color: #006600;
-}
-.events {
-  width: 100%;
-  padding: 20px;
+  background-color: #e8ffe8 !important; /* light green */
+  color: #064e3b;
 }
 
-.events-table {
-  width: 100%;
-  max-width: 100%;
+/* -----------------------
+   Responsive tweaks
+------------------------ */
+
+@media (max-width: 900px) {
+  .metrics-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 640px) {
+  .metrics-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .navbar {
+    flex-direction: column;
+   align-items: flex-start;
+    gap: 8px;
+  }
 }
