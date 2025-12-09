@@ -59,3 +59,42 @@
 .dashboard, .events {
   color: #000;
 }
+/* ---- Metric card basic styling (border, padding, centered text) ---- */
+
+.metric-card {
+  background-color: #ffffff;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb; /* light grey border */
+  padding: 20px;              /* padding */
+  text-align: center;         /* center text */
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+.metric-icon {
+  font-size: 32px;
+  margin-bottom: 8px;
+}
+
+.metric-title {
+  font-size: 14px;
+  color: #6b7280;
+}
+
+.metric-value {
+  font-size: 26px;
+  font-weight: 600;
+  margin-top: 4px;
+}
+/* ---- Metrics grid layout ---- */
+
+.metrics-grid {
+  display: grid; /* using CSS Grid */
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+  margin-top: 20px;
+}
+.dashboard,
+.events {
+  padding: 20px;
+  color: #000;
+}
