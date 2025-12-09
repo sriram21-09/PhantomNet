@@ -171,7 +171,42 @@
   color: #f9fafb;
   font-weight: 600;
 }
+/* ---------- Events page controls (search, filter, sort) ---------- */
 
+.events-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+  margin-top: 8px;
+  margin-bottom: 10px;
+}
+
+.events-search {
+  padding: 6px 10px;
+  border-radius: 6px;
+  border: 1px solid #d1d5db;
+  min-width: 220px;
+  font-size: 14px;
+}
+
+.events-search:focus {
+  outline: none;
+  border-color: #38bdf8;
+  box-shadow: 0 0 0 1px #38bdf8;
+}
+
+.events-filters,
+.events-sort {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.label {
+  font-size: 13px;
+  color: #4b5563;
+}
 /* Alternate row colours (base) */
 .events-table tbody tr:nth-child(even) {
   background-color: #f9fafb;
