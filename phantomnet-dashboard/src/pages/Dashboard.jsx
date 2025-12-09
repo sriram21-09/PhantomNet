@@ -3,7 +3,11 @@ import mockEvents from "../data/mockEvents.json";
 
 function Dashboard() {
   const totalEvents = mockEvents.length;
-  const uniqueIPs = new Set(mockEvents.map((event) => event.source_ip)).size;
+
+  const uniqueIPs = new Set(
+    mockEvents.map((event) => event.source_ip)
+  ).size;
+
   const activeHoneypots = new Set(
     mockEvents.map((event) => event.honeypot_type)
   ).size;
