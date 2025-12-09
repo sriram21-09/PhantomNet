@@ -98,3 +98,52 @@
   padding: 20px;
   color: #000;
 }
+/* ------- Events page table styling (Day 3) ------- */
+
+.events-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+  background-color: #ffffff;
+  font-size: 14px;
+}
+
+.events-table th,
+.events-table td {
+  border: 1px solid #e5e7eb;        /* borders */
+  padding: 8px 12px;                 /* padding */
+  text-align: left;
+}
+
+.events-table th {
+  background-color: #111827;         /* dark header */
+  color: #f9fafb;
+  font-weight: 600;
+}
+
+.events-table tbody tr:nth-child(even) {
+  background-color: #f9fafb;         /* alternating row colors */
+}
+
+.events-table tbody tr:hover {
+  background-color: #e5f1ff;         /* hover highlight */
+}
+/* --- Color-coded rows --- */
+.row-danger {
+  background-color: #ffe5e5 !important; /* light red */
+  color: #b30000;
+}
+
+.row-safe {
+  background-color: #eaffea !important; /* light green */
+  color: #006600;
+}
+.events {
+  width: 100%;
+  padding: 20px;
+}
+
+.events-table {
+  width: 100%;
+  max-width: 100%;
+}
