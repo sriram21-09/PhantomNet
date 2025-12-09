@@ -1,12 +1,14 @@
-// src/components/MetricCard.jsx
+function MetricCard({ title, value, color }) {
+  const cardColors = {
+    blue: "#e0edff",
+    green: "#e6ffe6",
+    red: "#ffe6e6"
+  };
 
-// MetricCard receives 3 props: title, value, icon
-function MetricCard({ title, value, icon }) {
   return (
-    <div className="metric-card">
-      <div className="metric-icon">{icon}</div>
-      <div className="metric-title">{title}</div>
-      <div className="metric-value">{value}</div>
+    <div className="metric-card" style={{ backgroundColor: cardColors[color] }}>
+      <h3>{title}</h3>
+      <p>{value}</p>
     </div>
   );
 }

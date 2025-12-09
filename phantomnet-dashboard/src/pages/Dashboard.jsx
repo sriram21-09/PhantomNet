@@ -14,10 +14,10 @@ function Dashboard() {
       <p>This is the PhantomNet dashboard. More content will be added later.</p>
 
       <div className="metrics-grid">
-        <MetricCard title="Total Events" value={totalEvents} />
-        <MetricCard title="Unique IPs" value={uniqueIPs} />
-        <MetricCard title="Active Honeypots" value={activeHoneypots} />
-      </div>
+  <MetricCard title="Total Events" value={totalEvents} color="blue" />
+  <MetricCard title="Unique IPs" value={uniqueIPs} color="green" />
+  <MetricCard title="Active Honeypots" value={activeHoneypots} color="red" />
+    </div>
     </div>
   );
 }
