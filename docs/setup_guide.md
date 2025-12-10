@@ -1,454 +1,652 @@
-# 🏗️ PhantomNet API Design Document
+# 🚀 PhantomNet Setup Guide
 
 **Version**: 1.0  
 **Date**: December 10, 2025  
-**Status**: Active  
+**OS Support**: Linux, macOS, Windows (WSL2)
 
 ---
 
 ## 📑 Table of Contents
 
-1. [API Overview](#api-overview)
-2. [Design Principles](#design-principles)
-3. [Architecture](#architecture)
-4. [Endpoint Design](#endpoint-design)
-5. [Data Models](#data-models)
-6. [Response Format](#response-format)
-7. [Error Handling](#error-handling)
-8. [Status Codes](#status-codes)
+1. [Prerequisites](#prerequisites)
+2. [System Requirements](#system-requirements)
+3. [Backend Setup](#backend-setup)
+4. [Database Setup](#database-setup)
+5. [Frontend Setup](#frontend-setup)
+6. [Running the Project](#running-the-project)
+7. [Verification](#verification)
+8. [Troubleshooting](#troubleshooting)
 
 ---
 
-## 🎯 API Overview
+## ✅ Prerequisites
 
-**PhantomNet API** provides real-time access to honeypot security events and threat analytics.
+### Software Required
 
-| Property | Value |
-|----------|-------|
-| **Base URL** | `http://localhost:8000` |
-| **Version** | `1.0` |
-| **Framework** | FastAPI |
-| **Language** | Python 3.9+ |
-| **Database** | PostgreSQL |
-| **Authentication** | None (Dev), JWT (Production) |
+| Software | Version | Purpose |
+|----------|---------|---------|
+| **Python** | 3.9+ | Backend runtime |
+| **Node.js** | 16+ | Frontend runtime |
+| **PostgreSQL** | 12+ | Database |
+| **Git** | Latest | Version control |
+| **Docker** | 20.10+ | Containerization (optional) |
 
----
+### Development Tools
 
-## 🏛️ Design Principles
-
-### 1. **RESTful Design**
-- Resource-based endpoints
-- Standard HTTP methods (GET, POST, PUT, DELETE)
-- Predictable URL structure
-
-### 2. **Consistency**
-- Uniform response format
-- Standardized error messages
-- Consistent parameter naming (snake_case)
-
-### 3. **Simplicity**
-- Minimal endpoints (only necessary)
-- Clear parameter names
-- Easy to understand responses
-
-### 4. **Scalability**
-- Stateless requests
-- Cacheable responses
-- Pagination-ready structure
+| Tool | Purpose |
+|------|---------|
+| **pip** | Python package manager |
+| **npm** | Node package manager |
+| **psql** | PostgreSQL client |
+| **Git** | Clone repository |
+| **VS Code** | Code editor (recommended) |
 
 ---
 
-## 🏗️ Architecture
+## 💻 System Requirements
 
-### Request Flow
-```
-Client Request
-    ↓
-FastAPI Router
-    ↓
-Validation Layer
-    ↓
-Business Logic
-    ↓
-Database Query
-    ↓
-Response Formatter
-    ↓
-JSON Response
-```
+### Minimum
 
-### API Layers
+| Component | Requirement |
+|-----------|-------------|
+| **CPU** | 2 cores |
+| **RAM** | 4 GB |
+| **Storage** | 5 GB free |
+| **Network** | 5 Mbps internet |
 
-| Layer | Responsibility |
-|-------|-----------------|
-| **Router** | Route handling, method validation |
-| **Validator** | Parameter validation, type checking |
-| **Service** | Business logic, calculations |
-| **Repository** | Database queries, data access |
-| **Model** | Data serialization, response format |
+### Recommended
+
+| Component | Requirement |
+|-----------|-------------|
+| **CPU** | 4+ cores |
+| **RAM** | 8 GB+ |
+| **Storage** | 20 GB SSD |
+| **Network** | Stable internet |
 
 ---
 
-## 📡 Endpoint Design
+## 🔧 Backend Setup
 
-### Core Endpoints
+### Step 1: Clone Repository
 
-#### 1. GET `/health`
-**Purpose**: System health check
-
-| Property | Value |
-|----------|-------|
-| **Method** | GET |
-| **Auth** | Not required |
-| **Cache** | 30s |
-| **Response** | HealthResponse |
-
-**Response**:
-```json
-{
-  "status": "healthy",
-  "database": "connected",
-  "timestamp": "2025-12-10T15:30:00Z"
-}
-```
-
----
-
-#### 2. GET `/events`
-**Purpose**: Retrieve security events
-
-| Property | Value |
-|----------|-------|
-| **Method** | GET |
-| **Auth** | Not required |
-| **Cache** | No cache |
-| **Response** | EventResponse[] |
-
-**Query Parameters**:
-| Parameter | Type | Default | Range | Required |
-|-----------|------|---------|-------|----------|
-| `limit` | int | 10 | 1-100 | No |
-| `hours` | int | 24 | 1-8760 | No |
-
-**Response**:
-```json
-[
-  {
-    "id": 1,
-    "timestamp": "2025-12-10T09:45:30Z",
-    "srcip": "192.168.1.100",
-    "dstport": 2222,
-    "username": "root",
-    "status": "failed",
-    "honeypottype": "ssh",
-    "threatscore": 50.0
-  }
-]
-```
-
----
-
-#### 3. GET `/stats`
-**Purpose**: Aggregate statistics
-
-| Property | Value |
-|----------|-------|
-| **Method** | GET |
-| **Auth** | Not required |
-| **Cache** | 5m |
-| **Response** | StatsResponse |
-
-**Response**:
-```json
-{
-  "total_events": 120,
-  "unique_ips": 45,
-  "avg_threat": 42.5,
-  "max_threat": 97.0
-}
-```
-
----
-
-#### 4. GET `/threat-level`
-**Purpose**: Current threat classification
-
-| Property | Value |
-|----------|-------|
-| **Method** | GET |
-| **Auth** | Not required |
-| **Cache** | 2m |
-| **Response** | ThreatLevelResponse |
-
-**Response**:
-```json
-{
-  "level": "MEDIUM",
-  "color": "yellow"
-}
-```
-
-**Threat Classification**:
-| Level | Condition | Color |
-|-------|-----------|-------|
-| CRITICAL | avg_threat > 70 | red |
-| HIGH | 50 < avg_threat ≤ 70 | orange |
-| MEDIUM | 30 < avg_threat ≤ 50 | yellow |
-| LOW | avg_threat ≤ 30 | green |
-
----
-
-## 📊 Data Models
-
-### EventResponse
-```python
-{
-  "id": int,                    # Unique event ID
-  "timestamp": str,             # ISO 8601 format
-  "srcip": str,                 # Source IP address
-  "dstport": int,               # Destination port (1-65535)
-  "username": str,              # Attempted username
-  "status": str,                # "failed" or "success"
-  "honeypottype": str,          # "ssh", "http", "ftp"
-  "threatscore": float          # 0.0-100.0
-}
-```
-
-### StatsResponse
-```python
-{
-  "total_events": int,          # Count of all events
-  "unique_ips": int,            # Count of unique source IPs
-  "avg_threat": float,          # Average threat score
-  "max_threat": float           # Maximum threat score
-}
-```
-
-### ThreatLevelResponse
-```python
-{
-  "level": str,                 # "CRITICAL", "HIGH", "MEDIUM", "LOW"
-  "color": str                  # Hex color code
-}
-```
-
-### HealthResponse
-```python
-{
-  "status": str,                # "healthy" or "unhealthy"
-  "database": str,              # "connected" or error message
-  "timestamp": str              # ISO 8601 format
-}
-```
-
----
-
-## 📨 Response Format
-
-### Success Response Structure
-```json
-[
-  {
-    "field1": "value1",
-    "field2": "value2"
-  }
-]
-```
-
-### Error Response Structure
-```json
-{
-  "detail": "Error message describing the issue",
-  "status_code": 400
-}
-```
-
-### Response Headers
-```
-Content-Type: application/json
-X-Request-ID: unique-request-id
-Cache-Control: max-age=300
-```
-
----
-
-## ⚠️ Error Handling
-
-### Error Response Standard
-```json
-{
-  "detail": "String describing the error",
-  "status_code": 400
-}
-```
-
-### Validation Errors
-```json
-{
-  "detail": "limit must be between 1 and 100",
-  "status_code": 400
-}
-```
-
-### Server Errors
-```json
-{
-  "detail": "Database connection failed",
-  "status_code": 500
-}
-```
-
----
-
-## 🔢 Status Codes
-
-| Code | Name | Meaning | Example |
-|------|------|---------|---------|
-| **200** | OK | Request succeeded | ✅ Events retrieved |
-| **400** | Bad Request | Invalid parameters | ❌ limit=999 |
-| **500** | Internal Server Error | Server/database error | ❌ DB connection failed |
-| **503** | Service Unavailable | Service temporarily down | ❌ Maintenance mode |
-
----
-
-## 🔄 Query Parameter Validation
-
-### Rules for `/events`
-
-**limit parameter**:
-- Type: integer
-- Min: 1
-- Max: 100
-- Default: 10
-- Invalid: returns 400 Bad Request
-
-**hours parameter**:
-- Type: integer
-- Min: 1
-- Max: 8760 (1 year)
-- Default: 24
-- Invalid: returns 400 Bad Request
-
-### Invalid Request Example
 ```bash
-curl "http://localhost:8000/events?limit=999&hours=-5"
+git clone https://github.com/sriram21-09/PhantomNet.git
+cd PhantomNet
 ```
 
-**Response**:
-```json
-{
-  "detail": "limit must be between 1 and 100, hours must be positive",
-  "status_code": 400
-}
+### Step 2: Create Python Virtual Environment
+
+```bash
+# Create virtual environment
+python3 -m venv venv
+
+# Activate virtual environment
+# On Linux/macOS:
+source venv/bin/activate
+
+# On Windows:
+venv\Scripts\activate
 ```
 
----
+### Step 3: Install Python Dependencies
 
-## 🎯 Design Patterns
+```bash
+# Install requirements
+pip install -r requirements.txt
 
-### 1. Resource Naming
-```
-GET /events       → List of events
-GET /stats        → Aggregate statistics
-GET /health       → System health
-GET /threat-level → Threat classification
+# Verify installation
+pip list
 ```
 
-### 2. Query Parameters
-- Used for filtering and pagination
-- Always optional unless specified
-- Support sensible defaults
-- Validate all inputs
+### Step 4: Configure Environment Variables
 
-### 3. Response Consistency
-- Always return JSON
-- Same structure for same resource type
-- Include timestamps for tracking
-- Unique identifiers for resources
+Create `.env` file in project root:
 
----
+```bash
+# Database Configuration
+DATABASE_URL=postgresql://user:password@localhost:5432/phantomnet
+DB_USER=postgres
+DB_PASSWORD=your_secure_password
+DB_HOST=localhost
+DB_PORT=5432
+DB_NAME=phantomnet
 
-## 🚀 Performance Considerations
+# API Configuration
+API_HOST=0.0.0.0
+API_PORT=8000
+API_ENV=development
+LOG_LEVEL=INFO
 
-### Caching Strategy
-| Endpoint | Cache Duration | Reason |
-|----------|-----------------|--------|
-| `/health` | 30 seconds | Periodic heartbeat |
-| `/stats` | 5 minutes | Expensive calculation |
-| `/threat-level` | 2 minutes | Policy-based |
-| `/events` | No cache | Always fresh data |
-
-### Response Time Targets
-| Endpoint | Target | Current |
-|----------|--------|---------|
-| `/health` | < 100ms | ~50ms |
-| `/stats` | < 200ms | ~150ms |
-| `/threat-level` | < 150ms | ~100ms |
-| `/events` | < 500ms | ~300ms |
-
----
-
-## 🔐 Security
-
-### Current Implementation
-- No authentication (development)
-- CORS enabled for localhost
-- No rate limiting
-
-### Production Requirements
-1. **Authentication**: JWT tokens
-2. **Rate Limiting**: 100 req/min per IP
-3. **CORS**: Restrict to domain only
-4. **Validation**: Sanitize all inputs
-5. **Logging**: Log all requests
-
----
-
-## 🔗 API Versioning
-
-Current version: **1.0**
-
-Future versions will use URL versioning:
+# Frontend Configuration
+FRONTEND_URL=http://localhost:5173
+CORS_ORIGINS=http://localhost:5173,http://localhost:3000
 ```
-/v1/events
-/v2/events (if needed)
+
+### Step 5: Verify Backend Setup
+
+```bash
+# Test Python installation
+python --version
+
+# Test pip packages
+python -c "import fastapi; print('FastAPI ready')"
+
+# Check environment file
+cat .env
 ```
 
 ---
 
-## 📋 API Changelog
+## 🗄️ Database Setup
 
-### Version 1.0 (December 10, 2025)
-- ✅ Health endpoint
-- ✅ Events endpoint with filtering
-- ✅ Statistics endpoint
-- ✅ Threat level endpoint
-- ✅ CORS configuration
+### Option 1: PostgreSQL (Local)
+
+#### Linux
+
+```bash
+# Install PostgreSQL
+sudo apt update
+sudo apt install postgresql postgresql-contrib
+
+# Start PostgreSQL service
+sudo systemctl start postgresql
+
+# Verify installation
+psql --version
+```
+
+#### macOS
+
+```bash
+# Install PostgreSQL using Homebrew
+brew install postgresql
+
+# Start PostgreSQL service
+brew services start postgresql
+
+# Verify installation
+psql --version
+```
+
+#### Windows
+
+```bash
+# Download from https://www.postgresql.org/download/windows/
+# Or use Chocolatey:
+choco install postgresql
+
+# Verify installation
+psql --version
+```
+
+### Step 1: Create Database User
+
+```bash
+# Connect to PostgreSQL
+sudo -u postgres psql
+
+# Create user (in psql):
+CREATE USER phantomnet WITH PASSWORD 'your_secure_password';
+
+# Grant privileges:
+ALTER USER phantomnet CREATEDB;
+
+# Exit psql:
+\q
+```
+
+### Step 2: Create Database
+
+```bash
+# Create database
+createdb -U phantomnet phantomnet
+
+# Verify creation
+psql -U phantomnet -d phantomnet -c "\dt"
+```
+
+### Step 3: Run Database Migrations
+
+```bash
+# From project root with venv activated
+python -m alembic upgrade head
+
+# Or manually create tables:
+psql -U phantomnet -d phantomnet -f backend/db/schema.sql
+```
+
+### Step 4: Verify Database
+
+```bash
+# Connect to database
+psql -U phantomnet -d phantomnet
+
+# List tables
+\dt
+
+# Exit
+\q
+```
 
 ---
 
-## 📚 Related Documentation
+### Option 2: Docker PostgreSQL
 
-- [API Endpoints](./API_ENDPOINTS.md) - Complete reference
-- [Quick Reference](./API_QUICK_REFERENCE.md) - Cheat sheet
-- [Architecture](./ARCHITECTURE.md) - System design
+```bash
+# Run PostgreSQL container
+docker run --name phantomnet-db \
+  -e POSTGRES_USER=phantomnet \
+  -e POSTGRES_PASSWORD=your_secure_password \
+  -e POSTGRES_DB=phantomnet \
+  -p 5432:5432 \
+  -d postgres:13
 
----
+# Verify container is running
+docker ps | grep phantomnet-db
 
-## ✅ Design Checklist
-
-- ✅ All endpoints follow REST principles
-- ✅ Consistent naming conventions
-- ✅ Proper HTTP methods used
-- ✅ Clear parameter validation
-- ✅ Standardized responses
-- ✅ Error handling defined
-- ✅ Status codes documented
-- ✅ Caching strategy defined
-- ✅ Security considered
+# Create tables
+docker exec -i phantomnet-db psql -U phantomnet -d phantomnet < backend/db/schema.sql
+```
 
 ---
 
-**API Design Complete** ✅  
-**Status**: Production Ready for Development
+## 🎨 Frontend Setup
+
+### Step 1: Navigate to Frontend Directory
+
+```bash
+cd frontend
+```
+
+### Step 2: Install Node Dependencies
+
+```bash
+# Install npm packages
+npm install
+
+# Verify installation
+npm list --depth=0
+```
+
+### Step 3: Configure Frontend Environment
+
+Create `.env` file in `frontend` directory:
+
+```bash
+VITE_API_URL=http://localhost:8000
+VITE_API_TIMEOUT=30000
+VITE_LOG_LEVEL=info
+```
+
+### Step 4: Verify Frontend Setup
+
+```bash
+# Test Node installation
+node --version
+
+# Test npm installation
+npm --version
+
+# Check environment file
+cat .env
+```
+
+---
+
+## ▶️ Running the Project
+
+### Method 1: Terminal Tabs (Development)
+
+#### Terminal 1: Backend API
+
+```bash
+# From project root with venv activated
+cd backend
+python main.py
+
+# Or using uvicorn:
+uvicorn main:app --reload --host 0.0.0.0 --port 8000
+```
+
+#### Terminal 2: Frontend
+
+```bash
+# From project root in new terminal
+cd frontend
+npm run dev
+
+# Frontend will run on http://localhost:5173
+```
+
+#### Terminal 3: Optional - Database Monitor
+
+```bash
+# Monitor database activity
+psql -U phantomnet -d phantomnet
+
+# List tables:
+\dt
+
+# Exit:
+\q
+```
+
+### Method 2: Docker Compose (Production-like)
+
+Create `docker-compose.yml` in project root:
+
+```yaml
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:13
+    environment:
+      POSTGRES_USER: phantomnet
+      POSTGRES_PASSWORD: your_password
+      POSTGRES_DB: phantomnet
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  backend:
+    build: ./backend
+    ports:
+      - "8000:8000"
+    environment:
+      DATABASE_URL: postgresql://phantomnet:your_password@postgres:5432/phantomnet
+    depends_on:
+      - postgres
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "5173:5173"
+
+volumes:
+  postgres_data:
+```
+
+Run with Docker Compose:
+
+```bash
+# Start all services
+docker-compose up
+
+# Stop all services
+docker-compose down
+
+# View logs
+docker-compose logs -f
+```
+
+---
+
+## ✔️ Verification
+
+### Step 1: Check Backend
+
+```bash
+# Test health endpoint
+curl http://localhost:8000/health
+
+# Expected response:
+# {"status": "healthy", "database": "connected", "timestamp": "..."}
+```
+
+### Step 2: Check Frontend
+
+```bash
+# Open in browser
+http://localhost:5173
+
+# Should see login/dashboard page
+```
+
+### Step 3: Check Database
+
+```bash
+# Connect to database
+psql -U phantomnet -d phantomnet
+
+# Check tables exist
+\dt
+
+# Exit
+\q
+```
+
+### Step 4: Test API Endpoints
+
+```bash
+# Get events
+curl http://localhost:8000/events
+
+# Get statistics
+curl http://localhost:8000/stats
+
+# Get threat level
+curl http://localhost:8000/threat-level
+```
+
+---
+
+## 🐛 Troubleshooting
+
+### Backend Issues
+
+**Problem**: `ModuleNotFoundError: No module named 'fastapi'`
+
+```bash
+# Solution: Install dependencies
+pip install -r requirements.txt
+```
+
+**Problem**: `Connection refused on port 8000`
+
+```bash
+# Solution: Check if port is in use
+lsof -i :8000
+
+# Kill process if needed
+kill -9 <PID>
+
+# Restart backend
+python main.py
+```
+
+**Problem**: `Database connection error`
+
+```bash
+# Solution: Verify PostgreSQL is running
+psql -U phantomnet -d phantomnet -c "SELECT 1"
+
+# If failed, restart PostgreSQL:
+# Linux:
+sudo systemctl restart postgresql
+
+# macOS:
+brew services restart postgresql
+```
+
+### Frontend Issues
+
+**Problem**: `npm ERR! code ERESOLVE`
+
+```bash
+# Solution: Clear cache and reinstall
+rm -rf node_modules package-lock.json
+npm install
+```
+
+**Problem**: `Port 5173 already in use`
+
+```bash
+# Solution: Kill existing process
+lsof -i :5173
+kill -9 <PID>
+
+# Or use different port
+npm run dev -- --port 5174
+```
+
+**Problem**: `CORS errors in browser console`
+
+```bash
+# Solution: Check backend CORS configuration in .env
+CORS_ORIGINS=http://localhost:5173,http://localhost:3000
+
+# Restart backend for changes to take effect
+```
+
+### Database Issues
+
+**Problem**: `psql: error: could not connect to server`
+
+```bash
+# Solution: Check PostgreSQL service status
+# Linux:
+sudo systemctl status postgresql
+
+# macOS:
+brew services list | grep postgresql
+
+# Start if not running:
+# Linux:
+sudo systemctl start postgresql
+
+# macOS:
+brew services start postgresql
+```
+
+**Problem**: `Database does not exist`
+
+```bash
+# Solution: Create database
+createdb -U phantomnet phantomnet
+
+# Run migrations
+python -m alembic upgrade head
+```
+
+**Problem**: `Permission denied for schema public`
+
+```bash
+# Solution: Grant permissions
+psql -U postgres -d phantomnet -c "GRANT ALL ON SCHEMA public TO phantomnet"
+```
+
+---
+
+## 📋 Setup Checklist
+
+### Prerequisites
+- ✅ Python 3.9+ installed
+- ✅ Node.js 16+ installed
+- ✅ PostgreSQL 12+ installed
+- ✅ Git installed
+- ✅ Editor/IDE installed
+
+### Backend
+- ✅ Repository cloned
+- ✅ Virtual environment created
+- ✅ Dependencies installed
+- ✅ `.env` file created
+- ✅ Backend tested
+
+### Database
+- ✅ PostgreSQL service running
+- ✅ User created
+- ✅ Database created
+- ✅ Tables created
+- ✅ Database connection verified
+
+### Frontend
+- ✅ Navigation to frontend directory
+- ✅ Dependencies installed
+- ✅ `.env` file created
+- ✅ Frontend tested
+
+### Verification
+- ✅ Backend health check passing
+- ✅ Frontend loads in browser
+- ✅ Database connection working
+- ✅ API endpoints responding
+- ✅ All ports available
+
+---
+
+## 🎯 Quick Start Command
+
+For experienced developers:
+
+```bash
+# Clone and setup
+git clone https://github.com/sriram21-09/PhantomNet.git
+cd PhantomNet
+
+# Backend
+python3 -m venv venv && source venv/bin/activate
+pip install -r requirements.txt
+cp .env.example .env
+python main.py
+
+# Frontend (new terminal)
+cd frontend
+npm install
+npm run dev
+
+# Database
+createdb -U postgres phantomnet
+psql -U postgres -d phantomnet -f ../backend/db/schema.sql
+```
+
+---
+
+## 📚 Next Steps
+
+After setup:
+
+1. **Read Documentation**:
+   - [API Design](./API_DESIGN.md)
+   - [Implementation Guide](./API_IMPLEMENTATION.md)
+   - [Contributing Guidelines](./CONTRIBUTING.md)
+
+2. **Start Development**:
+   - Create feature branch
+   - Make changes
+   - Run tests
+   - Submit PR
+
+3. **Learn More**:
+   - Check [Architecture](./ARCHITECTURE.md)
+   - Review [Database Schema](./db/schema.md)
+   - Study [API Endpoints](./API_ENDPOINTS.md)
+
+---
+
+## 🆘 Getting Help
+
+**Issues or Questions?**
+
+1. Check troubleshooting section above
+2. Review relevant documentation
+3. Search GitHub issues
+4. Ask in Discord #tech-help
+5. Create GitHub issue with details
+
+---
+
+## ✅ Setup Complete!
+
+Your PhantomNet development environment is now ready.
+
+**Next**:
+- ✅ Backend running on `http://localhost:8000`
+- ✅ Frontend running on `http://localhost:5173`
+- ✅ Database connected and ready
+- ✅ API endpoints responding
+
+**Happy coding!** 🚀
 
