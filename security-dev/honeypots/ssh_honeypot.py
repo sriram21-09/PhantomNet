@@ -37,6 +37,23 @@ def clean(text):
         return ""
     return "".join(c for c in text.strip() if c.isprintable())
 
+#clean input functions
+def clean(text):
+    if not text:
+        return ""
+
+    # Remove non-printable characters + backspace + delete
+    cleaned = ""
+    for c in text:
+        if c in ("\x08", "\x7f"):  # backspace/delete
+            if len(cleaned) > 0:
+                cleaned = cleaned[:-1]
+        elif c.isprintable():
+            cleaned += c
+
+    return cleaned.strip()
+
+
 # Fix telnet CRLF
 def receive_line(client):
     buffer = b""
