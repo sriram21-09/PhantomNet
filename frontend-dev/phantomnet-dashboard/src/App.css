@@ -95,3 +95,122 @@
   color: #4b5563;
   margin-bottom: 18px;
 }
+/* ---------- Events table layout ---------- */
+
+.events {
+  padding: 24px;
+}
+
+.events h1 {
+  margin-bottom: 8px;
+}
+
+.events p {
+  margin-bottom: 16px;
+  color: #4b5563;
+}
+
+.events-table-wrapper {
+  margin-top: 16px;
+}
+
+/* Actual table */
+.events-table {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: #ffffff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  border-radius: 8px;
+  overflow: hidden; /* for rounded corners */
+}
+
+.events-table th,
+.events-table td {
+  padding: 10px 14px;
+  font-size: 14px;
+  text-align: left;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.events-table thead {
+  background-color: #111827;
+  color: #ffffff;
+}
+
+/* Alternating row colors */
+.events-table tbody tr:nth-child(odd) {
+  background-color: #f9fafb;
+}
+
+.events-table tbody tr:nth-child(even) {
+  background-color: #f3f4f6;
+}
+/* ---------- Dashboard layout ---------- */
+
+.dashboard {
+  padding: 24px;
+}
+
+.dashboard h1 {
+  margin-bottom: 8px;
+}
+
+.dashboard p {
+  margin-bottom: 24px;
+  color: #4b5563;
+}
+
+/* Grid layout for metric cards */
+.metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+
+/* ---------- Metric card styles ---------- */
+
+.metric-card {
+  background-color: #ffffff;
+  border-radius: 12px;
+  padding: 20px 24px;
+  box-shadow: 0 1px 4px rgba(15, 23, 42, 0.08);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  min-height: 120px;
+}
+
+.metric-icon {
+  font-size: 24px;
+  margin-bottom: 8px;
+}
+
+.metric-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #4b5563;
+  margin-bottom: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.metric-value {
+  font-size: 32px;
+  font-weight: 700;
+  color: #111827;
+}
+
+/* Accent background colours */
+.metric-card--blue {
+  background-color: #dbeafe; /* light blue */
+}
+
+.metric-card--green {
+  background-color: #dcfce7; /* light green */
+}
+
+.metric-card--red {
+  background-color: #fee2e2; /* light red */
+}
