@@ -1,0 +1,10 @@
+{
+    "timestamp": "2025-12-10T13:55:05.336102+00:00",
+    "src_ip": "127.0.0.1",
+    "dst_port": 2222,
+    "username": "vivek",
+    "password": "1234",
+    "status": "attempt",
+    "honeypot_type": "ssh",
+    "raw_log": "vivek/1234"
+}
