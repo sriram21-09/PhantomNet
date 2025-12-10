@@ -1,0 +1,97 @@
+/* ---------- Global layout (full screen) ---------- */
+
+.app {
+  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+  min-height: 100vh;
+  background-color: #f3f4f6; /* same as inside */
+}
+
+.main-shell {
+  width: 100%;
+  min-height: 100vh;
+  margin: 0;
+  background-color: #f3f4f6;
+  box-shadow: none;
+}
+
+/* ---------- Navbar ---------- */
+
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 24px;
+  background: linear-gradient(90deg, #0f172a, #111827);
+  color: #f9fafb;
+}
+
+.navbar-left {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.navbar-logo {
+  font-weight: 700;
+  font-size: 20px;
+}
+
+.navbar-tagline {
+  font-size: 11px;
+  color: #9ca3af;
+}
+
+.navbar-links a {
+  margin-left: 20px;
+  text-decoration: none;
+  font-size: 15px;
+  color: #e5e7eb;
+  position: relative;
+  padding-bottom: 3px;
+}
+
+.navbar-links a:hover {
+  color: #ffffff;
+}
+
+.navbar-links a.active {
+  font-weight: 600;
+}
+
+.navbar-links a.active::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  height: 2px;
+  width: 100%;
+  background-color: #38bdf8;
+  border-radius: 999px;
+}
+
+/* ---------- Main content ---------- */
+
+.main-content {
+  padding: 28px 32px 40px;
+}
+
+/* ---------- Dashboard & Events headings ---------- */
+
+.dashboard,
+.events {
+  padding: 0;
+}
+
+.dashboard h1,
+.events h1 {
+  font-size: 32px;
+  font-weight: 700;
+  margin-bottom: 6px;
+  color: #111827;
+}
+
+.dashboard p,
+.events p {
+  color: #4b5563;
+  margin-bottom: 18px;
+}
