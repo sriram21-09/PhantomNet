@@ -11,7 +11,7 @@ Response:
   "timestamp": "2025-12-10T09:45:30.123456"
 }
 
-2. Get Events
+## Get Events
 
 GET /events?limit=10&hours=24
 
@@ -34,7 +34,7 @@ Response:
   }
 ]
 
-3. Get Statistics
+## Get Statistics
 
 GET /stats
 
@@ -46,7 +46,7 @@ Response:
   "max_threat": 97.0
 }
 
-4. Get Threat Level
+## Get Threat Level
 
 GET /threat-level
 
