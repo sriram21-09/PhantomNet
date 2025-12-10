@@ -1,0 +1,3 @@
+{"timestamp": "2023-10-27 14:00:00", "src_ip": "192.168.1.101", "honeypot_type": "ssh-pot", "port": 22, "message": "Failed password for root"}
+{"timestamp": "2023-10-27 14:05:00", "src_ip": "45.33.22.11", "honeypot_type": "cowrie", "port": 2222, "command": "wget malicious.sh"}
+{"timestamp": "2023-10-27 14:10:00", "src_ip": "10.0.0.5", "honeypot_type": "dionaea", "port": 445, "protocol": "smb"}

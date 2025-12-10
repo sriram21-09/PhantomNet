@@ -1,0 +1,60 @@
+import json
+import sys
+import os
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
+
+# 1. Setup paths to import 'database' module
+current_dir = os.path.dirname(os.path.abspath(__file__))
+parent_dir = os.path.dirname(current_dir)
+sys.path.append(parent_dir)
+
+from database.models import Base, Event
+
+# ⚠️ REPLACE WITH YOUR REAL PASSWORD
+DATABASE_URL = "postgresql://postgres:Luckky@localhost:5432/phantomnet_db"
+
+engine = create_engine(DATABASE_URL)
+Session = sessionmaker(bind=engine)
+session = Session()
+
+print("🚀 Script starting...") # Debug print
+
+def ingest_logs(file_path):
+    print(f"📂 Reading logs from: {file_path}")
+    
+    if not os.path.exists(file_path):
+        print("❌ Error: File not found.")
+        return
+
+    count = 0
+    try:
+        with open(file_path, 'r') as f:
+            for line in f:
+                if not line.strip(): continue
+                data = json.loads(line)
+                
+                new_event = Event(
+                    timestamp=data.get("timestamp"),
+                    source_ip=data.get("src_ip") or data.get("source_ip"),
+                    honeypot_type=data.get("honeypot_type", "unknown"),
+                    port=data.get("port", 0),
+                    raw_data=json.dumps(data) 
+                )
+                session.add(new_event)
+                count += 1
+        
+        session.commit()
+        print(f"✅ Success! Inserted {count} log entries.")
+
+    except Exception as e:
+        session.rollback()
+        print(f"❌ Error: {e}")
+    finally:
+        session.close()
+
+if __name__ == "__main__":
+    if len(sys.argv) < 2:
+        print("Usage: python -m ingestor.log_ingestor <file>")
+    else:
+        ingest_logs(sys.argv[1])
