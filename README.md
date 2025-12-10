@@ -257,7 +257,8 @@ source venv/bin/activate  # On Windows: venv\Scripts\activate
 pip install -r backend/requirements.txt
 
 # Setup frontend
-cd frontend
+cd frontend-dev
+cd phantomnet-dashboard
 npm install
 cd ..
 
