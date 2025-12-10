@@ -1,16 +1,21 @@
 import socket
 import json
-from datetime import datetime
 from datetime import datetime, timezone
+import os
 
+# -------------------------
+# File paths (relative safe)
+# -------------------------
 
-# Files
-TEXT_LOG = "../logs/ssh.log"
-JSON_LOG = "../logs/ssh.jsonl"
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+TEXT_LOG = os.path.join(BASE_DIR, "../logs/ssh.log")
+JSON_LOG = os.path.join(BASE_DIR, "../logs/ssh.jsonl")
 
-# --------------------------
-# Helpers
-# --------------------------
+os.makedirs(os.path.dirname(TEXT_LOG), exist_ok=True)
+
+# -------------------------
+# Logging Helpers
+# -------------------------
 
 def log_text(message):
     with open(TEXT_LOG, "a") as f:
@@ -20,78 +25,79 @@ def log_text(message):
 def log_json(ip, username, password, status, raw):
     entry = {
         "timestamp": datetime.now(timezone.utc).isoformat(),
-        "srcip": ip,
-        "dstport": 2222,
+        "src_ip": ip,
+        "dst_port": 2222,
         "username": username,
         "password": password,
         "status": status,
-        "honeypottype": "ssh",
-        "rawlog": raw
+        "honeypot_type": "ssh",
+        "raw_log": raw
     }
     with open(JSON_LOG, "a") as f:
         f.write(json.dumps(entry) + "\n")
 
-# Clean telnet input
-def clean(text):
-    if not text:
-        return ""
-    return "".join(c for c in text.strip() if c.isprintable())
 
-#clean input functions
+# Clean telnet/ssh input
 def clean(text):
     if not text:
         return ""
 
-    # Remove non-printable characters + backspace + delete
     cleaned = ""
     for c in text:
         if c in ("\x08", "\x7f"):  # backspace/delete
-            if len(cleaned) > 0:
-                cleaned = cleaned[:-1]
+            cleaned = cleaned[:-1]
         elif c.isprintable():
             cleaned += c
 
     return cleaned.strip()
 
 
-# Fix telnet CRLF
+# Read until newline
 def receive_line(client):
     buffer = b""
     while True:
-        chunk = client.recv(1)
+        try:
+            chunk = client.recv(1)
+        except:
+            return ""
+
         if not chunk:
             return ""
-        if chunk == b"\r":   # ignore CR
+
+        if chunk == b"\r":
             continue
         buffer += chunk
-        if chunk == b"\n":   # stop on LF
+        if chunk == b"\n":
             break
     return buffer.decode(errors="ignore").strip()
 
-# --------------------------
-# Main SSH Honeypot
-# --------------------------
+# -------------------------
+# SSH Honeypot
+# -------------------------
 
 def start_ssh():
     server = socket.socket()
+    server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     server.bind(("0.0.0.0", 2222))
     server.listen(5)
 
     print("[+] SSH Honeypot running on port 2222")
-    log_text("[+] SSH Honeypot started on port 2222")
+    log_text("[+] SSH Honeypot started")
 
     while True:
         client, addr = server.accept()
         ip = addr[0]
 
         print(f"🔥 Connection from: {ip}")
-        log_text(f"New connection from {ip}")
+        log_text(f"Connection from {ip}")
 
-        client.send(b"SSH-2.0-OpenSSH_7.4\r\n")
+        # Banner
+        try:
+            client.send(b"SSH-2.0-OpenSSH_7.4\r\n")
+        except:
+            client.close()
+            continue
 
-        # --------------------------
-        # Login system (3 attempts)
-        # --------------------------
         CORRECT_USER = "PhantomNet"
         CORRECT_PASS = "1234"
 
@@ -100,20 +106,18 @@ def start_ssh():
 
         while attempts < 3:
 
+            # Username
             client.send(b"Username: ")
             username = clean(receive_line(client))
-            if username == "":
-                continue
 
+            # Password
             client.send(b"Password: ")
             password = clean(receive_line(client))
-            if password == "":
-                continue
 
-            log_text(f"Login attempt {attempts+1} {ip}: {username}/{password}")
-            log_json(ip, username, password, "attempt", f"{username}/{password} attempt")
+            log_text(f"Login attempt {attempts+1} from {ip}: {username}/{password}")
+            log_json(ip, username, password, "attempt", f"{username}/{password}")
 
-            # Check credentials
+            # Success?
             if username == CORRECT_USER and password == CORRECT_PASS:
                 login_success = True
                 log_json(ip, username, password, "success", "login success")
@@ -123,16 +127,12 @@ def start_ssh():
             client.send(b"Invalid Username or Password\n")
             log_json(ip, username, password, "failed", "wrong credentials")
 
-        # Too many failures
         if not login_success:
-            client.send(b"Error :- Access temporarily disabled due to excessive failed attempts. Try again after some time. Connection closed.\n")
-            log_text(f"{ip} disconnected after 3 failed attempts")
+            client.send(b"Error :- Access temporarily disabled.\n")
             client.close()
             continue
 
-        # --------------------------
-        # Login success → fake shell
-        # --------------------------
+        # Fake shell
         welcome = (
             "\nWelcome to Ubuntu 20.04 LTS\n"
             "Last login: Tue Dec 9 10:00:00 2025\n\n"
@@ -141,9 +141,6 @@ def start_ssh():
 
         cwd = f"/home/{username}"
 
-        # --------------------------
-        # Fake command shell
-        # --------------------------
         while True:
             try:
                 prompt = f"{username}@honeypot:{cwd}$ "
@@ -156,7 +153,6 @@ def start_ssh():
                 log_text(f"CMD from {ip}: {cmd}")
                 log_json(ip, username, password, "command", cmd)
 
-                # Fake commands
                 if cmd == "ls":
                     response = "file1.txt  config.ini  secrets.log  projectteam.txt\n"
 
@@ -167,9 +163,9 @@ def start_ssh():
                     response = username + "\n"
 
                 elif cmd.startswith("cd "):
-                    parts = cmd.split()
-                    if len(parts) == 2:
-                        cwd = cwd + "/" + parts[1]
+                    folder = cmd.split(" ", 1)[1]
+                    if folder:
+                        cwd = cwd.rstrip("/") + "/" + folder
                         response = ""
                     else:
                         response = "cd: missing argument\n"
@@ -188,6 +184,6 @@ def start_ssh():
 
         client.close()
 
-if __name__ == "__main__":
 
+if __name__ == "__main__":
     start_ssh()

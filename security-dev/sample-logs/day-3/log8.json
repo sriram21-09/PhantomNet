@@ -1,0 +1,10 @@
+{
+    "timestamp": "2025-12-10T14:06:12.430271+00:00",
+    "src_ip": "127.0.0.1",
+    "dst_port": 2222,
+    "username": "1111",
+    "password": "111",
+    "status": "failed",
+    "honeypot_type": "ssh",
+    "raw_log": "wrong credentials"
+}
