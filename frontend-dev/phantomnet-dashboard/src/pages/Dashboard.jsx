@@ -1,11 +1,18 @@
-// src/pages/Dashboard.jsx
+import React from "react";
 import MetricCard from "../components/MetricCard";
+import mockEvents from "../data/mockEvents.json";
 
 function Dashboard() {
-  // Placeholder values for Day 3
-  const totalEvents = 1234;
-  const uniqueIPs = 89;
-  const activeHoneypots = 2;
+  // 🔢 Calculate metrics from JSON data
+  const totalEvents = mockEvents.length;
+
+  const uniqueIPs = new Set(
+    mockEvents.map((event) => event.source_ip)
+  ).size;
+
+  const activeHoneypots = new Set(
+    mockEvents.map((event) => event.honeypot_type)
+  ).size;
 
   return (
     <div className="dashboard">
