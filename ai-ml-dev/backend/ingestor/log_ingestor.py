@@ -9,7 +9,7 @@ current_dir = os.path.dirname(os.path.abspath(__file__))
 parent_dir = os.path.dirname(current_dir)
 sys.path.append(parent_dir)
 
-from database.models import Base, Event
+from database.models import Event
 
 # ⚠️ REPLACE WITH YOUR REAL PASSWORD
 DATABASE_URL = "postgresql://postgres:Luckky@localhost:5432/phantomnet_db"
@@ -18,7 +18,14 @@ engine = create_engine(DATABASE_URL)
 Session = sessionmaker(bind=engine)
 session = Session()
 
-print("🚀 Script starting...") # Debug print
+def detect_type_from_filename(filename):
+    """Guess honeypot type based on the file name"""
+    filename_lower = filename.lower()
+    if "http" in filename_lower:
+        return "http-honeypot"
+    elif "ssh" in filename_lower:
+        return "ssh-honeypot"
+    return "unknown"
 
 def ingest_logs(file_path):
     print(f"📂 Reading logs from: {file_path}")
@@ -27,25 +34,40 @@ def ingest_logs(file_path):
         print("❌ Error: File not found.")
         return
 
+    # Auto-detect type from filename
+    filename = os.path.basename(file_path)
+    detected_type = detect_type_from_filename(filename)
+    print(f"🕵️  Detected Log Type: {detected_type}")
+
     count = 0
     try:
         with open(file_path, 'r') as f:
             for line in f:
                 if not line.strip(): continue
-                data = json.loads(line)
                 
+                try:
+                    data = json.loads(line)
+                except json.JSONDecodeError:
+                    continue # Skip bad lines
+                
+                # Use type from JSON if it exists, otherwise use detected type
+                h_type = data.get("honeypot_type") or detected_type
+                
+                # Default port: 80 for HTTP, 22 for SSH (if missing)
+                default_port = 80 if "http" in detected_type else 22
+
                 new_event = Event(
                     timestamp=data.get("timestamp"),
                     source_ip=data.get("src_ip") or data.get("source_ip"),
-                    honeypot_type=data.get("honeypot_type", "unknown"),
-                    port=data.get("port", 0),
-                    raw_data=json.dumps(data) 
+                    honeypot_type=h_type,
+                    port=data.get("port", default_port),
+                    raw_data=json.dumps(data)
                 )
                 session.add(new_event)
                 count += 1
         
         session.commit()
-        print(f"✅ Success! Inserted {count} log entries.")
+        print(f"✅ Success! Inserted {count} events.")
 
     except Exception as e:
         session.rollback()
@@ -55,6 +77,6 @@ def ingest_logs(file_path):
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:
-        print("Usage: python -m ingestor.log_ingestor <file>")
+        print("Usage: python -m ingestor.log_ingestor <path_to_log_file>")
     else:
         ingest_logs(sys.argv[1])
