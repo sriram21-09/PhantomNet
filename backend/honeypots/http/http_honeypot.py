@@ -4,20 +4,34 @@ import json
 import os
 from datetime import datetime, timezone
 
-# Your correct log directory
-LOG_DIR = "../../logs/http/"
-os.makedirs(LOG_DIR, exist_ok=True)
+# --------------------------
+# Log file path
+# --------------------------
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+LOG_FILE = os.path.join(BASE_DIR, "../../http_logs.json")
+os.makedirs(os.path.dirname(LOG_FILE), exist_ok=True)
 
-# Daily log file
-LOG_FILE = LOG_DIR + f"http_{datetime.now().date()}.log"
-
-
-def log_request(data):
+# --------------------------
+# Logging Helper
+# --------------------------
+def log_http(source_ip, method, url, extra=None):
+    entry = {
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "source_ip": source_ip,
+        "honeypot_type": "http",
+        "port": 8080,
+        "raw_data": f"{method} {url}",
+        "method": method,
+        "url": url
+    }
+    if extra and isinstance(extra, dict):
+        entry.update(extra)
     with open(LOG_FILE, "a") as f:
-        f.write(json.dumps(data) + "\n")
+        f.write(json.dumps(entry) + "\n")
 
-
-# Fake admin page
+# --------------------------
+# Fake Admin Page
+# --------------------------
 LOGIN_PAGE = """
 <html>
 <head><title>Admin Login</title></head>
@@ -32,23 +46,15 @@ LOGIN_PAGE = """
 </html>
 """
 
-
+# --------------------------
+# Request Handler
+# --------------------------
 class HoneypotHandler(http.server.SimpleHTTPRequestHandler):
-
     def log_message(self, format, *args):
-        return  # disable default logging
+        return  # disable console logging
 
     def do_GET(self):
-        log_request({
-            "timestamp": datetime.now(timezone.utc).isoformat(),
-            "src_ip": self.client_address[0],
-            "method": "GET",
-            "url": self.path,
-            "headers": dict(self.headers),
-            "honeypot_type": "http",
-            "port": 8080
-        })
-
+        log_http(self.client_address[0], "GET", self.path, extra={"headers": dict(self.headers)})
         if self.path == "/admin":
             self.send_response(200)
             self.send_header("Content-Type", "text/html")
@@ -62,28 +68,35 @@ class HoneypotHandler(http.server.SimpleHTTPRequestHandler):
     def do_POST(self):
         length = int(self.headers.get("Content-Length", 0))
         body = self.rfile.read(length).decode()
+        # Parse POST data
+        form_data = {}
+        try:
+            for pair in body.split("&"):
+                if "=" in pair:
+                    k, v = pair.split("=", 1)
+                    form_data[k] = v
+        except:
+            pass
 
-        # Convert "key=value" format to dict
-        data = dict(item.split("=") for item in body.split("&"))
-
-        log_request({
-            "timestamp": datetime.now(timezone.utc).isoformat(),
-            "src_ip": self.client_address[0],
-            "method": "POST",
-            "url": self.path,
-            "headers": dict(self.headers),
-            "honeypot_type": "http",
-            "port": 8080,
-            "submitted_data": data
-        })
+        log_http(
+            self.client_address[0],
+            "POST",
+            self.path,
+            extra={
+                "headers": dict(self.headers),
+                "submitted_data": form_data
+            }
+        )
 
         self.send_response(200)
         self.end_headers()
         self.wfile.write(b"Invalid credentials. Try again.")
 
-
+# --------------------------
+# Run Server
+# --------------------------
 if __name__ == "__main__":
     PORT = 8080
     server = socketserver.TCPServer(("0.0.0.0", PORT), HoneypotHandler)
-    print("[+] HTTP Honeypot running on port 8080")
+    print(f"[+] HTTP Honeypot running on port {PORT}")
     server.serve_forever()

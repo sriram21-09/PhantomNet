@@ -1,69 +1,66 @@
 import socket
 import json
-from datetime import datetime, timezone
 import os
+from datetime import datetime, timezone
 
-# -------------------------
-# File paths (relative safe)
-# -------------------------
-
+# --------------------------
+# Log file paths
+# --------------------------
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 TEXT_LOG = os.path.join(BASE_DIR, "../logs/ssh.log")
 JSON_LOG = os.path.join(BASE_DIR, "../logs/ssh.jsonl")
 
 os.makedirs(os.path.dirname(TEXT_LOG), exist_ok=True)
 
-# -------------------------
+# --------------------------
 # Logging Helpers
-# -------------------------
-
+# --------------------------
 def log_text(message):
     with open(TEXT_LOG, "a") as f:
         f.write(f"{datetime.now(timezone.utc).isoformat()} - {message}\n")
 
 
 def log_json(ip, username, password, status, raw):
+    """Unified JSON logging (same format as HTTP honeypot)."""
     entry = {
         "timestamp": datetime.now(timezone.utc).isoformat(),
-        "src_ip": ip,
-        "dst_port": 2222,
+        "source_ip": ip,
+        "honeypot_type": "ssh",
+        "port": 2222,
+        "raw_data": raw,
         "username": username,
         "password": password,
-        "status": status,
-        "honeypot_type": "ssh",
-        "raw_log": raw
+        "status": status
     }
     with open(JSON_LOG, "a") as f:
         f.write(json.dumps(entry) + "\n")
 
 
-# Clean telnet/ssh input
+# --------------------------
+# Input cleaning utilities
+# --------------------------
 def clean(text):
     if not text:
         return ""
-
     cleaned = ""
     for c in text:
         if c in ("\x08", "\x7f"):  # backspace/delete
             cleaned = cleaned[:-1]
         elif c.isprintable():
             cleaned += c
-
     return cleaned.strip()
 
 
-# Read until newline
 def receive_line(client):
+    """Read until newline, handling CR/LF."""
     buffer = b""
     while True:
         try:
             chunk = client.recv(1)
         except:
             return ""
-
         if not chunk:
             return ""
-
         if chunk == b"\r":
             continue
         buffer += chunk
@@ -71,10 +68,9 @@ def receive_line(client):
             break
     return buffer.decode(errors="ignore").strip()
 
-# -------------------------
-# SSH Honeypot
-# -------------------------
-
+# --------------------------
+# SSH Honeypot main logic
+# --------------------------
 def start_ssh():
     server = socket.socket()
     server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
@@ -87,11 +83,9 @@ def start_ssh():
     while True:
         client, addr = server.accept()
         ip = addr[0]
-
         print(f"🔥 Connection from: {ip}")
         log_text(f"Connection from {ip}")
 
-        # Banner
         try:
             client.send(b"SSH-2.0-OpenSSH_7.4\r\n")
         except:
@@ -105,7 +99,6 @@ def start_ssh():
         login_success = False
 
         while attempts < 3:
-
             # Username
             client.send(b"Username: ")
             username = clean(receive_line(client))
@@ -114,10 +107,10 @@ def start_ssh():
             client.send(b"Password: ")
             password = clean(receive_line(client))
 
-            log_text(f"Login attempt {attempts+1} from {ip}: {username}/{password}")
+            log_text(f"Login attempt {attempts + 1} from {ip}: {username}/{password}")
             log_json(ip, username, password, "attempt", f"{username}/{password}")
 
-            # Success?
+            # Check credentials
             if username == CORRECT_USER and password == CORRECT_PASS:
                 login_success = True
                 log_json(ip, username, password, "success", "login success")
@@ -132,13 +125,12 @@ def start_ssh():
             client.close()
             continue
 
-        # Fake shell
+        # Fake shell after successful login
         welcome = (
             "\nWelcome to Ubuntu 20.04 LTS\n"
             "Last login: Tue Dec 9 10:00:00 2025\n\n"
         )
         client.send(welcome.encode())
-
         cwd = f"/home/{username}"
 
         while True:
@@ -155,13 +147,10 @@ def start_ssh():
 
                 if cmd == "ls":
                     response = "file1.txt  config.ini  secrets.log  projectteam.txt\n"
-
                 elif cmd == "pwd":
                     response = cwd + "\n"
-
                 elif cmd == "whoami":
                     response = username + "\n"
-
                 elif cmd.startswith("cd "):
                     folder = cmd.split(" ", 1)[1]
                     if folder:
@@ -169,11 +158,9 @@ def start_ssh():
                         response = ""
                     else:
                         response = "cd: missing argument\n"
-
                 elif cmd in ["exit", "logout"]:
                     client.send(b"logout\n")
                     break
-
                 else:
                     response = f"{cmd}: command not found\n"
 
