@@ -1,31 +1,44 @@
+
 services:
   postgres:
     image: postgres:15-alpine
     container_name: phantomnet_postgres
     environment:
-      POSTGRES_USER: phantom
-      POSTGRES_PASSWORD: phantom123
-      POSTGRES_DB: phantomdb
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: phantomnet
     ports:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
-    networks:
-      - phantomnet
 
   ssh-honeypot:
     build:
-      context: .
-      dockerfile: backend/honeypots/ssh/Dockerfile
+      context: ./backend/honeypots/ssh
+      dockerfile: Dockerfile
     container_name: phantomnet_ssh
-    environment:
-      LOG_PATH: /logs/ssh
     ports:
       - "2222:22"
     volumes:
-      - ./data/logs/ssh:/logs/ssh
-    networks:
-      - phantomnet
+      - ./data/logs/ssh:/app/logs/ssh
+    depends_on:
+      - postgres
+
+  api:
+    build:
+      context: ./backend/api
+      dockerfile: Dockerfile
+    container_name: phantomnet_api
+    ports:
+      - "8000:8000"
+    environment:
+      DB_HOST: postgres
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+      DB_NAME: phantomnet
+      DB_PORT: 5432
+    depends_on:
+      - postgres
 
 networks:
   phantomnet:
