@@ -9,8 +9,20 @@ from datetime import datetime, timezone
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 TEXT_LOG = os.path.join(BASE_DIR, "../logs/ssh.log")
 JSON_LOG = os.path.join(BASE_DIR, "../logs/ssh.jsonl")
-
 os.makedirs(os.path.dirname(TEXT_LOG), exist_ok=True)
+
+# Error log path
+ERROR_LOG = os.path.join(BASE_DIR, "../logs/ssh_error.log")
+
+
+def log_error(exc: Exception, context: str = ""):
+    """Append exception info to an error log (with timestamp and context)."""
+    try:
+        with open(ERROR_LOG, "a") as f:
+            f.write(f"{datetime.now(timezone.utc).isoformat()} - {context} - {repr(exc)}\n")
+    except Exception as e:
+        print("⚠️ Failed to write error log:", e)
+
 
 # --------------------------
 # Logging Helpers
@@ -57,7 +69,8 @@ def receive_line(client):
     while True:
         try:
             chunk = client.recv(1)
-        except:
+        except Exception as e:
+            log_error(e, "receive_line()")
             return ""
         if not chunk:
             return ""
@@ -67,6 +80,7 @@ def receive_line(client):
         if chunk == b"\n":
             break
     return buffer.decode(errors="ignore").strip()
+
 
 # --------------------------
 # SSH Honeypot main logic
@@ -81,95 +95,105 @@ def start_ssh():
     log_text("[+] SSH Honeypot started")
 
     while True:
-        client, addr = server.accept()
-        ip = addr[0]
-        print(f"🔥 Connection from: {ip}")
-        log_text(f"Connection from {ip}")
-
         try:
-            client.send(b"SSH-2.0-OpenSSH_7.4\r\n")
-        except:
-            client.close()
-            continue
+            client, addr = server.accept()
+            ip = addr[0]
+            #raise ValueError("Simulated SSH error for testing")
 
-        CORRECT_USER = "PhantomNet"
-        CORRECT_PASS = "1234"
+            print(f"🔥 Connection from: {ip}")
+            log_text(f"Connection from {ip}")
 
-        attempts = 0
-        login_success = False
-
-        while attempts < 3:
-            # Username
-            client.send(b"Username: ")
-            username = clean(receive_line(client))
-
-            # Password
-            client.send(b"Password: ")
-            password = clean(receive_line(client))
-
-            log_text(f"Login attempt {attempts + 1} from {ip}: {username}/{password}")
-            log_json(ip, username, password, "attempt", f"{username}/{password}")
-
-            # Check credentials
-            if username == CORRECT_USER and password == CORRECT_PASS:
-                login_success = True
-                log_json(ip, username, password, "success", "login success")
-                break
-
-            attempts += 1
-            client.send(b"Invalid Username or Password\n")
-            log_json(ip, username, password, "failed", "wrong credentials")
-
-        if not login_success:
-            client.send(b"Error :- Access temporarily disabled.\n")
-            client.close()
-            continue
-
-        # Fake shell after successful login
-        welcome = (
-            "\nWelcome to Ubuntu 20.04 LTS\n"
-            "Last login: Tue Dec 9 10:00:00 2025\n\n"
-        )
-        client.send(welcome.encode())
-        cwd = f"/home/{username}"
-
-        while True:
             try:
-                prompt = f"{username}@honeypot:{cwd}$ "
-                client.send(prompt.encode())
+                client.send(b"SSH-2.0-OpenSSH_7.4\r\n")
+            except Exception as e:
+                log_error(e, f"Banner send failed for {ip}")
+                client.close()
+                continue
 
-                cmd = clean(receive_line(client))
-                if cmd == "":
-                    continue
+            CORRECT_USER = "PhantomNet"
+            CORRECT_PASS = "1234"
 
-                log_text(f"CMD from {ip}: {cmd}")
-                log_json(ip, username, password, "command", cmd)
+            attempts = 0
+            login_success = False
 
-                if cmd == "ls":
-                    response = "file1.txt  config.ini  secrets.log  projectteam.txt\n"
-                elif cmd == "pwd":
-                    response = cwd + "\n"
-                elif cmd == "whoami":
-                    response = username + "\n"
-                elif cmd.startswith("cd "):
-                    folder = cmd.split(" ", 1)[1]
-                    if folder:
-                        cwd = cwd.rstrip("/") + "/" + folder
-                        response = ""
-                    else:
-                        response = "cd: missing argument\n"
-                elif cmd in ["exit", "logout"]:
-                    client.send(b"logout\n")
+            while attempts < 3:
+                try:
+                    client.send(b"Username: ")
+                    username = clean(receive_line(client))
+
+                    client.send(b"Password: ")
+                    password = clean(receive_line(client))
+
+                    log_text(f"Login attempt {attempts + 1} from {ip}: {username}/{password}")
+                    log_json(ip, username, password, "attempt", f"{username}/{password}")
+
+                    if username == CORRECT_USER and password == CORRECT_PASS:
+                        login_success = True
+                        log_json(ip, username, password, "success", "login success")
+                        break
+
+                    attempts += 1
+                    client.send(b"Invalid Username or Password\n")
+                    log_json(ip, username, password, "failed", "wrong credentials")
+
+                except Exception as e:
+                    log_error(e, f"login loop error from {ip}")
                     break
-                else:
-                    response = f"{cmd}: command not found\n"
 
-                client.send(response.encode())
+            if not login_success:
+                client.send(b"Error :- Access temporarily disabled.\n")
+                client.close()
+                continue
 
-            except:
-                break
+            # Fake shell
+            welcome = (
+                "\nWelcome to Ubuntu 20.04 LTS\n"
+                "Last login: Tue Dec 9 10:00:00 2025\n\n"
+            )
+            client.send(welcome.encode())
+            cwd = f"/home/{username}"
 
-        client.close()
+            while True:
+                try:
+                    prompt = f"{username}@honeypot:{cwd}$ "
+                    client.send(prompt.encode())
+
+                    cmd = clean(receive_line(client))
+                    if cmd == "":
+                        continue
+
+                    log_text(f"CMD from {ip}: {cmd}")
+                    log_json(ip, username, password, "command", cmd)
+
+                    if cmd == "ls":
+                        response = "file1.txt  config.ini  secrets.log  projectteam.txt\n"
+                    elif cmd == "pwd":
+                        response = cwd + "\n"
+                    elif cmd == "whoami":
+                        response = username + "\n"
+                    elif cmd.startswith("cd "):
+                        folder = cmd.split(" ", 1)[1]
+                        if folder:
+                            cwd = cwd.rstrip("/") + "/" + folder
+                            response = ""
+                        else:
+                            response = "cd: missing argument\n"
+                    elif cmd in ["exit", "logout"]:
+                        client.send(b"logout\n")
+                        break
+                    else:
+                        response = f"{cmd}: command not found\n"
+
+                    client.send(response.encode())
+
+                except Exception as e:
+                    log_error(e, f"shell error from {ip}")
+                    break
+
+            client.close()
+
+        except Exception as e:
+            log_error(e, "main accept loop")
 
 
 if __name__ == "__main__":

@@ -5,15 +5,24 @@ import os
 from datetime import datetime, timezone
 
 # --------------------------
-# Log file path
+# Log file paths
 # --------------------------
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-LOG_FILE = os.path.join(BASE_DIR, "../../http_logs.json")
-os.makedirs(os.path.dirname(LOG_FILE), exist_ok=True)
+LOG_DIR = "/logs"
+os.makedirs(LOG_DIR, exist_ok=True)
+
+LOG_FILE = os.path.join(LOG_DIR, "http_logs.jsonl")
+ERROR_LOG = os.path.join(LOG_DIR, "http_error.log")
 
 # --------------------------
-# Logging Helper
+# Logging helpers
 # --------------------------
+def log_error(exc: Exception, context: str = ""):
+    try:
+        with open(ERROR_LOG, "a") as f:
+            f.write(f"{datetime.now(timezone.utc).isoformat()} - {context} - {repr(exc)}\n")
+    except Exception as e:
+        print("Error writing to error log:", e)
+
 def log_http(source_ip, method, url, extra=None):
     entry = {
         "timestamp": datetime.now(timezone.utc).isoformat(),
@@ -47,53 +56,72 @@ LOGIN_PAGE = """
 """
 
 # --------------------------
-# Request Handler
+# Honeypot Request Handler
 # --------------------------
 class HoneypotHandler(http.server.SimpleHTTPRequestHandler):
     def log_message(self, format, *args):
-        return  # disable console logging
+        return  # Disable default console logging
 
     def do_GET(self):
-        log_http(self.client_address[0], "GET", self.path, extra={"headers": dict(self.headers)})
-        if self.path == "/admin":
-            self.send_response(200)
-            self.send_header("Content-Type", "text/html")
-            self.end_headers()
-            self.wfile.write(LOGIN_PAGE.encode())
-        else:
-            self.send_response(404)
-            self.end_headers()
-            self.wfile.write(b"404 Not Found")
+        try:
+            #raise ValueError("Test error")
+
+            log_http(self.client_address[0], "GET", self.path, extra={"headers": dict(self.headers)})
+            if self.path == "/admin":
+                self.send_response(200)
+                self.send_header("Content-Type", "text/html")
+                self.end_headers()
+                self.wfile.write(LOGIN_PAGE.encode())
+            else:
+                self.send_response(404)
+                self.end_headers()
+                self.wfile.write(b"404 Not Found")
+
+        except Exception as e:
+            log_error(e, f"do_GET error from {self.client_address[0]} path={self.path}")
+            print("🔥 ERROR CAUGHT:", e)
+            try:
+                self.send_response(500)
+                self.end_headers()
+                self.wfile.write(b"Server error")
+            except:
+                pass
 
     def do_POST(self):
-        length = int(self.headers.get("Content-Length", 0))
-        body = self.rfile.read(length).decode()
-        # Parse POST data
-        form_data = {}
         try:
+            length = int(self.headers.get("Content-Length", 0))
+            body = self.rfile.read(length).decode(errors="ignore")
+
+            # Parse key=value pairs from form
+            form_data = {}
             for pair in body.split("&"):
                 if "=" in pair:
                     k, v = pair.split("=", 1)
                     form_data[k] = v
-        except:
-            pass
 
-        log_http(
-            self.client_address[0],
-            "POST",
-            self.path,
-            extra={
+            # Log the POST request
+            log_http(self.client_address[0], "POST", self.path, extra={
                 "headers": dict(self.headers),
                 "submitted_data": form_data
-            }
-        )
+            })
 
-        self.send_response(200)
-        self.end_headers()
-        self.wfile.write(b"Invalid credentials. Try again.")
+            # Respond with fake "Invalid credentials" message
+            self.send_response(200)
+            self.end_headers()
+            self.wfile.write(b"Invalid credentials. Try again.")
+
+        except Exception as e:
+            log_error(e, f"do_POST error from {self.client_address[0]} path={self.path}")
+            print("🔥 ERROR CAUGHT in POST:", e)
+            try:
+                self.send_response(400)
+                self.end_headers()
+                self.wfile.write(b"Bad request")
+            except:
+                pass
 
 # --------------------------
-# Run Server
+# Run HTTP Honeypot
 # --------------------------
 if __name__ == "__main__":
     PORT = 8080
