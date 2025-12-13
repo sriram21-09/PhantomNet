@@ -15,11 +15,14 @@ phantomnet/backend/honeypots/ssh.py
    nc localhost 2222
    or
    ssh -p 2222 localhost
+   or
+   telnet localhost 2222
 
 ## Log Files
 Logs are stored in:
 phantomnet/backend/logs/ssh.log
 phantomnet/backend/logs/ssh.jsonl
+phantomnet/backend/logs/ssh_error.log
 
 ## Features
 - Accepts connections on port 2222
@@ -31,3 +34,9 @@ phantomnet/backend/logs/ssh.jsonl
 ## Default Credentials
 Username: PhantomNet  
 Password: 1234
+
+RUN IN DOCKER :- 
+docker build -t phantomnet-ssh .
+docker run -it -p 2222:2222 -v "C:\Users\vivekananda reddy\PhantomNet\backend\logs:/logs" phantomnet-ssh
+
+Note :- keep your desktop docker application running and replace this [ "C:\Users\vivekananda reddy\PhantomNet\backend\logs:/logs" phantomnet-ssh ]with your file structure.
