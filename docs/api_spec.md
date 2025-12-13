@@ -16,7 +16,8 @@ Copy code
 **GET** `/health`
 
 Response:
-```json
+```
+json
 {
   "status": "ok",
   "service": "phantomnet"
@@ -56,6 +57,7 @@ Copy code
   }
 ]
 Error Format (Global)
+
 json
 Copy code
 {
