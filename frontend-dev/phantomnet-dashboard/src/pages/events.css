@@ -1,0 +1,42 @@
+.events-container {
+  padding: 30px;
+}
+
+.search {
+  padding: 8px;
+  width: 300px;
+  margin-bottom: 10px;
+}
+
+.filters button {
+  margin-right: 10px;
+  padding: 6px 12px;
+  cursor: pointer;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 15px;
+}
+
+th {
+  background-color: #1e3a8a;
+  color: white;
+  padding: 10px;
+}
+
+td {
+  padding: 10px;
+  border-bottom: 1px solid #ddd;
+}
+
+/* GREEN */
+.row-safe {
+  background-color: #e6f4ea;
+}
+
+/* RED */
+.row-suspicious {
+  background-color: #fdecea;
+}
