@@ -20,15 +20,16 @@ Before testing:
 
 **Goal:** Confirm SSH honeypot captures connection attempts and logs them.
 
-1. From another terminal, attempt an SSH connection:
+- Start honeypot using Docker ('docker run -it -p 2222:2222 -v "C:\Users\vivekananda reddy\PhantomNet\backend\logs:/logs" phantomnet-ssh')
+- Connect from another terminal or VM: `ssh -p 2222 localhost` or 'telnet localhost 2222'
+- Try multiple usernames/passwords
+- Run commands (`ls`, `whoami`, `pwd`)
+- Verify logs created in:
+  - `backend/logs/ssh.log`
+  - `backend/logs/ssh.jsonl`
+  - `backend/logs/ssh_error.log`
 
-```bash
-ssh testuser@localhost -p 2222
-````
-
-2. Enter any password (it should fail or behave like a fake SSH).
-
-3. Verify:
+  Verify:
 
 * A new log entry was written (file or DB, depending on implementation)
 * If logs are stored in DB, run:
@@ -50,13 +51,18 @@ LIMIT 5;
 
 **Goal:** Confirm HTTP honeypot logs HTTP requests.
 
-1. Send a request to the HTTP honeypot:
+- Start honeypot (`docker run -it -p 8080:8080 phantomnet-http`)
+- Visit `http://localhost:8080/admin`
+- Submit form multiple times with different usernames/passwords
+- Use curl:
+  ```bash
+  curl -X POST -d "username=test&password=123" http://localhost:8080/admin
 
-```bash
-curl -v http://localhost:8080/test-path
-```
-
-2. Verify:
+   - Verify logs created in:
+  - `backend/logs/http.jsonl`
+  - `backend/logs/http_error.log`
+  
+  Verify:
 
 * Honeypot logs the request (path, method, IP)
 * In DB (if applicable):
