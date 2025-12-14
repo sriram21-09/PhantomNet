@@ -51,7 +51,7 @@ LIMIT 5;
 
 **Goal:** Confirm HTTP honeypot logs HTTP requests.
 
-- Start honeypot (`docker run -it -p 8080:8080 phantomnet-http`)
+- Start honeypot (`docker run -it -p 8080:8080 -v 'C:\Users\vivekananda reddy\PhantomNet\backend\logs:/logs' phantomnet-http`)
 - Visit `http://localhost:8080/admin`
 - Submit form multiple times with different usernames/passwords
 - Use curl:
