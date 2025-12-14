@@ -19,3 +19,19 @@ npm run build
 - src/data → mockEvents.json
 
 Frontend runs on http://localhost:5173
+
+# PhantomNet Frontend
+
+## Install dependencies
+npm install
+
+## Run development server
+npm run dev
+
+## Build for production
+npm run build
+
+## Pages
+- Dashboard
+- Events
+- About
