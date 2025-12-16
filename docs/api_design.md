@@ -258,8 +258,8 @@ JSON Response
 ### Error Response Structure
 ```json
 {
-  "detail": "Error message describing the issue",
-  "status_code": 400
+  { "error": "message" }
+
 }
 ```
 
