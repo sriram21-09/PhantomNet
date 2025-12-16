@@ -205,12 +205,12 @@ JSON Response
 {
   "id": int,                    # Unique event ID
   "timestamp": str,             # ISO 8601 format
-  "srcip": str,                 # Source IP address
+  "source_ip": str,             # Source IP address
   "dstport": int,               # Destination port (1-65535)
   "username": str,              # Attempted username
   "status": str,                # "failed" or "success"
-  "honeypottype": str,          # "ssh", "http", "ftp"
-  "threatscore": float          # 0.0-100.0
+  "honeypot_type": str,         # "ssh", "http", "ftp"
+  "threat_score": float         # 0.0-100.0
 }
 ```
 
