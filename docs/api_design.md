@@ -93,7 +93,7 @@ JSON Response
 
 ### Core Endpoints
 
-#### 1. GET `/health`
+#### 1. GET `/api/health`
 **Purpose**: System health check
 
 | Property | Value |
@@ -114,7 +114,7 @@ JSON Response
 
 ---
 
-#### 2. GET `/events`
+#### 2. GET `/api/events`
 **Purpose**: Retrieve security events
 
 | Property | Value |
@@ -148,7 +148,7 @@ JSON Response
 
 ---
 
-#### 3. GET `/stats`
+#### 3. GET `/api/stats`
 **Purpose**: Aggregate statistics
 
 | Property | Value |
@@ -170,7 +170,7 @@ JSON Response
 
 ---
 
-#### 4. GET `/threat-level`
+#### 4. GET `/api/threat-level`
 **Purpose**: Current threat classification
 
 | Property | Value |
@@ -348,10 +348,10 @@ curl "http://localhost:8000/events?limit=999&hours=-5"
 
 ### 1. Resource Naming
 ```
-GET /events       → List of events
-GET /stats        → Aggregate statistics
-GET /health       → System health
-GET /threat-level → Threat classification
+GET /api/events      → List of events
+GET /api/stats        → Aggregate statistics
+GET /api/health       → System health
+GET /api/threat-level → Threat classification
 ```
 
 ### 2. Query Parameters
