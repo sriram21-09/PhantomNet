@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import mockEvents from "../data/mockEvents";
 import "./events.css";
 
@@ -6,66 +6,94 @@ const Events = () => {
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("All");
 
-  const getRowClass = (type) => {
-    if (["TELNET", "FTP", "RDP", "Database"].includes(type)) {
-      return "row-suspicious";
-    }
-    return "row-safe";
-  };
+  const [events, setEvents] = useState(mockEvents);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
-  const filteredEvents = mockEvents.filter(event => {
+  useEffect(() => {
+    const fetchEvents = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+
+        const res = await fetch("http://localhost:3000/api/events");
+        if (!res.ok) throw new Error("Failed to fetch events");
+
+        const data = await res.json();
+        setEvents(data);
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchEvents();
+  }, []);
+
+  // ✅ use search + filter so ESLint is happy
+  const filteredEvents = events.filter((event) => {
     const matchesSearch =
-      event.ip.includes(search) ||
-      event.type.toLowerCase().includes(search.toLowerCase()) ||
+      event.ip.toLowerCase().includes(search.toLowerCase()) ||
       event.details.toLowerCase().includes(search.toLowerCase());
 
-    const isSuspicious = ["TELNET", "FTP", "RDP", "Database"].includes(event.type);
+    const matchesFilter =
+      filter === "All" || event.type === filter;
 
-    if (filter === "Suspicious") return matchesSearch && isSuspicious;
-    if (filter === "Safe") return matchesSearch && !isSuspicious;
-    return matchesSearch;
+    return matchesSearch && matchesFilter;
   });
 
   return (
     <div className="events-container">
       <h1>Events</h1>
-      <p>Recent events captured by PhantomNet honeypots (mock data).</p>
 
-      <input
-        className="search"
-        placeholder="Search by IP, honeypot type, or details"
-        onChange={(e) => setSearch(e.target.value)}
-      />
+      {/* Search + Filter UI */}
+      <div className="controls">
+        <input
+          type="text"
+          placeholder="Search by IP or details"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+        />
 
-      <div className="filters">
-        <button onClick={() => setFilter("All")}>All</button>
-        <button onClick={() => setFilter("Suspicious")}>Suspicious</button>
-        <button onClick={() => setFilter("Safe")}>Safe</button>
+        <select value={filter} onChange={(e) => setFilter(e.target.value)}>
+          <option value="All">All</option>
+          <option value="HTTP">HTTP</option>
+          <option value="SSH">SSH</option>
+          <option value="FTP">FTP</option>
+          <option value="TELNET">TELNET</option>
+        </select>
       </div>
 
-      <table>
-        <thead>
-          <tr>
-            <th>Timestamp</th>
-            <th>Source IP</th>
-            <th>Honeypot Type</th>
-            <th>Port</th>
-            <th>Details</th>
-          </tr>
-        </thead>
-        <tbody>
-          {filteredEvents.map((e, i) => (
-            <tr key={i} className={getRowClass(e.type)}>
-              <td>{e.time}</td>
-              <td>{e.ip}</td>
-              <td>{e.type}</td>
-              <td>{e.port}</td>
-              <td>{e.details}</td>
+      {loading && <p>Loading events...</p>}
+      {error && <p className="error">{error}</p>}
+
+      {!loading && !error && (
+        <table className="events-table">
+          <thead>
+            <tr>
+              <th>Timestamp</th>
+              <th>Source IP</th>
+              <th>Honeypot Type</th>
+              <th>Port</th>
+              <th>Details</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {filteredEvents.map((event, index) => (
+              <tr key={index}>
+                <td>{event.time}</td>
+                <td>{event.ip}</td>
+                <td>{event.type}</td>
+                <td>{event.port}</td>
+                <td>{event.details}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
     </div>
   );
 };
+
 export default Events;
