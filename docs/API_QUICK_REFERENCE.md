@@ -158,10 +158,10 @@ echo -e "\nAll tests done!"
 
 ```bash
 # All 4 endpoints
-curl http://localhost:8000/health
-curl http://localhost:8000/events
-curl http://localhost:8000/stats
-curl http://localhost:8000/threat-level
+curl http://localhost:8000/api/health
+curl http://localhost:8000/api/events
+curl http://localhost:8000/api/stats
+curl http://localhost:8000/api/threat-level
 
 # That's it! 🚀
 ```
