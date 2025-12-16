@@ -1,12 +1,20 @@
+## API Contract Reference
+
+The PhantomNet backend follows two API documents:
+
+- api_spec.md – implementation-level contract
+- API_DESIGN.md – architectural design & future roadmap
+
+Developers MUST follow api_spec.md during implementation.
 
 ## 📡 All Endpoints at a Glance
 
 | Endpoint | Method | Purpose | Parameters |
 |----------|--------|---------|-----------|
-| `/health` | GET | Check API & DB status | None |
-| `/events` | GET | Get recent events | limit, hours |
-| `/stats` | GET | Get aggregate stats | None |
-| `/threat-level` | GET | Get current threat | None |
+| `/api/health` | GET | Check API & DB status | None |
+| `/api/events` | GET | Get recent events | limit, hours |
+| `/api/stats`  | GET | Get aggregate stats | None |
+| `/api/threat-level` | GET | Get current threat | None |
 
 ---
 
