@@ -1,9 +1,15 @@
-## API Contract Reference
+## Base URL
+http://localhost:8000/api
 
-The PhantomNet backend follows two API documents:
 
-- api_spec.md – implementation-level contract
-- API_DESIGN.md – architectural design & future roadmap
+## Purpose of This Document
+
+This document is a **quick reference and testing guide** for the PhantomNet API.
+
+- ✅ For implementation details, schemas, and contracts → see `api_spec.md`
+- ✅ For architectural decisions and future roadmap → see `api_design.md`
+
+This file does NOT define new behavior.
 
 Developers MUST follow api_spec.md during implementation.
 
@@ -21,7 +27,7 @@ Developers MUST follow api_spec.md during implementation.
 ## 1️⃣ Health Check
 
 ```bash
-curl http://localhost:8000/health
+curl http://localhost:8000/api/health
 ```
 
 **Response:**
@@ -39,7 +45,7 @@ curl http://localhost:8000/health
 
 ```bash
 # Get last 10 events from past 24 hours
-curl http://localhost:8000/events
+curl http://localhost:8000/api/events
 
 # Get last 5 events from past 48 hours
 curl "http://localhost:8000/events?limit=5&hours=48"
@@ -54,12 +60,12 @@ curl "http://localhost:8000/events?limit=100&hours=168"
   {
     "id": 1,
     "timestamp": "2025-12-10T09:45:30",
-    "srcip": "192.168.1.100",
+    "source_ip": "192.168.1.100",
     "dstport": 2222,
     "username": "root",
     "status": "failed",
-    "honeypottype": "ssh",
-    "threatscore": 50.0
+    "honeypot_type": "ssh",
+    "threat_score": 50.0
   }
 ]
 ```
@@ -73,7 +79,7 @@ curl "http://localhost:8000/events?limit=100&hours=168"
 ## 3️⃣ Get Statistics
 
 ```bash
-curl http://localhost:8000/stats
+curl http://localhost:8000/api/stats
 ```
 
 **Response:**
@@ -91,7 +97,7 @@ curl http://localhost:8000/stats
 ## 4️⃣ Get Threat Level
 
 ```bash
-curl http://localhost:8000/threat-level
+curl http://localhost:8000/api/threat-level
 ```
 
 **Response:**
