@@ -1,15 +1,24 @@
 import { useEffect, useState } from "react";
-import mockEvents from "../data/mockEvents";
 import "./events.css";
 
 const Events = () => {
-  const [search, setSearch] = useState("");
-  const [filter, setFilter] = useState("All");
 
-  const [events, setEvents] = useState(mockEvents);
+  /* =========================
+     STEP 1: STATES
+  ========================== */
+  const [allEvents, setAllEvents] = useState([]);
+  const [events, setEvents] = useState([]);
+
+  const [search, setSearch] = useState("");
+  const [protocolFilter, setProtocolFilter] = useState("ALL");
+  const [threatFilter, setThreatFilter] = useState("ALL");
+
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
+  /* =========================
+     STEP 2: FETCH EVENTS
+  ========================== */
   useEffect(() => {
     const fetchEvents = async () => {
       try {
@@ -20,6 +29,8 @@ const Events = () => {
         if (!res.ok) throw new Error("Failed to fetch events");
 
         const data = await res.json();
+
+        setAllEvents(data);
         setEvents(data);
       } catch (err) {
         setError(err.message);
@@ -31,23 +42,55 @@ const Events = () => {
     fetchEvents();
   }, []);
 
-  // ✅ use search + filter so ESLint is happy
-  const filteredEvents = events.filter((event) => {
-    const matchesSearch =
-      event.ip.toLowerCase().includes(search.toLowerCase()) ||
-      event.details.toLowerCase().includes(search.toLowerCase());
+  /* =========================
+     STEP 3: THREAT LEVEL LOGIC
+  ========================== */
+  const getThreatLevel = (event) => {
+    if (event.port === 23 || event.port === 3389) return "CRITICAL";
+    if (event.type === "SSH" || event.type === "FTP") return "SUSPICIOUS";
+    return "SAFE";
+  };
 
-    const matchesFilter =
-      filter === "All" || event.type === filter;
+  /* =========================
+     STEP 4 & 5: APPLY FILTERS
+  ========================== */
+  useEffect(() => {
+    let filtered = [...allEvents];
 
-    return matchesSearch && matchesFilter;
-  });
+    // Protocol filter
+    if (protocolFilter !== "ALL") {
+      filtered = filtered.filter(
+        (e) => e.type === protocolFilter
+      );
+    }
 
+    // Threat filter (derived)
+    if (threatFilter !== "ALL") {
+      filtered = filtered.filter(
+        (e) => getThreatLevel(e) === threatFilter
+      );
+    }
+
+    // Search by IP or details
+    if (search.trim() !== "") {
+      filtered = filtered.filter(
+        (e) =>
+          e.ip.toLowerCase().includes(search.toLowerCase()) ||
+          e.details.toLowerCase().includes(search.toLowerCase())
+      );
+    }
+
+    setEvents(filtered);
+  }, [search, protocolFilter, threatFilter, allEvents]);
+
+  /* =========================
+     UI
+  ========================== */
   return (
     <div className="events-container">
       <h1>Events</h1>
 
-      {/* Search + Filter UI */}
+      {/* Filters */}
       <div className="controls">
         <input
           type="text"
@@ -56,36 +99,55 @@ const Events = () => {
           onChange={(e) => setSearch(e.target.value)}
         />
 
-        <select value={filter} onChange={(e) => setFilter(e.target.value)}>
-          <option value="All">All</option>
+        <select
+          value={protocolFilter}
+          onChange={(e) => setProtocolFilter(e.target.value)}
+        >
+          <option value="ALL">All Protocols</option>
           <option value="HTTP">HTTP</option>
           <option value="SSH">SSH</option>
           <option value="FTP">FTP</option>
           <option value="TELNET">TELNET</option>
         </select>
+
+        <select
+          value={threatFilter}
+          onChange={(e) => setThreatFilter(e.target.value)}
+        >
+          <option value="ALL">All Threats</option>
+          <option value="SAFE">Safe</option>
+          <option value="SUSPICIOUS">Suspicious</option>
+          <option value="CRITICAL">Critical</option>
+        </select>
       </div>
 
+      {/* Loading / Error */}
       {loading && <p>Loading events...</p>}
       {error && <p className="error">{error}</p>}
 
+      {/* Table */}
       {!loading && !error && (
         <table className="events-table">
           <thead>
             <tr>
               <th>Timestamp</th>
               <th>Source IP</th>
-              <th>Honeypot Type</th>
+              <th>Protocol</th>
               <th>Port</th>
+              <th>Threat</th>
               <th>Details</th>
             </tr>
           </thead>
           <tbody>
-            {filteredEvents.map((event, index) => (
+            {events.map((event, index) => (
               <tr key={index}>
                 <td>{event.time}</td>
                 <td>{event.ip}</td>
                 <td>{event.type}</td>
                 <td>{event.port}</td>
+                <td className={getThreatLevel(event).toLowerCase()}>
+                  {getThreatLevel(event)}
+                </td>
                 <td>{event.details}</td>
               </tr>
             ))}

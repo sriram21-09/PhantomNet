@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import MetricCard from "../components/MetricCard";
 
 const Dashboard = () => {
-  // Week 2 – Day 2: API driven stats
+  // Week 2 – Day 2 & Day 3: API driven stats
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -14,13 +14,20 @@ const Dashboard = () => {
         setError(null);
 
         const response = await fetch("http://localhost:3000/api/stats");
-
         if (!response.ok) {
           throw new Error("Failed to fetch dashboard stats");
         }
 
         const data = await response.json();
-        setStats(data);
+
+        // ✅ Safety defaults (important for Day-3)
+        setStats({
+          totalEvents: data.totalEvents ?? 0,
+          uniqueIPs: data.uniqueIPs ?? 0,
+          activeHoneypots: data.activeHoneypots ?? 0,
+          avgThreatScore: data.avgThreatScore ?? 0,
+          criticalAlerts: data.criticalAlerts ?? 0
+        });
       } catch (err) {
         setError(err.message);
       } finally {
@@ -39,6 +46,7 @@ const Dashboard = () => {
       {loading && <p>Loading dashboard stats...</p>}
       {error && <p style={{ color: "red" }}>{error}</p>}
 
+      {/* ✅ Step-7: All stat cards including Critical Alerts */}
       {stats && (
         <div
           style={{
@@ -70,6 +78,13 @@ const Dashboard = () => {
             title="Avg Threat Score"
             value={`${stats.avgThreatScore}%`}
             color="#fff3e0"
+          />
+
+          {/* ⭐ Step-7 */}
+          <MetricCard
+            title="Critical Alerts"
+            value={stats.criticalAlerts}
+            color="#ffebee"
           />
         </div>
       )}
