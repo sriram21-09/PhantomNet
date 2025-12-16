@@ -17,7 +17,7 @@
 
 ## Health Check
 
-### GET `/health`
+### GET `/api/health`
 
 Basic service liveness probe.
 
@@ -34,7 +34,7 @@ Basic service liveness probe.
 
 ## Submit Attack Log
 
-### POST `/logs`
+### POST `/api/logs`
 
 Ingest a single attack / event log into the system.
 
@@ -78,7 +78,7 @@ Ingest a single attack / event log into the system.
 
 ## Fetch Logs
 
-### GET `/logs`
+### GET `/api/logs`
 
 Return a list of stored logs, optionally limited.
 
