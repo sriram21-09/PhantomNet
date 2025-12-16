@@ -48,10 +48,10 @@ curl http://localhost:8000/api/health
 curl http://localhost:8000/api/events
 
 # Get last 5 events from past 48 hours
-curl "http://localhost:8000/events?limit=5&hours=48"
+curl "http://localhost:8000/api/events?limit=5&hours=48"
 
 # Get all available events
-curl "http://localhost:8000/events?limit=100&hours=168"
+curl "http://localhost:8000/api/events?limit=100&hours=168"
 ```
 
 **Response:**
@@ -137,16 +137,16 @@ curl http://localhost:8000/api/threat-level
 echo "Testing all endpoints..."
 
 echo "1. Health:"
-curl -s http://localhost:8000/health | jq .
+curl -s http://localhost:8000/api/health | jq .
 
 echo -e "\n2. Events:"
-curl -s "http://localhost:8000/events?limit=3" | jq .
+curl -s "http://localhost:8000/api/events?limit=3" | jq .
 
 echo -e "\n3. Stats:"
-curl -s http://localhost:8000/stats | jq .
+curl -s http://localhost:8000/api/stats | jq .
 
 echo -e "\n4. Threat Level:"
-curl -s http://localhost:8000/threat-level | jq .
+curl -s http://localhost:8000/api/threat-level | jq .
 
 echo -e "\nAll tests done!"
 ```
