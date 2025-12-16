@@ -1,42 +1,44 @@
-from fastapi import FastAPI, Depends
+from fastapi import FastAPI, Depends, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, sessionmaker
 from sqlalchemy import create_engine, desc
-from sqlalchemy.orm import sessionmaker
 from typing import List
+from datetime import datetime
+import os
+from dotenv import load_dotenv
 
-from database.models import Base, Event
-from schemas import EventCreate, EventResponse
+from database.models import Event
+from schemas import EventResponse
 
 # =========================
-# DATABASE CONFIGURATION
+# ENV & DATABASE
 # =========================
 
-DATABASE_URL = "postgresql://postgres:Luckky@localhost:5432/phantomnet_db"
+load_dotenv()
+
+DATABASE_URL = os.getenv("DATABASE_URL")
+if not DATABASE_URL:
+    raise RuntimeError("DATABASE_URL not set in .env file")
 
 engine = create_engine(DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 # =========================
-# FASTAPI APP INIT
+# FASTAPI APP
 # =========================
 
 app = FastAPI(title="PhantomNet API")
 
-# =========================
-# CORS CONFIG (Frontend Access)
-# =========================
-
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173"],  # React (Vite)
+    allow_origins=["http://localhost:5173"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
 # =========================
-# DATABASE DEPENDENCY
+# DEPENDENCY
 # =========================
 
 def get_db():
@@ -47,28 +49,50 @@ def get_db():
         db.close()
 
 # =========================
-# ROOT ENDPOINT
+# HEALTH
 # =========================
 
-@app.get("/")
-def read_root():
-    return {"status": "PhantomNet Backend is active"}
+@app.get("/api/health")
+def health_check():
+    return {
+        "status": "healthy",
+        "database": "connected",
+        "timestamp": datetime.utcnow()
+    }
 
 # =========================
-# FETCH EVENTS
+# GET EVENTS
 # =========================
 
-@app.get("/events", response_model=List[EventResponse])
+@app.get("/api/events", response_model=List[EventResponse])
 def read_events(
-    skip: int = 0,
-    limit: int = 100,
+    limit: int = 10,
     db: Session = Depends(get_db)
 ):
-    events = (
+    return (
         db.query(Event)
         .order_by(desc(Event.id))
-        .offset(skip)
         .limit(limit)
         .all()
     )
-    return events
+
+# =========================
+# POST LOG (🔥 THIS WAS MISSING)
+# =========================
+
+@app.post("/api/logs")
+def ingest_log(payload: dict, db: Session = Depends(get_db)):
+    try:
+        event = Event(
+            source_ip=payload["source_ip"],
+            honeypot_type=payload["honeypot_type"],
+            port=payload["port"],
+            raw_data=payload["raw_data"]
+        )
+        db.add(event)
+        db.commit()
+        return {"message": "log stored successfully"}
+    except KeyError:
+        raise HTTPException(status_code=400, detail="invalid payload")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
