@@ -40,3 +40,23 @@ td {
 .row-suspicious {
   background-color: #fdecea;
 }
+
+.threat.low {
+  color: green;
+  font-weight: bold;
+}
+
+.threat.medium {
+  color: orange;
+  font-weight: bold;
+}
+
+.threat.high {
+  color: red;
+  font-weight: bold;
+}
+
+.threat.critical {
+  color: darkred;
+  font-weight: bold;
+}
