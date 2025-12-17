@@ -1,26 +1,32 @@
-from sqlalchemy import Column, Integer, String, DateTime, Text
-from sqlalchemy.orm import declarative_base
+from sqlalchemy import Column, Integer, String, Float, DateTime, ForeignKey
+from sqlalchemy.orm import relationship
+from database.database import Base
 from datetime import datetime
 
-Base = declarative_base()
+class AttackSession(Base):  # 👈 Renamed from 'Session' to 'AttackSession'
+    __tablename__ = "attack_sessions"
+
+    id = Column(Integer, primary_key=True, index=True)
+    attacker_ip = Column(String, index=True)
+    start_time = Column(DateTime, default=datetime.utcnow)
+    end_time = Column(DateTime, nullable=True)
+    threat_score = Column(Float, default=0.0)
+    status = Column(String, default="active")
+
+    # Relationship
+    events = relationship("Event", back_populates="session")
 
 class Event(Base):
     __tablename__ = "events"
-    
-    id = Column(Integer, primary_key=True, index=True)
-    timestamp = Column(DateTime, default=datetime.utcnow)
-    source_ip = Column(String)
-    honeypot_type = Column(String)
-    port = Column(Integer)
-    raw_data = Column(Text)
 
-class Session(Base):
-    __tablename__ = "sessions"
-    
     id = Column(Integer, primary_key=True, index=True)
-    # 👇 THIS LINE WAS MISSING
-    session_token = Column(String, unique=True, index=True) 
-    start_time = Column(DateTime)
-    end_time = Column(DateTime)
-    ip_address = Column(String)
-    event_count = Column(Integer, default=1)
+    session_id = Column(Integer, ForeignKey("attack_sessions.id")) # 👈 Updated FK
+    
+    source_ip = Column(String, index=True)
+    src_port = Column(Integer)
+    honeypot_type = Column(String)
+    raw_data = Column(String)
+    timestamp = Column(DateTime, default=datetime.utcnow)
+
+    # Relationship
+    session = relationship("AttackSession", back_populates="events") # 👈 Updated

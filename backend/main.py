@@ -5,18 +5,17 @@ from fastapi.middleware.cors import CORSMiddleware
 from typing import Dict, Any
 from datetime import datetime
 
-# Import our custom modules
-from database.models import Base, Event
+# Import models (Note: We now import AttackSession)
+from database.models import Base, Event, AttackSession
 from database.database import SessionLocal, engine
 from utils.normalizer import normalize_log
 
 # Create Tables
 Base.metadata.create_all(bind=engine)
 
-# Initialize the App
 app = FastAPI()
 
-# Setup Security (CORS)
+# Security (CORS)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["http://localhost:5173"], 
@@ -25,7 +24,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Database Dependency
 def get_db():
     db = SessionLocal()
     try: 
@@ -33,7 +31,7 @@ def get_db():
     finally: 
         db.close()
 
-# --- GET ENDPOINTS ---
+# --- ENDPOINTS ---
 
 @app.get("/events")
 def get_events(db: Session = Depends(get_db)):
@@ -45,21 +43,35 @@ def get_stats(db: Session = Depends(get_db)):
     unique = db.query(func.count(distinct(Event.source_ip))).scalar()
     return {"total_events": total, "unique_ips": unique}
 
-# --- POST ENDPOINT (The one we just updated) ---
-
 @app.post("/api/logs")
 def create_log(payload: Dict[Any, Any], db: Session = Depends(get_db)):
-    # 1. Clean the messy data using our new utility
     clean_data = normalize_log(payload)
 
-    # 2. Save the clean data
+    # Check for existing AttackSession
+    current_session = db.query(AttackSession).filter(
+        AttackSession.attacker_ip == clean_data["source_ip"]
+    ).order_by(AttackSession.start_time.desc()).first()
+
+    if not current_session:
+        current_session = AttackSession(
+            attacker_ip=clean_data["source_ip"],
+            start_time=datetime.utcnow(),
+            threat_score=0.0
+        )
+        db.add(current_session)
+        db.commit()
+        db.refresh(current_session)
+
     new_event = Event(
         source_ip=clean_data["source_ip"],
         src_port=clean_data["src_port"],
         honeypot_type=clean_data["protocol"],
         raw_data=clean_data["details"],
-        timestamp=datetime.utcnow()
+        timestamp=datetime.utcnow(),
+        session_id=current_session.id
     )
+    
     db.add(new_event)
     db.commit()
-    return {"message": "log normalized and stored"}
+    
+    return {"message": "log stored", "session_id": current_session.id}
