@@ -1,98 +1,65 @@
-from fastapi import FastAPI, Depends, HTTPException
+from fastapi import FastAPI, Depends
+from sqlalchemy.orm import Session
+from sqlalchemy import func, distinct
 from fastapi.middleware.cors import CORSMiddleware
-from sqlalchemy.orm import Session, sessionmaker
-from sqlalchemy import create_engine, desc
-from typing import List
+from typing import Dict, Any
 from datetime import datetime
-import os
-from dotenv import load_dotenv
 
-from database.models import Event
-from schemas import EventResponse
+# Import our custom modules
+from database.models import Base, Event
+from database.database import SessionLocal, engine
+from utils.normalizer import normalize_log
 
-# =========================
-# ENV & DATABASE
-# =========================
+# Create Tables
+Base.metadata.create_all(bind=engine)
 
-load_dotenv()
+# Initialize the App
+app = FastAPI()
 
-DATABASE_URL = os.getenv("DATABASE_URL")
-if not DATABASE_URL:
-    raise RuntimeError("DATABASE_URL not set in .env file")
-
-engine = create_engine(DATABASE_URL)
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-
-# =========================
-# FASTAPI APP
-# =========================
-
-app = FastAPI(title="PhantomNet API")
-
+# Setup Security (CORS)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173"],
-    allow_credentials=True,
-    allow_methods=["*"],
+    allow_origins=["http://localhost:5173"], 
+    allow_credentials=True, 
+    allow_methods=["*"], 
     allow_headers=["*"],
 )
 
-# =========================
-# DEPENDENCY
-# =========================
-
+# Database Dependency
 def get_db():
     db = SessionLocal()
-    try:
+    try: 
         yield db
-    finally:
+    finally: 
         db.close()
 
-# =========================
-# HEALTH
-# =========================
+# --- GET ENDPOINTS ---
 
-@app.get("/api/health")
-def health_check():
-    return {
-        "status": "healthy",
-        "database": "connected",
-        "timestamp": datetime.utcnow()
-    }
+@app.get("/events")
+def get_events(db: Session = Depends(get_db)):
+    return db.query(Event).order_by(Event.timestamp.desc()).limit(50).all()
 
-# =========================
-# GET EVENTS
-# =========================
+@app.get("/stats")
+def get_stats(db: Session = Depends(get_db)):
+    total = db.query(func.count(Event.id)).scalar()
+    unique = db.query(func.count(distinct(Event.source_ip))).scalar()
+    return {"total_events": total, "unique_ips": unique}
 
-@app.get("/api/events", response_model=List[EventResponse])
-def read_events(
-    limit: int = 10,
-    db: Session = Depends(get_db)
-):
-    return (
-        db.query(Event)
-        .order_by(desc(Event.id))
-        .limit(limit)
-        .all()
-    )
-
-# =========================
-# POST LOG (🔥 THIS WAS MISSING)
-# =========================
+# --- POST ENDPOINT (The one we just updated) ---
 
 @app.post("/api/logs")
-def ingest_log(payload: dict, db: Session = Depends(get_db)):
-    try:
-        event = Event(
-            source_ip=payload["source_ip"],
-            honeypot_type=payload["honeypot_type"],
-            port=payload["port"],
-            raw_data=payload["raw_data"]
-        )
-        db.add(event)
-        db.commit()
-        return {"message": "log stored successfully"}
-    except KeyError:
-        raise HTTPException(status_code=400, detail="invalid payload")
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+def create_log(payload: Dict[Any, Any], db: Session = Depends(get_db)):
+    # 1. Clean the messy data using our new utility
+    clean_data = normalize_log(payload)
+
+    # 2. Save the clean data
+    new_event = Event(
+        source_ip=clean_data["source_ip"],
+        src_port=clean_data["src_port"],
+        honeypot_type=clean_data["protocol"],
+        raw_data=clean_data["details"],
+        timestamp=datetime.utcnow()
+    )
+    db.add(new_event)
+    db.commit()
+    return {"message": "log normalized and stored"}
