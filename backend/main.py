@@ -1,74 +1,54 @@
 from fastapi import FastAPI, Depends
-from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
-from sqlalchemy import create_engine, desc
-from sqlalchemy.orm import sessionmaker
-from typing import List
-
+from sqlalchemy import func, distinct
+from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel
+from datetime import datetime
 from database.models import Base, Event
-from schemas import EventCreate, EventResponse
+from database.database import SessionLocal, engine
 
-# =========================
-# DATABASE CONFIGURATION
-# =========================
+# Create Tables
+Base.metadata.create_all(bind=engine)
 
-DATABASE_URL = "postgresql://postgres:Luckky@localhost:5432/phantomnet_db"
-
-engine = create_engine(DATABASE_URL)
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-
-# =========================
-# FASTAPI APP INIT
-# =========================
-
-app = FastAPI(title="PhantomNet API")
-
-# =========================
-# CORS CONFIG (Frontend Access)
-# =========================
+app = FastAPI()
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173"],  # React (Vite)
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_origins=["http://localhost:5173"], 
+    allow_credentials=True, allow_methods=["*"], allow_headers=["*"],
 )
 
-# =========================
-# DATABASE DEPENDENCY
-# =========================
+# 🆕 Updated Input Model
+class LogInput(BaseModel):
+    source_ip: str
+    src_port: int = 0      # Default to 0 if missing
+    protocol: str 
+    details: str   
 
 def get_db():
     db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
+    try: yield db
+    finally: db.close()
 
-# =========================
-# ROOT ENDPOINT
-# =========================
+@app.get("/events")
+def get_events(db: Session = Depends(get_db)):
+    return db.query(Event).order_by(Event.timestamp.desc()).limit(50).all()
 
-@app.get("/")
-def read_root():
-    return {"status": "PhantomNet Backend is active"}
+@app.get("/stats")
+def get_stats(db: Session = Depends(get_db)):
+    total = db.query(func.count(Event.id)).scalar()
+    unique = db.query(func.count(distinct(Event.source_ip))).scalar()
+    return {"total_events": total, "unique_ips": unique}
 
-# =========================
-# FETCH EVENTS
-# =========================
-
-@app.get("/events", response_model=List[EventResponse])
-def read_events(
-    skip: int = 0,
-    limit: int = 100,
-    db: Session = Depends(get_db)
-):
-    events = (
-        db.query(Event)
-        .order_by(desc(Event.id))
-        .offset(skip)
-        .limit(limit)
-        .all()
+@app.post("/api/logs")
+def create_log(log: LogInput, db: Session = Depends(get_db)):
+    new_event = Event(
+        source_ip=log.source_ip,
+        src_port=log.src_port,      # 👈 Saving the port
+        honeypot_type=log.protocol,
+        raw_data=log.details,
+        timestamp=datetime.utcnow()
     )
-    return events
+    db.add(new_event)
+    db.commit()
+    return {"message": "log stored"}
