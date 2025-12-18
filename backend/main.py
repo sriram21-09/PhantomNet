@@ -1,6 +1,6 @@
 from fastapi import FastAPI, Depends, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from sqlalchemy import create_engine, desc
+from sqlalchemy import create_engine, desc, text
 from sqlalchemy.orm import sessionmaker, Session
 from typing import List
 from datetime import datetime
@@ -19,6 +19,8 @@ DATABASE_URL = os.getenv("DATABASE_URL")
 if not DATABASE_URL:
     raise RuntimeError("DATABASE_URL not set. Please check your .env file")
 
+print("✅ CONNECTED DATABASE =", DATABASE_URL)
+
 # =========================
 # DATABASE SETUP
 # =========================
@@ -29,7 +31,7 @@ from schemas import EventCreate, EventResponse
 engine = create_engine(DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
-# Create tables if they do not exist
+# Create tables safely
 Base.metadata.create_all(bind=engine)
 
 # =========================
@@ -48,7 +50,7 @@ app = FastAPI(
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173"],  # React (Vite)
+    allow_origins=["http://localhost:5173"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -78,7 +80,7 @@ API_PREFIX = "/api"
 @app.get(f"{API_PREFIX}/health")
 def health_check(db: Session = Depends(get_db)):
     try:
-        db.execute("SELECT 1")
+        db.execute(text("SELECT 1"))
         db_status = "connected"
     except Exception:
         db_status = "error"
@@ -100,13 +102,18 @@ def create_log(event: EventCreate, db: Session = Depends(get_db)):
             source_ip=event.source_ip,
             honeypot_type=event.honeypot_type,
             port=event.port,
-            raw_data=event.raw_data
+            raw_data=event.raw_data,
+            timestamp=event.timestamp or datetime.utcnow()  # ✅ FIX
         )
+
         db.add(new_event)
         db.commit()
         db.refresh(new_event)
 
-        return {"message": "log stored successfully"}
+        return {
+            "message": "log stored successfully",
+            "event_id": new_event.id
+        }
 
     except Exception as e:
         db.rollback()
