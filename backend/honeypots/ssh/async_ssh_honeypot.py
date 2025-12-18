@@ -10,8 +10,8 @@ from datetime import datetime, timezone
 HOST = ""        # IPv4 + IPv6
 PORT = 2222
 
-VALID_USER = "admin"
-VALID_PASS = "admin123"
+VALID_USER = "PhantomNet"
+VALID_PASS = "1234"
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 

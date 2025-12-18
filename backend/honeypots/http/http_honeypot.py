@@ -4,127 +4,106 @@ import json
 import os
 from datetime import datetime, timezone
 
-# --------------------------
-# Log file paths
-# --------------------------
 LOG_DIR = "/logs"
 os.makedirs(LOG_DIR, exist_ok=True)
 
 LOG_FILE = os.path.join(LOG_DIR, "http_logs.jsonl")
 ERROR_LOG = os.path.join(LOG_DIR, "http_error.log")
 
-# --------------------------
-# Logging helpers
-# --------------------------
-def log_error(exc: Exception, context: str = ""):
-    try:
-        with open(ERROR_LOG, "a") as f:
-            f.write(f"{datetime.now(timezone.utc).isoformat()} - {context} - {repr(exc)}\n")
-    except Exception as e:
-        print("Error writing to error log:", e)
+def log_error(exc, context=""):
+    with open(ERROR_LOG, "a") as f:
+        f.write(f"{datetime.now(timezone.utc).isoformat()} | {context} | {repr(exc)}\n")
 
-def log_http(source_ip, method, url, extra=None):
-    entry = {
+def log_http(ip, method, path, extra=None):
+    data = {
         "timestamp": datetime.now(timezone.utc).isoformat(),
-        "source_ip": source_ip,
+        "source_ip": ip,
         "honeypot_type": "http",
         "port": 8080,
-        "raw_data": f"{method} {url}",
         "method": method,
-        "url": url
+        "url": path,
+        "raw_data": f"{method} {path}",
     }
-    if extra and isinstance(extra, dict):
-        entry.update(extra)
-    with open(LOG_FILE, "a") as f:
-        f.write(json.dumps(entry) + "\n")
+    if extra:
+        data.update(extra)
 
-# --------------------------
-# Fake Admin Page
-# --------------------------
-LOGIN_PAGE = """
+    with open(LOG_FILE, "a") as f:
+        f.write(json.dumps(data) + "\n")
+
+LOGIN_PAGE = b"""
 <html>
-<head><title>Admin Login</title></head>
 <body>
 <h2>Admin Panel</h2>
 <form method="POST" action="/admin">
-    Username: <input name="username" type="text" /><br><br>
-    Password: <input name="password" type="password" /><br><br>
-    <button type="submit">Login</button>
+Username: <input name="username"><br>
+Password: <input type="password" name="password"><br>
+<button>Login</button>
 </form>
 </body>
 </html>
 """
 
-# --------------------------
-# Honeypot Request Handler
-# --------------------------
-class HoneypotHandler(http.server.SimpleHTTPRequestHandler):
-    def log_message(self, format, *args):
-        return  # Disable default console logging
+class HoneypotHandler(http.server.BaseHTTPRequestHandler):
+
+    def _set_headers(self, code=200):
+        self.send_response(code)
+        self.send_header("Content-Type", "text/html")
+        self.end_headers()
 
     def do_GET(self):
         try:
-            #raise ValueError("Test error")
-
-            log_http(self.client_address[0], "GET", self.path, extra={"headers": dict(self.headers)})
+            log_http(self.client_address[0], "GET", self.path,
+                     {"headers": dict(self.headers)})
             if self.path == "/admin":
-                self.send_response(200)
-                self.send_header("Content-Type", "text/html")
-                self.end_headers()
-                self.wfile.write(LOGIN_PAGE.encode())
+                self._set_headers(200)
+                self.wfile.write(LOGIN_PAGE)
             else:
-                self.send_response(404)
-                self.end_headers()
+                self._set_headers(404)
                 self.wfile.write(b"404 Not Found")
-
         except Exception as e:
-            log_error(e, f"do_GET error from {self.client_address[0]} path={self.path}")
-            print("🔥 ERROR CAUGHT:", e)
-            try:
-                self.send_response(500)
-                self.end_headers()
-                self.wfile.write(b"Server error")
-            except:
-                pass
+            log_error(e, "GET")
+            self._set_headers(500)
 
     def do_POST(self):
         try:
             length = int(self.headers.get("Content-Length", 0))
             body = self.rfile.read(length).decode(errors="ignore")
 
-            # Parse key=value pairs from form
-            form_data = {}
-            for pair in body.split("&"):
-                if "=" in pair:
-                    k, v = pair.split("=", 1)
-                    form_data[k] = v
-
-            # Log the POST request
-            log_http(self.client_address[0], "POST", self.path, extra={
+            log_http(self.client_address[0], "POST", self.path, {
                 "headers": dict(self.headers),
-                "submitted_data": form_data
+                "body": body
             })
 
-            # Respond with fake "Invalid credentials" message
-            self.send_response(200)
+            self.send_response(403)
+            self.send_header("Content-Type", "text/plain")
             self.end_headers()
-            self.wfile.write(b"Invalid credentials. Try again.")
+            self.wfile.write(b"Invalid credentials")
 
         except Exception as e:
-            log_error(e, f"do_POST error from {self.client_address[0]} path={self.path}")
-            print("🔥 ERROR CAUGHT in POST:", e)
-            try:
-                self.send_response(400)
-                self.end_headers()
-                self.wfile.write(b"Bad request")
-            except:
-                pass
+            log_error(e, "POST")
+            self._set_headers(400)
 
-# --------------------------
-# Run HTTP Honeypot
-# --------------------------
+    def do_PUT(self):
+        try:
+            log_http(self.client_address[0], "PUT", self.path,
+                     {"headers": dict(self.headers)})
+            self._set_headers(403)
+            self.wfile.write(b"403 Forbidden")
+        except Exception as e:
+            log_error(e, "PUT")
+            self._set_headers(500)
+
+    def do_DELETE(self):
+        try:
+            log_http(self.client_address[0], "DELETE", self.path,
+                     {"headers": dict(self.headers)})
+            self._set_headers(404)
+            self.wfile.write(b"404 Not Found")
+        except Exception as e:
+            log_error(e, "DELETE")
+            self._set_headers(500)
+
 if __name__ == "__main__":
-    PORT = 8080
-    server = socketserver.TCPServer(("0.0.0.0", PORT), HoneypotHandler)
-    print(f"[+] HTTP Honeypot running on port {PORT}")
-    server.serve_forever()
+    with socketserver.TCPServer(("0.0.0.0", 8080), HoneypotHandler) as server:
+        print("[+] HTTP Honeypot running on port 8080")
+        server.serve_forever()
