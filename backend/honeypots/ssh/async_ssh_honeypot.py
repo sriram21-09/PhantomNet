@@ -4,34 +4,22 @@ import json
 import os
 from datetime import datetime, timezone
 
-# -----------------------------
-# Configuration
-# -----------------------------
-HOST = ""        # IPv4 + IPv6
+HOST = ""
 PORT = 2222
 
 VALID_USER = "PhantomNet"
 VALID_PASS = "1234"
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-
-LOG_DIR = os.path.abspath(
-    os.path.join(BASE_DIR, "../../logs")
-)
-
+LOG_DIR = os.path.abspath(os.path.join(BASE_DIR, "../../logs"))
 os.makedirs(LOG_DIR, exist_ok=True)
 
 LOG_FILE = os.path.join(LOG_DIR, "ssh_async.jsonl")
-
 HOST_KEY = os.path.join(BASE_DIR, "honeypot_host_key")
 
-# Ensure log file exists
 open(LOG_FILE, "a").close()
 
 
-# -----------------------------
-# SSH Session (REQUIRED)
-# -----------------------------
 class HoneypotSession(asyncssh.SSHServerSession):
     def connection_made(self, chan):
         self.chan = chan
@@ -43,13 +31,9 @@ class HoneypotSession(asyncssh.SSHServerSession):
         return True
 
 
-# -----------------------------
-# SSH Server
-# -----------------------------
 class SSHHoneypot(asyncssh.SSHServer):
 
     def connection_made(self, conn):
-        self.conn = conn
         peer = conn.get_extra_info("peername")
         self.ip = peer[0] if peer else "unknown"
         print(f"[+] Connection from {self.ip}")
@@ -73,12 +57,10 @@ class SSHHoneypot(asyncssh.SSHServer):
 
         print(f"[!] Login attempt {username}:{password} from {self.ip}")
 
-        # Allow only default credentials
         if username == VALID_USER and password == VALID_PASS:
             print(f"[+] Valid login for {username}")
-            return True
+            return True   # ✅ NOW INSIDE FUNCTION
 
-        # Invalid → immediate disconnect
         raise asyncssh.DisconnectError(
             asyncssh.DisconnectReason.AUTH_FAILED,
             "Invalid credentials"
@@ -88,9 +70,6 @@ class SSHHoneypot(asyncssh.SSHServer):
         return HoneypotSession()
 
 
-# -----------------------------
-# Start Server
-# -----------------------------
 async def start_server():
     await asyncssh.create_server(
         SSHHoneypot,
@@ -99,12 +78,9 @@ async def start_server():
         server_host_keys=[HOST_KEY]
     )
 
-    print(f"[+] AsyncSSH Honeypot running on port {PORT} (IPv4 + IPv6)")
+    print(f"[+] AsyncSSH Honeypot running on port {PORT}")
     await asyncio.Future()
 
 
-# -----------------------------
-# Entry Point
-# -----------------------------
 if __name__ == "__main__":
     asyncio.run(start_server())

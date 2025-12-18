@@ -9,13 +9,13 @@ from datetime import datetime, timezone
 # =====================================================
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
-LOG_DIR = os.path.join(BASE_DIR, "../logs")
+# backend/logs
+LOG_DIR = os.path.abspath(os.path.join(BASE_DIR, "../../logs"))
+os.makedirs(LOG_DIR, exist_ok=True)
+
 TEXT_LOG = os.path.join(LOG_DIR, "ssh.log")
 JSON_LOG = os.path.join(LOG_DIR, "ssh.jsonl")
 ERROR_LOG = os.path.join(LOG_DIR, "ssh_error.log")
-
-os.makedirs(LOG_DIR, exist_ok=True)
-
 # =====================================================
 # BACKEND API CONFIG
 # =====================================================

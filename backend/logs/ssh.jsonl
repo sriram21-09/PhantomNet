@@ -52,3 +52,5 @@
 {"timestamp": "2025-12-13T04:29:00.584300+00:00", "source_ip": "172.17.0.1", "honeypot_type": "ssh", "port": 2222, "raw_data": "PhantomNet/1234", "username": "PhantomNet", "password": "1234", "status": "attempt"}
 {"timestamp": "2025-12-13T04:29:00.587507+00:00", "source_ip": "172.17.0.1", "honeypot_type": "ssh", "port": 2222, "raw_data": "login success", "username": "PhantomNet", "password": "1234", "status": "success"}
 {"timestamp": "2025-12-13T04:29:03.530475+00:00", "source_ip": "172.17.0.1", "honeypot_type": "ssh", "port": 2222, "raw_data": "done", "username": "PhantomNet", "password": "1234", "status": "command"}
+{"timestamp": "2025-12-18T17:44:51.456821+00:00", "source_ip": "127.0.0.1", "honeypot_type": "ssh", "username": "error", "password": "check", "status": "attempt"}
+{"timestamp": "2025-12-18T17:45:21.935715+00:00", "source_ip": "127.0.0.1", "honeypot_type": "ssh", "username": "", "password": "", "status": "attempt"}

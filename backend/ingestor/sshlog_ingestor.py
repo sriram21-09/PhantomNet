@@ -8,7 +8,7 @@ import os
 DB_CONFIG = {
     "dbname": "phantomnet_logs",
     "user": "postgres",
-    "password": "1234",     # keep empty if none
+    "password": "password@321",     # keep empty if none
     "host": "localhost",
     "port": 5432
 }
