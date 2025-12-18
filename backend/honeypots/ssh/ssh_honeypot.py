@@ -1,57 +1,70 @@
 import socket
 import json
 import os
+import requests
 from datetime import datetime, timezone
 
-# --------------------------
-# Log file paths
-# --------------------------
+# =====================================================
+# PATHS & DIRECTORIES
+# =====================================================
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-TEXT_LOG = os.path.join(BASE_DIR, "../logs/ssh.log")
-JSON_LOG = os.path.join(BASE_DIR, "../logs/ssh.jsonl")
-os.makedirs(os.path.dirname(TEXT_LOG), exist_ok=True)
 
-# Error log path
-ERROR_LOG = os.path.join(BASE_DIR, "../logs/ssh_error.log")
+LOG_DIR = os.path.join(BASE_DIR, "../logs")
+TEXT_LOG = os.path.join(LOG_DIR, "ssh.log")
+JSON_LOG = os.path.join(LOG_DIR, "ssh.jsonl")
+ERROR_LOG = os.path.join(LOG_DIR, "ssh_error.log")
 
+os.makedirs(LOG_DIR, exist_ok=True)
 
+# =====================================================
+# BACKEND API CONFIG
+# =====================================================
+BACKEND_API_URL = "http://127.0.0.1:8000/api/logs"
+
+# =====================================================
+# ERROR LOGGING
+# =====================================================
 def log_error(exc: Exception, context: str = ""):
-    """Append exception info to an error log (with timestamp and context)."""
     try:
         with open(ERROR_LOG, "a") as f:
-            f.write(f"{datetime.now(timezone.utc).isoformat()} - {context} - {repr(exc)}\n")
-    except Exception as e:
-        print("⚠️ Failed to write error log:", e)
+            f.write(
+                f"{datetime.now(timezone.utc).isoformat()} | {context} | {repr(exc)}\n"
+            )
+    except Exception:
+        pass  # never crash honeypot on logging failure
 
-
-# --------------------------
-# Logging Helpers
-# --------------------------
-def log_text(message):
+# =====================================================
+# FILE LOGGING
+# =====================================================
+def log_text(message: str):
     with open(TEXT_LOG, "a") as f:
         f.write(f"{datetime.now(timezone.utc).isoformat()} - {message}\n")
 
 
-def log_json(ip, username, password, status, raw):
-    """Unified JSON logging (same format as HTTP honeypot)."""
-    entry = {
-        "timestamp": datetime.now(timezone.utc).isoformat(),
-        "source_ip": ip,
-        "honeypot_type": "ssh",
-        "port": 2222,
-        "raw_data": raw,
-        "username": username,
-        "password": password,
-        "status": status
-    }
+def log_json(entry: dict):
+    """Local JSONL logging (research use)."""
     with open(JSON_LOG, "a") as f:
         f.write(json.dumps(entry) + "\n")
 
+# =====================================================
+# BACKEND SENDER (DB EVENTS)
+# =====================================================
+def send_to_backend(ip: str, raw_data: str):
+    payload = {
+        "source_ip": ip,
+        "honeypot_type": "ssh",
+        "port": 2222,
+        "raw_data": raw_data
+    }
+    try:
+        requests.post(BACKEND_API_URL, json=payload, timeout=2)
+    except Exception as e:
+        log_error(e, "send_to_backend")
 
-# --------------------------
-# Input cleaning utilities
-# --------------------------
-def clean(text):
+# =====================================================
+# INPUT SANITIZATION
+# =====================================================
+def clean(text: str) -> str:
     if not text:
         return ""
     cleaned = ""
@@ -63,14 +76,13 @@ def clean(text):
     return cleaned.strip()
 
 
-def receive_line(client):
-    """Read until newline, handling CR/LF."""
+def receive_line(client) -> str:
     buffer = b""
     while True:
         try:
             chunk = client.recv(1)
         except Exception as e:
-            log_error(e, "receive_line()")
+            log_error(e, "receive_line")
             return ""
         if not chunk:
             return ""
@@ -81,32 +93,32 @@ def receive_line(client):
             break
     return buffer.decode(errors="ignore").strip()
 
-
-# --------------------------
-# SSH Honeypot main logic
-# --------------------------
+# =====================================================
+# SSH HONEYPOT CORE
+# =====================================================
 def start_ssh():
-    server = socket.socket()
+    server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     server.bind(("0.0.0.0", 2222))
     server.listen(5)
 
     print("[+] SSH Honeypot running on port 2222")
-    log_text("[+] SSH Honeypot started")
+    log_text("SSH Honeypot started")
 
     while True:
         try:
             client, addr = server.accept()
             ip = addr[0]
-            #raise ValueError("Simulated SSH error for testing")
 
-            print(f"🔥 Connection from: {ip}")
+            print(f"🔥 Connection from {ip}")
             log_text(f"Connection from {ip}")
+            send_to_backend(ip, "SSH connection attempt detected")
 
+            # Fake SSH banner
             try:
                 client.send(b"SSH-2.0-OpenSSH_7.4\r\n")
             except Exception as e:
-                log_error(e, f"Banner send failed for {ip}")
+                log_error(e, "banner_send")
                 client.close()
                 continue
 
@@ -114,43 +126,52 @@ def start_ssh():
             CORRECT_PASS = "1234"
 
             attempts = 0
-            login_success = False
+            authenticated = False
 
             while attempts < 3:
-                try:
-                    client.send(b"Username: ")
-                    username = clean(receive_line(client))
+                client.send(b"Username: ")
+                username = clean(receive_line(client))
 
-                    client.send(b"Password: ")
-                    password = clean(receive_line(client))
+                client.send(b"Password: ")
+                password = clean(receive_line(client))
 
-                    log_text(f"Login attempt {attempts + 1} from {ip}: {username}/{password}")
-                    log_json(ip, username, password, "attempt", f"{username}/{password}")
+                # Local detailed logging
+                log_text(f"Login attempt from {ip}: {username}")
+                log_json({
+                    "timestamp": datetime.now(timezone.utc).isoformat(),
+                    "source_ip": ip,
+                    "honeypot_type": "ssh",
+                    "username": username,
+                    "password": password,
+                    "status": "attempt"
+                })
 
-                    if username == CORRECT_USER and password == CORRECT_PASS:
-                        login_success = True
-                        log_json(ip, username, password, "success", "login success")
-                        break
+                # Backend (NO credentials)
+                send_to_backend(ip, f"SSH login attempt for user: {username}")
 
-                    attempts += 1
-                    client.send(b"Invalid Username or Password\n")
-                    log_json(ip, username, password, "failed", "wrong credentials")
-
-                except Exception as e:
-                    log_error(e, f"login loop error from {ip}")
+                if username == CORRECT_USER and password == CORRECT_PASS:
+                    authenticated = True
+                    send_to_backend(ip, "SSH login success")
                     break
 
-            if not login_success:
-                client.send(b"Error :- Access temporarily disabled.\n")
+                attempts += 1
+                client.send(b"Invalid username or password\n")
+                send_to_backend(ip, "SSH login failed")
+
+            if not authenticated:
+                client.send(b"Access temporarily disabled.\n")
                 client.close()
                 continue
 
-            # Fake shell
+            # =================================================
+            # FAKE SHELL
+            # =================================================
             welcome = (
                 "\nWelcome to Ubuntu 20.04 LTS\n"
                 "Last login: Tue Dec 9 10:00:00 2025\n\n"
             )
             client.send(welcome.encode())
+
             cwd = f"/home/{username}"
 
             while True:
@@ -159,11 +180,11 @@ def start_ssh():
                     client.send(prompt.encode())
 
                     cmd = clean(receive_line(client))
-                    if cmd == "":
+                    if not cmd:
                         continue
 
                     log_text(f"CMD from {ip}: {cmd}")
-                    log_json(ip, username, password, "command", cmd)
+                    send_to_backend(ip, f"SSH command executed: {cmd}")
 
                     if cmd == "ls":
                         response = "file1.txt  config.ini  secrets.log  projectteam.txt\n"
@@ -173,11 +194,8 @@ def start_ssh():
                         response = username + "\n"
                     elif cmd.startswith("cd "):
                         folder = cmd.split(" ", 1)[1]
-                        if folder:
-                            cwd = cwd.rstrip("/") + "/" + folder
-                            response = ""
-                        else:
-                            response = "cd: missing argument\n"
+                        cwd = cwd.rstrip("/") + "/" + folder
+                        response = ""
                     elif cmd in ["exit", "logout"]:
                         client.send(b"logout\n")
                         break
@@ -187,14 +205,16 @@ def start_ssh():
                     client.send(response.encode())
 
                 except Exception as e:
-                    log_error(e, f"shell error from {ip}")
+                    log_error(e, "shell_loop")
                     break
 
             client.close()
 
         except Exception as e:
-            log_error(e, "main accept loop")
+            log_error(e, "main_loop")
 
-
+# =====================================================
+# ENTRY POINT
+# =====================================================
 if __name__ == "__main__":
     start_ssh()

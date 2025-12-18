@@ -1,77 +1,137 @@
-from fastapi import FastAPI, Depends
-from sqlalchemy.orm import Session
-from sqlalchemy import func, distinct
+from fastapi import FastAPI, Depends, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from typing import Dict, Any
+from sqlalchemy import create_engine, desc
+from sqlalchemy.orm import sessionmaker, Session
+from typing import List
 from datetime import datetime
+import os
 
-# Import models (Note: We now import AttackSession)
-from database.models import Base, Event, AttackSession
-from database.database import SessionLocal, engine
-from utils.normalizer import normalize_log
+from dotenv import load_dotenv
 
-# Create Tables
+# =========================
+# LOAD ENVIRONMENT VARIABLES
+# =========================
+
+load_dotenv()
+
+DATABASE_URL = os.getenv("DATABASE_URL")
+
+if not DATABASE_URL:
+    raise RuntimeError("DATABASE_URL not set. Please check your .env file")
+
+# =========================
+# DATABASE SETUP
+# =========================
+
+from database.models import Base, Event
+from schemas import EventCreate, EventResponse
+
+engine = create_engine(DATABASE_URL)
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+
+# Create tables if they do not exist
 Base.metadata.create_all(bind=engine)
 
-app = FastAPI()
+# =========================
+# FASTAPI APP INIT
+# =========================
 
-# Security (CORS)
+app = FastAPI(
+    title="PhantomNet API",
+    version="1.0",
+    description="Backend API for PhantomNet Honeypot System"
+)
+
+# =========================
+# CORS CONFIGURATION
+# =========================
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173"], 
-    allow_credentials=True, 
-    allow_methods=["*"], 
+    allow_origins=["http://localhost:5173"],  # React (Vite)
+    allow_credentials=True,
+    allow_methods=["*"],
     allow_headers=["*"],
 )
 
+# =========================
+# DATABASE DEPENDENCY
+# =========================
+
 def get_db():
     db = SessionLocal()
-    try: 
+    try:
         yield db
-    finally: 
+    finally:
         db.close()
 
-# --- ENDPOINTS ---
+# =========================
+# API ROUTES
+# =========================
 
-@app.get("/events")
-def get_events(db: Session = Depends(get_db)):
-    return db.query(Event).order_by(Event.timestamp.desc()).limit(50).all()
+API_PREFIX = "/api"
 
-@app.get("/stats")
-def get_stats(db: Session = Depends(get_db)):
-    total = db.query(func.count(Event.id)).scalar()
-    unique = db.query(func.count(distinct(Event.source_ip))).scalar()
-    return {"total_events": total, "unique_ips": unique}
+# -------------------------
+# HEALTH CHECK
+# -------------------------
 
-@app.post("/api/logs")
-def create_log(payload: Dict[Any, Any], db: Session = Depends(get_db)):
-    clean_data = normalize_log(payload)
+@app.get(f"{API_PREFIX}/health")
+def health_check(db: Session = Depends(get_db)):
+    try:
+        db.execute("SELECT 1")
+        db_status = "connected"
+    except Exception:
+        db_status = "error"
 
-    # Check for existing AttackSession
-    current_session = db.query(AttackSession).filter(
-        AttackSession.attacker_ip == clean_data["source_ip"]
-    ).order_by(AttackSession.start_time.desc()).first()
+    return {
+        "status": "healthy",
+        "database": db_status,
+        "timestamp": datetime.utcnow().isoformat()
+    }
 
-    if not current_session:
-        current_session = AttackSession(
-            attacker_ip=clean_data["source_ip"],
-            start_time=datetime.utcnow(),
-            threat_score=0.0
+# -------------------------
+# SUBMIT LOG (POST)
+# -------------------------
+
+@app.post(f"{API_PREFIX}/logs", status_code=200)
+def create_log(event: EventCreate, db: Session = Depends(get_db)):
+    try:
+        new_event = Event(
+            source_ip=event.source_ip,
+            honeypot_type=event.honeypot_type,
+            port=event.port,
+            raw_data=event.raw_data
         )
-        db.add(current_session)
+        db.add(new_event)
         db.commit()
-        db.refresh(current_session)
+        db.refresh(new_event)
 
-    new_event = Event(
-        source_ip=clean_data["source_ip"],
-        src_port=clean_data["src_port"],
-        honeypot_type=clean_data["protocol"],
-        raw_data=clean_data["details"],
-        timestamp=datetime.utcnow(),
-        session_id=current_session.id
+        return {"message": "log stored successfully"}
+
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail=str(e))
+
+# -------------------------
+# FETCH EVENTS (GET)
+# -------------------------
+
+@app.get(f"{API_PREFIX}/events", response_model=List[EventResponse])
+def get_events(
+    limit: int = 100,
+    db: Session = Depends(get_db)
+):
+    if limit < 1 or limit > 100:
+        raise HTTPException(
+            status_code=400,
+            detail="limit must be between 1 and 100"
+        )
+
+    events = (
+        db.query(Event)
+        .order_by(desc(Event.id))
+        .limit(limit)
+        .all()
     )
-    
-    db.add(new_event)
-    db.commit()
-    
-    return {"message": "log stored", "session_id": current_session.id}
+
+    return events
