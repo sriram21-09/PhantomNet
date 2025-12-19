@@ -1,55 +1,53 @@
 import json
 import psycopg2
+import hashlib
+import os
 
-LOG_FILE = "../logs/ftp_logs.jsonl"
+LOG_FILE = os.path.abspath("../logs/ftp_logs.jsonl")
 
 DB_CONFIG = {
+    "host": "localhost",
     "dbname": "phantomnet_logs",
     "user": "postgres",
     "password": "password@321",
-    "host": "localhost",
     "port": 5432
 }
 
-def insert_log(cur, log):
-    event = log.get("event")
-    data = log.get("data") or {}
+def compute_hash(log):
+    normalized = json.dumps(log, sort_keys=True)
+    return hashlib.sha256(normalized.encode()).hexdigest()
 
-    cur.execute(
-        """
+def insert_log(cur, log):
+    log_hash = compute_hash(log)
+
+    cur.execute("""
         INSERT INTO ftp_logs (
             timestamp,
             source_ip,
+            honeypot_type,
             event,
-            command,
-            argument,
-            raw_command,
-            username,
-            extra_data
+            data,
+            log_hash
         )
-        VALUES (%s,%s,%s,%s,%s,%s,%s,%s)
-        """,
-        (
-            log.get("timestamp"),
-            log.get("source_ip"),
-            event,
-            data.get("command"),
-            data.get("argument"),
-            data.get("raw"),
-            data.get("username"),
-            json.dumps(data)
-        )
-    )
+        VALUES (%s,%s,%s,%s,%s,%s)
+        ON CONFLICT (log_hash) DO NOTHING
+    """, (
+        log.get("timestamp"),
+        log.get("source_ip"),
+        log.get("honeypot_type"),
+        log.get("event"),
+        json.dumps(log.get("data")),
+        log_hash
+    ))
 
 def main():
-    print("[+] Connecting to PostgreSQL...")
+    print("[+] Connecting to PostgreSQL (FTP)...")
     conn = psycopg2.connect(**DB_CONFIG)
     cur = conn.cursor()
 
     with open(LOG_FILE, "r") as f:
         for line in f:
-            log = json.loads(line)
-            insert_log(cur, log)
+            insert_log(cur, json.loads(line))
 
     conn.commit()
     cur.close()

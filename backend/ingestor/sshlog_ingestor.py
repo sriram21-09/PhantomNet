@@ -1,70 +1,90 @@
 import json
 import psycopg2
-import os
+import hashlib
 
-# -------------------------
-# PostgreSQL configuration
-# -------------------------
+LOG_FILE = "../logs/ssh.jsonl"
+
 DB_CONFIG = {
+    "host": "localhost",
     "dbname": "phantomnet_logs",
     "user": "postgres",
-    "password": "password@321",     # keep empty if none
-    "host": "localhost",
+    "password": "password@321",
     "port": 5432
 }
 
-# -------------------------
-# SSH log file path
-# -------------------------
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-SSH_LOG_FILE = os.path.join(BASE_DIR, "../logs/ssh.jsonl")
+def compute_hash(log):
+    return hashlib.sha256(json.dumps(log, sort_keys=True).encode()).hexdigest()
 
+def insert_log(cur, log):
+    event = log.get("event")
+    data = log.get("data") or {}
 
-def insert_log(cursor, log):
-    cursor.execute(
-        """
+    username = None
+    password = None
+    command = None
+    status = None
+
+    if event == "login_attempt":
+        username = data.get("username")
+        password = data.get("password")
+        status = "attempt"
+
+    elif event == "login_success":
+        username = data.get("username")
+        status = "success"
+
+    elif event == "login_failed":
+        username = data.get("username")
+        status = "failed"
+
+    elif event == "command":
+        command = data.get("cmd")
+
+    log_hash = compute_hash(log)
+
+    cur.execute("""
         INSERT INTO ssh_logs (
             timestamp,
             source_ip,
-            username,
-            password,
-            status,
             honeypot_type,
             port,
-            raw_data
+            event,
+            username,
+            password,
+            command,
+            status,
+            raw_data,
+            log_hash
         )
-        VALUES (%s,%s,%s,%s,%s,%s,%s,%s)
-        """,
-        (
-            log.get("timestamp"),
-            log.get("source_ip"),
-            log.get("username"),
-            log.get("password"),
-            log.get("status"),
-            log.get("honeypot_type"),
-            log.get("port"),
-            log.get("raw_data"),
-        )
-    )
-
+        VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
+        ON CONFLICT (log_hash) DO NOTHING
+    """, (
+        log.get("timestamp"),
+        log.get("source_ip"),
+        log.get("honeypot_type"),
+        log.get("port"),
+        event,
+        username,
+        password,
+        command,
+        status,
+        json.dumps(log),
+        log_hash
+    ))
 
 def main():
-    print("[+] Connecting to PostgreSQL...")
+    print("[+] Connecting to PostgreSQL (SSH)...")
     conn = psycopg2.connect(**DB_CONFIG)
-    cursor = conn.cursor()
+    cur = conn.cursor()
 
-    print("[+] Reading SSH logs...")
-    with open(SSH_LOG_FILE, "r") as f:
+    with open(LOG_FILE, "r") as f:
         for line in f:
-            log = json.loads(line)
-            insert_log(cursor, log)
+            insert_log(cur, json.loads(line))
 
     conn.commit()
-    cursor.close()
+    cur.close()
     conn.close()
-
-    print("[+] SSH logs successfully inserted into PostgreSQL")
-
+    print("[+] SSH logs ingested successfully")
 
 if __name__ == "__main__":
     main()

@@ -1,17 +1,21 @@
-{"timestamp": "2025-12-16T17:07:13.087831+00:00", "source_ip": "::1", "honeypot_type": "ssh", "port": 2222, "username": "testuser", "password": "1234", "status": "attempt"}
-{"timestamp": "2025-12-16T17:07:20.596453+00:00", "source_ip": "::1", "honeypot_type": "ssh", "port": 2222, "username": "testuser", "password": "1234", "status": "attempt"}
-{"timestamp": "2025-12-16T17:43:39.414808+00:00", "source_ip": "127.0.0.1", "honeypot_type": "ssh", "port": 2222, "username": "vivek", "password": "check", "status": "attempt"}
-{"timestamp": "2025-12-16T17:43:42.341720+00:00", "source_ip": "127.0.0.1", "honeypot_type": "ssh", "port": 2222, "username": "vivek", "password": "again", "status": "attempt"}
-{"timestamp": "2025-12-16T17:43:46.161026+00:00", "source_ip": "127.0.0.1", "honeypot_type": "ssh", "port": 2222, "username": "vivek", "password": "this", "status": "attempt"}
-{"timestamp": "2025-12-17T09:36:57.860252+00:00", "source_ip": "127.0.0.1", "honeypot_type": "ssh", "port": 2222, "username": "admin", "password": "admin123", "status": "attempt"}
-{"timestamp": "2025-12-18T04:23:56.008311+00:00", "source_ip": "127.0.0.1", "honeypot_type": "ssh", "port": 2222, "username": "test", "password": "hfhfhf", "status": "attempt"}
-{"timestamp": "2025-12-18T04:24:11.576512+00:00", "source_ip": "127.0.0.1", "honeypot_type": "ssh", "port": 2222, "username": "PhantomNet", "password": "1234", "status": "attempt"}
-{"timestamp": "2025-12-18T04:24:28.893194+00:00", "source_ip": "127.0.0.1", "honeypot_type": "ssh", "port": 2222, "username": "admin", "password": "admin123", "status": "attempt"}
-{"timestamp": "2025-12-18T04:32:42.916883+00:00", "source_ip": "127.0.0.1", "honeypot_type": "ssh", "port": 2222, "username": "testing", "password": "hshshsh", "status": "attempt"}
-{"timestamp": "2025-12-18T04:33:15.691730+00:00", "source_ip": "127.0.0.1", "honeypot_type": "ssh", "port": 2222, "username": "admin", "password": "admin123", "status": "attempt"}
-{"timestamp": "2025-12-18T04:33:33.069441+00:00", "source_ip": "127.0.0.1", "honeypot_type": "ssh", "port": 2222, "username": "PhantomNet", "password": "1234", "status": "attempt"}
-{"timestamp": "2025-12-18T14:49:14.971824+00:00", "source_ip": "127.0.0.1", "honeypot_type": "ssh", "port": 2222, "username": "PhantomNet", "password": "1234", "status": "attempt"}
-{"timestamp": "2025-12-18T18:20:29.162021+00:00", "source_ip": "127.0.0.1", "honeypot_type": "ssh", "port": 2222, "username": "vivekananda reddy", "password": "hhhhh", "status": "attempt"}
-{"timestamp": "2025-12-18T18:20:46.541122+00:00", "source_ip": "127.0.0.1", "honeypot_type": "ssh", "port": 2222, "username": "PhantomNet", "password": "1234", "status": "attempt"}
-{"timestamp": "2025-12-19T05:02:05.526476+00:00", "source_ip": "127.0.0.1", "honeypot_type": "ssh", "port": 2222, "username": "PhantomNet", "password": "1234", "status": "attempt"}
-{"timestamp": "2025-12-19T05:02:53.953894+00:00", "source_ip": "::1", "honeypot_type": "ssh", "port": 2222, "username": "PhantomNet", "password": "1234", "status": "attempt"}
+{"timestamp": "2025-12-19T10:28:48.898878+00:00", "source_ip": "127.0.0.1", "honeypot_type": "ssh", "port": 2222, "username": "PhantomNet", "password": "1234", "status": "attempt"}
+{"timestamp": "2025-12-19T10:28:48.900546+00:00", "source_ip": "127.0.0.1", "honeypot_type": "ssh", "port": 2222, "username": "PhantomNet", "status": "success"}
+{"timestamp": "2025-12-19T10:28:54.644728+00:00", "source_ip": "127.0.0.1", "honeypot_type": "ssh", "port": 2222, "username": "PhantomNet", "event": "command", "command": "ls"}
+{"timestamp": "2025-12-19T10:28:59.216508+00:00", "source_ip": "127.0.0.1", "honeypot_type": "ssh", "port": 2222, "username": "PhantomNet", "event": "command", "command": "cd"}
+{"timestamp": "2025-12-19T10:29:47.499687+00:00", "source_ip": "127.0.0.1", "honeypot_type": "ssh", "port": 2222, "username": "PhantomNet", "event": "command", "command": "pwd"}
+{"timestamp": "2025-12-19T18:02:24.635838+00:00", "source_ip": "::1", "honeypot_type": "ssh", "port": 2222, "username": "attacker", "password": "wrongpass", "status": "attempt"}
+{"timestamp": "2025-12-19T18:02:24.636755+00:00", "source_ip": "::1", "honeypot_type": "ssh", "port": 2222, "username": "attacker", "status": "failed"}
+{"timestamp": "2025-12-19T18:02:25.004082+00:00", "source_ip": "::1", "honeypot_type": "ssh", "port": 2222, "username": "PhantomNet", "password": "1234", "status": "attempt"}
+{"timestamp": "2025-12-19T18:02:25.004625+00:00", "source_ip": "::1", "honeypot_type": "ssh", "port": 2222, "username": "PhantomNet", "status": "success"}
+{"timestamp": "2025-12-19T18:09:29.792217+00:00", "source_ip": "::1", "honeypot_type": "ssh", "port": 2222, "username": "attacker", "password": "wrongpass", "status": "attempt"}
+{"timestamp": "2025-12-19T18:09:29.793281+00:00", "source_ip": "::1", "honeypot_type": "ssh", "port": 2222, "username": "attacker", "status": "failed"}
+{"timestamp": "2025-12-19T18:09:29.840617+00:00", "source_ip": "::1", "honeypot_type": "ssh", "port": 2222, "username": "PhantomNet", "password": "1234", "status": "attempt"}
+{"timestamp": "2025-12-19T18:09:29.841091+00:00", "source_ip": "::1", "honeypot_type": "ssh", "port": 2222, "username": "PhantomNet", "status": "success"}
+{"timestamp": "2025-12-19T18:16:41.334931+00:00", "source_ip": "::1", "honeypot_type": "ssh", "port": 2222, "username": "attacker", "password": "wrongpass", "status": "attempt"}
+{"timestamp": "2025-12-19T18:16:41.335737+00:00", "source_ip": "::1", "honeypot_type": "ssh", "port": 2222, "username": "attacker", "status": "failed"}
+{"timestamp": "2025-12-19T18:16:41.383251+00:00", "source_ip": "::1", "honeypot_type": "ssh", "port": 2222, "username": "PhantomNet", "password": "1234", "status": "attempt"}
+{"timestamp": "2025-12-19T18:16:41.383891+00:00", "source_ip": "::1", "honeypot_type": "ssh", "port": 2222, "username": "PhantomNet", "status": "success"}
+{"timestamp": "2025-12-19T18:20:04.523784+00:00", "source_ip": "::1", "honeypot_type": "ssh", "port": 2222, "username": "attacker", "password": "wrongpass", "status": "attempt"}
+{"timestamp": "2025-12-19T18:20:04.525241+00:00", "source_ip": "::1", "honeypot_type": "ssh", "port": 2222, "username": "attacker", "status": "failed"}
+{"timestamp": "2025-12-19T18:20:04.572324+00:00", "source_ip": "::1", "honeypot_type": "ssh", "port": 2222, "username": "PhantomNet", "password": "1234", "status": "attempt"}
+{"timestamp": "2025-12-19T18:20:04.572891+00:00", "source_ip": "::1", "honeypot_type": "ssh", "port": 2222, "username": "PhantomNet", "status": "success"}
