@@ -6,7 +6,7 @@ LOG_FILE = "../logs/http_logs.jsonl"
 DB_CONFIG = {
     "dbname": "phantomnet_logs",
     "user": "postgres",
-    "password": "1234",
+    "password": "password@321",
     "host": "localhost",
     "port": 5432
 }

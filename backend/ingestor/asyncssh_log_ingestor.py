@@ -12,8 +12,11 @@ DB_CONFIG = {
 }
 
 def insert_log(cur, log):
+    raw_data = f"{log.get('username')}:{log.get('password')}"
+
     cur.execute("""
-        INSERT INTO ssh_logs (timestamp, source_ip, username, password, status, raw_data)
+        INSERT INTO asyncssh_logs
+        (timestamp, source_ip, username, password, status, raw_data)
         VALUES (%s, %s, %s, %s, %s, %s)
     """, (
         log.get("timestamp"),
@@ -21,7 +24,7 @@ def insert_log(cur, log):
         log.get("username"),
         log.get("password"),
         log.get("status"),
-        log.get("raw_data")
+        raw_data
     ))
 
 def main():
