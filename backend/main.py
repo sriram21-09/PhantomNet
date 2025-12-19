@@ -5,15 +5,12 @@ from sqlalchemy.orm import sessionmaker, Session
 from typing import List
 from datetime import datetime
 import os
-
 from dotenv import load_dotenv
 
 # =========================
 # LOAD ENVIRONMENT VARIABLES
 # =========================
-
 load_dotenv()
-
 DATABASE_URL = os.getenv("DATABASE_URL")
 
 if not DATABASE_URL:
@@ -24,20 +21,18 @@ print("✅ CONNECTED DATABASE =", DATABASE_URL)
 # =========================
 # DATABASE SETUP
 # =========================
-
 from database.models import Base, Event
 from schemas import EventCreate, EventResponse
 
 engine = create_engine(DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
-# Create tables safely
+# Create tables if not exist
 Base.metadata.create_all(bind=engine)
 
 # =========================
 # FASTAPI APP INIT
 # =========================
-
 app = FastAPI(
     title="PhantomNet API",
     version="1.0",
@@ -47,7 +42,6 @@ app = FastAPI(
 # =========================
 # CORS CONFIGURATION
 # =========================
-
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["http://localhost:5173"],
@@ -59,7 +53,6 @@ app.add_middleware(
 # =========================
 # DATABASE DEPENDENCY
 # =========================
-
 def get_db():
     db = SessionLocal()
     try:
@@ -68,15 +61,13 @@ def get_db():
         db.close()
 
 # =========================
-# API ROUTES
+# API PREFIX
 # =========================
-
 API_PREFIX = "/api"
 
-# -------------------------
+# =========================
 # HEALTH CHECK
-# -------------------------
-
+# =========================
 @app.get(f"{API_PREFIX}/health")
 def health_check(db: Session = Depends(get_db)):
     try:
@@ -91,10 +82,9 @@ def health_check(db: Session = Depends(get_db)):
         "timestamp": datetime.utcnow().isoformat()
     }
 
-# -------------------------
+# =========================
 # SUBMIT LOG (POST)
-# -------------------------
-
+# =========================
 @app.post(f"{API_PREFIX}/logs", status_code=200)
 def create_log(event: EventCreate, db: Session = Depends(get_db)):
     try:
@@ -103,26 +93,22 @@ def create_log(event: EventCreate, db: Session = Depends(get_db)):
             honeypot_type=event.honeypot_type,
             port=event.port,
             raw_data=event.raw_data,
-            timestamp=event.timestamp or datetime.utcnow()  # ✅ FIX
+            timestamp=event.timestamp or datetime.utcnow()
         )
-
         db.add(new_event)
         db.commit()
         db.refresh(new_event)
-
         return {
             "message": "log stored successfully",
             "event_id": new_event.id
         }
-
     except Exception as e:
         db.rollback()
         raise HTTPException(status_code=500, detail=str(e))
 
-# -------------------------
+# =========================
 # FETCH EVENTS (GET)
-# -------------------------
-
+# =========================
 @app.get(f"{API_PREFIX}/events", response_model=List[EventResponse])
 def get_events(
     limit: int = 100,
@@ -140,5 +126,4 @@ def get_events(
         .limit(limit)
         .all()
     )
-
     return events
