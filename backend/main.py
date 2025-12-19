@@ -1,6 +1,6 @@
 from fastapi import FastAPI, Depends, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from sqlalchemy import create_engine, desc, text
+from sqlalchemy import create_engine, desc, text, func
 from sqlalchemy.orm import sessionmaker, Session
 from typing import List
 from datetime import datetime
@@ -11,8 +11,8 @@ from dotenv import load_dotenv
 # LOAD ENVIRONMENT VARIABLES
 # =========================
 load_dotenv()
-DATABASE_URL = os.getenv("DATABASE_URL")
 
+DATABASE_URL = os.getenv("DATABASE_URL")
 if not DATABASE_URL:
     raise RuntimeError("DATABASE_URL not set. Please check your .env file")
 
@@ -60,9 +60,6 @@ def get_db():
     finally:
         db.close()
 
-# =========================
-# API PREFIX
-# =========================
 API_PREFIX = "/api"
 
 # =========================
@@ -98,6 +95,7 @@ def create_log(event: EventCreate, db: Session = Depends(get_db)):
         db.add(new_event)
         db.commit()
         db.refresh(new_event)
+
         return {
             "message": "log stored successfully",
             "event_id": new_event.id
@@ -110,10 +108,7 @@ def create_log(event: EventCreate, db: Session = Depends(get_db)):
 # FETCH EVENTS (GET)
 # =========================
 @app.get(f"{API_PREFIX}/events", response_model=List[EventResponse])
-def get_events(
-    limit: int = 100,
-    db: Session = Depends(get_db)
-):
+def get_events(limit: int = 100, db: Session = Depends(get_db)):
     if limit < 1 or limit > 100:
         raise HTTPException(
             status_code=400,
@@ -127,3 +122,20 @@ def get_events(
         .all()
     )
     return events
+
+# =========================
+# DASHBOARD STATS (🔥 REQUIRED)
+# =========================
+@app.get(f"{API_PREFIX}/stats")
+def get_stats(db: Session = Depends(get_db)):
+    total_events = db.query(func.count(Event.id)).scalar()
+    unique_ips = db.query(func.count(func.distinct(Event.source_ip))).scalar()
+    active_honeypots = db.query(func.count(func.distinct(Event.honeypot_type))).scalar()
+
+    return {
+        "totalEvents": total_events or 0,
+        "uniqueIPs": unique_ips or 0,
+        "activeHoneypots": active_honeypots or 0,
+        "avgThreatScore": 0,     # placeholder for ML
+        "criticalAlerts": 0     # placeholder
+    }
