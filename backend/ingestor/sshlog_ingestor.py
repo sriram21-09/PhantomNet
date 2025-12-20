@@ -8,7 +8,8 @@ DB_CONFIG = {
     "host": "localhost",
     "dbname": "phantomnet_logs",
     "user": "postgres",
-    "password": "password@321",
+    "password": "password@321",    # keep empty if none
+    "host": "localhost",
     "port": 5432
 }
 

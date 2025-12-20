@@ -3,13 +3,19 @@ from datetime import datetime
 from typing import Optional
 
 class EventCreate(BaseModel):
-    timestamp: datetime
     source_ip: str
-    honeypot_type: Optional[str] = None
-    port: Optional[int] = None
-    raw_data: Optional[str] = None
-    class Config:
-        from_attributes = True
+    honeypot_type: str
+    port: int
+    raw_data: str
+    timestamp: Optional[datetime] = None   # 👈 OPTIONAL
 
-class EventResponse(EventCreate):
+class EventResponse(BaseModel):
     id: int
+    source_ip: str
+    honeypot_type: str
+    port: int
+    raw_data: str
+    timestamp: datetime
+
+    class Config:
+        orm_mode = True

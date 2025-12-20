@@ -1,41 +1,79 @@
+<<<<<<< HEAD
+from fastapi import FastAPI
+from services.feature_extractor import FeatureExtractor
+import pandas as pd
+import numpy as np
+
+# 1. Initialize the App FIRST
+app = FastAPI()
+
+# 2. Initialize the Feature Extractor
+extractor = FeatureExtractor()
+=======
 from fastapi import FastAPI, Depends, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from sqlalchemy import create_engine, desc
+from sqlalchemy import create_engine, desc, text, func
 from sqlalchemy.orm import sessionmaker, Session
 from typing import List
 from datetime import datetime
 import os
-
 from dotenv import load_dotenv
 
 # =========================
 # LOAD ENVIRONMENT VARIABLES
 # =========================
-
 load_dotenv()
 
 DATABASE_URL = os.getenv("DATABASE_URL")
-
 if not DATABASE_URL:
     raise RuntimeError("DATABASE_URL not set. Please check your .env file")
+>>>>>>> 70aed26f2d68a8bbd75c8d9e31b93ea13d1b5379
 
-# =========================
-# DATABASE SETUP
-# =========================
+# --- ROUTES ---
 
-from database.models import Base, Event
-from schemas import EventCreate, EventResponse
+@app.get("/")
+def read_root():
+    return {"message": "PhantomNet Backend is Running"}
+
+
+@app.get("/test-features")
+def test_feature_extraction():
+    """
+    Generates sample data and runs the feature extraction pipeline.
+    This proves the module is working on the dashboard.
+    """
+    # Generate dummy data
+    raw_samples = extractor.generate_labeled_sample()
+    processed_results = []
+    
+    # Process each sample through your new pipeline
+    for sample in raw_samples:
+        duration = extractor.extract_time_features(sample['start'], sample['end'])
+        protocol_vec = extractor.encode_protocol(sample['proto'])
+        ip_vec = extractor.extract_ip_patterns(sample['src'], sample['dst'])
+        norm_dur = extractor.normalize(duration, 'duration')
+        
+        processed_results.append({
+            "original": sample,
+            "extracted_features": {
+                "duration_sec": duration,
+                "normalized_duration": norm_dur,
+                "protocol_vector": protocol_vec, # [TCP, UDP, ICMP]
+                "ip_pattern_vector": ip_vec # [Internal, SameSubnet]
+            }
+        })
+        
+    return {"status": "success", "data": processed_results}
 
 engine = create_engine(DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
-# Create tables if they do not exist
+# Create tables if not exist
 Base.metadata.create_all(bind=engine)
 
 # =========================
 # FASTAPI APP INIT
 # =========================
-
 app = FastAPI(
     title="PhantomNet API",
     version="1.0",
@@ -45,10 +83,9 @@ app = FastAPI(
 # =========================
 # CORS CONFIGURATION
 # =========================
-
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173"],  # React (Vite)
+    allow_origins=["http://localhost:5173"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -57,7 +94,6 @@ app.add_middleware(
 # =========================
 # DATABASE DEPENDENCY
 # =========================
-
 def get_db():
     db = SessionLocal()
     try:
@@ -65,20 +101,15 @@ def get_db():
     finally:
         db.close()
 
-# =========================
-# API ROUTES
-# =========================
-
 API_PREFIX = "/api"
 
-# -------------------------
+# =========================
 # HEALTH CHECK
-# -------------------------
-
+# =========================
 @app.get(f"{API_PREFIX}/health")
 def health_check(db: Session = Depends(get_db)):
     try:
-        db.execute("SELECT 1")
+        db.execute(text("SELECT 1"))
         db_status = "connected"
     except Exception:
         db_status = "error"
@@ -89,10 +120,9 @@ def health_check(db: Session = Depends(get_db)):
         "timestamp": datetime.utcnow().isoformat()
     }
 
-# -------------------------
+# =========================
 # SUBMIT LOG (POST)
-# -------------------------
-
+# =========================
 @app.post(f"{API_PREFIX}/logs", status_code=200)
 def create_log(event: EventCreate, db: Session = Depends(get_db)):
     try:
@@ -100,27 +130,26 @@ def create_log(event: EventCreate, db: Session = Depends(get_db)):
             source_ip=event.source_ip,
             honeypot_type=event.honeypot_type,
             port=event.port,
-            raw_data=event.raw_data
+            raw_data=event.raw_data,
+            timestamp=event.timestamp or datetime.utcnow()
         )
         db.add(new_event)
         db.commit()
         db.refresh(new_event)
 
-        return {"message": "log stored successfully"}
-
+        return {
+            "message": "log stored successfully",
+            "event_id": new_event.id
+        }
     except Exception as e:
         db.rollback()
         raise HTTPException(status_code=500, detail=str(e))
 
-# -------------------------
+# =========================
 # FETCH EVENTS (GET)
-# -------------------------
-
+# =========================
 @app.get(f"{API_PREFIX}/events", response_model=List[EventResponse])
-def get_events(
-    limit: int = 100,
-    db: Session = Depends(get_db)
-):
+def get_events(limit: int = 100, db: Session = Depends(get_db)):
     if limit < 1 or limit > 100:
         raise HTTPException(
             status_code=400,
@@ -133,5 +162,22 @@ def get_events(
         .limit(limit)
         .all()
     )
-
     return events
+
+# =========================
+# DASHBOARD STATS (🔥 REQUIRED)
+# =========================
+@app.get(f"{API_PREFIX}/stats")
+def get_stats(db: Session = Depends(get_db)):
+    total_events = db.query(func.count(Event.id)).scalar()
+    unique_ips = db.query(func.count(func.distinct(Event.source_ip))).scalar()
+    active_honeypots = db.query(func.count(func.distinct(Event.honeypot_type))).scalar()
+
+    return {
+        "totalEvents": total_events or 0,
+        "uniqueIPs": unique_ips or 0,
+        "activeHoneypots": active_honeypots or 0,
+        "avgThreatScore": 0,     # placeholder for ML
+        "criticalAlerts": 0     # placeholder
+    }
+
