@@ -1,0 +1,34 @@
+{"timestamp": "2025-12-18T15:51:48.502440+00:00", "source_ip": "127.0.0.1", "honeypot_type": "ftp", "event": "connect", "data": null}
+{"timestamp": "2025-12-18T15:52:02.156845+00:00", "source_ip": "127.0.0.1", "honeypot_type": "ftp", "event": "login_success", "data": {"username": "PhantomNet"}}
+{"timestamp": "2025-12-18T15:53:22.378762+00:00", "source_ip": "127.0.0.1", "honeypot_type": "ftp", "event": "disconnect", "data": null}
+{"timestamp": "2025-12-18T16:07:35.365967+00:00", "source_ip": "127.0.0.1", "honeypot_type": "ftp", "event": "connect", "data": null}
+{"timestamp": "2025-12-18T16:07:35.497558+00:00", "source_ip": "127.0.0.1", "honeypot_type": "ftp", "event": "disconnect", "data": null}
+{"timestamp": "2025-12-18T16:12:08.474037+00:00", "source_ip": "127.0.0.1", "honeypot_type": "ftp", "event": "connect", "data": null}
+{"timestamp": "2025-12-18T16:12:08.477981+00:00", "source_ip": "127.0.0.1", "honeypot_type": "ftp", "event": "disconnect", "data": null}
+{"timestamp": "2025-12-18T16:29:09.681127+00:00", "source_ip": "127.0.0.1", "honeypot_type": "ftp", "event": "connect", "data": null}
+{"timestamp": "2025-12-18T16:29:23.009644+00:00", "source_ip": "127.0.0.1", "honeypot_type": "ftp", "event": "login_failed", "data": {"username": "sweet", "password": "team"}}
+{"timestamp": "2025-12-18T16:29:46.870395+00:00", "source_ip": "127.0.0.1", "honeypot_type": "ftp", "event": "disconnect", "data": null}
+{"timestamp": "2025-12-18T16:29:51.308991+00:00", "source_ip": "127.0.0.1", "honeypot_type": "ftp", "event": "connect", "data": null}
+{"timestamp": "2025-12-18T16:30:00.979355+00:00", "source_ip": "127.0.0.1", "honeypot_type": "ftp", "event": "login_success", "data": {"username": "PhantomNet"}}
+{"timestamp": "2025-12-18T16:30:39.188429+00:00", "source_ip": "127.0.0.1", "honeypot_type": "ftp", "event": "disconnect", "data": null}
+{"timestamp": "2025-12-18T16:59:16.332905+00:00", "source_ip": "127.0.0.1", "honeypot_type": "ftp", "event": "connect", "data": null}
+{"timestamp": "2025-12-18T16:59:16.336815+00:00", "source_ip": "127.0.0.1", "honeypot_type": "ftp", "event": "command", "data": {"command": "OPTS", "argument": "UTF8 ON", "raw": "OPTS UTF8 ON"}}
+{"timestamp": "2025-12-18T16:59:24.961104+00:00", "source_ip": "127.0.0.1", "honeypot_type": "ftp", "event": "command", "data": {"command": "USER", "argument": "PhantomNet", "raw": "USER PhantomNet"}}
+{"timestamp": "2025-12-18T16:59:27.679963+00:00", "source_ip": "127.0.0.1", "honeypot_type": "ftp", "event": "command", "data": {"command": "PASS", "argument": "1234", "raw": "PASS 1234"}}
+{"timestamp": "2025-12-18T16:59:27.680741+00:00", "source_ip": "127.0.0.1", "honeypot_type": "ftp", "event": "login_success", "data": {"username": "PhantomNet"}}
+{"timestamp": "2025-12-18T16:59:29.769261+00:00", "source_ip": "127.0.0.1", "honeypot_type": "ftp", "event": "command", "data": {"command": "PORT", "argument": "127,0,0,1,223,112", "raw": "PORT 127,0,0,1,223,112"}}
+{"timestamp": "2025-12-18T16:59:29.773264+00:00", "source_ip": "127.0.0.1", "honeypot_type": "ftp", "event": "command", "data": {"command": "NLST", "argument": "", "raw": "NLST"}}
+{"timestamp": "2025-12-18T17:00:42.505086+00:00", "source_ip": "127.0.0.1", "honeypot_type": "ftp", "event": "command", "data": {"command": "XPWD", "argument": "", "raw": "XPWD"}}
+{"timestamp": "2025-12-18T17:02:51.407589+00:00", "source_ip": "127.0.0.1", "honeypot_type": "ftp", "event": "disconnect", "data": null}
+{"timestamp": "2025-12-19T04:35:19.379944+00:00", "source_ip": "127.0.0.1", "honeypot_type": "ftp", "event": "connect", "data": null}
+{"timestamp": "2025-12-19T04:35:19.385270+00:00", "source_ip": "127.0.0.1", "honeypot_type": "ftp", "event": "command", "data": {"command": "OPTS", "argument": "UTF8 ON", "raw": "OPTS UTF8 ON"}}
+{"timestamp": "2025-12-19T04:35:29.887817+00:00", "source_ip": "127.0.0.1", "honeypot_type": "ftp", "event": "command", "data": {"command": "USER", "argument": "PhantomNet", "raw": "USER PhantomNet"}}
+{"timestamp": "2025-12-19T04:35:35.909572+00:00", "source_ip": "127.0.0.1", "honeypot_type": "ftp", "event": "command", "data": {"command": "PASS", "argument": "1234", "raw": "PASS 1234"}}
+{"timestamp": "2025-12-19T04:35:35.911001+00:00", "source_ip": "127.0.0.1", "honeypot_type": "ftp", "event": "login_success", "data": {"username": "PhantomNet"}}
+{"timestamp": "2025-12-19T04:35:39.236016+00:00", "source_ip": "127.0.0.1", "honeypot_type": "ftp", "event": "command", "data": {"command": "PORT", "argument": "127,0,0,1,237,192", "raw": "PORT 127,0,0,1,237,192"}}
+{"timestamp": "2025-12-19T04:35:39.241595+00:00", "source_ip": "127.0.0.1", "honeypot_type": "ftp", "event": "command", "data": {"command": "NLST", "argument": "", "raw": "NLST"}}
+{"timestamp": "2025-12-19T04:35:46.617906+00:00", "source_ip": "127.0.0.1", "honeypot_type": "ftp", "event": "command", "data": {"command": "XPWD", "argument": "", "raw": "XPWD"}}
+{"timestamp": "2025-12-19T04:35:56.139215+00:00", "source_ip": "127.0.0.1", "honeypot_type": "ftp", "event": "command", "data": {"command": "CWD", "argument": "Downloads", "raw": "CWD Downloads"}}
+{"timestamp": "2025-12-19T04:35:59.700412+00:00", "source_ip": "127.0.0.1", "honeypot_type": "ftp", "event": "command", "data": {"command": "XPWD", "argument": "", "raw": "XPWD"}}
+{"timestamp": "2025-12-19T04:37:03.200316+00:00", "source_ip": "127.0.0.1", "honeypot_type": "ftp", "event": "command", "data": {"command": "QUIT", "argument": "", "raw": "QUIT"}}
+{"timestamp": "2025-12-19T04:37:03.201718+00:00", "source_ip": "127.0.0.1", "honeypot_type": "ftp", "event": "disconnect", "data": null}

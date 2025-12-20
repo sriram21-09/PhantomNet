@@ -3,7 +3,7 @@ import psycopg2
 import hashlib
 import os
 
-LOG_FILE = os.path.abspath("../logs/http_logs.jsonl")
+LOG_FILE = os.path.abspath("../logs/ssh_async.jsonl")
 
 DB_CONFIG = {
     "host": "localhost",
@@ -21,14 +21,14 @@ def insert_log(cur, log):
     log_hash = compute_hash(log)
 
     cur.execute("""
-        INSERT INTO http_logs (
+        INSERT INTO asyncssh_logs (
             timestamp,
             source_ip,
             honeypot_type,
             port,
-            method,
-            url,
-            raw_data,
+            username,
+            password,
+            status,
             log_hash
         )
         VALUES (%s,%s,%s,%s,%s,%s,%s,%s)
@@ -38,14 +38,14 @@ def insert_log(cur, log):
         log.get("source_ip"),
         log.get("honeypot_type"),
         log.get("port"),
-        log.get("method"),
-        log.get("url"),
-        log.get("raw_data"),
+        log.get("username"),
+        log.get("password"),
+        log.get("status"),
         log_hash
     ))
 
 def main():
-    print("[+] Connecting to PostgreSQL (HTTP)...")
+    print("[+] Connecting to PostgreSQL (AsyncSSH)...")
     conn = psycopg2.connect(**DB_CONFIG)
     cur = conn.cursor()
 
@@ -56,7 +56,7 @@ def main():
     conn.commit()
     cur.close()
     conn.close()
-    print("[+] HTTP logs ingested successfully")
+    print("[+] AsyncSSH logs ingested successfully")
 
 if __name__ == "__main__":
     main()

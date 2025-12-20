@@ -3,7 +3,7 @@ import psycopg2
 import hashlib
 import os
 
-LOG_FILE = os.path.abspath("../logs/http_logs.jsonl")
+LOG_FILE = os.path.abspath("../logs/ftp_logs.jsonl")
 
 DB_CONFIG = {
     "host": "localhost",
@@ -21,31 +21,27 @@ def insert_log(cur, log):
     log_hash = compute_hash(log)
 
     cur.execute("""
-        INSERT INTO http_logs (
+        INSERT INTO ftp_logs (
             timestamp,
             source_ip,
             honeypot_type,
-            port,
-            method,
-            url,
-            raw_data,
+            event,
+            data,
             log_hash
         )
-        VALUES (%s,%s,%s,%s,%s,%s,%s,%s)
+        VALUES (%s,%s,%s,%s,%s,%s)
         ON CONFLICT (log_hash) DO NOTHING
     """, (
         log.get("timestamp"),
         log.get("source_ip"),
         log.get("honeypot_type"),
-        log.get("port"),
-        log.get("method"),
-        log.get("url"),
-        log.get("raw_data"),
+        log.get("event"),
+        json.dumps(log.get("data")),
         log_hash
     ))
 
 def main():
-    print("[+] Connecting to PostgreSQL (HTTP)...")
+    print("[+] Connecting to PostgreSQL (FTP)...")
     conn = psycopg2.connect(**DB_CONFIG)
     cur = conn.cursor()
 
@@ -56,7 +52,7 @@ def main():
     conn.commit()
     cur.close()
     conn.close()
-    print("[+] HTTP logs ingested successfully")
+    print("[+] FTP logs ingested successfully")
 
 if __name__ == "__main__":
     main()
