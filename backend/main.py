@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 from fastapi import FastAPI
 from services.feature_extractor import FeatureExtractor
 import pandas as pd
@@ -9,7 +8,6 @@ app = FastAPI()
 
 # 2. Initialize the Feature Extractor
 extractor = FeatureExtractor()
-=======
 from fastapi import FastAPI, Depends, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import create_engine, desc, text, func
@@ -27,7 +25,6 @@ load_dotenv()
 DATABASE_URL = os.getenv("DATABASE_URL")
 if not DATABASE_URL:
     raise RuntimeError("DATABASE_URL not set. Please check your .env file")
->>>>>>> 70aed26f2d68a8bbd75c8d9e31b93ea13d1b5379
 
 # --- ROUTES ---
 
