@@ -2,66 +2,53 @@ import http.server
 import socketserver
 import json
 import os
-import requests
+import time
 from datetime import datetime, timezone
+from collections import defaultdict
 
 # ======================
 # CONFIG
 # ======================
 PORT = 8080
-BACKEND_API = "http://127.0.0.1:8000/api/logs"
+REQUEST_TIMEOUT = 5          # seconds
+MAX_CONN_PER_IP = 10
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-LOG_DIR = os.path.join(BASE_DIR, "logs")
-os.makedirs(LOG_DIR, exist_ok=True)
+LOG_DIR = os.path.abspath(os.path.join(BASE_DIR, "../../logs"))
 
 LOG_FILE = os.path.join(LOG_DIR, "http_logs.jsonl")
 ERROR_LOG = os.path.join(LOG_DIR, "http_error.log")
 
-# ======================
-# HELPERS
-# ======================
-def log_error(exc, context=""):
-    with open(ERROR_LOG, "a") as f:
-        f.write(f"{datetime.now(timezone.utc).isoformat()} | {context} | {repr(exc)}\n")
+os.makedirs(LOG_DIR, exist_ok=True)
 
-def send_to_backend(ip, method, path, headers, body=""):
-    payload = {
-        "source_ip": ip,
-        "honeypot_type": "http",
-        "port": PORT,
-        "raw_data": f"{method} {path} | UA={headers.get('User-Agent')} | BODY={body}"
-    }
-    try:
-        requests.post(BACKEND_API, json=payload, timeout=2)
-    except Exception as e:
-        log_error(e, "send_to_backend")
+ip_connections = defaultdict(int)
 
-def log_http(ip, method, path, headers, body=""):
-    entry = {
-        "timestamp": datetime.now(timezone.utc).isoformat(),
-        "source_ip": ip,
-        "honeypot_type": "http",
-        "port": PORT,
-        "raw_data": f"{method} {path} | UA={headers.get('User-Agent')} | BODY={body}"
-    }
+# ======================
+# LOGGING
+# ======================
+def log(level, data):
+    data["level"] = level
     with open(LOG_FILE, "a") as f:
-        f.write(json.dumps(entry) + "\n")
+        f.write(json.dumps(data) + "\n")
+
+def log_error(exc, context):
+    with open(ERROR_LOG, "a") as f:
+        f.write(
+            f"{datetime.now(timezone.utc).isoformat()} | {context} | {repr(exc)}\n"
+        )
 
 # ======================
-# FAKE LOGIN PAGE
+# FAKE PAGE
 # ======================
 LOGIN_PAGE = b"""
-<html>
-<body>
+<html><body>
 <h2>Admin Panel</h2>
 <form method="POST" action="/admin">
 Username: <input name="username"><br>
 Password: <input type="password" name="password"><br>
 <button>Login</button>
 </form>
-</body>
-</html>
+</body></html>
 """
 
 # ======================
@@ -69,77 +56,116 @@ Password: <input type="password" name="password"><br>
 # ======================
 class HoneypotHandler(http.server.BaseHTTPRequestHandler):
 
-    def _set_headers(self, code=200, content="text/html"):
-        self.send_response(code)
-        self.send_header("Content-Type", content)
-        self.end_headers()
+    def setup(self):
+        super().setup()
+        self.request.settimeout(REQUEST_TIMEOUT)
 
+    def _log_request(self, level, method):
+        log(level, {
+            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "source_ip": self.client_address[0],
+            "honeypot_type": "http",
+            "port": PORT,
+            "method": method,
+            "path": self.path
+        })
+
+    def _check_ip_limit(self):
+        ip = self.client_address[0]
+        ip_connections[ip] += 1
+
+        if ip_connections[ip] > MAX_CONN_PER_IP:
+            self._log_request("WARN", "BLOCKED")
+            self.send_response(429)
+            self.end_headers()
+            self.wfile.write(b"Too Many Requests")
+            return False
+
+        return True
+
+    def finish(self):
+        try:
+            ip_connections[self.client_address[0]] -= 1
+            if ip_connections[self.client_address[0]] < 0:
+                ip_connections[self.client_address[0]] = 0
+        except:
+            pass
+        super().finish()
+
+    # ======================
+    # METHODS
+    # ======================
     def do_GET(self):
         try:
-            ip = self.client_address[0]
-            headers = dict(self.headers)
+            if not self._check_ip_limit():
+                return
 
-            log_http(ip, "GET", self.path, headers)
-            send_to_backend(ip, "GET", self.path, headers)
+            self._log_request("INFO", "GET")
 
             if self.path == "/admin":
-                self._set_headers(200)
+                self.send_response(200)
+                self.end_headers()
                 self.wfile.write(LOGIN_PAGE)
             else:
-                self._set_headers(404)
+                self.send_response(404)
+                self.end_headers()
                 self.wfile.write(b"404 Not Found")
 
         except Exception as e:
             log_error(e, "GET")
-            self._set_headers(500)
+            self.send_response(500)
+            self.end_headers()
 
     def do_POST(self):
         try:
-            ip = self.client_address[0]
-            headers = dict(self.headers)
+            if not self._check_ip_limit():
+                return
 
-            length = int(self.headers.get("Content-Length", 0))
-            body = self.rfile.read(length).decode(errors="ignore")
+            self._log_request("WARN", "POST")
 
-            log_http(ip, "POST", self.path, headers, body)
-            send_to_backend(ip, "POST", self.path, headers, body)
-
-            self._set_headers(403, "text/plain")
+            self.send_response(403)
+            self.end_headers()
             self.wfile.write(b"Invalid credentials")
 
         except Exception as e:
             log_error(e, "POST")
-            self._set_headers(400)
+            self.send_response(500)
+            self.end_headers()
 
     def do_PUT(self):
         try:
-            ip = self.client_address[0]
-            headers = dict(self.headers)
+            if not self._check_ip_limit():
+                return
 
-            log_http(ip, "PUT", self.path, headers)
-            send_to_backend(ip, "PUT", self.path, headers)
+            self._log_request("WARN", "PUT")
 
-            self._set_headers(403)
+            self.send_response(403)
+            self.end_headers()
             self.wfile.write(b"403 Forbidden")
 
         except Exception as e:
             log_error(e, "PUT")
-            self._set_headers(500)
+            self.send_response(500)
+            self.end_headers()
 
     def do_DELETE(self):
         try:
-            ip = self.client_address[0]
-            headers = dict(self.headers)
+            if not self._check_ip_limit():
+                return
 
-            log_http(ip, "DELETE", self.path, headers)
-            send_to_backend(ip, "DELETE", self.path, headers)
+            self._log_request("WARN", "DELETE")
 
-            self._set_headers(404)
+            self.send_response(404)
+            self.end_headers()
             self.wfile.write(b"404 Not Found")
 
         except Exception as e:
             log_error(e, "DELETE")
-            self._set_headers(500)
+            self.send_response(500)
+            self.end_headers()
+
+    def log_message(self, format, *args):
+        return  # disable default console logs
 
 # ======================
 # START SERVER
