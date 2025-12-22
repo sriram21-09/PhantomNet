@@ -17,7 +17,6 @@ LOG_FILE = os.path.abspath(
     os.path.join(os.path.dirname(__file__), "../../../logs/ssh_async.jsonl")
 )
 
-
 @pytest.mark.asyncio
 async def test_invalid_login():
     """Invalid credentials should fail"""
@@ -29,8 +28,6 @@ async def test_invalid_login():
             password=INVALID_PASS,
             known_hosts=None
         )
-
-
 
 @pytest.mark.asyncio
 async def test_valid_login():
@@ -44,21 +41,27 @@ async def test_valid_login():
     )
     conn.close()
 
-
 def test_asyncssh_login_logs_exist():
-    """Check login_attempt logs contain username & password"""
+    """Check login_attempt logs contain username, password, and level"""
     assert os.path.exists(LOG_FILE)
 
     with open(LOG_FILE, "r") as f:
         logs = [json.loads(line) for line in f]
 
     login_logs = [
-    log for log in logs
-    if log.get("status") == "attempt"
+        log for log in logs
+        if log.get("event") == "login_attempt"
     ]
 
     assert len(login_logs) > 0
 
     sample = login_logs[-1]
-    assert "username" in sample
-    assert "password" in sample
+
+    # Validate structure
+    assert "data" in sample
+    assert "username" in sample["data"]
+    assert "password" in sample["data"]
+
+    # Validate log level
+    assert "level" in sample
+    assert sample["level"] in ("INFO", "WARN", "ERROR")

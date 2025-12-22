@@ -36,3 +36,22 @@
 {"timestamp": "2025-12-20T16:16:10.834069+00:00", "source_ip": "::1", "honeypot_type": "ssh", "port": 2222, "event": "login_attempt", "data": {"username": "PhantomNet", "password": "1234"}, "level": "WARN"}
 {"timestamp": "2025-12-20T16:16:10.836038+00:00", "source_ip": "::1", "honeypot_type": "ssh", "port": 2222, "event": "login_success", "data": {"username": "PhantomNet"}, "level": "INFO"}
 {"timestamp": "2025-12-20T16:16:14.136057+00:00", "source_ip": "::1", "honeypot_type": "ssh", "port": 2222, "event": "command", "data": {"cmd": "ls"}, "level": "INFO"}
+{"timestamp": "2025-12-22T10:48:25.246405+00:00", "source_ip": "::1", "honeypot_type": "ssh", "port": 2222, "event": "login_attempt", "data": {"username": "PhantomNet", "password": "1234"}, "level": "WARN"}
+{"timestamp": "2025-12-22T10:48:25.271200+00:00", "source_ip": "::1", "honeypot_type": "ssh", "port": 2222, "event": "login_success", "data": {"username": "PhantomNet"}, "level": "INFO"}
+{"timestamp": "2025-12-22T10:48:28.032361+00:00", "source_ip": "::1", "honeypot_type": "ssh", "port": 2222, "event": "command", "data": {"cmd": "ls"}, "level": "INFO"}
+{"timestamp": "2025-12-22T10:48:36.346306+00:00", "source_ip": "::1", "honeypot_type": "ssh", "port": 2222, "event": "command", "data": {"cmd": "cd usr"}, "level": "INFO"}
+{"timestamp": "2025-12-22T10:48:48.849729+00:00", "source_ip": "::1", "honeypot_type": "ssh", "port": 2222, "event": "command", "data": {"cmd": "mkdir team"}, "level": "INFO"}
+{"timestamp": "2025-12-22T10:49:29.978256+00:00", "source_ip": "::1", "honeypot_type": "ssh", "port": 2222, "event": "command", "data": {"cmd": "pwd"}, "level": "INFO"}
+{"timestamp": "2025-12-22T10:49:35.539268+00:00", "source_ip": "::1", "honeypot_type": "ssh", "port": 2222, "event": "command", "data": {"cmd": "whoami"}, "level": "INFO"}
+{"timestamp": "2025-12-22T10:53:38.493453+00:00", "source_ip": "127.0.0.1", "honeypot_type": "ssh", "port": 2222, "event": "login_attempt", "data": {"username": "PhantomNet", "password": "1234"}, "level": "WARN"}
+{"timestamp": "2025-12-22T10:53:38.494272+00:00", "source_ip": "127.0.0.1", "honeypot_type": "ssh", "port": 2222, "event": "login_success", "data": {"username": "PhantomNet"}, "level": "INFO"}
+{"timestamp": "2025-12-22T10:53:43.307610+00:00", "source_ip": "127.0.0.1", "honeypot_type": "ssh", "port": 2222, "event": "command", "data": {"cmd": "ls"}, "level": "INFO"}
+{"timestamp": "2025-12-22T10:53:52.595695+00:00", "source_ip": "127.0.0.1", "honeypot_type": "ssh", "port": 2222, "event": "command", "data": {"cmd": "mkdir team"}, "level": "INFO"}
+{"timestamp": "2025-12-22T10:53:55.975249+00:00", "source_ip": "127.0.0.1", "honeypot_type": "ssh", "port": 2222, "event": "command", "data": {"cmd": "ls"}, "level": "INFO"}
+{"timestamp": "2025-12-22T10:54:01.033705+00:00", "source_ip": "127.0.0.1", "honeypot_type": "ssh", "port": 2222, "event": "command", "data": {"cmd": "cd"}, "level": "INFO"}
+{"timestamp": "2025-12-22T10:54:06.513012+00:00", "source_ip": "127.0.0.1", "honeypot_type": "ssh", "port": 2222, "event": "command", "data": {"cmd": "pwd"}, "level": "INFO"}
+{"timestamp": "2025-12-22T10:54:09.887488+00:00", "source_ip": "127.0.0.1", "honeypot_type": "ssh", "port": 2222, "event": "command", "data": {"cmd": "ok"}, "level": "INFO"}
+{"timestamp": "2025-12-22T11:19:06.845839+00:00", "source_ip": "::1", "honeypot_type": "ssh", "port": 2222, "event": "login_attempt", "data": {"username": "attacker", "password": "wrongpass"}, "level": "WARN"}
+{"timestamp": "2025-12-22T11:19:06.848068+00:00", "source_ip": "::1", "honeypot_type": "ssh", "port": 2222, "event": "login_failed", "data": {"username": "attacker"}, "level": "ERROR"}
+{"timestamp": "2025-12-22T11:19:06.902880+00:00", "source_ip": "::1", "honeypot_type": "ssh", "port": 2222, "event": "login_attempt", "data": {"username": "PhantomNet", "password": "1234"}, "level": "WARN"}
+{"timestamp": "2025-12-22T11:19:06.903364+00:00", "source_ip": "::1", "honeypot_type": "ssh", "port": 2222, "event": "login_success", "data": {"username": "PhantomNet"}, "level": "INFO"}
