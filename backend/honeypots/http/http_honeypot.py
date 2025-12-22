@@ -2,15 +2,15 @@ import http.server
 import socketserver
 import json
 import os
-import time
 from datetime import datetime, timezone
 from collections import defaultdict
+from urllib.parse import parse_qs
 
 # ======================
 # CONFIG
 # ======================
 PORT = 8080
-REQUEST_TIMEOUT = 5          # seconds
+REQUEST_TIMEOUT = 5
 MAX_CONN_PER_IP = 10
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -38,17 +38,100 @@ def log_error(exc, context):
         )
 
 # ======================
-# FAKE PAGE
+# FAKE PAGES (NO BYTES LITERALS)
 # ======================
-LOGIN_PAGE = b"""
-<html><body>
-<h2>Admin Panel</h2>
-<form method="POST" action="/admin">
+INDEX_PAGE = """
+<!DOCTYPE html>
+<html>
+<head><title>Welcome</title></head>
+<body>
+<h2>Internal Portal</h2>
+<a href="/admin">Admin Login</a>
+</body>
+</html>
+"""
+
+LOGIN_PAGE = """
+<!DOCTYPE html>
+<html>
+<head><title>Login</title></head>
+<body>
+<h2>Login</h2>
+<form method="POST" action="/login">
 Username: <input name="username"><br>
 Password: <input type="password" name="password"><br>
 <button>Login</button>
 </form>
-</body></html>
+</body>
+</html>
+"""
+
+ADMIN_PAGE = """
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Admin Dashboard</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f6f8;
+        }
+        .container {
+            width: 360px;
+            margin: 120px auto;
+            background: #ffffff;
+            padding: 25px;
+            border-radius: 6px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+        }
+        h2 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #333;
+        }
+        input {
+            width: 100%;
+            padding: 10px;
+            margin-top: 8px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        button {
+            width: 100%;
+            padding: 10px;
+            background-color: #2f80ed;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 15px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #256fd1;
+        }
+        .footer {
+            margin-top: 15px;
+            font-size: 12px;
+            text-align: center;
+            color: #888;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h2>Admin Dashboard</h2>
+    <form method="POST" action="/admin">
+        <input type="text" name="username" placeholder="Username" required />
+        <input type="password" name="password" placeholder="Password" required />
+        <button type="submit">Sign in</button>
+    </form>
+    <div class="footer">
+        © 2025 Internal Admin System
+    </div>
+</div>
+</body>
+</html>
 """
 
 # ======================
@@ -60,27 +143,31 @@ class HoneypotHandler(http.server.BaseHTTPRequestHandler):
         super().setup()
         self.request.settimeout(REQUEST_TIMEOUT)
 
-    def _log_request(self, level, method):
-        log(level, {
+    def _base_log(self, level, event, extra=None):
+        data = {
             "timestamp": datetime.now(timezone.utc).isoformat(),
             "source_ip": self.client_address[0],
             "honeypot_type": "http",
             "port": PORT,
-            "method": method,
-            "path": self.path
-        })
+            "event": event,
+            "method": self.command,
+            "path": self.path,
+            "user_agent": self.headers.get("User-Agent")
+        }
+        if extra:
+            data["data"] = extra
+        log(level, data)
 
     def _check_ip_limit(self):
         ip = self.client_address[0]
         ip_connections[ip] += 1
 
         if ip_connections[ip] > MAX_CONN_PER_IP:
-            self._log_request("WARN", "BLOCKED")
+            self._base_log("WARN", "rate_limited")
             self.send_response(429)
             self.end_headers()
             self.wfile.write(b"Too Many Requests")
             return False
-
         return True
 
     def finish(self):
@@ -88,7 +175,7 @@ class HoneypotHandler(http.server.BaseHTTPRequestHandler):
             ip_connections[self.client_address[0]] -= 1
             if ip_connections[self.client_address[0]] < 0:
                 ip_connections[self.client_address[0]] = 0
-        except:
+        except Exception:
             pass
         super().finish()
 
@@ -100,12 +187,23 @@ class HoneypotHandler(http.server.BaseHTTPRequestHandler):
             if not self._check_ip_limit():
                 return
 
-            self._log_request("INFO", "GET")
+            self._base_log("INFO", "page_view")
 
-            if self.path == "/admin":
+            if self.path == "/":
                 self.send_response(200)
                 self.end_headers()
-                self.wfile.write(LOGIN_PAGE)
+                self.wfile.write(INDEX_PAGE.encode())
+
+            elif self.path == "/login":
+                self.send_response(200)
+                self.end_headers()
+                self.wfile.write(LOGIN_PAGE.encode())
+
+            elif self.path == "/admin":
+                self.send_response(200)
+                self.end_headers()
+                self.wfile.write(ADMIN_PAGE.encode())
+
             else:
                 self.send_response(404)
                 self.end_headers()
@@ -121,7 +219,18 @@ class HoneypotHandler(http.server.BaseHTTPRequestHandler):
             if not self._check_ip_limit():
                 return
 
-            self._log_request("WARN", "POST")
+            length = int(self.headers.get("Content-Length", 0))
+            body = self.rfile.read(length).decode(errors="ignore")
+            params = parse_qs(body)
+
+            username = params.get("username", [""])[0]
+            password = params.get("password", [""])[0]
+
+            self._base_log(
+                "WARN",
+                "login_attempt",
+                {"username": username, "password": password}
+            )
 
             self.send_response(403)
             self.end_headers()
@@ -137,8 +246,7 @@ class HoneypotHandler(http.server.BaseHTTPRequestHandler):
             if not self._check_ip_limit():
                 return
 
-            self._log_request("WARN", "PUT")
-
+            self._base_log("WARN", "put_attempt")
             self.send_response(403)
             self.end_headers()
             self.wfile.write(b"403 Forbidden")
@@ -153,8 +261,7 @@ class HoneypotHandler(http.server.BaseHTTPRequestHandler):
             if not self._check_ip_limit():
                 return
 
-            self._log_request("WARN", "DELETE")
-
+            self._base_log("WARN", "delete_attempt")
             self.send_response(404)
             self.end_headers()
             self.wfile.write(b"404 Not Found")
@@ -165,7 +272,7 @@ class HoneypotHandler(http.server.BaseHTTPRequestHandler):
             self.end_headers()
 
     def log_message(self, format, *args):
-        return  # disable default console logs
+        return
 
 # ======================
 # START SERVER
