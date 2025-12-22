@@ -3,9 +3,9 @@ import LoadingSpinner from "../components/LoadingSpinner";
 import "./events.css";
 
 const Events = () => {
-
   /* =========================
-     STEP 1: STATES
+     STATE MANAGEMENT
+     (Week 2 logic – unchanged)
   ========================== */
   const [allEvents, setAllEvents] = useState([]);
   const [events, setEvents] = useState([]);
@@ -18,7 +18,7 @@ const Events = () => {
   const [error, setError] = useState(null);
 
   /* =========================
-     STEP 2: FETCH EVENTS
+     FETCH EVENTS
   ========================== */
   useEffect(() => {
     const fetchEvents = async () => {
@@ -47,7 +47,7 @@ const Events = () => {
   };
 
   /* =========================
-     STEP 3: THREAT LOGIC
+     THREAT LOGIC
   ========================== */
   const getThreatLevel = (event) => {
     if (event.port === 23 || event.port === 3389) return "CRITICAL";
@@ -55,9 +55,6 @@ const Events = () => {
     return "SAFE";
   };
 
-  /* =========================
-     STEP 4: THREAT COLORS
-  ========================== */
   const getThreatStyle = (level) => {
     switch (level) {
       case "CRITICAL":
@@ -72,24 +69,24 @@ const Events = () => {
   };
 
   /* =========================
-     STEP 5: APPLY FILTERS
+     APPLY FILTERS
   ========================== */
   useEffect(() => {
     let filtered = [...allEvents];
 
     if (protocolFilter !== "ALL") {
-      filtered = filtered.filter(e => e.type === protocolFilter);
+      filtered = filtered.filter((e) => e.type === protocolFilter);
     }
 
     if (threatFilter !== "ALL") {
       filtered = filtered.filter(
-        e => getThreatLevel(e) === threatFilter
+        (e) => getThreatLevel(e) === threatFilter
       );
     }
 
     if (search.trim() !== "") {
       filtered = filtered.filter(
-        e =>
+        (e) =>
           e.ip.toLowerCase().includes(search.toLowerCase()) ||
           e.details.toLowerCase().includes(search.toLowerCase())
       );
@@ -99,29 +96,40 @@ const Events = () => {
   }, [search, protocolFilter, threatFilter, allEvents]);
 
   /* =========================
-     STEP 6: THREAT SUMMARY
+     THREAT SUMMARY
   ========================== */
   const threatSummary = {
-    SAFE: events.filter(e => getThreatLevel(e) === "SAFE").length,
-    SUSPICIOUS: events.filter(e => getThreatLevel(e) === "SUSPICIOUS").length,
-    CRITICAL: events.filter(e => getThreatLevel(e) === "CRITICAL").length
+    SAFE: events.filter((e) => getThreatLevel(e) === "SAFE").length,
+    SUSPICIOUS: events.filter((e) => getThreatLevel(e) === "SUSPICIOUS").length,
+    CRITICAL: events.filter((e) => getThreatLevel(e) === "CRITICAL").length
   };
 
   /* =========================
-     UI
+     PAGE UI (Week 3 – Day 1)
   ========================== */
   return (
     <div className="events-container">
-      <h1>Events</h1>
+      {/* ======================
+         PAGE HEADER
+      ====================== */}
+      <div className="events-header">
+        <h1>Events</h1>
+      </div>
 
-      {/* Threat Summary */}
-      <div style={{ display: "flex", gap: "20px", marginBottom: "15px" }}>
+      {/* ======================
+         THREAT SUMMARY SECTION
+         (Future component: ThreatSummary)
+      ====================== */}
+      <div className="threat-summary" style={{ display: "flex", gap: "20px", marginBottom: "15px" }}>
         <span style={{ color: "#388e3c" }}>🟢 Safe: {threatSummary.SAFE}</span>
         <span style={{ color: "#f57c00" }}>🟠 Suspicious: {threatSummary.SUSPICIOUS}</span>
         <span style={{ color: "#d32f2f" }}>🔴 Critical: {threatSummary.CRITICAL}</span>
       </div>
 
-      {/* Filters */}
+      {/* ======================
+         FILTER CONTROLS
+         (Future component: EventsFilters)
+      ====================== */}
       <div className="controls">
         <input
           type="text"
@@ -146,20 +154,23 @@ const Events = () => {
         </select>
       </div>
 
-      {/* Loading */}
+      {/* ======================
+         STATES
+      ====================== */}
       {loading && <LoadingSpinner />}
 
-      {/* Error */}
       {error && <p className="error">{error}</p>}
 
-      {/* Empty State */}
       {!loading && !error && events.length === 0 && (
         <p style={{ marginTop: "20px", color: "#666" }}>
           No events found for the selected filters.
         </p>
       )}
 
-      {/* Events Table */}
+      {/* ======================
+         EVENTS TABLE
+         (Future component: EventsTable)
+      ====================== */}
       {!loading && !error && events.length > 0 && (
         <table className="events-table">
           <thead>
