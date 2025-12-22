@@ -1,5 +1,5 @@
 
-# PhantomNet Testing – Day 7
+# PhantomNet Testing – Day 7(WEEK 1)
 
 This document lists manual test cases to verify that PhantomNet is working end-to-end: honeypots, log ingestion, database, and dashboard.
 
@@ -240,10 +240,37 @@ Create a pull request and merge into `main` after review.
 
 ```
 
-If you want, I can next:
-- Add **automated test placeholders**
-- Convert this into **QA checklist format**
-- Align it with **academic project evaluation rubrics**
 
-Just say what’s next.
 ```
+
+# PhantomNet – Testing Summary (Week 2)
+
+## Tested Components
+- SSH Honeypot ✅
+- HTTP Honeypot ✅
+- Event Ingestion API ✅
+- PostgreSQL Logging ✅
+- Dashboard Metrics ✅
+
+## Test Cases
+- SSH login attempts logged
+- HTTP GET/POST attacks logged
+- Events visible in dashboard
+- Stats API reflects real DB data
+
+## Test Date
+19–20 Dec 2025
+
+## Status
+PASS
+
+
+
+
+
+
+
+
+
+
+
