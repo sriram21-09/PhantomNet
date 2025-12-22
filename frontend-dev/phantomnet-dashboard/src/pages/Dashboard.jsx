@@ -21,7 +21,7 @@ const Dashboard = () => {
 
         const data = await response.json();
 
-        // ✅ Safety defaults (Day-3 & Day-6)
+        // Safety defaults
         setStats({
           totalEvents: data.totalEvents ?? 0,
           uniqueIPs: data.uniqueIPs ?? 0,
@@ -46,26 +46,34 @@ const Dashboard = () => {
     stats.criticalAlerts === 0;
 
   return (
-    <div style={{ padding: "20px" }}>
-      <h1>Dashboard</h1>
-      <p>This is the PhantomNet dashboard. More content will be added later.</p>
+    <div className="dashboard-container" style={{ padding: "20px" }}>
+      {/* ======================
+         DASHBOARD HEADER
+      ====================== */}
+      <div className="dashboard-header">
+        <h1>Dashboard</h1>
+        <p>This is the PhantomNet dashboard. More content will be added later.</p>
+      </div>
 
-      {/* ✅ Loading Spinner */}
+      {/* ======================
+         LOADING / ERROR / EMPTY
+      ====================== */}
       {loading && <LoadingSpinner />}
 
-      {/* ✅ Error State */}
       {error && <p style={{ color: "red" }}>{error}</p>}
 
-      {/* ✅ Empty State (Day-6) */}
       {!loading && !error && isEmptyStats && (
         <p style={{ marginTop: "20px", color: "#666" }}>
           No dashboard statistics available yet.
         </p>
       )}
 
-      {/* ✅ Stat Cards */}
+      {/* ======================
+         METRICS SECTION
+      ====================== */}
       {!loading && !error && stats && !isEmptyStats && (
         <div
+          className="metrics-section"
           style={{
             display: "flex",
             gap: "20px",
@@ -104,6 +112,17 @@ const Dashboard = () => {
           />
         </div>
       )}
+
+      {/* ======================
+         FUTURE SECTIONS (Week 3+)
+      ====================== */}
+      <div className="charts-section" style={{ marginTop: "40px" }}>
+        {/* AttackChart will be added in Week 3 Day 2 */}
+      </div>
+
+      <div className="table-section" style={{ marginTop: "40px" }}>
+        {/* EventsTable summary will be added later */}
+      </div>
     </div>
   );
 };
