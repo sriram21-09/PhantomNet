@@ -26,13 +26,6 @@ open(LOG_FILE, "a").close()
 
 IP_CONNECTIONS = {}
 
-# ---------------- REALISTIC SSH BANNER (Week 3 Day 1 - Task 2) ----------------
-class SSHHoneypot(asyncssh.SSHServer):
-
-    def get_server_banner(self):
-        return "SSH-2.0-OpenSSH_8.2p1 Ubuntu-4ubuntu0.5"
-
-
 # ---------------- LOG HELPERS ----------------
 def log_event(data):
     try:
@@ -45,34 +38,32 @@ def log_error(msg, context=""):
     with open(ERROR_LOG, "a") as f:
         f.write(f"{datetime.now(timezone.utc).isoformat()} | {context} | {msg}\n")
 
-# ---------------- FAKE SHELL OUTPUT ----------------
-def fake_command_output(cmd):
-    if cmd.startswith("cd "):
-        return ""
+# ---------------- FAKE FILESYSTEM ----------------
+BASE_FS = {
+    "/": ["bin", "etc", "home"],
+    "/home": ["ubuntu"],
+    "/home/ubuntu": ["notes.txt"],
+}
 
-    if cmd.startswith("mkdir "):
-        return ""
-
-    responses = {
-        "ls": "bin boot dev etc home lib lib64 usr var\n",
-        "pwd": "/home/ubuntu\n",
-        "whoami": "ubuntu\n",
-        "uname -a": "Linux ip-172-31-12-45 5.15.0-84-generic x86_64 GNU/Linux\n",
-        "id": "uid=1000(ubuntu) gid=1000(ubuntu) groups=1000(ubuntu)\n"
-    }
-    return responses.get(cmd, f"bash: {cmd}: command not found\n")
+FILE_CONTENTS = {
+    "/home/ubuntu/notes.txt": "remember to backup server configs\n"
+}
 
 # ---------------- SESSION ----------------
 class HoneypotSession(asyncssh.SSHServerSession):
     def __init__(self, ip, username):
         self.ip = ip
         self.username = username or "ubuntu"
+        self.cwd = "/home/ubuntu"
         self.chan = None
 
     def connection_made(self, chan):
         self.chan = chan
         self.chan.write("Welcome to Ubuntu 20.04 LTS\r\n")
-        self.chan.write(f"{self.username}@honeypot:~$ ")
+        self._prompt()
+
+    def _prompt(self):
+        self.chan.write(f"{self.username}@honeypot:{self.cwd}$ ")
 
     def shell_requested(self):
         return True
@@ -80,9 +71,8 @@ class HoneypotSession(asyncssh.SSHServerSession):
     def data_received(self, data, datatype):
         try:
             cmd = data.strip()
-
             if not cmd:
-                self.chan.write(f"{self.username}@honeypot:~$ ")
+                self._prompt()
                 return
 
             log_event({
@@ -100,14 +90,69 @@ class HoneypotSession(asyncssh.SSHServerSession):
                 self.chan.exit(0)
                 return
 
-            self.chan.write(fake_command_output(cmd))
-            self.chan.write(f"{self.username}@honeypot:~$ ")
+            output = self.handle_command(cmd)
+            if output:
+                self.chan.write(output)
+
+            self._prompt()
 
         except Exception as e:
             log_error(str(e), "session_command")
 
+    # ---------------- COMMAND HANDLER ----------------
+    def handle_command(self, cmd):
+        parts = cmd.split()
+        command = parts[0]
+
+        if command == "pwd":
+            return f"{self.cwd}\n"
+
+        if command == "ls":
+            return " ".join(BASE_FS.get(self.cwd, [])) + "\n"
+
+        if command == "cd":
+            target = parts[1] if len(parts) > 1 else "/home/ubuntu"
+            new_path = target if target.startswith("/") else f"{self.cwd}/{target}"
+            if new_path in BASE_FS:
+                self.cwd = new_path
+            return ""
+
+        if command == "mkdir" and len(parts) > 1:
+            new_dir = f"{self.cwd}/{parts[1]}"
+            BASE_FS[new_dir] = []
+            BASE_FS[self.cwd].append(parts[1])
+            return ""
+
+        if command == "touch" and len(parts) > 1:
+            file_path = f"{self.cwd}/{parts[1]}"
+            FILE_CONTENTS[file_path] = ""
+            BASE_FS[self.cwd].append(parts[1])
+            return ""
+
+        if command == "cat" and len(parts) > 1:
+            file_path = f"{self.cwd}/{parts[1]}"
+            return FILE_CONTENTS.get(file_path, "cat: file not found\n")
+
+        if command == "rm" and len(parts) > 1:
+            target = f"{self.cwd}/{parts[1]}"
+            FILE_CONTENTS.pop(target, None)
+            if parts[1] in BASE_FS.get(self.cwd, []):
+                BASE_FS[self.cwd].remove(parts[1])
+            return ""
+
+        if command == "whoami":
+            return f"{self.username}\n"
+
+        if command == "clear":
+            return "\033c"
+
+        return f"bash: {cmd}: command not found\n"
+
 # ---------------- SERVER ----------------
 class SSHHoneypot(asyncssh.SSHServer):
+
+    def get_server_banner(self):
+        return "SSH-2.0-OpenSSH_8.2p1 Ubuntu-4ubuntu0.5"
 
     def connection_made(self, conn):
         self.conn = conn
@@ -115,7 +160,6 @@ class SSHHoneypot(asyncssh.SSHServer):
         self.ip = peer[0] if peer else "unknown"
 
         IP_CONNECTIONS[self.ip] = IP_CONNECTIONS.get(self.ip, 0) + 1
-
         if IP_CONNECTIONS[self.ip] > MAX_CONNECTIONS_PER_IP:
             log_error("Connection limit exceeded", self.ip)
             IP_CONNECTIONS[self.ip] -= 1
@@ -132,75 +176,60 @@ class SSHHoneypot(asyncssh.SSHServer):
         return True
 
     def validate_password(self, username, password):
-        try:
+        log_event({
+            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "source_ip": self.ip,
+            "honeypot_type": "ssh",
+            "port": PORT,
+            "event": "login_attempt",
+            "data": {"username": username, "password": password},
+            "level": "WARN"
+        })
+
+        if username == VALID_USER and password == VALID_PASS:
             log_event({
                 "timestamp": datetime.now(timezone.utc).isoformat(),
                 "source_ip": self.ip,
                 "honeypot_type": "ssh",
                 "port": PORT,
-                "event": "login_attempt",
-                "data": {"username": username, "password": password},
-                "level": "WARN"
-            })
-
-            if username == VALID_USER and password == VALID_PASS:
-                log_event({
-                    "timestamp": datetime.now(timezone.utc).isoformat(),
-                    "source_ip": self.ip,
-                    "honeypot_type": "ssh",
-                    "port": PORT,
-                    "event": "login_success",
-                    "data": {"username": username},
-                    "level": "INFO"
-                })
-                return True
-
-            log_event({
-                "timestamp": datetime.now(timezone.utc).isoformat(),
-                "source_ip": self.ip,
-                "honeypot_type": "ssh",
-                "port": PORT,
-                "event": "login_failed",
+                "event": "login_success",
                 "data": {"username": username},
-                "level": "ERROR"
+                "level": "INFO"
             })
+            return True
 
-            raise asyncssh.DisconnectError(
-                asyncssh.DisconnectReason.AUTH_FAILED,
-                "Invalid credentials"
-            )
+        log_event({
+            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "source_ip": self.ip,
+            "honeypot_type": "ssh",
+            "port": PORT,
+            "event": "login_failed",
+            "data": {"username": username},
+            "level": "ERROR"
+        })
 
-        except Exception as e:
-            log_error(str(e), "auth")
-            raise
+        raise asyncssh.DisconnectError(
+            asyncssh.DisconnectReason.AUTH_FAILED,
+            "Invalid credentials"
+        )
 
     def session_requested(self):
         asyncio.get_event_loop().call_later(
             SESSION_TIMEOUT,
-            self._timeout_close
+            self.conn.close
         )
         return HoneypotSession(self.ip, self.conn.get_extra_info("username"))
 
-    def _timeout_close(self):
-        try:
-            log_error("Session timeout", self.ip)
-            self.conn.close()
-        except Exception:
-            pass
-
 # ---------------- START ----------------
 async def start_server():
-    try:
-        await asyncssh.create_server(
-            SSHHoneypot,
-            HOST,
-            PORT,
-            server_host_keys=[HOST_KEY]
-        )
-        print(f"[+] AsyncSSH Honeypot running on port {PORT}")
-        await asyncio.Future()
-    except Exception as e:
-        log_error(str(e), "server_start")
+    await asyncssh.create_server(
+        SSHHoneypot,
+        HOST,
+        PORT,
+        server_host_keys=[HOST_KEY]
+    )
+    print(f"[+] AsyncSSH Honeypot running on port {PORT}")
+    await asyncio.Future()
 
 if __name__ == "__main__":
     asyncio.run(start_server())
