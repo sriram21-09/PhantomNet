@@ -1,5 +1,4 @@
-import http.server
-import socketserver
+from http.server import BaseHTTPRequestHandler, HTTPServer
 import json
 import os
 from datetime import datetime, timezone
@@ -26,110 +25,99 @@ ip_connections = defaultdict(int)
 # ======================
 # LOGGING
 # ======================
-def log(level, data):
-    data["level"] = level
+def log(level, payload):
+    payload["level"] = level
     with open(LOG_FILE, "a") as f:
-        f.write(json.dumps(data) + "\n")
+        f.write(json.dumps(payload) + "\n")
 
-def log_error(exc, context):
+def log_error(msg, context):
     with open(ERROR_LOG, "a") as f:
         f.write(
-            f"{datetime.now(timezone.utc).isoformat()} | {context} | {repr(exc)}\n"
+            f"{datetime.now(timezone.utc).isoformat()} | {context} | {msg}\n"
         )
 
 # ======================
-# FAKE PAGES (NO BYTES LITERALS)
+# SQLi DETECTION
 # ======================
-INDEX_PAGE = """
-<!DOCTYPE html>
-<html>
-<head><title>Welcome</title></head>
-<body>
-<h2>Internal Portal</h2>
-<a href="/admin">Admin Login</a>
-</body>
-</html>
-"""
+SQLI_PATTERNS = [
+    "' or 1=1",
+    "\" or \"1\"=\"1",
+    "union select",
+    "--",
+    ";--",
+    "'--",
+    "\"--"
+]
 
-LOGIN_PAGE = """
-<!DOCTYPE html>
-<html>
-<head><title>Login</title></head>
-<body>
-<h2>Login</h2>
-<form method="POST" action="/login">
-Username: <input name="username"><br>
-Password: <input type="password" name="password"><br>
-<button>Login</button>
-</form>
-</body>
-</html>
-"""
+def is_sqli(value):
+    if not value:
+        return False
+    value = value.lower()
+    return any(p in value for p in SQLI_PATTERNS)
 
+# ======================
+# FAKE PAGES
+# ======================
 ADMIN_PAGE = """
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <title>Admin Dashboard</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f6f8;
-        }
-        .container {
-            width: 360px;
-            margin: 120px auto;
-            background: #ffffff;
-            padding: 25px;
-            border-radius: 6px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-        }
-        h2 {
-            text-align: center;
-            margin-bottom: 20px;
-            color: #333;
-        }
-        input {
-            width: 100%;
-            padding: 10px;
-            margin-top: 8px;
-            margin-bottom: 15px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-        }
-        button {
-            width: 100%;
-            padding: 10px;
-            background-color: #2f80ed;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            font-size: 15px;
-            cursor: pointer;
-        }
-        button:hover {
-            background-color: #256fd1;
-        }
-        .footer {
-            margin-top: 15px;
-            font-size: 12px;
-            text-align: center;
-            color: #888;
-        }
-    </style>
+<title>Admin Dashboard</title>
+<style>
+body { font-family: Arial; background:#f2f4f7; }
+.container {
+  width:420px; margin:80px auto; background:#fff;
+  padding:25px; border-radius:6px;
+  box-shadow:0 3px 10px rgba(0,0,0,.15);
+}
+.notice {
+  background:#fff3cd; padding:10px; font-size:13px;
+  border-left:4px solid #ff9800; margin-bottom:15px;
+}
+.ad {
+  background:#e3f2fd; padding:10px; font-size:12px;
+  border-left:4px solid #2196f3; margin-bottom:15px;
+}
+input,button { width:100%; padding:10px; margin-top:8px; }
+button { background:#2f80ed; color:white; border:none; }
+a { display:block; text-align:center; margin-top:10px; font-size:13px; }
+</style>
 </head>
 <body>
 <div class="container">
-    <h2>Admin Dashboard</h2>
-    <form method="POST" action="/admin">
-        <input type="text" name="username" placeholder="Username" required />
-        <input type="password" name="password" placeholder="Password" required />
-        <button type="submit">Sign in</button>
-    </form>
-    <div class="footer">
-        © 2025 Internal Admin System
-    </div>
+<h2>Admin Dashboard</h2>
+
+<div class="notice">---------------- WELCOME TO PHANTOMNET ---------------</div>
+<div class="ad">Upgrade to Admin Pro for enhanced security.</div>
+
+<form method="POST" action="/admin">
+<input name="username" placeholder="Username" required>
+<input type="password" name="password" placeholder="Password" required>
+<button>Sign in</button>
+</form>
+
+<a href="/forgot-password">Forgot password?</a>
+
+<p style="text-align:center;font-size:12px;color:#888;">
+© 2025 Internal Admin System
+</p>
 </div>
+</body>
+</html>
+"""
+
+FORGOT_PAGE = """
+<!DOCTYPE html>
+<html>
+<head>
+<title>Password Recovery</title>
+</head>
+<body>
+<h3>Password Recovery</h3>
+<form method="POST" action="/forgot-password">
+<input name="email" placeholder="Email address" required>
+<button>Reset Password</button>
+</form>
 </body>
 </html>
 """
@@ -137,14 +125,14 @@ ADMIN_PAGE = """
 # ======================
 # HANDLER
 # ======================
-class HoneypotHandler(http.server.BaseHTTPRequestHandler):
+class HoneypotHandler(BaseHTTPRequestHandler):
 
     def setup(self):
         super().setup()
         self.request.settimeout(REQUEST_TIMEOUT)
 
-    def _base_log(self, level, event, extra=None):
-        data = {
+    def _log_event(self, event, level, data=None):
+        log(level, {
             "timestamp": datetime.now(timezone.utc).isoformat(),
             "source_ip": self.client_address[0],
             "honeypot_type": "http",
@@ -152,19 +140,17 @@ class HoneypotHandler(http.server.BaseHTTPRequestHandler):
             "event": event,
             "method": self.command,
             "path": self.path,
-            "user_agent": self.headers.get("User-Agent")
-        }
-        if extra:
-            data["data"] = extra
-        log(level, data)
+            "user_agent": self.headers.get("User-Agent"),
+            "data": data or {}
+        })
 
     def _check_ip_limit(self):
         ip = self.client_address[0]
         ip_connections[ip] += 1
-
         if ip_connections[ip] > MAX_CONN_PER_IP:
-            self._base_log("WARN", "rate_limited")
+            self._log_event("rate_limited", "WARN")
             self.send_response(429)
+            self.send_header("Content-Type", "text/plain")
             self.end_headers()
             self.wfile.write(b"Too Many Requests")
             return False
@@ -172,104 +158,96 @@ class HoneypotHandler(http.server.BaseHTTPRequestHandler):
 
     def finish(self):
         try:
-            ip_connections[self.client_address[0]] -= 1
-            if ip_connections[self.client_address[0]] < 0:
-                ip_connections[self.client_address[0]] = 0
+            ip_connections[self.client_address[0]] = max(
+                0, ip_connections[self.client_address[0]] - 1
+            )
         except Exception:
             pass
         super().finish()
 
     # ======================
-    # METHODS
+    # HTTP METHODS
     # ======================
     def do_GET(self):
-        try:
-            if not self._check_ip_limit():
-                return
+        if not self._check_ip_limit():
+            return
 
-            self._base_log("INFO", "page_view")
-
-            if self.path == "/":
-                self.send_response(200)
-                self.end_headers()
-                self.wfile.write(INDEX_PAGE.encode())
-
-            elif self.path == "/login":
-                self.send_response(200)
-                self.end_headers()
-                self.wfile.write(LOGIN_PAGE.encode())
-
-            elif self.path == "/admin":
-                self.send_response(200)
-                self.end_headers()
-                self.wfile.write(ADMIN_PAGE.encode())
-
-            else:
-                self.send_response(404)
-                self.end_headers()
-                self.wfile.write(b"404 Not Found")
-
-        except Exception as e:
-            log_error(e, "GET")
-            self.send_response(500)
+        if self.path == "/admin":
+            self._log_event("page_view", "INFO")
+            self.send_response(200)
+            self.send_header("Content-Type", "text/html")
             self.end_headers()
+            self.wfile.write(ADMIN_PAGE.encode())
 
-    def do_POST(self):
-        try:
-            if not self._check_ip_limit():
-                return
-
-            length = int(self.headers.get("Content-Length", 0))
-            body = self.rfile.read(length).decode(errors="ignore")
-            params = parse_qs(body)
-
-            username = params.get("username", [""])[0]
-            password = params.get("password", [""])[0]
-
-            self._base_log(
-                "WARN",
-                "login_attempt",
-                {"username": username, "password": password}
-            )
-
-            self.send_response(403)
+        elif self.path == "/forgot-password":
+            self._log_event("forgot_password_view", "INFO")
+            self.send_response(200)
+            self.send_header("Content-Type", "text/html")
             self.end_headers()
-            self.wfile.write(b"Invalid credentials")
+            self.wfile.write(FORGOT_PAGE.encode())
 
-        except Exception as e:
-            log_error(e, "POST")
-            self.send_response(500)
-            self.end_headers()
-
-    def do_PUT(self):
-        try:
-            if not self._check_ip_limit():
-                return
-
-            self._base_log("WARN", "put_attempt")
-            self.send_response(403)
-            self.end_headers()
-            self.wfile.write(b"403 Forbidden")
-
-        except Exception as e:
-            log_error(e, "PUT")
-            self.send_response(500)
-            self.end_headers()
-
-    def do_DELETE(self):
-        try:
-            if not self._check_ip_limit():
-                return
-
-            self._base_log("WARN", "delete_attempt")
+        else:
             self.send_response(404)
+            self.send_header("Content-Type", "text/plain")
             self.end_headers()
             self.wfile.write(b"404 Not Found")
 
-        except Exception as e:
-            log_error(e, "DELETE")
-            self.send_response(500)
+    def do_POST(self):
+        if not self._check_ip_limit():
+            return
+
+        length = int(self.headers.get("Content-Length", 0))
+        body = self.rfile.read(length).decode(errors="ignore")
+        params = parse_qs(body)
+
+        if self.path == "/admin":
+            username = params.get("username", [""])[0]
+            password = params.get("password", [""])[0]
+
+            if is_sqli(username) or is_sqli(password):
+                self._log_event(
+                    "sqli_attempt", "ERROR",
+                    {"username": username, "password": password}
+                )
+            else:
+                self._log_event(
+                    "login_attempt", "WARN",
+                    {"username": username, "password": password}
+                )
+
+            self.send_response(403)
+            self.send_header("Content-Type", "text/plain")
             self.end_headers()
+            self.wfile.write(b"Invalid credentials")
+
+        elif self.path == "/forgot-password":
+            email = params.get("email", [""])[0]
+            self._log_event(
+                "password_reset_request", "WARN",
+                {"email": email}
+            )
+            self.send_response(200)
+            self.send_header("Content-Type", "text/plain")
+            self.end_headers()
+            self.wfile.write(b"Password reset link sent")
+
+        else:
+            self.send_response(404)
+            self.end_headers()
+
+    def do_PUT(self):
+        self._log_event("put_attempt", "WARN")
+        self.send_response(403)
+        self.send_header("Content-Type", "text/plain")
+        self.end_headers()
+        self.wfile.write(b"403 Forbidden")
+
+    def do_DELETE(self):
+        self._log_event("delete_attempt", "WARN")
+        self.send_response(404)
+        self.send_header("Content-Type", "text/plain")
+        self.end_headers()
+        self.wfile.write(b"404 Not Found")
 
     def log_message(self, format, *args):
         return
@@ -278,6 +256,6 @@ class HoneypotHandler(http.server.BaseHTTPRequestHandler):
 # START SERVER
 # ======================
 if __name__ == "__main__":
-    with socketserver.TCPServer(("0.0.0.0", PORT), HoneypotHandler) as server:
-        print(f"[+] HTTP Honeypot running on port {PORT}")
-        server.serve_forever()
+    server = HTTPServer(("0.0.0.0", PORT), HoneypotHandler)
+    print(f"[+] HTTP Honeypot running on port {PORT}")
+    server.serve_forever()

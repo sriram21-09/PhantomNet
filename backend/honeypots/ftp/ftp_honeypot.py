@@ -5,6 +5,9 @@ from pyftpdlib.authorizers import DummyAuthorizer
 from pyftpdlib.handlers import FTPHandler
 from pyftpdlib.servers import FTPServer
 
+# ======================
+# CONFIG
+# ======================
 MAX_SESSIONS_PER_IP = 2
 SESSION_TIMEOUT = 180
 
@@ -19,6 +22,15 @@ os.makedirs(FTP_ROOT, exist_ok=True)
 os.makedirs(LOG_DIR, exist_ok=True)
 
 IP_SESSIONS = {}
+
+# ======================
+# FAKE FILESYSTEM (LOGICAL ONLY)
+# ======================
+FAKE_FILE_SIZES = {
+    "readme.txt": 128,
+    "db_backup.sql": 20480,
+    "config.tar.gz": 102400
+}
 
 # ======================
 # LOGGING
@@ -37,15 +49,6 @@ def log_event(ip, event, data=None, level="INFO"):
 def log_error(msg, ip):
     with open(ERROR_LOG, "a") as f:
         f.write(f"{datetime.now(timezone.utc).isoformat()} | {ip} | {msg}\n")
-
-# ======================
-# FAKE FTP CONTENT
-# ======================
-FAKE_FILES = {
-    "readme.txt": b"Welcome to the FTP server\n",
-    "backup.zip": b"PK\x03\x04FakeZipData",
-    "config.conf": b"user=admin\npassword=secret\n"
-}
 
 # ======================
 # HANDLER
@@ -77,56 +80,50 @@ class HoneypotFTPHandler(FTPHandler):
         )
 
     # ======================
-    # TASK 4: ENHANCED COMMANDS
+    # SAFE COMMAND EXTENSIONS
     # ======================
-    def ftp_LIST(self, path):
-        """Fake directory listing"""
-        try:
-            ip = self.remote_ip
-            log_event(ip, "command", {"command": "LIST", "path": path})
+    def ftp_CWD(self, path):
+        log_event(self.remote_ip, "command", {"command": "CWD", "path": path})
+        return super().ftp_CWD(path)
 
-            for name in FAKE_FILES.keys():
-                line = f"-rw-r--r-- 1 ftp ftp {len(FAKE_FILES[name])} Jan 01 00:00 {name}\r\n"
-                self.push(line.encode())
+    def ftp_SIZE(self, path):
+        log_event(self.remote_ip, "command", {"command": "SIZE", "file": path})
 
-            self.respond("226 Directory send OK.")
-        except Exception as e:
-            log_error(str(e), self.remote_ip)
+        filename = os.path.basename(path)
+        size = FAKE_FILE_SIZES.get(filename)
+
+        if size:
+            self.respond(f"213 {size}")
+        else:
+            self.respond("550 Could not get file size.")
 
     def ftp_RETR(self, file):
-        """Fake file download"""
-        try:
-            ip = self.remote_ip
-            log_event(ip, "command", {"command": "RETR", "file": file}, "WARN")
+        log_event(
+            self.remote_ip,
+            "command",
+            {"command": "RETR", "file": file},
+            "WARN"
+        )
 
-            filename = os.path.basename(file)
-
-            if filename in FAKE_FILES:
-                self.respond("150 Opening binary mode data connection.")
-                self.push(FAKE_FILES[filename])
-                self.respond("226 Transfer complete.")
-            else:
-                self.respond("550 File not found.")
-        except Exception as e:
-            log_error(str(e), self.remote_ip)
+        filename = os.path.basename(file)
+        if filename in FAKE_FILE_SIZES:
+            self.respond("150 Opening binary mode data connection.")
+            self.push(b"FAKE FILE DATA\n")
+            self.respond("226 Transfer complete.")
+        else:
+            self.respond("550 File not found.")
 
     def pre_process_command(self, line, cmd, arg):
-        try:
-            log_event(
-                self.remote_ip,
-                "command",
-                {"command": cmd, "arg": arg}
-            )
-        except Exception as e:
-            log_error(str(e), self.remote_ip)
-
+        log_event(
+            self.remote_ip,
+            "command",
+            {"command": cmd, "arg": arg}
+        )
         return super().pre_process_command(line, cmd, arg)
 
     def on_disconnect(self):
         ip = self.remote_ip
-        if ip in IP_SESSIONS:
-            IP_SESSIONS[ip] = max(0, IP_SESSIONS[ip] - 1)
-
+        IP_SESSIONS[ip] = max(0, IP_SESSIONS.get(ip, 1) - 1)
         log_event(ip, "disconnect")
 
 # ======================
