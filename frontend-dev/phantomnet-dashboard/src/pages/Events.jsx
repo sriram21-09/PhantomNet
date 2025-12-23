@@ -4,7 +4,7 @@ import "./events.css";
 
 const Events = () => {
   /* =========================
-     STATE MANAGEMENT
+     STEP 1: STATE MANAGEMENT
      (Week 2 logic – unchanged)
   ========================== */
   const [allEvents, setAllEvents] = useState([]);
@@ -18,7 +18,7 @@ const Events = () => {
   const [error, setError] = useState(null);
 
   /* =========================
-     FETCH EVENTS
+     STEP 2: FETCH EVENTS
   ========================== */
   useEffect(() => {
     const fetchEvents = async () => {
@@ -30,7 +30,8 @@ const Events = () => {
         if (!res.ok) throw new Error("Failed to fetch events");
 
         const data = await res.json();
-        setAllEventsControlled(data);
+        setAllEvents(data);
+        setEvents(data);
       } catch (err) {
         setError(err.message);
       } finally {
@@ -41,13 +42,9 @@ const Events = () => {
     fetchEvents();
   }, []);
 
-  const setAllEventsControlled = (data) => {
-    setAllEvents(data);
-    setEvents(data);
-  };
-
   /* =========================
-     THREAT LOGIC
+     STEP 3: THREAT LOGIC
+     (Derived, frontend-only)
   ========================== */
   const getThreatLevel = (event) => {
     if (event.port === 23 || event.port === 3389) return "CRITICAL";
@@ -55,6 +52,9 @@ const Events = () => {
     return "SAFE";
   };
 
+  /* =========================
+     STEP 4: THREAT STYLES
+  ========================== */
   const getThreatStyle = (level) => {
     switch (level) {
       case "CRITICAL":
@@ -69,7 +69,7 @@ const Events = () => {
   };
 
   /* =========================
-     APPLY FILTERS
+     STEP 5: APPLY FILTERS
   ========================== */
   useEffect(() => {
     let filtered = [...allEvents];
@@ -96,7 +96,7 @@ const Events = () => {
   }, [search, protocolFilter, threatFilter, allEvents]);
 
   /* =========================
-     THREAT SUMMARY
+     STEP 6: THREAT SUMMARY
   ========================== */
   const threatSummary = {
     SAFE: events.filter((e) => getThreatLevel(e) === "SAFE").length,
@@ -105,31 +105,30 @@ const Events = () => {
   };
 
   /* =========================
-     PAGE UI (Week 3 – Day 1)
+     UI (Week 3 – Day 1)
   ========================== */
   return (
     <div className="events-container">
-      {/* ======================
-         PAGE HEADER
-      ====================== */}
-      <div className="events-header">
-        <h1>Events</h1>
+      {/* PAGE HEADER */}
+      <h1>Events</h1>
+
+      {/* THREAT SUMMARY */}
+      <div
+        className="threat-summary"
+        style={{ display: "flex", gap: "20px", marginBottom: "15px" }}
+      >
+        <span style={{ color: "#388e3c" }}>
+          🟢 Safe: {threatSummary.SAFE}
+        </span>
+        <span style={{ color: "#f57c00" }}>
+          🟠 Suspicious: {threatSummary.SUSPICIOUS}
+        </span>
+        <span style={{ color: "#d32f2f" }}>
+          🔴 Critical: {threatSummary.CRITICAL}
+        </span>
       </div>
 
-      {/* ======================
-         THREAT SUMMARY SECTION
-         (Future component: ThreatSummary)
-      ====================== */}
-      <div className="threat-summary" style={{ display: "flex", gap: "20px", marginBottom: "15px" }}>
-        <span style={{ color: "#388e3c" }}>🟢 Safe: {threatSummary.SAFE}</span>
-        <span style={{ color: "#f57c00" }}>🟠 Suspicious: {threatSummary.SUSPICIOUS}</span>
-        <span style={{ color: "#d32f2f" }}>🔴 Critical: {threatSummary.CRITICAL}</span>
-      </div>
-
-      {/* ======================
-         FILTER CONTROLS
-         (Future component: EventsFilters)
-      ====================== */}
+      {/* FILTER CONTROLS */}
       <div className="controls">
         <input
           type="text"
@@ -138,7 +137,10 @@ const Events = () => {
           onChange={(e) => setSearch(e.target.value)}
         />
 
-        <select value={protocolFilter} onChange={(e) => setProtocolFilter(e.target.value)}>
+        <select
+          value={protocolFilter}
+          onChange={(e) => setProtocolFilter(e.target.value)}
+        >
           <option value="ALL">All Protocols</option>
           <option value="HTTP">HTTP</option>
           <option value="SSH">SSH</option>
@@ -146,7 +148,10 @@ const Events = () => {
           <option value="TELNET">TELNET</option>
         </select>
 
-        <select value={threatFilter} onChange={(e) => setThreatFilter(e.target.value)}>
+        <select
+          value={threatFilter}
+          onChange={(e) => setThreatFilter(e.target.value)}
+        >
           <option value="ALL">All Threats</option>
           <option value="SAFE">Safe</option>
           <option value="SUSPICIOUS">Suspicious</option>
@@ -154,23 +159,18 @@ const Events = () => {
         </select>
       </div>
 
-      {/* ======================
-         STATES
-      ====================== */}
+      {/* STATES */}
       {loading && <LoadingSpinner />}
-
       {error && <p className="error">{error}</p>}
 
+      {/* EMPTY STATE */}
       {!loading && !error && events.length === 0 && (
         <p style={{ marginTop: "20px", color: "#666" }}>
           No events found for the selected filters.
         </p>
       )}
 
-      {/* ======================
-         EVENTS TABLE
-         (Future component: EventsTable)
-      ====================== */}
+      {/* EVENTS TABLE */}
       {!loading && !error && events.length > 0 && (
         <table className="events-table">
           <thead>
