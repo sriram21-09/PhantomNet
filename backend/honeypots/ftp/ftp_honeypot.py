@@ -24,7 +24,7 @@ os.makedirs(LOG_DIR, exist_ok=True)
 IP_SESSIONS = {}
 
 # ======================
-# FAKE FILESYSTEM (LOGICAL ONLY)
+# FAKE FILE METADATA
 # ======================
 FAKE_FILE_SIZES = {
     "readme.txt": 128,
@@ -98,6 +98,12 @@ class HoneypotFTPHandler(FTPHandler):
             self.respond("550 Could not get file size.")
 
     def ftp_RETR(self, file):
+        """
+        Honeypot behavior:
+        - Log exfiltration attempt
+        - Block transfer
+        - Do NOT open data channel
+        """
         log_event(
             self.remote_ip,
             "command",
@@ -105,13 +111,7 @@ class HoneypotFTPHandler(FTPHandler):
             "WARN"
         )
 
-        filename = os.path.basename(file)
-        if filename in FAKE_FILE_SIZES:
-            self.respond("150 Opening binary mode data connection.")
-            self.push(b"FAKE FILE DATA\n")
-            self.respond("226 Transfer complete.")
-        else:
-            self.respond("550 File not found.")
+        self.respond("550 Permission denied.")
 
     def pre_process_command(self, line, cmd, arg):
         log_event(
