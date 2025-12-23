@@ -48,6 +48,17 @@ td {
 }
 
 /* =========================
+   ROW COLORS
+========================= */
+.row-safe {
+  background-color: #e6f4ea;
+}
+
+.row-suspicious {
+  background-color: #fdecea;
+}
+
+/* =========================
    THREAT BADGES (DAY 4 + DAY 6)
 ========================= */
 .safe {
@@ -65,7 +76,10 @@ td {
   font-weight: bold;
 }
 
-/* Legacy support (safe to keep) */
+/* =========================
+   LEGACY THREAT STYLES
+   (Safe to keep)
+========================= */
 .threat.low {
   color: green;
   font-weight: bold;

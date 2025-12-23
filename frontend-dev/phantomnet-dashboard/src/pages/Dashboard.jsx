@@ -8,6 +8,9 @@ const Dashboard = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
+  /* =========================
+     FETCH DASHBOARD STATS
+  ========================== */
   useEffect(() => {
     const fetchStats = async () => {
       try {
@@ -21,7 +24,7 @@ const Dashboard = () => {
 
         const data = await response.json();
 
-        // Safety defaults
+        // Safety defaults (Week 2 / Week 3)
         setStats({
           totalEvents: data.totalEvents ?? 0,
           uniqueIPs: data.uniqueIPs ?? 0,
@@ -45,19 +48,22 @@ const Dashboard = () => {
     stats.uniqueIPs === 0 &&
     stats.criticalAlerts === 0;
 
+  /* =========================
+     UI
+  ========================== */
   return (
     <div className="dashboard-container" style={{ padding: "20px" }}>
-      {/* ======================
+      {/* =========================
          DASHBOARD HEADER
-      ====================== */}
+      ========================== */}
       <div className="dashboard-header">
         <h1>Dashboard</h1>
         <p>This is the PhantomNet dashboard. More content will be added later.</p>
       </div>
 
-      {/* ======================
+      {/* =========================
          LOADING / ERROR / EMPTY
-      ====================== */}
+      ========================== */}
       {loading && <LoadingSpinner />}
 
       {error && <p style={{ color: "red" }}>{error}</p>}
@@ -68,9 +74,9 @@ const Dashboard = () => {
         </p>
       )}
 
-      {/* ======================
+      {/* =========================
          METRICS SECTION
-      ====================== */}
+      ========================== */}
       {!loading && !error && stats && !isEmptyStats && (
         <div
           className="metrics-section"
@@ -113,15 +119,15 @@ const Dashboard = () => {
         </div>
       )}
 
-      {/* ======================
+      {/* =========================
          FUTURE SECTIONS (Week 3+)
-      ====================== */}
+      ========================== */}
       <div className="charts-section" style={{ marginTop: "40px" }}>
         {/* AttackChart will be added in Week 3 Day 2 */}
       </div>
 
       <div className="table-section" style={{ marginTop: "40px" }}>
-        {/* EventsTable summary will be added later */}
+        {/* Events summary table will be added later */}
       </div>
     </div>
   );
