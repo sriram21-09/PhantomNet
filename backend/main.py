@@ -8,6 +8,8 @@ from sqlalchemy.orm import sessionmaker, Session
 from typing import List
 from datetime import datetime
 import os
+import contextlib
+
 from dotenv import load_dotenv
 
 # =========================
@@ -15,8 +17,12 @@ from dotenv import load_dotenv
 # =========================
 from services.feature_extractor import FeatureExtractor
 from services.ai_predictor import ThreatDetector
+from services.traffic_sniffer import RealTimeSniffer
+
 from database.models import Base, Event
 from schemas import EventCreate, EventResponse
+
+from app_models import PacketLog
 
 # =========================
 # ENVIRONMENT SETUP
@@ -34,7 +40,18 @@ print("✅ Connected DB:", DATABASE_URL)
 # =========================
 engine = create_engine(DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+
 Base.metadata.create_all(bind=engine)
+
+# =========================
+# FASTAPI LIFESPAN (Sniffer)
+# =========================
+@contextlib.asynccontextmanager
+async def lifespan(app: FastAPI):
+    sniffer = RealTimeSniffer()
+    sniffer.start_background_sniffer()
+    yield
+    # graceful shutdown (optional)
 
 # =========================
 # FASTAPI APP INIT (ONLY ONCE)
@@ -42,11 +59,12 @@ Base.metadata.create_all(bind=engine)
 app = FastAPI(
     title="PhantomNet API",
     version="1.0",
-    description="AI-Driven Honeypot Detection Platform"
+    description="AI-Driven Honeypot Detection Platform",
+    lifespan=lifespan
 )
 
 # =========================
-# CORS
+# CORS CONFIG
 # =========================
 app.add_middleware(
     CORSMiddleware,
@@ -147,7 +165,7 @@ def get_stats(db: Session = Depends(get_db)):
     }
 
 # =========================
-# AI TRAFFIC ANALYSIS (WEEK 3)
+# AI TRAFFIC ANALYSIS (ML)
 # =========================
 @app.get("/analyze-traffic")
 def analyze_traffic():
@@ -171,3 +189,35 @@ def analyze_traffic():
         })
 
     return {"status": "success", "results": results}
+
+# =========================
+# REAL-TIME SNIFFER DATA
+# =========================
+@app.get("/analyze-realtime")
+def get_real_traffic(db: Session = Depends(get_db)):
+    logs = (
+        db.query(PacketLog)
+        .order_by(PacketLog.timestamp.desc())
+        .limit(50)
+        .all()
+    )
+
+    return {
+        "status": "success",
+        "data": [
+            {
+                "packet_info": {
+                    "src": log.src_ip,
+                    "dst": log.dst_ip,
+                    "proto": log.protocol,
+                    "length": log.length
+                },
+                "ai_analysis": {
+                    "prediction": log.attack_type,
+                    "threat_score": log.threat_score,
+                    "confidence_percent": f"{log.threat_score * 100:.1f}%"
+                }
+            }
+            for log in logs
+        ]
+    }
