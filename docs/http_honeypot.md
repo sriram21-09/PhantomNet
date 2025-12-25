@@ -1,11 +1,7 @@
-
----
-
-# 📘 FILE 2: HTTP Documentation
+# 📘  HTTP Documentation
 
 ## 📍 File: `docs/http_honeypot.md`
 
-👉 **Copy–paste EVERYTHING below**
 
 ```markdown
 # HTTP Honeypot Documentation

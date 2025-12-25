@@ -1,7 +1,4 @@
-
----
-
-# 📘 FILE 4: Test Summary
+->  Test Summary
 
 ## 📍 File: `docs/test_summary.md`
 

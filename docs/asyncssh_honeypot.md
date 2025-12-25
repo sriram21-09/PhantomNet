@@ -1,5 +1,4 @@
-
- # SSH Honeypot Documentation
+# SSH Honeypot Documentation
 
 ## File Location
 backend/honeypots/ssh/async_ssh_honeypot.py

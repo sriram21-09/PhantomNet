@@ -1,11 +1,7 @@
-
----
-
-# 📘 FILE 3: FTP Documentation
+# 📘 FTP Documentation
 
 ## 📍 File: `docs/ftp_honeypot.md`
 
-👉 **Copy–paste EVERYTHING below**
 
 ```markdown
 # FTP Honeypot Documentation
