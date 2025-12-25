@@ -1,0 +1,4 @@
+.about-container {
+  padding: 30px;
+  background: transparent;   /* ✅ VERY IMPORTANT */
+}
