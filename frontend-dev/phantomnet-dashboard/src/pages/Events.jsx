@@ -27,7 +27,9 @@ const Events = () => {
         setError(null);
 
         const res = await fetch("http://localhost:3000/api/events");
-        if (!res.ok) throw new Error("Failed to fetch events");
+        if (!res.ok) {
+          throw new Error("Failed to fetch events");
+        }
 
         const data = await res.json();
         setAllEvents(data);
@@ -44,7 +46,7 @@ const Events = () => {
 
   /* =========================
      STEP 3: THREAT LOGIC
-     (Derived, frontend-only)
+     (Frontend derived)
   ========================== */
   const getThreatLevel = (event) => {
     if (event.port === 23 || event.port === 3389) return "CRITICAL";
@@ -105,7 +107,7 @@ const Events = () => {
   };
 
   /* =========================
-     UI (Week 3 – Day 1)
+     UI (Week 3 Complete)
   ========================== */
   return (
     <div className="events-container">
@@ -188,10 +190,10 @@ const Events = () => {
               const threat = getThreatLevel(event);
               return (
                 <tr key={index}>
-                  <td>{event.time}</td>
-                  <td>{event.ip}</td>
-                  <td>{event.type}</td>
-                  <td>{event.port}</td>
+                  <td>{event.time || "-"}</td>
+                  <td>{event.ip || "-"}</td>
+                  <td>{event.type || "-"}</td>
+                  <td>{event.port || "-"}</td>
                   <td>
                     <span
                       style={{
@@ -205,7 +207,7 @@ const Events = () => {
                       {threat}
                     </span>
                   </td>
-                  <td>{event.details}</td>
+                  <td>{event.details || "-"}</td>
                 </tr>
               );
             })}
