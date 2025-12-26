@@ -1,9 +1,11 @@
+from services.stats_aggregator import StatsService
+import json
 from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 from typing import List
 from db_core import engine, SessionLocal, get_db
-from app_models import Base, PacketLog
+from app_models import Base, PacketLog, TrafficStats
 from services.traffic_sniffer import RealTimeSniffer
 import contextlib
 
@@ -56,3 +58,23 @@ def get_real_traffic(db: Session = Depends(get_db)):
             }
         })
     return {"status": "success", "data": results}
+@app.get("/dashboard/stats")
+def get_dashboard_stats(db: Session = Depends(get_db)):
+    service = StatsService(db)
+    
+    # 1. Update & Fetch Cache
+    stats = service.calculate_stats()
+    
+    # 2. Fetch Hourly Trend
+    hourly = service.get_hourly_trend()
+    
+    return {
+        "status": "success",
+        "data": {
+            "total_attacks": stats.total_attacks,
+            "unique_ips": stats.unique_attackers,
+            "attacks_by_type": json.loads(stats.attacks_by_type),
+            "hourly_trend": hourly,
+            "last_updated": stats.last_updated
+        }
+    }
