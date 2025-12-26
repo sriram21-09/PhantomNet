@@ -3,9 +3,9 @@ import psycopg2
 import hashlib
 import os
 
-# ---------------- PATH ----------------
+# ---------------- PATH SETUP ----------------
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-LOG_FILE = os.path.abspath(os.path.join(BASE_DIR, "../logs/http_logs.jsonl"))
+LOG_FILE = os.path.abspath(os.path.join(BASE_DIR, "../logs/ssh_async.jsonl"))
 
 # ---------------- DB CONFIG ----------------
 DB_CONFIG = {
@@ -23,43 +23,57 @@ def compute_hash(log):
 
 # ---------------- INSERT ----------------
 def insert_log(cur, log):
+    event = log.get("event")
+    data = log.get("data", {})
+
+    username = data.get("username")
+    password = data.get("password")
+
+    # Log level handling (NEW)
+    level = log.get("level", "INFO")
+
+    # Derive status from event
+    if event == "login_success":
+        status = "success"
+    elif event == "login_failed":
+        status = "failed"
+    elif event == "login_attempt":
+        status = "attempt"
+    else:
+        # command or unknown events
+        status = event
+
     log_hash = compute_hash(log)
 
     cur.execute("""
-        INSERT INTO http_logs (
+        INSERT INTO asyncssh_logs (
             timestamp,
             source_ip,
             honeypot_type,
             port,
-            event,
+            username,
+            password,
+            status,
             level,
-            method,
-            path,
-            user_agent,
-            data,
-            raw_data,
             log_hash
         )
-        VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
+        VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s)
         ON CONFLICT (log_hash) DO NOTHING
     """, (
         log.get("timestamp"),
         log.get("source_ip"),
         log.get("honeypot_type"),
         log.get("port"),
-        log.get("event"),
-        log.get("level"),
-        log.get("method"),
-        log.get("path"),
-        log.get("user_agent"),
-        json.dumps(log.get("data")) if log.get("data") else None,
-        json.dumps(log),
+        username,
+        password,
+        status,
+        level,
         log_hash
     ))
 
 # ---------------- MAIN ----------------
 def main():
-    print("[+] Connecting to PostgreSQL (HTTP)...")
+    print("[+] Connecting to PostgreSQL (AsyncSSH)...")
 
     conn = psycopg2.connect(**DB_CONFIG)
     cur = conn.cursor()
@@ -72,13 +86,13 @@ def main():
             except json.JSONDecodeError:
                 print("[!] Skipping invalid JSON line")
             except Exception as e:
-                print(f"[!] DB insert error: {e}")
+                print(f"[!] Error inserting log: {e}")
 
     conn.commit()
     cur.close()
     conn.close()
 
-    print("[+] HTTP logs ingested successfully")
+    print("[+] AsyncSSH logs ingested successfully")
 
 if __name__ == "__main__":
     main()

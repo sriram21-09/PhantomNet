@@ -69,3 +69,12 @@ tmp/
 Thumbs.db
 ehthumbs.db
 Desktop.ini
+
+# ==============================
+# Honeypot logs (DO NOT COMMIT)
+# ==============================
+logs/
+backend/logs/
+backend/honeypots/logs/
+*.jsonl
+
