@@ -38,3 +38,24 @@ class PacketLog(Base):
 
     def __repr__(self):
         return f"<PacketLog(time={self.timestamp}, src={self.src_ip}, score={self.threat_score})>"
+    # Add 'import json' at the very top of the file if it's missing
+import json 
+
+class TrafficStats(Base):
+    """
+    Statistics Cache Table.
+    Stores pre-calculated summaries to make the dashboard fast.
+    """
+    __tablename__ = "traffic_stats"
+
+    id = Column(Integer, primary_key=True, index=True)
+    timestamp = Column(DateTime, default=datetime.utcnow, index=True) 
+    
+    # 1. High-Level Counts
+    total_attacks = Column(Integer, default=0)
+    unique_attackers = Column(Integer, default=0)
+    
+    # 2. Attacks by Protocol (Stored as a JSON string, e.g., '{"TCP": 50, "UDP": 12}')
+    attacks_by_type = Column(String, default="{}") 
+    
+    last_updated = Column(DateTime, default=datetime.utcnow)
