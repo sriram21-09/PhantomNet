@@ -43,3 +43,30 @@ body[data-theme="dark"] select {
   color: #e5e7eb;
   border: 1px solid #334155;
 }
+
+/* Page wrapper */
+.page-container {
+  min-height: calc(100vh - 60px);
+  padding: 30px;
+}
+
+/* THEME COLORS */
+body[data-theme="light"] {
+  background-color: #f5f7fb;
+  color: #000;
+}
+
+body[data-theme="dark"] {
+  background-color: #0f172a;
+  color: #e5e7eb;
+}
+
+/* Tables */
+body[data-theme="dark"] table {
+  background-color: #020617;
+  color: #e5e7eb;
+}
+
+body[data-theme="dark"] th {
+  background-color: #020617;
+}

@@ -24,7 +24,6 @@ const Dashboard = () => {
 
         const data = await response.json();
 
-        // Safety defaults (Week 2 / Week 3)
         setStats({
           totalEvents: data.totalEvents ?? 0,
           uniqueIPs: data.uniqueIPs ?? 0,
@@ -52,7 +51,7 @@ const Dashboard = () => {
      UI
   ========================== */
   return (
-    <div className="dashboard-container" style={{ padding: "20px" }}>
+    <div className="page-container dashboard-container">
       {/* =========================
          DASHBOARD HEADER
       ========================== */}
@@ -120,14 +119,14 @@ const Dashboard = () => {
       )}
 
       {/* =========================
-         FUTURE SECTIONS (Week 3+)
+         FUTURE SECTIONS
       ========================== */}
       <div className="charts-section" style={{ marginTop: "40px" }}>
-        {/* AttackChart will be added in Week 3 Day 2 */}
+        {/* Charts in future */}
       </div>
 
       <div className="table-section" style={{ marginTop: "40px" }}>
-        {/* Events summary table will be added later */}
+        {/* Tables in future */}
       </div>
     </div>
   );
