@@ -11,6 +11,7 @@ const mockEvents = [
     ip: "192.168.1.10",
     type: "SSH",
     port: 22,
+    threat: "SUSPICIOUS",
     details: "SSH login attempt"
   },
   {
@@ -18,13 +19,14 @@ const mockEvents = [
     ip: "10.0.0.5",
     type: "TELNET",
     port: 23,
+    threat: "MALICIOUS",
     details: "Telnet connection detected"
   }
 ];
 
 const Events = () => {
   /* =========================
-     STATE MANAGEMENT
+     STATE
   ========================== */
   const [allEvents, setAllEvents] = useState([]);
   const [events, setEvents] = useState([]);
@@ -32,18 +34,16 @@ const Events = () => {
   const [search, setSearch] = useState("");
   const [protocolFilter, setProtocolFilter] = useState("ALL");
   const [threatFilter, setThreatFilter] = useState("ALL");
-
-  // Week 3 – Sorting & Pagination
   const [sortBy, setSortBy] = useState("time");
-  const [currentPage, setCurrentPage] = useState(1);
 
+  const [currentPage, setCurrentPage] = useState(1);
   const ITEMS_PER_PAGE = 5;
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
   /* =========================
-     FETCH EVENTS (API + FALLBACK)
+     FETCH EVENTS (REAL API)
   ========================== */
   useEffect(() => {
     const fetchEvents = async () => {
@@ -58,7 +58,6 @@ const Events = () => {
         setAllEvents(data);
         setEvents(data);
       } catch {
-        // ✅ Day 5 fallback logic
         setAllEvents(mockEvents);
         setEvents(mockEvents);
         setError("Failed to fetch API, showing mock data");
@@ -71,17 +70,11 @@ const Events = () => {
   }, []);
 
   /* =========================
-     THREAT LOGIC
+     THREAT STYLING (NO LOGIC)
   ========================== */
-  const getThreatLevel = (event) => {
-    if (event.port === 23 || event.port === 3389) return "CRITICAL";
-    if (event.type === "SSH" || event.type === "FTP") return "SUSPICIOUS";
-    return "SAFE";
-  };
-
-  const getThreatStyle = (level) => {
-    switch (level) {
-      case "CRITICAL":
+  const getThreatStyle = (threat) => {
+    switch (threat) {
+      case "MALICIOUS":
         return { backgroundColor: "#fdecea", color: "#d32f2f" };
       case "SUSPICIOUS":
         return { backgroundColor: "#fff4e5", color: "#f57c00" };
@@ -101,7 +94,7 @@ const Events = () => {
     }
 
     if (threatFilter !== "ALL") {
-      filtered = filtered.filter(e => getThreatLevel(e) === threatFilter);
+      filtered = filtered.filter(e => e.threat === threatFilter);
     }
 
     if (search.trim()) {
@@ -129,12 +122,12 @@ const Events = () => {
   const paginatedEvents = events.slice(startIndex, startIndex + ITEMS_PER_PAGE);
 
   /* =========================
-     THREAT SUMMARY
+     THREAT SUMMARY (BACKEND-TRUTH)
   ========================== */
   const threatSummary = {
-    SAFE: events.filter(e => getThreatLevel(e) === "SAFE").length,
-    SUSPICIOUS: events.filter(e => getThreatLevel(e) === "SUSPICIOUS").length,
-    CRITICAL: events.filter(e => getThreatLevel(e) === "CRITICAL").length
+    SAFE: events.filter(e => e.threat === "BENIGN").length,
+    SUSPICIOUS: events.filter(e => e.threat === "SUSPICIOUS").length,
+    CRITICAL: events.filter(e => e.threat === "MALICIOUS").length
   };
 
   /* =========================
@@ -162,16 +155,16 @@ const Events = () => {
 
         <select value={protocolFilter} onChange={(e) => setProtocolFilter(e.target.value)}>
           <option value="ALL">All Protocols</option>
-          <option value="SSH">SSH</option>
-          <option value="FTP">FTP</option>
-          <option value="TELNET">TELNET</option>
+          <option value="TCP">TCP</option>
+          <option value="UDP">UDP</option>
+          <option value="ICMP">ICMP</option>
         </select>
 
         <select value={threatFilter} onChange={(e) => setThreatFilter(e.target.value)}>
           <option value="ALL">All Threats</option>
-          <option value="SAFE">Safe</option>
+          <option value="BENIGN">Safe</option>
           <option value="SUSPICIOUS">Suspicious</option>
-          <option value="CRITICAL">Critical</option>
+          <option value="MALICIOUS">Critical</option>
         </select>
 
         <select value={sortBy} onChange={(e) => setSortBy(e.target.value)}>
@@ -198,23 +191,26 @@ const Events = () => {
             </tr>
           </thead>
           <tbody>
-            {paginatedEvents.map((e, i) => {
-              const threat = getThreatLevel(e);
-              return (
-                <tr key={i}>
-                  <td>{e.time}</td>
-                  <td>{e.ip}</td>
-                  <td>{e.type}</td>
-                  <td>{e.port}</td>
-                  <td>
-                    <span style={{ ...getThreatStyle(threat), padding: "4px 10px", borderRadius: "12px" }}>
-                      {threat}
-                    </span>
-                  </td>
-                  <td>{e.details}</td>
-                </tr>
-              );
-            })}
+            {paginatedEvents.map((e, i) => (
+              <tr key={i}>
+                <td>{e.time}</td>
+                <td>{e.ip}</td>
+                <td>{e.type}</td>
+                <td>{e.port}</td>
+                <td>
+                  <span
+                    style={{
+                      ...getThreatStyle(e.threat),
+                      padding: "4px 10px",
+                      borderRadius: "12px"
+                    }}
+                  >
+                    {e.threat}
+                  </span>
+                </td>
+                <td>{e.details}</td>
+              </tr>
+            ))}
           </tbody>
         </table>
       )}
