@@ -100,3 +100,13 @@
 {"timestamp": "2025-12-25T11:05:09.429151+00:00", "source_ip": "127.0.0.1", "honeypot_type": "ssh", "port": 2222, "event": "command", "data": {"cmd": "ls"}, "level": "INFO"}
 {"timestamp": "2025-12-25T11:05:21.556288+00:00", "source_ip": "127.0.0.1", "honeypot_type": "ssh", "port": 2222, "event": "command", "data": {"cmd": "pwd"}, "level": "INFO"}
 {"timestamp": "2025-12-25T11:05:24.515821+00:00", "source_ip": "127.0.0.1", "honeypot_type": "ssh", "port": 2222, "event": "command", "data": {"cmd": "exit"}, "level": "INFO"}
+{"timestamp": "2025-12-27T05:15:18.046308+00:00", "source_ip": "127.0.0.1", "honeypot_type": "ssh", "port": 2222, "event": "login_attempt", "data": {"username": "PhantomNet", "password": "1234"}, "level": "WARN"}
+{"timestamp": "2025-12-27T05:15:18.047970+00:00", "source_ip": "127.0.0.1", "honeypot_type": "ssh", "port": 2222, "event": "login_success", "data": {"username": "PhantomNet"}, "level": "INFO"}
+{"timestamp": "2025-12-27T05:15:35.882847+00:00", "source_ip": "127.0.0.1", "honeypot_type": "ssh", "port": 2222, "event": "command", "data": {"cmd": "ls"}, "level": "INFO"}
+{"timestamp": "2025-12-27T05:15:45.178107+00:00", "source_ip": "127.0.0.1", "honeypot_type": "ssh", "port": 2222, "event": "command", "data": {"cmd": "mkdir Downloads"}, "level": "INFO"}
+{"timestamp": "2025-12-27T05:15:55.190153+00:00", "source_ip": "127.0.0.1", "honeypot_type": "ssh", "port": 2222, "event": "command", "data": {"cmd": "mkdir Desktop"}, "level": "INFO"}
+{"timestamp": "2025-12-27T05:16:01.729841+00:00", "source_ip": "127.0.0.1", "honeypot_type": "ssh", "port": 2222, "event": "command", "data": {"cmd": "ls"}, "level": "INFO"}
+{"timestamp": "2025-12-27T05:16:06.909780+00:00", "source_ip": "127.0.0.1", "honeypot_type": "ssh", "port": 2222, "event": "command", "data": {"cmd": "cd Downloads"}, "level": "INFO"}
+{"timestamp": "2025-12-27T05:16:11.536286+00:00", "source_ip": "127.0.0.1", "honeypot_type": "ssh", "port": 2222, "event": "command", "data": {"cmd": "pwd"}, "level": "INFO"}
+{"timestamp": "2025-12-27T05:16:19.559565+00:00", "source_ip": "127.0.0.1", "honeypot_type": "ssh", "port": 2222, "event": "command", "data": {"cmd": "whoami"}, "level": "INFO"}
+{"timestamp": "2025-12-27T05:16:23.202456+00:00", "source_ip": "127.0.0.1", "honeypot_type": "ssh", "port": 2222, "event": "command", "data": {"cmd": "exit"}, "level": "INFO"}
