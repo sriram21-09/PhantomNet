@@ -2,8 +2,16 @@ FROM python:3.11-slim
 
 WORKDIR /app
 
-COPY ssh_honeypot.py /app/ssh_honeypot.py
+# System deps for asyncssh
+RUN apt-get update && apt-get install -y \
+    openssh-client \
+    && rm -rf /var/lib/apt/lists/*
 
-RUN mkdir -p /app/logs/ssh
+COPY async_ssh_honeypot.py .
+COPY honeypot_host_key .
 
-CMD ["python", "/app/ssh_honeypot.py"]
+RUN pip install --no-cache-dir asyncssh
+
+EXPOSE 2222
+
+CMD ["python", "async_ssh_honeypot.py"]
