@@ -1,12 +1,16 @@
 import React, { useEffect, useState } from "react";
 import MetricCard from "../components/MetricCard";
+import LoadingSpinner from "../components/LoadingSpinner";
 
 const Dashboard = () => {
-  // Week 2 – Day 2 & Day 3: API driven stats
+  // Week 2 – Day 2 to Day 6
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
+  /* =========================
+     FETCH DASHBOARD STATS
+  ========================== */
   useEffect(() => {
     const fetchStats = async () => {
       try {
@@ -14,14 +18,12 @@ const Dashboard = () => {
         setError(null);
 
         const response = await fetch("http://127.0.0.1:8000/api/stats");
-
         if (!response.ok) {
           throw new Error("Failed to fetch dashboard stats");
         }
 
         const data = await response.json();
 
-        // ✅ Safety defaults (important for Day-3)
         setStats({
           totalEvents: data.totalEvents ?? 0,
           uniqueIPs: data.uniqueIPs ?? 0,
@@ -39,17 +41,44 @@ const Dashboard = () => {
     fetchStats();
   }, []);
 
-  return (
-    <div style={{ padding: "20px" }}>
-      <h1>Dashboard</h1>
-      <p>This is the PhantomNet dashboard. More content will be added later.</p>
+  const isEmptyStats =
+    stats &&
+    stats.totalEvents === 0 &&
+    stats.uniqueIPs === 0 &&
+    stats.criticalAlerts === 0;
 
-      {loading && <p>Loading dashboard stats...</p>}
+  /* =========================
+     UI
+  ========================== */
+  return (
+    <div className="page-container dashboard-container">
+      {/* =========================
+         DASHBOARD HEADER
+      ========================== */}
+      <div className="dashboard-header">
+        <h1>Dashboard</h1>
+        <p>This is the PhantomNet dashboard. More content will be added later.</p>
+      </div>
+
+      {/* =========================
+         LOADING / ERROR / EMPTY
+      ========================== */}
+      {loading && <LoadingSpinner />}
+
       {error && <p style={{ color: "red" }}>{error}</p>}
 
-      {/* ✅ Step-7: All stat cards including Critical Alerts */}
-      {stats && (
+      {!loading && !error && isEmptyStats && (
+        <p style={{ marginTop: "20px", color: "#666" }}>
+          No dashboard statistics available yet.
+        </p>
+      )}
+
+      {/* =========================
+         METRICS SECTION
+      ========================== */}
+      {!loading && !error && stats && !isEmptyStats && (
         <div
+          className="metrics-section"
           style={{
             display: "flex",
             gap: "20px",
@@ -81,7 +110,6 @@ const Dashboard = () => {
             color="#fff3e0"
           />
 
-          {/* ⭐ Step-7 */}
           <MetricCard
             title="Critical Alerts"
             value={stats.criticalAlerts}
@@ -89,6 +117,17 @@ const Dashboard = () => {
           />
         </div>
       )}
+
+      {/* =========================
+         FUTURE SECTIONS
+      ========================== */}
+      <div className="charts-section" style={{ marginTop: "40px" }}>
+        {/* Charts in future */}
+      </div>
+
+      <div className="table-section" style={{ marginTop: "40px" }}>
+        {/* Tables in future */}
+      </div>
     </div>
   );
 };

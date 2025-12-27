@@ -1,6 +1,9 @@
 // src/components/EventsTable.jsx
 
-function EventsTable({ events, isSuspicious }) {
+function EventsTable({
+  events = [],
+  getRowClass = () => "row-safe"
+}) {
   return (
     <div className="events-table-wrapper">
       <table className="events-table">
@@ -13,23 +16,28 @@ function EventsTable({ events, isSuspicious }) {
             <th>Details</th>
           </tr>
         </thead>
-        <tbody>
-          {events.map((event, index) => {
-            const suspicious = isSuspicious(event);
 
-            return (
-              <tr
-                key={index}
-                className={suspicious ? "row-suspicious" : "row-safe"}
+        <tbody>
+          {events.length === 0 ? (
+            <tr>
+              <td
+                colSpan="5"
+                style={{ textAlign: "center", padding: "20px" }}
               >
+                No events available
+              </td>
+            </tr>
+          ) : (
+            events.map((event, index) => (
+              <tr key={index} className={getRowClass(event)}>
                 <td>{event.timestamp}</td>
                 <td>{event.source_ip}</td>
                 <td>{event.honeypot_type}</td>
                 <td>{event.port}</td>
                 <td>{event.details}</td>
               </tr>
-            );
-          })}
+            ))
+          )}
         </tbody>
       </table>
     </div>

@@ -3,9 +3,8 @@
 # =========================
 from fastapi import FastAPI, Depends, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from sqlalchemy import create_engine, desc, text, func
+from sqlalchemy import create_engine, desc, text
 from sqlalchemy.orm import sessionmaker, Session
-from typing import List
 from datetime import datetime
 import os
 import json
@@ -17,9 +16,11 @@ from dotenv import load_dotenv
 # =========================
 from services.traffic_sniffer import RealTimeSniffer
 from services.stats_aggregator import StatsService
-from services.firewall import FirewallService  # Your Active Defense Service
+from services.firewall import FirewallService
 
-# Models
+# =========================
+# MODELS
+# =========================
 from app_models import Base, PacketLog, TrafficStats
 
 # =========================
@@ -28,22 +29,22 @@ from app_models import Base, PacketLog, TrafficStats
 load_dotenv()
 
 DATABASE_URL = os.getenv("DATABASE_URL")
-# Fallback to local SQLite if .env is missing (Developer Friendly)
 if not DATABASE_URL:
-    print("⚠️  WARNING: DATABASE_URL not set. Using local sqlite file.")
+    print("⚠️ WARNING: DATABASE_URL not set. Using local sqlite DB.")
     DATABASE_URL = "sqlite:///./phantomnet.db"
 
 # =========================
 # DATABASE SETUP
 # =========================
-engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False} if "sqlite" in DATABASE_URL else {})
+engine = create_engine(
+    DATABASE_URL,
+    connect_args={"check_same_thread": False} if "sqlite" in DATABASE_URL else {}
+)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-
-# Create Tables (Safe to run multiple times)
 Base.metadata.create_all(bind=engine)
 
 # =========================
-# DEPENDENCIES
+# DEPENDENCY
 # =========================
 def get_db():
     db = SessionLocal()
@@ -53,20 +54,18 @@ def get_db():
         db.close()
 
 # =========================
-# LIFESPAN (Startup/Shutdown)
+# LIFESPAN (Sniffer Startup)
 # =========================
 @contextlib.asynccontextmanager
 async def lifespan(app: FastAPI):
-    # Startup: Launch the Sniffer
     sniffer = RealTimeSniffer()
     sniffer.start_background_sniffer()
-    print("🚀 PhantomNet Sniffer Started...")
+    print("🚀 PhantomNet Sniffer Started")
     yield
-    # Shutdown: Clean up if needed
-    print("🛑 Shutting down...")
+    print("🛑 PhantomNet Shutting Down")
 
 # =========================
-# APP INITIALIZATION
+# APP INIT
 # =========================
 app = FastAPI(
     title="PhantomNet API",
@@ -82,8 +81,9 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
 # =========================
-# 1. CORE ENDPOINTS
+# CORE ENDPOINTS
 # =========================
 @app.get("/")
 def read_root():
@@ -98,16 +98,10 @@ def health_check(db: Session = Depends(get_db)):
         return {"status": "error", "database": str(e)}
 
 # =========================
-# 2. DASHBOARD DATA (Your Work)
+# DASHBOARD LIVE FEED
 # =========================
-
-# This endpoint now fetches REAL data from the DB (Team Lead's Logic)
-# But keeps the URL your Frontend expects ('/analyze-traffic')
 @app.get("/analyze-traffic")
 def get_real_traffic(db: Session = Depends(get_db)):
-    """
-    Fetches the latest 50 packets from the database for the Live Feed.
-    """
     logs = (
         db.query(PacketLog)
         .order_by(PacketLog.timestamp.desc())
@@ -126,7 +120,7 @@ def get_real_traffic(db: Session = Depends(get_db)):
                     "length": log.length
                 },
                 "ai_analysis": {
-                    "prediction": "MALICIOUS" if log.is_malicious else "BENIGN",
+                    "prediction": log.attack_type or "BENIGN",
                     "threat_score": log.threat_score,
                     "confidence_percent": f"{int(log.threat_score * 100)}%"
                 }
@@ -135,45 +129,69 @@ def get_real_traffic(db: Session = Depends(get_db)):
         ]
     }
 
-@app.get("/dashboard/stats")
-def get_dashboard_stats(db: Session = Depends(get_db)):
-    """
-    Your High-Performance Statistics Engine.
-    """
+# =========================
+# DASHBOARD STATS
+# =========================
+@app.get("/api/stats")
+def get_api_stats(db: Session = Depends(get_db)):
     service = StatsService(db)
-    
-    # 1. Update & Fetch Cache
     stats = service.calculate_stats()
-    
-    # 2. Fetch Hourly Trend
-    hourly = service.get_hourly_trend()
-    
+
     return {
-        "status": "success",
-        "data": {
-            "total_attacks": stats.total_attacks,
-            "unique_ips": stats.unique_attackers,
-            "attacks_by_type": json.loads(stats.attacks_by_type),
-            "hourly_trend": hourly,
-            "last_updated": stats.last_updated
-        }
+        "totalEvents": stats.total_attacks,
+        "uniqueIPs": stats.unique_attackers,
+        "activeHoneypots": len(json.loads(stats.attacks_by_type or "{}")),
+        "avgThreatScore": 0,
+        "criticalAlerts": 0
     }
 
 # =========================
-# 3. ACTIVE DEFENSE (Kill Switch)
+# ✅ EVENTS API (FIXED)
+# =========================
+@app.get("/api/events")
+def get_events(
+    threat: str = "ALL",
+    protocol: str = "ALL",
+    limit: int = 100,
+    db: Session = Depends(get_db)
+):
+    query = db.query(PacketLog)
+
+    if threat != "ALL":
+        query = query.filter(PacketLog.attack_type == threat)
+
+    if protocol != "ALL":
+        query = query.filter(PacketLog.protocol == protocol)
+
+    logs = (
+        query
+        .order_by(PacketLog.timestamp.desc())
+        .limit(limit)
+        .all()
+    )
+
+    return [
+    {
+        "time": log.timestamp.strftime("%Y-%m-%d %H:%M:%S"),
+        "ip": log.src_ip,
+        "type": log.protocol,
+        "port": 0,  # OK for now (L4 extraction later)
+        "threat": log.attack_type or "BENIGN",
+        "details": f"{log.attack_type or 'BENIGN'} traffic detected"
+    }
+    for log in logs
+]
+
+# =========================
+# ACTIVE DEFENSE
 # =========================
 @app.post("/active-defense/block/{ip}")
 def block_ip_address(ip: str):
-    """
-    Triggers Windows Firewall to ban an IP.
-    """
-    # Security check: Don't block localhost
     if ip in ["127.0.0.1", "localhost", "::1"]:
-        return {"status": "error", "message": "Cannot block localhost!"}
+        return {"status": "error", "message": "Cannot block localhost"}
 
     result = FirewallService.block_ip(ip)
-    
     if result["status"] == "error":
         raise HTTPException(status_code=500, detail=result["message"])
-    
+
     return result
