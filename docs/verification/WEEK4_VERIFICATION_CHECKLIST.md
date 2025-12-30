@@ -1,85 +1,60 @@
-# Week 4 Verification Checklist
+# Week 4 Verification Checklist – PhantomNet
 
-Purpose:
-Ensure all components implemented up to Week 3 are functioning correctly and reliably.
-No feature is considered complete without passing verification.
-
-Status Legend:
-[ ] Not Verified
-[ ] Verified
-[ ] Failed (Issue Logged)
+## Purpose
+Ensure PhantomNet is stable, verifiable, and production-aligned before extending features.
 
 ---
 
-## A. Infrastructure Verification
+## 1. Backend Verification
 
-- [ ] Backend service starts without runtime errors
-- [ ] Environment variables load correctly
-- [ ] Database connection established successfully
-- [ ] Database schema exists and is accessible
-  - [ ] packet_logs table exists
-  - [ ] traffic_stats table exists
-- [ ] Network sniffer starts automatically on backend startup
-- [ ] Sniffer remains active after backend initialization
+- [x] FastAPI server starts without errors
+- [x] Background sniffer initializes on startup
+- [x] AI model loads successfully
+- [x] PacketLog entries persist to database
+- [x] No duplicate event generation
+- [x] Graceful shutdown without DB corruption
 
 ---
 
-## B. Data Flow Verification
+## 2. Events Pipeline Verification
 
-- [ ] Network packets are captured by the sniffer
-- [ ] Captured packets reach the backend processing pipeline
-- [ ] AI classification is applied to captured traffic
-- [ ] Classified data is written to the database
-- [ ] No duplicate records observed in packet_logs
-- [ ] No malformed or partially written rows
-- [ ] Timestamps, source IPs, protocols, and threat labels are valid
-
----
-
-## C. Backend API Verification
-
-- [ ] /health endpoint responds with healthy status
-- [ ] /analyze-traffic returns latest captured packets
-- [ ] /api/stats reflects accurate database values
-- [ ] /api/events returns correct and documented schema
-- [ ] Threat-based filtering works correctly
-- [ ] Protocol-based filtering works correctly
-- [ ] API responses are consistent across multiple calls
-- [ ] No unhandled exceptions in API logs
+- [x] Events originate ONLY from PacketLog
+- [x] Threat classification performed only in backend
+- [x] `/api/events` returns real DB data
+- [x] No frontend recalculation of threat levels
+- [x] Threat values: BENIGN / SUSPICIOUS / MALICIOUS
+- [x] Event timestamps reflect DB timestamps
 
 ---
 
-## D. Frontend Verification
+## 3. Dashboard Verification
 
-- [ ] Dashboard loads without console or runtime errors
-- [ ] Displayed statistics match database values
-- [ ] Events page shows real backend data (not mock data)
-- [ ] Pagination works correctly on large datasets
-- [ ] Protocol filter works as expected
-- [ ] Threat filter works as expected
-- [ ] Combined filters (protocol + threat) work correctly
-- [ ] Frontend does not recalculate threat levels locally
-- [ ] All threat data originates from backend only
+- [x] `/api/stats` matches database values
+- [x] Total Events count accurate
+- [x] Unique IPs calculated correctly
+- [x] Dashboard loads without mock fallback
+- [x] Live feed updates without UI errors
 
 ---
 
-## E. Stability Verification
+## 4. Frontend Verification
 
-- [ ] Backend runs continuously for more than 30 minutes
-- [ ] No crashes or forced restarts observed
-- [ ] Memory usage remains stable (basic observation)
-- [ ] No repeated error logs during extended runtime
-- [ ] System recovers gracefully from minor interruptions
-
----
-
-## Verification Notes
-
-- Issues found during verification must be logged in the risk log.
-- Any failed item blocks Week 4 sign-off until resolved.
-- Verification must be repeatable and reproducible.
+- [x] Events page loads from backend API
+- [x] Filters (Protocol / Threat) function correctly
+- [x] Pagination works across large datasets
+- [x] UI reflects backend truth (no heuristics)
+- [x] No console errors in browser
 
 ---
 
-Date:29/12/2025
-Result:
+## 5. Database Verification
+
+- [x] packet_logs table populated
+- [x] traffic_stats table updating
+- [x] Indexes exist on timestamp and src_ip
+- [x] Queries return under acceptable latency
+
+---
+
+## Status
+**Week 4 Verification: IN PROGRESS**
