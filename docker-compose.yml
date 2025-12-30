@@ -18,9 +18,33 @@ services:
       dockerfile: Dockerfile
     container_name: phantomnet_ssh
     ports:
-      - "2222:22"
+      - "2222:2222"          # ✅ FIXED
     volumes:
       - ./data/logs/ssh:/app/logs/ssh
+    depends_on:
+      - postgres
+
+  http-honeypot:
+    build:
+      context: ./backend/honeypots/http
+      dockerfile: Dockerfile
+    container_name: phantomnet_http
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./data/logs/http:/app/logs/http
+    depends_on:
+      - postgres
+
+  ftp-honeypot:
+    build:
+      context: ./backend/honeypots/ftp
+      dockerfile: Dockerfile
+    container_name: phantomnet_ftp
+    ports:
+      - "2121:2121"
+    volumes:
+      - ./data/logs/ftp:/app/logs/ftp
     depends_on:
       - postgres
 
