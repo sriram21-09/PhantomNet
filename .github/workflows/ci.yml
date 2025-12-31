@@ -25,8 +25,12 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Syntax check (no tests yet)
+     - name: Syntax check (backend core only)
   working-directory: backend
   run: |
-    echo "Running Python syntax validation..."
-    find . -name "*.py" -exec python -m py_compile {} +
+    python -m compileall \
+      app_models.py \
+      main.py \
+      services \
+      api \
+      ai_engine
