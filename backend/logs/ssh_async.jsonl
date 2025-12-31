@@ -122,3 +122,22 @@
 {"timestamp": "2025-12-30T06:42:15.100956+00:00", "source_ip": "172.17.0.1", "honeypot_type": "ssh", "port": 2222, "event": "command", "data": {"cmd": "exit"}, "level": "INFO"}
 {"timestamp": "2025-12-30T07:22:38.408720+00:00", "source_ip": "127.0.0.1", "honeypot_type": "ssh", "port": 2222, "event": "login_attempt", "data": {"username": "checking", "password": "1234"}, "level": "WARN"}
 {"timestamp": "2025-12-30T07:22:38.410990+00:00", "source_ip": "127.0.0.1", "honeypot_type": "ssh", "port": 2222, "event": "login_failed", "data": {"username": "checking"}, "level": "ERROR"}
+{"timestamp": "2025-12-31T01:57:31.394043+00:00", "source_ip": "127.0.0.1", "honeypot_type": "ssh", "port": 2222, "event": "login_attempt", "data": {"username": "PhantomNet", "password": "1234"}, "level": "WARN"}
+{"timestamp": "2025-12-31T01:57:31.396396+00:00", "source_ip": "127.0.0.1", "honeypot_type": "ssh", "port": 2222, "event": "login_success", "data": {"username": "PhantomNet"}, "level": "INFO"}
+{"timestamp": "2025-12-31T01:57:34.044525+00:00", "source_ip": "127.0.0.1", "honeypot_type": "ssh", "port": 2222, "event": "command", "data": {"cmd": "ls"}, "level": "INFO"}
+{"timestamp": "2025-12-31T01:57:36.754336+00:00", "source_ip": "127.0.0.1", "honeypot_type": "ssh", "port": 2222, "event": "command", "data": {"cmd": "pwd"}, "level": "INFO"}
+{"timestamp": "2025-12-31T01:57:39.098134+00:00", "source_ip": "127.0.0.1", "honeypot_type": "ssh", "port": 2222, "event": "command", "data": {"cmd": "whoami"}, "level": "INFO"}
+{"timestamp": "2025-12-31T01:57:50.051719+00:00", "source_ip": "127.0.0.1", "honeypot_type": "ssh", "port": 2222, "event": "command", "data": {"cmd": "uname -a"}, "level": "INFO"}
+{"timestamp": "2025-12-31T01:58:10.112738+00:00", "source_ip": "127.0.0.1", "honeypot_type": "ssh", "port": 2222, "event": "command", "data": {"cmd": "ls -la"}, "level": "INFO"}
+{"timestamp": "2025-12-31T01:58:19.020171+00:00", "source_ip": "127.0.0.1", "honeypot_type": "ssh", "port": 2222, "event": "command", "data": {"cmd": "cd \\etc"}, "level": "INFO"}
+{"timestamp": "2025-12-31T01:58:31.086207+00:00", "source_ip": "127.0.0.1", "honeypot_type": "ssh", "port": 2222, "event": "command", "data": {"cmd": "cd /etc"}, "level": "INFO"}
+{"timestamp": "2025-12-31T01:58:33.270555+00:00", "source_ip": "127.0.0.1", "honeypot_type": "ssh", "port": 2222, "event": "command", "data": {"cmd": "pwd"}, "level": "INFO"}
+{"timestamp": "2025-12-31T01:58:39.579410+00:00", "source_ip": "127.0.0.1", "honeypot_type": "ssh", "port": 2222, "event": "command", "data": {"cmd": "ls"}, "level": "INFO"}
+{"timestamp": "2025-12-31T01:59:00.354506+00:00", "source_ip": "127.0.0.1", "honeypot_type": "ssh", "port": 2222, "event": "command", "data": {"cmd": "cd /etc/passwd"}, "level": "INFO"}
+{"timestamp": "2025-12-31T01:59:09.052649+00:00", "source_ip": "127.0.0.1", "honeypot_type": "ssh", "port": 2222, "event": "command", "data": {"cmd": "cd /etc/shadow"}, "level": "INFO"}
+{"timestamp": "2025-12-31T01:59:17.884087+00:00", "source_ip": "127.0.0.1", "honeypot_type": "ssh", "port": 2222, "event": "command", "data": {"cmd": "id"}, "level": "INFO"}
+{"timestamp": "2025-12-31T01:59:26.532809+00:00", "source_ip": "127.0.0.1", "honeypot_type": "ssh", "port": 2222, "event": "command", "data": {"cmd": "sudo -l"}, "level": "INFO"}
+{"timestamp": "2025-12-31T02:14:24.270662+00:00", "source_ip": "::1", "honeypot_type": "ssh", "port": 2222, "event": "login_attempt", "data": {"username": "attacker", "password": "wrongpass"}, "level": "WARN"}
+{"timestamp": "2025-12-31T02:14:24.271711+00:00", "source_ip": "::1", "honeypot_type": "ssh", "port": 2222, "event": "login_failed", "data": {"username": "attacker"}, "level": "ERROR"}
+{"timestamp": "2025-12-31T02:14:24.330463+00:00", "source_ip": "::1", "honeypot_type": "ssh", "port": 2222, "event": "login_attempt", "data": {"username": "PhantomNet", "password": "1234"}, "level": "WARN"}
+{"timestamp": "2025-12-31T02:14:24.331156+00:00", "source_ip": "::1", "honeypot_type": "ssh", "port": 2222, "event": "login_success", "data": {"username": "PhantomNet"}, "level": "INFO"}
