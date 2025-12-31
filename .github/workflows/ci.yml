@@ -25,7 +25,7 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Syntax check (backend core only)
+      - name: Backend syntax check (core only)
         working-directory: backend
         run: |
           python -m compileall \

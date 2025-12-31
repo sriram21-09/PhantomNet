@@ -31,6 +31,8 @@ from app_models import Base, PacketLog, TrafficStats
 load_dotenv()
 
 DATABASE_URL = os.getenv("DATABASE_URL")
+ENVIRONMENT = os.getenv("ENVIRONMENT", "local")
+
 if not DATABASE_URL:
     print("⚠️ WARNING: DATABASE_URL not set. Using local sqlite DB.")
     DATABASE_URL = "sqlite:///./phantomnet.db"
@@ -43,7 +45,6 @@ engine = create_engine(
     connect_args={"check_same_thread": False} if "sqlite" in DATABASE_URL else {}
 )
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-Base.metadata.create_all(bind=engine)
 
 # =========================
 # DEPENDENCY
@@ -56,13 +57,21 @@ def get_db():
         db.close()
 
 # =========================
-# LIFESPAN
+# LIFESPAN (SAFE STARTUP)
 # =========================
 @contextlib.asynccontextmanager
 async def lifespan(app: FastAPI):
-    sniffer = RealTimeSniffer()
-    sniffer.start_background_sniffer()
-    print("🚀 PhantomNet Sniffer Started")
+    # Create tables safely on startup (not import)
+    Base.metadata.create_all(bind=engine)
+
+    # Start sniffer ONLY in real runtime
+    if ENVIRONMENT not in ["ci", "test"]:
+        sniffer = RealTimeSniffer()
+        sniffer.start_background_sniffer()
+        print("🚀 PhantomNet Sniffer Started")
+    else:
+        print("🧪 Sniffer disabled (CI/Test mode)")
+
     yield
     print("🛑 PhantomNet Shutting Down")
 
@@ -114,23 +123,30 @@ def get_real_traffic(db: Session = Depends(get_db)):
     data = []
 
     for log in logs:
+        # Geo lookup must never crash API
+        try:
+            location = GeoService.get_country(log.src_ip)
+        except Exception:
+            location = "UNKNOWN"
+
         data.append({
             "packet_info": {
                 "src": log.src_ip,
                 "dst": log.dst_ip,
                 "proto": log.protocol,
                 "length": log.length,
-                "location": GeoService.get_country(log.src_ip)
+                "location": location
             },
             "ai_analysis": {
                 "prediction": log.attack_type or "BENIGN",
-                "threat_score": log.threat_score,
-                "confidence_percent": f"{int(log.threat_score * 100)}%"
+                "threat_score": log.threat_score or 0.0,
+                "confidence_percent": f"{int((log.threat_score or 0) * 100)}%"
             }
         })
 
     return {
         "status": "success",
+        "count": len(data),
         "data": data
     }
 
@@ -151,7 +167,7 @@ def get_api_stats(db: Session = Depends(get_db)):
     }
 
 # =========================
-# EVENTS API
+# EVENTS API (STABLE)
 # =========================
 @app.get("/api/events")
 def get_events(
@@ -177,7 +193,7 @@ def get_events(
 
     return [
         {
-            "time": log.timestamp.strftime("%Y-%m-%d %H:%M:%S"),
+            "time": log.timestamp.strftime("%Y-%m-%d %H:%M:%S") if log.timestamp else "UNKNOWN",
             "ip": log.src_ip,
             "type": log.protocol,
             "port": 0,
