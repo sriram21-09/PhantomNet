@@ -1,7 +1,7 @@
 from sqlalchemy import create_engine, inspect
 
 # REPLACE 'YOUR_PASSWORD' BELOW
-DATABASE_URL = DATABASE_URL = "postgresql://postgres:Luckky@localhost:5432/phantomnet_db"
+DATABASE_URL = "postgresql://postgres:Luckky@localhost:5432/phantomnet_db"
 def check_db():
     try:
         engine = create_engine(DATABASE_URL)
