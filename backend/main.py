@@ -1,10 +1,11 @@
 from services.geo import GeoService
+
 # =========================
 # CORE IMPORTS
 # =========================
 from fastapi import FastAPI, Depends, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from sqlalchemy import create_engine, desc, text
+from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker, Session
 from datetime import datetime
 import os
@@ -55,7 +56,7 @@ def get_db():
         db.close()
 
 # =========================
-# LIFESPAN (Sniffer Startup)
+# LIFESPAN
 # =========================
 @contextlib.asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -101,15 +102,37 @@ def health_check(db: Session = Depends(get_db)):
 # =========================
 # DASHBOARD LIVE FEED
 # =========================
-# Inside the list comprehension [ ... for log in logs ]
-"packet_info": {
-    "src": log.src_ip,
-    "dst": log.dst_ip,
-    "proto": log.protocol,
-    "length": log.length,
-    # 👇 MAKE SURE THIS LINE IS HERE:
-    "location": GeoService.get_country(log.src_ip) 
-},
+@app.get("/analyze-traffic")
+def get_real_traffic(db: Session = Depends(get_db)):
+    logs = (
+        db.query(PacketLog)
+        .order_by(PacketLog.timestamp.desc())
+        .limit(50)
+        .all()
+    )
+
+    data = []
+
+    for log in logs:
+        data.append({
+            "packet_info": {
+                "src": log.src_ip,
+                "dst": log.dst_ip,
+                "proto": log.protocol,
+                "length": log.length,
+                "location": GeoService.get_country(log.src_ip)
+            },
+            "ai_analysis": {
+                "prediction": log.attack_type or "BENIGN",
+                "threat_score": log.threat_score,
+                "confidence_percent": f"{int(log.threat_score * 100)}%"
+            }
+        })
+
+    return {
+        "status": "success",
+        "data": data
+    }
 
 # =========================
 # DASHBOARD STATS
@@ -128,7 +151,7 @@ def get_api_stats(db: Session = Depends(get_db)):
     }
 
 # =========================
-# ✅ EVENTS API (FIXED)
+# EVENTS API
 # =========================
 @app.get("/api/events")
 def get_events(
@@ -153,16 +176,16 @@ def get_events(
     )
 
     return [
-    {
-        "time": log.timestamp.strftime("%Y-%m-%d %H:%M:%S"),
-        "ip": log.src_ip,
-        "type": log.protocol,
-        "port": 0,  # OK for now (L4 extraction later)
-        "threat": log.attack_type or "BENIGN",
-        "details": f"{log.attack_type or 'BENIGN'} traffic detected"
-    }
-    for log in logs
-]
+        {
+            "time": log.timestamp.strftime("%Y-%m-%d %H:%M:%S"),
+            "ip": log.src_ip,
+            "type": log.protocol,
+            "port": 0,
+            "threat": log.attack_type or "BENIGN",
+            "details": f"{log.attack_type or 'BENIGN'} traffic detected"
+        }
+        for log in logs
+    ]
 
 # =========================
 # ACTIVE DEFENSE
