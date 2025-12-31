@@ -1,3 +1,4 @@
+from services.geo import GeoService
 # =========================
 # CORE IMPORTS
 # =========================
@@ -100,34 +101,15 @@ def health_check(db: Session = Depends(get_db)):
 # =========================
 # DASHBOARD LIVE FEED
 # =========================
-@app.get("/analyze-traffic")
-def get_real_traffic(db: Session = Depends(get_db)):
-    logs = (
-        db.query(PacketLog)
-        .order_by(PacketLog.timestamp.desc())
-        .limit(50)
-        .all()
-    )
-
-    return {
-        "status": "success",
-        "data": [
-            {
-                "packet_info": {
-                    "src": log.src_ip,
-                    "dst": log.dst_ip,
-                    "proto": log.protocol,
-                    "length": log.length
-                },
-                "ai_analysis": {
-                    "prediction": log.attack_type or "BENIGN",
-                    "threat_score": log.threat_score,
-                    "confidence_percent": f"{int(log.threat_score * 100)}%"
-                }
-            }
-            for log in logs
-        ]
-    }
+# Inside the list comprehension [ ... for log in logs ]
+"packet_info": {
+    "src": log.src_ip,
+    "dst": log.dst_ip,
+    "proto": log.protocol,
+    "length": log.length,
+    # 👇 MAKE SURE THIS LINE IS HERE:
+    "location": GeoService.get_country(log.src_ip) 
+},
 
 # =========================
 # DASHBOARD STATS
