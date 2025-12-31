@@ -26,6 +26,7 @@ jobs:
           pip install -r requirements.txt
 
       - name: Syntax check (no tests yet)
-        working-directory: backend
-        run: |
-          python -m compileall .
+  working-directory: backend
+  run: |
+    echo "Running Python syntax validation..."
+    find . -name "*.py" -exec python -m py_compile {} +
