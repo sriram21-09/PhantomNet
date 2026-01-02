@@ -35,3 +35,47 @@ npm run build
 - Dashboard
 - Events
 - About
+
+# PhantomNet Frontend Dashboard
+
+PhantomNet is a React-based dashboard used to monitor honeypot attack events.
+It supports both real API integration and mock fallback data.
+
+## Project Structure
+
+src/
+├── components/        # Reusable UI components
+│   ├── Navbar.jsx
+│   ├── MetricCard.jsx
+│   ├── LoadingSpinner.jsx
+├── pages/             # Application pages
+│   ├── Dashboard.jsx
+│   ├── Events.jsx
+│   ├── About.jsx
+├── context/           # Theme & global state
+│   ├── ThemeContext.jsx
+├── data/              # Mock data (fallback)
+├── App.jsx
+├── main.jsx
+
+## API Integration
+
+The application attempts to fetch data from backend APIs.
+
+If the API fails or backend is unavailable, mock data is used automatically.
+
+Example:
+- API URL: http://localhost:3000/api/events
+- Mock data: src/pages/Events.jsx
+
+## Run the Application
+
+1. Install dependencies:
+   npm install
+
+2. Start development server:
+   npm run dev
+
+3. Open browser:
+   http://localhost:5173
+
