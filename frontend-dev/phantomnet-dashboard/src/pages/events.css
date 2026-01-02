@@ -5,6 +5,10 @@
   padding: 30px;
 }
 
+.page-container {
+  padding: 20px;
+}
+
 /* =========================
    SEARCH & FILTERS
 ========================= */
@@ -17,6 +21,7 @@
 .controls {
   display: flex;
   gap: 10px;
+  flex-wrap: wrap;              /* ✅ Day 4 spacing fix */
   margin-bottom: 15px;
 }
 
@@ -24,31 +29,33 @@
 .controls select {
   padding: 8px;
   min-width: 180px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
 }
 
 /* =========================
    TABLE
 ========================= */
-table {
+.events-table {
   width: 100%;
   border-collapse: collapse;
   margin-top: 15px;
 }
 
-th {
+.events-table th {
   background-color: #1e3a8a;
   color: white;
-  padding: 10px;
+  padding: 8px;                /* ✅ Cleaner spacing */
   text-align: left;
 }
 
-td {
-  padding: 10px;
+.events-table td {
+  padding: 8px;                /* ✅ Cleaner spacing */
   border-bottom: 1px solid #ddd;
 }
 
 /* =========================
-   ROW COLORS
+   ROW COLORS (OPTIONAL)
 ========================= */
 .row-safe {
   background-color: #e6f4ea;
@@ -59,7 +66,7 @@ td {
 }
 
 /* =========================
-   THREAT BADGES (DAY 4 + DAY 6)
+   THREAT BADGES
 ========================= */
 .safe {
   color: green;
@@ -71,6 +78,7 @@ td {
   font-weight: bold;
 }
 
+.malicious,
 .critical {
   color: darkred;
   font-weight: bold;
@@ -101,7 +109,7 @@ td {
 }
 
 /* =========================
-   LOADING SPINNER (DAY 6)
+   LOADING SPINNER
 ========================= */
 .spinner-container {
   display: flex;
@@ -119,7 +127,6 @@ td {
   animation: spin 1s linear infinite;
 }
 
-/* Spinner animation */
 @keyframes spin {
   to {
     transform: rotate(360deg);
@@ -139,6 +146,25 @@ td {
   text-align: center;
   margin-top: 20px;
   color: #666;
+}
+
+/* =========================
+   PAGINATION
+========================= */
+.pagination {
+  margin-top: 20px;
+  text-align: center;
+}
+
+.pagination button {
+  padding: 6px 12px;
+  margin: 0 5px;
+  cursor: pointer;
+}
+
+.pagination button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 /* =========================
