@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import MetricCard from "../components/MetricCard";
 import LoadingSpinner from "../components/LoadingSpinner";
+import HoneypotStatus from "../components/HoneypotStatus";
 
 const Dashboard = () => {
   // Week 2 – Day 2 to Day 6
@@ -133,3 +134,4 @@ const Dashboard = () => {
 };
 
 export default Dashboard;
+<HoneypotStatus />

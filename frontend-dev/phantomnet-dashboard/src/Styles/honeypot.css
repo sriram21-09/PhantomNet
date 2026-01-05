@@ -1,0 +1,29 @@
+.honeypot-container {
+  margin-top: 30px;
+}
+
+.honeypot-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 20px;
+  margin-top: 15px;
+}
+
+.honeypot-card {
+  padding: 15px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  background-color: #f9f9f9;
+}
+
+.honeypot-card.active {
+  border-left: 5px solid green;
+}
+
+.honeypot-card.inactive {
+  border-left: 5px solid red;
+}
+
+.honeypot-card h3 {
+  margin-bottom: 10px;
+}
