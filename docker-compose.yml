@@ -20,7 +20,7 @@ services:
     ports:
       - "2222:2222"          # ✅ FIXED
     volumes:
-      - ./data/logs/ssh:/app/logs/ssh
+    - ./backend/logs:/logs
     depends_on:
       - postgres
 
@@ -32,7 +32,7 @@ services:
     ports:
       - "8080:8080"
     volumes:
-      - ./data/logs/http:/app/logs/http
+    - ./backend/logs:/logs
     depends_on:
       - postgres
 
@@ -44,7 +44,7 @@ services:
     ports:
       - "2121:2121"
     volumes:
-      - ./data/logs/ftp:/app/logs/ftp
+    - ./backend/logs:/logs
     depends_on:
       - postgres
 
