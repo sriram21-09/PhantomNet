@@ -78,3 +78,7 @@ backend/logs/
 backend/honeypots/logs/
 *.jsonl
 
+# Python virtual environments
+smtp-venv/
+venv/
+.env
