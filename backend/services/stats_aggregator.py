@@ -1,8 +1,9 @@
 from sqlalchemy.orm import Session
-from sqlalchemy import func, distinct
-from app_models import PacketLog, TrafficStats
+from sqlalchemy import func
+from app_models import Event
 from datetime import datetime, timedelta
-import json
+
+CRITICAL_THRESHOLD = 80  # Centralized, explicit
 
 class StatsService:
     def __init__(self, db: Session):
@@ -10,76 +11,55 @@ class StatsService:
 
     def calculate_stats(self):
         """
-        Aggregates raw logs into the TrafficStats cache.
+        Returns live dashboard statistics derived directly from Events table.
+        This is the single source of truth for /api/stats.
         """
-        # Analyze the last 24 hours
-        now = datetime.utcnow()
-        start_time = now - timedelta(hours=24)
 
-        # 1. Total Attack Count
-        total_attacks = self.db.query(PacketLog).filter(
-            PacketLog.timestamp >= start_time,
-            PacketLog.is_malicious == True
-        ).count()
+        total_events = self.db.query(Event).count()
 
-        # 2. Unique IP Count
-        unique_ips = self.db.query(func.count(distinct(PacketLog.src_ip))).filter(
-            PacketLog.timestamp >= start_time,
-            PacketLog.is_malicious == True
-        ).scalar()
+        unique_ips = (
+            self.db.query(Event.source_ip)
+            .distinct()
+            .count()
+        )
 
-        # 3. Attacks by Protocol ("Honeypot" Style)
-        protocol_counts = self.db.query(
-            PacketLog.protocol, func.count(PacketLog.id)
-        ).filter(
-            PacketLog.timestamp >= start_time,
-            PacketLog.is_malicious == True
-        ).group_by(PacketLog.protocol).all()
+        avg_threat = (
+            self.db.query(func.avg(Event.threat_score))
+            .scalar()
+        ) or 0
 
-        type_dict = {p[0]: p[1] for p in protocol_counts}
-        
-        # 4. Save/Update Cache
-        # Check if cache exists for the last 5 minutes
-        latest_stat = self.db.query(TrafficStats).order_by(TrafficStats.timestamp.desc()).first()
+        critical_alerts = (
+            self.db.query(Event)
+            .filter(Event.threat_score >= CRITICAL_THRESHOLD)
+            .count()
+        )
 
-        if not latest_stat or (now - latest_stat.last_updated).seconds > 300:
-            new_stat = TrafficStats(
-                timestamp=now,
-                total_attacks=total_attacks,
-                unique_attackers=unique_ips or 0,
-                attacks_by_type=json.dumps(type_dict),
-                last_updated=now
-            )
-            self.db.add(new_stat)
-            self.db.commit()
-            return new_stat
-        
-        return latest_stat
+        return {
+            "totalEvents": total_events,
+            "uniqueIPs": unique_ips,
+            "avgThreatScore": round(avg_threat, 2),
+            "criticalAlerts": critical_alerts
+        }
 
     def get_hourly_trend(self):
         """
-        Calculates attacks per hour for the chart.
-        (Done in Python to support BOTH PostgreSQL and SQLite safely)
+        Calculates event counts per hour for last 24 hours.
         """
         now = datetime.utcnow()
         start_time = now - timedelta(hours=24)
-        
-        # 1. Get raw timestamps (Fast operation)
-        logs = self.db.query(PacketLog.timestamp).filter(
-            PacketLog.timestamp >= start_time,
-            PacketLog.is_malicious == True
-        ).all()
 
-        # 2. Group by hour in Python
+        logs = (
+            self.db.query(Event.timestamp)
+            .filter(Event.timestamp >= start_time)
+            .all()
+        )
+
         hours = {}
         for log in logs:
-            # log.timestamp is a datetime object
-            h = log.timestamp.strftime('%H') # Returns "14", "09", etc.
-            hours[h] = hours.get(h, 0) + 1
+            hour = log.timestamp.strftime('%H')
+            hours[hour] = hours.get(hour, 0) + 1
 
-        # 3. Sort and Format
         result = [{"hour": h, "count": c} for h, c in hours.items()]
-        # Sort by hour so the graph looks correct
-        result.sort(key=lambda x: x['hour'])
-        
+        result.sort(key=lambda x: x["hour"])
+
         return result
