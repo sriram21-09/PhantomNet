@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import MetricCard from "../components/MetricCard";
 import LoadingSpinner from "../components/LoadingSpinner";
 import HoneypotStatus from "../components/HoneypotStatus";
+import NetworkVisualization from "../components/NetworkVisualization";
 
 const Dashboard = () => {
   // Week 2 – Day 2 to Day 6
@@ -87,37 +88,31 @@ const Dashboard = () => {
             flexWrap: "wrap"
           }}
         >
-          <MetricCard
-            title="Total Events"
-            value={stats.totalEvents}
-            color="#e3f2fd"
-          />
-
-          <MetricCard
-            title="Unique IPs"
-            value={stats.uniqueIPs}
-            color="#e8f5e9"
-          />
-
-          <MetricCard
-            title="Active Honeypots"
-            value={stats.activeHoneypots}
-            color="#ffeee2"
-          />
-
+          <MetricCard title="Total Events" value={stats.totalEvents} color="#e3f2fd" />
+          <MetricCard title="Unique IPs" value={stats.uniqueIPs} color="#e8f5e9" />
+          <MetricCard title="Active Honeypots" value={stats.activeHoneypots} color="#ffeee2" />
           <MetricCard
             title="Avg Threat Score"
             value={`${stats.avgThreatScore}%`}
             color="#fff3e0"
           />
-
-          <MetricCard
-            title="Critical Alerts"
-            value={stats.criticalAlerts}
-            color="#ffebee"
-          />
+          <MetricCard title="Critical Alerts" value={stats.criticalAlerts} color="#ffebee" />
         </div>
       )}
+
+      {/* =========================
+         WEEK 5 – DAY 2
+      ========================== */}
+      <div style={{ marginTop: "40px" }}>
+        <HoneypotStatus />
+      </div>
+
+      {/* =========================
+         WEEK 5 – DAY 3
+      ========================== */}
+      <div style={{ marginTop: "40px" }}>
+        <NetworkVisualization />
+      </div>
 
       {/* =========================
          FUTURE SECTIONS
@@ -134,4 +129,3 @@ const Dashboard = () => {
 };
 
 export default Dashboard;
-<HoneypotStatus />
