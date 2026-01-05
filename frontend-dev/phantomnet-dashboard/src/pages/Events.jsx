@@ -2,17 +2,6 @@ import { useEffect, useState } from "react";
 import LoadingSpinner from "../components/LoadingSpinner";
 import "./events.css";
 
-/* =========================
-   MOCK FALLBACK DATA
-========================= */
-const mockEvents = Array.from({ length: 100 }, (_, i) => ({
-  time: `2025-01-10 10:${String(i).padStart(2, "0")}`,
-  ip: `192.168.1.${i}`,
-  type: i % 2 === 0 ? "SSH" : "TELNET",
-  port: i % 2 === 0 ? 22 : 23,
-  details: "Simulated attack event"
-}));
-
 const Events = () => {
   /* =========================
      STATE
@@ -32,16 +21,7 @@ const Events = () => {
   const [error, setError] = useState(null);
 
   /* =========================
-     THREAT LOGIC (SINGLE SOURCE)
-  ========================== */
-  const getThreatLevel = (event) => {
-    if (event.port === 23 || event.port === 3389) return "MALICIOUS";
-    if (event.type === "SSH" || event.type === "FTP") return "SUSPICIOUS";
-    return "BENIGN";
-  };
-
-  /* =========================
-     FETCH EVENTS (API + FALLBACK)
+     FETCH EVENTS (BACKEND ONLY)
   ========================== */
   useEffect(() => {
     const fetchEvents = async () => {
@@ -49,27 +29,20 @@ const Events = () => {
         setLoading(true);
         setError(null);
 
-        const res = await fetch("http://localhost:3000/api/events");
-        if (!res.ok) throw new Error("API failed");
+        const res = await fetch("http://localhost:8000/api/events");
+        if (!res.ok) {
+          throw new Error(`Backend API failed: ${res.status}`);
+        }
 
         const data = await res.json();
 
-        const normalized = data.map((e) => ({
-          ...e,
-          threat: getThreatLevel(e)
-        }));
-
-        setAllEvents(normalized);
-        setEvents(normalized);
-      } catch {
-        const normalizedMock = mockEvents.map((e) => ({
-          ...e,
-          threat: getThreatLevel(e)
-        }));
-
-        setAllEvents(normalizedMock);
-        setEvents(normalizedMock);
-        setError("Failed to fetch API, showing mock data");
+        setAllEvents(data);
+        setEvents(data);
+      } catch (err) {
+        console.error("Failed to fetch /api/events:", err);
+        setAllEvents([]);
+        setEvents([]);
+        setError("Backend unavailable. Cannot load events.");
       } finally {
         setLoading(false);
       }
@@ -120,7 +93,7 @@ const Events = () => {
   );
 
   /* =========================
-     SUMMARY
+     SUMMARY (DISPLAY ONLY)
   ========================== */
   const threatSummary = {
     SAFE: events.filter((e) => e.threat === "BENIGN").length,
@@ -206,6 +179,11 @@ const Events = () => {
             ))}
           </tbody>
         </table>
+      )}
+
+      {/* EMPTY STATE */}
+      {!loading && !error && events.length === 0 && (
+        <p>No events available.</p>
       )}
 
       {/* PAGINATION */}
