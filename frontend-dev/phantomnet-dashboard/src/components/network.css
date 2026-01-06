@@ -1,0 +1,26 @@
+.network-container {
+  margin-top: 30px;
+  padding: 20px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+}
+
+.network-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 15px;
+  margin-top: 15px;
+}
+
+.network-node {
+  padding: 15px;
+  border-radius: 6px;
+  background-color: #f5f7fb;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.network-node:hover {
+  transform: scale(1.05);
+  background-color: #e8ecff;
+}
