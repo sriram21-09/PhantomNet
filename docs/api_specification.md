@@ -225,15 +225,3 @@ All API errors follow this structure:
 
 ---
 
-## Explicitly Not Implemented (By Design)
-
-The following features are intentionally excluded in Month 1:
-
-* SMTP ingestion APIs
-* Honeypot control APIs
-* Mininet control APIs
-* Authentication and authorization
-* WebSockets or streaming APIs
-* ML training endpoints
-
-These will be documented only when implem
