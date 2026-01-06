@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import "../styles/honeypot.css";
 
 /* =========================
-   MOCK DATA (BACKEND SAFE)
+   MOCK DATA (FALLBACK ONLY)
 ========================= */
 const mockHoneypots = [
   { name: "SSH", port: 22, status: "active", lastSeen: "2025-01-10 10:30" },
@@ -17,25 +17,38 @@ const HoneypotStatus = () => {
   const [error, setError] = useState(null);
 
   /* =========================
-     FETCH / REFRESH DATA
+     FETCH DATA
   ========================== */
   useEffect(() => {
+    let isMounted = true;
+
     const fetchStatus = async () => {
       try {
         setLoading(true);
-
-        // 🔴 Backend placeholder (future use)
-        // const res = await fetch("/api/honeypots/status");
-        // const data = await res.json();
-
-        // ✅ Using mock data for now
-        setHoneypots(mockHoneypots);
         setError(null);
-      } catch (err) {
-        console.error("Honeypot status error:", err);
-        setError("Failed to load honeypot status");
+
+        // ✅ REAL API (PRIMARY)
+        const res = await fetch("http://127.0.0.1:8000/api/honeypots/status");
+
+        if (!res.ok) {
+          throw new Error("Backend error");
+        }
+
+        const data = await res.json();
+        if (isMounted) {
+          setHoneypots(data);
+        }
+      } catch (error) {
+  console.warn("Backend unavailable. Using mock data.", error);
+
+        if (isMounted) {
+          setHoneypots(mockHoneypots);
+          setError("Backend unavailable. Showing mock data.");
+        }
       } finally {
-        setLoading(false);
+        if (isMounted) {
+          setLoading(false);
+        }
       }
     };
 
@@ -43,7 +56,11 @@ const HoneypotStatus = () => {
 
     // 🔁 Auto-refresh every 5 seconds
     const interval = setInterval(fetchStatus, 5000);
-    return () => clearInterval(interval);
+
+    return () => {
+      isMounted = false;
+      clearInterval(interval);
+    };
   }, []);
 
   /* =========================
