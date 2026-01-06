@@ -1,3 +1,11 @@
+/**
+ * HoneypotStatus Component
+ * ------------------------
+ * Displays the current status of honeypots.
+ * - Fetches data from backend API
+ * - Falls back to mock data if backend is unavailable
+ * - Auto-refreshes every 5 seconds
+ */
 import { useEffect, useState } from "react";
 import "../styles/honeypot.css";
 
