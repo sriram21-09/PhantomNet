@@ -43,10 +43,12 @@ services:
     container_name: phantomnet_ftp
     ports:
       - "2121:2121"
+      - "30000-30020:30000-30020"
     volumes:
     - ./backend/logs:/logs
     depends_on:
       - postgres
+
 
 
   smtp-honeypot:

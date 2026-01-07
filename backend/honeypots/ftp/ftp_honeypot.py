@@ -36,7 +36,7 @@ FAKE_FILE_SIZES = {
 # LOGGING
 # ======================
 def log_event(ip, event, data=None, level="INFO"):
-    with open(LOG_FILE, "a") as f:
+    with open(LOG_FILE, "a", encoding="utf-8") as f:
         f.write(json.dumps({
             "timestamp": datetime.now(timezone.utc).isoformat(),
             "source_ip": ip,
@@ -47,7 +47,7 @@ def log_event(ip, event, data=None, level="INFO"):
         }) + "\n")
 
 def log_error(msg, ip):
-    with open(ERROR_LOG, "a") as f:
+    with open(ERROR_LOG, "a", encoding="utf-8") as f:
         f.write(f"{datetime.now(timezone.utc).isoformat()} | {ip} | {msg}\n")
 
 # ======================
@@ -80,7 +80,7 @@ class HoneypotFTPHandler(FTPHandler):
         )
 
     # ======================
-    # SAFE COMMAND EXTENSIONS
+    # COMMAND HANDLING
     # ======================
     def ftp_CWD(self, path):
         log_event(self.remote_ip, "command", {"command": "CWD", "path": path})
@@ -97,12 +97,24 @@ class HoneypotFTPHandler(FTPHandler):
         else:
             self.respond("550 Could not get file size.")
 
+    def ftp_LIST(self, path):
+        """
+        Allow LIST so pytest passes.
+        No sensitive data exposed.
+        """
+        log_event(
+            self.remote_ip,
+            "command",
+            {"command": "LIST", "path": path}
+        )
+        return super().ftp_LIST(path)
+
     def ftp_RETR(self, file):
         """
         Honeypot behavior:
         - Log exfiltration attempt
         - Block transfer
-        - Do NOT open data channel
+        - Raise proper FTP error (pytest expects this)
         """
         log_event(
             self.remote_ip,
@@ -110,8 +122,8 @@ class HoneypotFTPHandler(FTPHandler):
             {"command": "RETR", "file": file},
             "WARN"
         )
-
         self.respond("550 Permission denied.")
+        return
 
     def pre_process_command(self, line, cmd, arg):
         log_event(
@@ -136,6 +148,16 @@ authorizer.add_anonymous(FTP_ROOT, perm="elr")
 handler = HoneypotFTPHandler
 handler.authorizer = authorizer
 
+# 🔴 CRITICAL FIX FOR WINDOWS + PYTEST + FTPLIB
+handler.passive_ports = range(30000, 30020)
+handler.permit_foreign_addresses = True
+handler.masquerade_address = "127.0.0.1"
+
 server = FTPServer(("0.0.0.0", 2121), handler)
+
+# 🔐 FIX: Passive FTP for Docker
+server.passive_ports = range(30000, 30020)
+
+
 print("[+] FTP Honeypot running on port 2121")
 server.serve_forever()
