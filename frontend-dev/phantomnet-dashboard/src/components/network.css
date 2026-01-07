@@ -24,3 +24,30 @@
   transform: scale(1.05);
   background-color: #e8ecff;
 }
+
+/* ===== DARK MODE FIX ===== */
+
+.dark .network-card {
+  background-color: #1f2933;
+  color: #e5e7eb;
+  border: 1px solid #374151;
+}
+
+.dark .network-card h4,
+.dark .network-card p {
+  color: #e5e7eb;
+}
+
+.network-card {
+  background: #ffffff;
+  color: #111;
+  padding: 12px;
+  border-radius: 6px;
+}
+
+/* Dark mode */
+body.dark .network-card {
+  background: #020617;
+  color: #e5e7eb;
+  border: 1px solid #334155;
+}

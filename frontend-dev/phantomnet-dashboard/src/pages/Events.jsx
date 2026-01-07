@@ -212,3 +212,9 @@ const Events = () => {
 };
 
 export default Events;
+/**
+ * Events Page
+ * -----------
+ * Displays security events detected by the system.
+ * Supports filtering, sorting, and graceful backend failure handling.
+ */

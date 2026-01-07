@@ -1,7 +1,13 @@
+/**
+ * Dashboard Page
+ * --------------
+ * Main overview page showing metrics, honeypot status,
+ * and network visualization.
+ */
 import React, { useEffect, useState } from "react";
 import MetricCard from "../components/MetricCard";
 import LoadingSpinner from "../components/LoadingSpinner";
-import HoneypotStatus from "../components/HoneypotStatus";
+import HoneypotStatus from "../components/Honeypotstatus";
 import NetworkVisualization from "../components/NetworkVisualization";
 
 const Dashboard = () => {

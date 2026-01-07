@@ -93,3 +93,17 @@ Approved for Month 1 scope.
 - Real-time WebSocket updates
 - Advanced analytics charts
 - Role-based access control
+
+## Dashboard Component Hierarchy
+
+App
+ ├── Navbar
+ ├── Sidebar
+ └── Pages
+     ├── Dashboard
+     │   ├── MetricCard
+     │   ├── Honeypotstatus
+     │   └── NetworkVisualization
+     ├── Events
+     │   └── EventsTable
+     └── About

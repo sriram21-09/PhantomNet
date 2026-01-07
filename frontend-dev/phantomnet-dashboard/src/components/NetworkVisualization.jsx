@@ -1,40 +1,29 @@
-import { useEffect, useState } from "react";
-import "./network.css";
-
-const mockTopology = [
-  { id: "controller", label: "Controller", role: "Control Node", packets: 1200 },
-  { id: "switch", label: "Switch", role: "Network Switch", packets: 980 },
-  { id: "ssh", label: "SSH Honeypot", role: "Service Node", packets: 450 },
-  { id: "http", label: "HTTP Honeypot", role: "Service Node", packets: 620 },
-  { id: "ftp", label: "FTP Honeypot", role: "Service Node", packets: 300 }
-];
+import React from "react";
 
 const NetworkVisualization = () => {
-  // ✅ initialize state directly
-  const [nodes, setNodes] = useState(mockTopology);
-
-  useEffect(() => {
-    // ✅ effect used ONLY for external updates (timer)
-    const interval = setInterval(() => {
-      setNodes(prev =>
-        prev.map(node => ({
-          ...node,
-          packets: node.packets + Math.floor(Math.random() * 20)
-        }))
-      );
-    }, 5000);
-
-    return () => clearInterval(interval);
-  }, []);
+  const nodes = [
+    { name: "Controller", role: "Control Node", packets: 1361 },
+    { name: "Switch", role: "Network Switch", packets: 1106 },
+    { name: "SSH Honeypot", role: "Service Node", packets: 547 },
+    { name: "HTTP Honeypot", role: "Service Node", packets: 736 },
+    { name: "FTP Honeypot", role: "Service Node", packets: 431 }
+  ];
 
   return (
-    <div className="network-container">
+    <div className="section">
       <h2>Network Topology</h2>
 
-      <div className="network-grid">
-        {nodes.map(node => (
-          <div key={node.id} className="network-node">
-            <strong>{node.label}</strong>
+      <div
+        style={{
+          display: "flex",
+          gap: "16px",
+          marginTop: "16px",
+          flexWrap: "wrap"
+        }}
+      >
+        {nodes.map((node, index) => (
+          <div key={index} className="card">
+            <h4>{node.name}</h4>
             <p>Role: {node.role}</p>
             <p>Packets: {node.packets}</p>
           </div>
