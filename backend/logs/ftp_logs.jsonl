@@ -1386,3 +1386,20 @@
 {"timestamp": "2026-01-07T17:58:16.786398+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ftp", "event": "command", "data": {"command": "RETR", "arg": "config.tar.gz"}, "level": "INFO"}
 {"timestamp": "2026-01-07T17:58:16.805124+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ftp", "event": "command", "data": {"command": "RETR", "file": "/app/ftp_root/config.tar.gz"}, "level": "WARN"}
 {"timestamp": "2026-01-07T18:03:16.864155+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ftp", "event": "disconnect", "data": null, "level": "INFO"}
+{"timestamp": "2026-01-08T17:06:39.702012+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ftp", "event": "connect", "data": null, "level": "INFO"}
+{"timestamp": "2026-01-08T17:06:39.724185+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ftp", "event": "command", "data": {"command": "OPTS", "arg": "UTF8 ON"}, "level": "INFO"}
+{"timestamp": "2026-01-08T17:06:50.355222+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ftp", "event": "command", "data": {"command": "USER", "arg": "PhantomNet"}, "level": "INFO"}
+{"timestamp": "2026-01-08T17:06:53.682114+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ftp", "event": "command", "data": {"command": "PASS", "arg": "1234\\"}, "level": "INFO"}
+{"timestamp": "2026-01-08T17:06:56.695245+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ftp", "event": "login_failed", "data": {"username": "PhantomNet", "password": "1234\\"}, "level": "WARN"}
+{"timestamp": "2026-01-08T17:07:03.794196+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ftp", "event": "command", "data": {"command": "QUIT", "arg": ""}, "level": "INFO"}
+{"timestamp": "2026-01-08T17:07:03.814752+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ftp", "event": "disconnect", "data": null, "level": "INFO"}
+{"timestamp": "2026-01-08T17:07:14.137011+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ftp", "event": "connect", "data": null, "level": "INFO"}
+{"timestamp": "2026-01-08T17:07:14.156304+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ftp", "event": "command", "data": {"command": "OPTS", "arg": "UTF8 ON"}, "level": "INFO"}
+{"timestamp": "2026-01-08T17:07:19.213994+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ftp", "event": "command", "data": {"command": "USER", "arg": "PhantomNet"}, "level": "INFO"}
+{"timestamp": "2026-01-08T17:07:22.400361+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ftp", "event": "command", "data": {"command": "PASS", "arg": "1234"}, "level": "INFO"}
+{"timestamp": "2026-01-08T17:07:22.421299+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ftp", "event": "login_success", "data": {"username": "PhantomNet"}, "level": "INFO"}
+{"timestamp": "2026-01-08T17:07:57.356480+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ftp", "event": "command", "data": {"command": "EPRT", "arg": "|2|::1|49219|"}, "level": "INFO"}
+{"timestamp": "2026-01-08T17:07:57.375482+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ftp", "event": "command", "data": {"command": "RETR", "arg": "config.tar.gz"}, "level": "INFO"}
+{"timestamp": "2026-01-08T17:07:57.403100+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ftp", "event": "command", "data": {"command": "RETR", "file": "/app/ftp_root/config.tar.gz"}, "level": "WARN"}
+{"timestamp": "2026-01-08T17:07:59.174512+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ftp", "event": "command", "data": {"command": "NLST", "arg": ""}, "level": "INFO"}
+{"timestamp": "2026-01-08T17:09:29.331885+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ftp", "event": "disconnect", "data": null, "level": "INFO"}

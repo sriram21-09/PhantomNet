@@ -276,3 +276,13 @@
 {"timestamp": "2026-01-07T17:53:40.100479+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ssh", "port": 2222, "event": "login_failed", "data": {"username": "attacker"}, "level": "ERROR"}
 {"timestamp": "2026-01-07T17:53:41.514751+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ssh", "port": 2222, "event": "login_attempt", "data": {"username": "attacker", "password": "66662"}, "level": "WARN"}
 {"timestamp": "2026-01-07T17:53:41.517923+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ssh", "port": 2222, "event": "login_failed", "data": {"username": "attacker"}, "level": "ERROR"}
+{"timestamp": "2026-01-08T17:04:18.938588+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ssh", "port": 2222, "event": "login_attempt", "data": {"username": "attacker", "password": "5555"}, "level": "WARN"}
+{"timestamp": "2026-01-08T17:04:18.945630+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ssh", "port": 2222, "event": "login_failed", "data": {"username": "attacker"}, "level": "ERROR"}
+{"timestamp": "2026-01-08T17:04:20.955650+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ssh", "port": 2222, "event": "login_attempt", "data": {"username": "attacker", "password": "555454"}, "level": "WARN"}
+{"timestamp": "2026-01-08T17:04:20.959255+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ssh", "port": 2222, "event": "login_failed", "data": {"username": "attacker"}, "level": "ERROR"}
+{"timestamp": "2026-01-08T17:04:22.642204+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ssh", "port": 2222, "event": "login_attempt", "data": {"username": "attacker", "password": "5464646"}, "level": "WARN"}
+{"timestamp": "2026-01-08T17:04:22.648228+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ssh", "port": 2222, "event": "login_failed", "data": {"username": "attacker"}, "level": "ERROR"}
+{"timestamp": "2026-01-08T17:04:24.639076+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ssh", "port": 2222, "event": "login_attempt", "data": {"username": "attacker", "password": "47447474"}, "level": "WARN"}
+{"timestamp": "2026-01-08T17:04:24.642894+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ssh", "port": 2222, "event": "login_failed", "data": {"username": "attacker"}, "level": "ERROR"}
+{"timestamp": "2026-01-08T17:04:26.482747+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ssh", "port": 2222, "event": "login_attempt", "data": {"username": "attacker", "password": "9898989"}, "level": "WARN"}
+{"timestamp": "2026-01-08T17:04:26.485198+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ssh", "port": 2222, "event": "login_failed", "data": {"username": "attacker"}, "level": "ERROR"}
