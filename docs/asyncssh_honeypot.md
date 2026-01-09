@@ -3,52 +3,47 @@
 ## File Location
 backend/honeypots/ssh/async_ssh_honeypot.py
 
----
+# SSH Honeypot – PhantomNet
 
 ## Purpose
-The SSH honeypot simulates a real Linux SSH server to:
-- Capture brute-force login attempts
-- Monitor attacker shell activity
-- Log commands without giving real system access
+The SSH honeypot simulates a real Linux SSH server to capture:
+- Brute-force login attempts
+- Credential guessing behavior
+- Attacker command execution attempts
 
----
+It is designed to **observe attackers**, not allow real system access.
 
-## Authentication Behaviour
-- Password-based authentication
-- Limited connections per IP
-- Session timeout enforced
+## Port
+- Listens on **port 2222**
 
-### Logged Events
-- login_attempt (WARN)
-- login_success (INFO)
-- login_failed (ERROR)
+## Technology Used
+- asyncssh
+- Python asyncio
+- Central PhantomNet logger
 
----
+## Behavior
+- Accepts any username/password
+- Always denies shell access
+- Logs every authentication attempt
+- Logs commands typed by attackers
 
-## Shell Simulation
-After successful login, attackers are dropped into a fake shell.
+## Logged Fields
+- timestamp
+- honeypot_type: ssh
+- source_ip
+- username
+- password
+- command (if any)
+- event type (login_failed, command_attempt)
 
-### Supported Commands
-ls, pwd, cd, mkdir, touch, rm, cat  
-whoami, uname -a, id  
-exit, logout
+## Security Controls
+- No real shell access
+- No filesystem access
+- Session auto-terminated
 
-Unsupported commands return:
-bash: <command>: command not found
-
-
----
-
-## Logging Example
-```json
-{
-  "timestamp": "2025-01-01T10:22:11Z",
-  "source_ip": "192.168.1.10",
-  "honeypot_type": "ssh",
-  "event": "command",
-  "data": { "cmd": "ls" },
-  "level": "INFO"
-}
+## Example Attack
+```bash
+ssh attacker@localhost -p 2222
 
 Security Notes
 
@@ -57,3 +52,8 @@ No real OS access
 No real filesystem access
 
 Commands are simulated in memory
+
+Why This Matters :- 
+
+SSH brute-force attacks are one of the most common real-world attacks.
+This honeypot helps SOC teams study attacker behavior safely.
