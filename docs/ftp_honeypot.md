@@ -9,51 +9,61 @@
 ## File Location
 backend/honeypots/ftp/ftp_honeypot.py
 
----
+```md
+# FTP Honeypot – PhantomNet
 
 ## Purpose
-The FTP honeypot emulates a misconfigured FTP server to:
-- Capture credential reuse
-- Observe file enumeration
-- Detect data exfiltration attempts
+The FTP honeypot simulates a misconfigured FTP server to detect:
+- Unauthorized logins
+- Directory listing attempts
+- Data exfiltration attempts
 
----
+## Port
+- Listens on **port 2121**
 
-## Authentication
-- Supports authenticated and anonymous login
-- Connection limit per IP
-- Session timeout enforced
+## Technology Used
+- pyftpdlib
+- Custom FTPHandler
 
----
+## Behavior
+- Accepts valid and anonymous logins
+- Allows navigation commands
+- Blocks file downloads (RETR)
+- LIST command intentionally disrupts data channel
 
-## Supported FTP Commands
-PWD – Show current directory  
-CWD – Change directory  
-LIST – List fake files  
-SIZE – Return fake file size  
-RETR – Fake file download  
+## Important Note
+The FTP LIST command:
+- Sends `150 File status okay`
+- Intentionally closes data connection
 
----
+This behavior is **by design** to:
+- Prevent real data exposure
+- Still trigger attacker behavior
 
-## Logging Example
-```json
-{
-  "timestamp": "2025-01-01T12:10:33Z",
-  "source_ip": "192.168.1.30",
-  "honeypot_type": "ftp",
-  "event": "command",
-  "data": {
-    "command": "RETR",
-    "file": "config.tar.gz"
-  },
-  "level": "WARN"
-}
+## Logged Fields
+- timestamp
+- honeypot_type: ftp
+- source_ip
+- username
+- command
+- file name (if applicable)
 
+## Example Attack
+```bash
+ftp localhost 2121
+ls
+get config.tar.gz
 
-Security Notes
+Security Notes :- 
 
 No real file downloads
 
 No real filesystem access
 
 FTP protocol stability preserved
+
+
+Why This Matters :- 
+
+FTP is still widely attacked in legacy systems.
+This honeypot captures attacker intent without data leakage.
