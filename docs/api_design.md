@@ -452,3 +452,52 @@ Future versions will use URL versioning:
 **API Design Complete** ✅  
 **Status**: Production Ready for Development
 
+# Week 5 – API Planning
+
+## 1. Honeypot Status
+GET /api/honeypots/status
+
+Response:
+[
+  {
+    "honeypot_id": "hp1",
+    "status": "active",
+    "last_seen": "2025-01-10T10:30"
+  }
+]
+
+---
+
+## 2. Network Topology
+GET /api/network/topology
+
+Response:
+{
+  "nodes": ["h1","h2","s1","s2","s3"],
+  "links": [
+    ["h1","s1"],
+    ["h2","s2"]
+  ]
+}
+
+---
+
+## 3. Events by Protocol
+GET /api/events/by-protocol
+
+Response:
+[
+  { "protocol": "SSH", "count": 40 },
+  { "protocol": "TELNET", "count": 60 }
+]
+
+---
+
+## 4. Attack Geography
+GET /api/analytics/geography
+
+Response:
+[
+  { "country": "India", "count": 20 },
+  { "country": "USA", "count": 50 }
+]

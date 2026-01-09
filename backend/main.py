@@ -7,9 +7,7 @@ from fastapi import FastAPI, Depends, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker, Session
-from datetime import datetime
 import os
-import json
 import contextlib
 from dotenv import load_dotenv
 
@@ -23,7 +21,7 @@ from services.firewall import FirewallService
 # =========================
 # MODELS
 # =========================
-from app_models import Base, PacketLog, TrafficStats
+from app_models import Base, PacketLog, Event
 
 # =========================
 # ENVIRONMENT SETUP
@@ -34,7 +32,7 @@ DATABASE_URL = os.getenv("DATABASE_URL")
 ENVIRONMENT = os.getenv("ENVIRONMENT", "local")
 
 if not DATABASE_URL:
-    print("⚠️ WARNING: DATABASE_URL not set. Using local sqlite DB.")
+    print("WARNING: DATABASE_URL not set. Using local sqlite DB.")
     DATABASE_URL = "sqlite:///./phantomnet.db"
 
 # =========================
@@ -61,19 +59,19 @@ def get_db():
 # =========================
 @contextlib.asynccontextmanager
 async def lifespan(app: FastAPI):
-    # Create tables safely on startup (not import)
+    # Ensure tables exist
     Base.metadata.create_all(bind=engine)
 
-    # Start sniffer ONLY in real runtime
+    # Start sniffer only in real runtime
     if ENVIRONMENT not in ["ci", "test"]:
         sniffer = RealTimeSniffer()
         sniffer.start_background_sniffer()
-        print("🚀 PhantomNet Sniffer Started")
+        print("PhantomNet Sniffer Started")
     else:
-        print("🧪 Sniffer disabled (CI/Test mode)")
+        print("Sniffer disabled (CI/Test mode)")
 
     yield
-    print("🛑 PhantomNet Shutting Down")
+    print("PhantomNet Shutting Down")
 
 # =========================
 # APP INIT
@@ -123,7 +121,6 @@ def get_real_traffic(db: Session = Depends(get_db)):
     data = []
 
     for log in logs:
-        # Geo lookup must never crash API
         try:
             location = GeoService.get_country(log.src_ip)
         except Exception:
@@ -151,20 +148,16 @@ def get_real_traffic(db: Session = Depends(get_db)):
     }
 
 # =========================
-# DASHBOARD STATS
+# DASHBOARD STATS (AUTHORITATIVE)
 # =========================
 @app.get("/api/stats")
 def get_api_stats(db: Session = Depends(get_db)):
+    """
+    Dashboard statistics.
+    Single source of truth: Events table via StatsService.
+    """
     service = StatsService(db)
-    stats = service.calculate_stats()
-
-    return {
-        "totalEvents": stats.total_attacks,
-        "uniqueIPs": stats.unique_attackers,
-        "activeHoneypots": len(json.loads(stats.attacks_by_type or "{}")),
-        "avgThreatScore": 0,
-        "criticalAlerts": 0
-    }
+    return service.calculate_stats()
 
 # =========================
 # EVENTS API (STABLE)
@@ -176,31 +169,31 @@ def get_events(
     limit: int = 100,
     db: Session = Depends(get_db)
 ):
-    query = db.query(PacketLog)
+    query = db.query(Event)
 
     if threat != "ALL":
-        query = query.filter(PacketLog.attack_type == threat)
+        query = query.filter(Event.threat_score >= 80 if threat == "MALICIOUS" else Event.threat_score < 80)
 
     if protocol != "ALL":
-        query = query.filter(PacketLog.protocol == protocol)
+        query = query.filter(Event.honeypot_type == protocol)
 
-    logs = (
+    events = (
         query
-        .order_by(PacketLog.timestamp.desc())
+        .order_by(Event.timestamp.desc())
         .limit(limit)
         .all()
     )
 
     return [
         {
-            "time": log.timestamp.strftime("%Y-%m-%d %H:%M:%S") if log.timestamp else "UNKNOWN",
-            "ip": log.src_ip,
-            "type": log.protocol,
-            "port": 0,
-            "threat": log.attack_type or "BENIGN",
-            "details": f"{log.attack_type or 'BENIGN'} traffic detected"
+            "time": e.timestamp.strftime("%Y-%m-%d %H:%M:%S"),
+            "ip": e.source_ip,
+            "type": e.honeypot_type,
+            "port": e.port or 0,
+            "threat": "MALICIOUS" if e.threat_score >= 80 else "SUSPICIOUS",
+            "details": e.raw_data or "Event detected"
         }
-        for log in logs
+        for e in events
     ]
 
 # =========================

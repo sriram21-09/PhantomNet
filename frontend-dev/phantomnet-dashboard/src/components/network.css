@@ -1,0 +1,53 @@
+.network-container {
+  margin-top: 30px;
+  padding: 20px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+}
+
+.network-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 15px;
+  margin-top: 15px;
+}
+
+.network-node {
+  padding: 15px;
+  border-radius: 6px;
+  background-color: #f5f7fb;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.network-node:hover {
+  transform: scale(1.05);
+  background-color: #e8ecff;
+}
+
+/* ===== DARK MODE FIX ===== */
+
+.dark .network-card {
+  background-color: #1f2933;
+  color: #e5e7eb;
+  border: 1px solid #374151;
+}
+
+.dark .network-card h4,
+.dark .network-card p {
+  color: #e5e7eb;
+}
+
+.network-card {
+  background: #ffffff;
+  color: #111;
+  padding: 12px;
+  border-radius: 6px;
+}
+
+/* Dark mode */
+body.dark .network-card {
+  background: #020617;
+  color: #e5e7eb;
+  border: 1px solid #334155;
+}
