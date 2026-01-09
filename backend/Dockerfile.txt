@@ -1,0 +1,27 @@
+# 1. Use an official lightweight Python runtime
+FROM python:3.9-slim
+
+# 2. Set the working directory inside the container
+WORKDIR /app
+
+# 3. Install system dependencies (needed for PostgreSQL & Networking)
+RUN apt-get update && apt-get install -y \
+    gcc \
+    libpq-dev \
+    iputils-ping \
+    && rm -rf /var/lib/apt/lists/*
+
+# 4. Copy the dependency list first (for better caching)
+COPY requirements.txt .
+
+# 5. Install Python libraries
+RUN pip install --no-cache-dir -r requirements.txt
+
+# 6. Copy the rest of the application code
+COPY . .
+
+# 7. Expose the API port
+EXPOSE 8000
+
+# 8. Define the command to run the app
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
