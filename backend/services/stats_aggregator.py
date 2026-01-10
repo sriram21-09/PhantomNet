@@ -1,65 +1,51 @@
 from sqlalchemy.orm import Session
 from sqlalchemy import func
-from app_models import Event
 from datetime import datetime, timedelta
 
-CRITICAL_THRESHOLD = 80  # Centralized, explicit
+from app_models import PacketLog
+
 
 class StatsService:
     def __init__(self, db: Session):
         self.db = db
 
     def calculate_stats(self):
-        """
-        Returns live dashboard statistics derived directly from Events table.
-        This is the single source of truth for /api/stats.
-        """
+        # Total events
+        total_events = self.db.query(PacketLog).count()
 
-        total_events = self.db.query(Event).count()
-
+        # Unique attacker IPs
         unique_ips = (
-            self.db.query(Event.source_ip)
-            .distinct()
-            .count()
+            self.db.query(func.count(func.distinct(PacketLog.src_ip)))
+            .scalar()
+            or 0
         )
 
-        avg_threat = (
-            self.db.query(func.avg(Event.threat_score))
-            .scalar()
-        ) or 0
+        # Active honeypots (based on protocols seen)
+        active_protocols = (
+            self.db.query(PacketLog.protocol)
+            .distinct()
+            .all()
+        )
+        active_honeypots = len([p[0] for p in active_protocols])
 
+        # Average threat score (0–1)
+        avg_threat = (
+            self.db.query(func.avg(PacketLog.threat_score))
+            .scalar()
+            or 0.0
+        )
+
+        # Critical alerts (>= 0.8)
         critical_alerts = (
-            self.db.query(Event)
-            .filter(Event.threat_score >= CRITICAL_THRESHOLD)
+            self.db.query(PacketLog)
+            .filter(PacketLog.threat_score >= 0.8)
             .count()
         )
 
         return {
             "totalEvents": total_events,
             "uniqueIPs": unique_ips,
-            "avgThreatScore": round(avg_threat, 2),
+            "activeHoneypots": active_honeypots,
+            "avgThreatScore": round(avg_threat * 100, 2),
             "criticalAlerts": critical_alerts
         }
-
-    def get_hourly_trend(self):
-        """
-        Calculates event counts per hour for last 24 hours.
-        """
-        now = datetime.utcnow()
-        start_time = now - timedelta(hours=24)
-
-        logs = (
-            self.db.query(Event.timestamp)
-            .filter(Event.timestamp >= start_time)
-            .all()
-        )
-
-        hours = {}
-        for log in logs:
-            hour = log.timestamp.strftime('%H')
-            hours[hour] = hours.get(hour, 0) + 1
-
-        result = [{"hour": h, "count": c} for h, c in hours.items()]
-        result.sort(key=lambda x: x["hour"])
-
-        return result
