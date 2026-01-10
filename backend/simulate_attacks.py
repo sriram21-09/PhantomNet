@@ -6,50 +6,69 @@ import random
 DB_CONFIG = {
     "dbname": "phantomnet",
     "user": "phantom",
-    "password": "password@321",  # Your password
+    "password": "password@321",  # Your DB Password
     "host": "localhost",
     "port": "5432"
 }
 
-# --- FAKE DATA GENERATORS ---
-attackers = ["192.168.1.50", "10.0.0.5", "45.33.22.11", "203.0.113.99", "185.220.101.4"]
-usernames = ["admin", "root", "user", "guest", "david", "sysadmin"]
-passwords = ["123456", "password@321", "qwerty", "admin123", "letmein", "toor"]
-services = ["SSH", "HTTP", "FTP", "SQL", "RDP"]
-targets = ["h2", "h3", "h4", "Server_A"]
+# --- DATA POOLS ---
+usernames = ["admin", "root", "user", "guest", "david", "sysadmin", "support", "sales"]
+passwords = ["123456", "password@321", "qwerty", "admin123", "letmein", "toor", "P@ssw0rd!"]
+services = ["SSH", "HTTP", "FTP", "SQL", "SMTP"] # Added SMTP
+targets = ["h2", "h3", "h4", "Server_A", "Mail_Gateway"]
+
+# --- HELPER FUNCTIONS ---
+def get_random_ip():
+    # Generates a completely random IP address like 192.168.4.21
+    return f"{random.randint(1, 255)}.{random.randint(0, 255)}.{random.randint(0, 255)}.{random.randint(1, 255)}"
+
+def get_smtp_payload():
+    # Returns fake email data for SMTP attacks
+    senders = ["hacker@evil.com", "bot@spam.net", "unknown@darkweb.org"]
+    return random.choice(senders), "AUTH PLAIN"
 
 def generate_traffic():
     conn = None
     try:
-        print("🚀 Attack Simulation STARTED. Press Ctrl+C to stop.")
+        print("🚀 Advanced Attack Simulation STARTED.")
         print("---------------------------------------------------")
         
         while True:
-            # Re-connect every loop to keep it simple and robust
             conn = psycopg2.connect(**DB_CONFIG)
             cur = conn.cursor()
 
-            # Pick random attack details
-            ip = random.choice(attackers)
-            user = random.choice(usernames)
-            pw = random.choice(passwords)
+            # 1. Randomize Source IP & Attack Details
+            ip = get_random_ip()
             service = random.choice(services)
             target = random.choice(targets)
+            
+            # 2. customize data based on service
+            if service == "SMTP":
+                user, pw = get_smtp_payload()
+            else:
+                user = random.choice(usernames)
+                pw = random.choice(passwords)
 
-            # Insert into DB
+            # 3. Insert into DB
             cur.execute(
                 "INSERT INTO attack_logs (attacker_ip, target_node, service_type, username, password) VALUES (%s, %s, %s, %s, %s)",
                 (ip, target, service, user, pw)
             )
             conn.commit()
+
+            # 4. Validate: Count total records to prove insert worked
+            cur.execute("SELECT COUNT(*) FROM attack_logs")
+            count = cur.fetchone()[0]
             
-            print(f"🔥 ATTACK LOGGED: {service} attack from {ip} -> User: {user} | Pass: {pw}")
+            # Print distinct log
+            color_code = "🔴" if service == "SMTP" else "🔥"
+            print(f"{color_code} [{count}] {service} attack from {ip} -> User: {user} | Pass: {pw}")
             
             cur.close()
             conn.close()
             
-            # Wait 2 seconds before next attack
-            time.sleep(2)
+            # Random delay between 0.5 and 2.0 seconds for realism
+            time.sleep(random.uniform(0.5, 2.0))
 
     except psycopg2.Error as e:
         print(f"❌ Database Error: {e}")
