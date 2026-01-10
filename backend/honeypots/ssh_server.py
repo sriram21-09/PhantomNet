@@ -1,78 +1,103 @@
 import socket
 import threading
 import paramiko
-import time
-import os
+import psycopg2
+import logging
 
-# CONFIGURATION
-# We use port 2222 locally because Port 22 is usually blocked on Windows
-BIND_IP = '0.0.0.0'
-BIND_PORT = 2222
+# --- SETUP LOGGING ---
+# Writes logs to a temporary file so we can see errors even if the console is silent
+logging.basicConfig(filename='/tmp/ssh_debug.log', level=logging.DEBUG, format='%(asctime)s %(message)s')
 
-# Generate a temporary Host Key (Simulating a real server)
+# --- CONFIGURATION ---
+DB_NAME = "phantomnet"
+DB_USER = "phantom"
+DB_PASS = "securepass"
+# We use the socket folder because network localhost is isolated in Mininet
+DB_HOST = "/var/run/postgresql" 
+
+# Generate a host key (in a real app, you would load a saved key)
 HOST_KEY = paramiko.RSAKey.generate(2048)
 
-class HoneypotServer(paramiko.ServerInterface):
+def log_attack_to_db(ip, username, password):
     """
-    This fake server interface intercepts login attempts.
+    Connects to the PostgreSQL database and saves the attack details.
     """
+    try:
+        logging.info(f"🔌 Connecting to DB to log user: {username}...")
+        
+        # Connect to the Database via Unix Socket
+        conn = psycopg2.connect(dbname=DB_NAME, user=DB_USER, password=DB_PASS, host=DB_HOST)
+        cur = conn.cursor()
+        
+        # Insert the attack data
+        cur.execute("""
+            INSERT INTO attack_logs (attacker_ip, target_node, service_type, username, password)
+            VALUES (%s, %s, %s, %s, %s)
+        """, (ip, "h2", "SSH", username, password))
+        
+        conn.commit()
+        cur.close()
+        conn.close()
+        
+        logging.info("✅ SUCCESS: Attack saved to Database!")
+        print(f"✅ Logged attack: {username}/{password}")
+        
+    except Exception as e:
+        logging.error(f"❌ DB ERROR: {e}")
+        print(f"❌ DB ERROR: {e}")
+
+class SSHServer(paramiko.ServerInterface):
     def __init__(self, client_ip):
         self.client_ip = client_ip
         self.event = threading.Event()
 
-    def check_channel_request(self, kind, chanid):
-        if kind == 'session':
-            return paramiko.OPEN_SUCCEEDED
-        return paramiko.OPEN_FAILED_ADMINISTRATIVELY_PROHIBITED
-
     def check_auth_password(self, username, password):
-        """
-        🔥 TRAP TRIGGERED: This runs whenever someone tries a password.
-        """
-        print(f"🚨 ATTACK DETECTED! IP: {self.client_ip} | User: {username} | Pass: {password}")
-        
-        # We removed the API logging for now to fix the crash
-        # Always reject login (Frustrate the attacker)
+        logging.info(f"🚨 PASSWORD ATTACK: IP={self.client_ip} User={username} Pass={password}")
+        # SAVE TO DATABASE HERE
+        log_attack_to_db(self.client_ip, username, password)
         return paramiko.AUTH_FAILED
 
+    def check_auth_publickey(self, username, key):
+        logging.info(f"🚨 KEY ATTACK: IP={self.client_ip} User={username}")
+        # Log key-based attacks as well
+        log_attack_to_db(self.client_ip, username, "Used_Public_Key")
+        return paramiko.AUTH_FAILED
+
+    def get_allowed_auths(self, username):
+        return 'password,publickey'
+
 def handle_connection(client, addr):
-    transport = paramiko.Transport(client)
-    transport.add_server_key(HOST_KEY)
-    
-    server = HoneypotServer(addr[0])
     try:
+        transport = paramiko.Transport(client)
+        transport.add_server_key(HOST_KEY)
+        server = SSHServer(addr[0])
+        
+        # Start the SSH session
         transport.start_server(server=server)
         
-        # Keep connection open briefly to simulate handshake
+        # Wait for a channel (or auth failure)
         channel = transport.accept(20)
-        if channel is None:
-            # Client didn't ask for a shell, just disconnected
-            return
-        
-        server.event.wait(10)
-        channel.close()
-        
+        if channel is not None:
+            channel.close()
+            
     except Exception as e:
-        print(f"⚠️  Connection Error: {e}")
-    finally:
-        transport.close()
+        logging.error(f"⚠️ TRANSPORT ERROR: {e}")
 
-def start_honeypot():
-    print(f"🪤 SSH Honeypot Active on {BIND_IP}:{BIND_PORT}")
-    print("   (Waiting for attackers...)")
-    
+def start_server():
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-    sock.bind((BIND_IP, BIND_PORT))
+    sock.bind(('0.0.0.0', 2222))
     sock.listen(100)
     
+    logging.info("🪤 SSH Honeypot V2 STARTED")
+    print("🪤 SMART SSH Honeypot Active on Port 2222 (Logging to DB & /tmp/ssh_debug.log)")
+
     while True:
         try:
             client, addr = sock.accept()
-            print(f"🔌 Connection from: {addr[0]}")
             threading.Thread(target=handle_connection, args=(client, addr)).start()
         except Exception as e:
-            print(f"❌ Server Error: {e}")
+            logging.error(f"Server loop error: {e}")
 
 if __name__ == "__main__":
-    start_honeypot()
+    start_server()

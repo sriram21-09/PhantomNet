@@ -621,3 +621,47 @@ Your stars help other students discover PhantomNet
 
 **Last Updated**: December 8, 2025  
 **Status**: 🟡 In Development  
+# 🕸️ PhantomNet: Cyber Threat Intelligence Dashboard
+
+**PhantomNet** is a full-stack cybersecurity monitoring system. It simulates a network of honeypots (SSH, FTP, HTTP servers), captures real-time attack data, logs it into a secure PostgreSQL database, and visualizes the threats on a live, auto-updating "Hacker Dashboard."
+
+## 🚀 Features
+* **Real-Time Monitoring:** Dashboard updates automatically every 2 seconds.
+* **Full-Stack Architecture:** Python (FastAPI) Backend + React (Vite) Frontend.
+* **Attack Simulation:** Generates synthetic traffic for SSH, FTP, HTTP, SQL, and RDP attacks.
+* **Cyberpunk UI:** Custom "Dark Mode" interface for high-visibility monitoring.
+
+## 🛠️ Tech Stack
+* **Frontend:** React.js, Vite, Axios, CSS3
+* **Backend:** Python 3.10+, FastAPI, Uvicorn
+* **Database:** PostgreSQL
+* **Simulation:** Python custom scripts
+
+---
+
+## ⚙️ Installation & Setup
+
+### 1. Prerequisites
+* Node.js & Yarn (for Frontend)
+* Python 3.x (for Backend)
+* PostgreSQL (Database)
+
+### 2. Database Setup
+Open your SQL Shell (psql) and run:
+```sql
+CREATE USER phantom WITH PASSWORD 'password@321';
+CREATE DATABASE phantomnet;
+GRANT ALL PRIVILEGES ON DATABASE phantomnet TO phantom;
+\c phantomnet
+CREATE TABLE attack_logs (
+    id SERIAL PRIMARY KEY,
+    timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    attacker_ip VARCHAR(50),
+    target_node VARCHAR(50),
+    service_type VARCHAR(20),
+    username VARCHAR(50),
+    password VARCHAR(50),
+    raw_data TEXT
+);
+GRANT ALL PRIVILEGES ON TABLE attack_logs TO phantom;
+GRANT ALL PRIVILEGES ON SEQUENCE attack_logs_id_seq TO phantom;
