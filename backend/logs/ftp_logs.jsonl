@@ -1411,3 +1411,183 @@
 {"timestamp": "2026-01-26T09:53:40.025279+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ftp", "event": "command", "data": {"command": "EPRT", "arg": "|2|::1|59981|"}, "level": "INFO"}
 {"timestamp": "2026-01-26T09:53:40.071645+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ftp", "event": "command", "data": {"command": "NLST", "arg": ""}, "level": "INFO"}
 {"timestamp": "2026-01-26T09:55:29.598802+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ftp", "event": "disconnect", "data": null, "level": "INFO"}
+{"timestamp": "2026-01-27T12:12:35.116561+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ftp", "event": "connect", "data": null, "level": "INFO"}
+{"timestamp": "2026-01-27T12:12:35.133297+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ftp", "event": "command", "data": {"command": "USER", "arg": "ftp"}, "level": "INFO"}
+{"timestamp": "2026-01-27T12:12:35.144647+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ftp", "event": "command", "data": {"command": "PASS", "arg": "123456"}, "level": "INFO"}
+{"timestamp": "2026-01-27T12:12:38.153361+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ftp", "event": "login_failed", "data": {"username": "ftp", "password": "123456"}, "level": "WARN"}
+{"timestamp": "2026-01-27T12:12:38.659430+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ftp", "event": "disconnect", "data": null, "level": "INFO"}
+{"timestamp": "2026-01-27T12:12:38.673866+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ftp", "event": "connect", "data": null, "level": "INFO"}
+{"timestamp": "2026-01-27T12:12:38.683901+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ftp", "event": "command", "data": {"command": "USER", "arg": "anonymous"}, "level": "INFO"}
+{"timestamp": "2026-01-27T12:12:38.695041+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ftp", "event": "command", "data": {"command": "PASS", "arg": "test"}, "level": "INFO"}
+{"timestamp": "2026-01-27T12:12:38.707397+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ftp", "event": "login_success", "data": {"username": "anonymous"}, "level": "INFO"}
+{"timestamp": "2026-01-27T12:12:38.718644+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ftp", "event": "command", "data": {"command": "TYPE", "arg": "A"}, "level": "INFO"}
+{"timestamp": "2026-01-27T12:12:38.729291+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ftp", "event": "command", "data": {"command": "PASV", "arg": ""}, "level": "INFO"}
+{"timestamp": "2026-01-27T12:12:38.741058+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ftp", "event": "command", "data": {"command": "LIST", "arg": ""}, "level": "INFO"}
+{"timestamp": "2026-01-27T12:12:38.751787+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ftp", "event": "command", "data": {"command": "LIST", "path": "/app/ftp_root"}, "level": "INFO"}
+{"timestamp": "2026-01-27T12:12:38.763203+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ftp", "event": "command", "data": {"command": "QUIT", "arg": ""}, "level": "INFO"}
+{"timestamp": "2026-01-27T12:12:38.774135+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ftp", "event": "disconnect", "data": null, "level": "INFO"}
+{"timestamp": "2026-01-27T12:12:39.269478+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ftp", "event": "connect", "data": null, "level": "INFO"}
+{"timestamp": "2026-01-27T12:12:39.282279+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ftp", "event": "command", "data": {"command": "USER", "arg": "admin"}, "level": "INFO"}
+{"timestamp": "2026-01-27T12:12:39.293091+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ftp", "event": "command", "data": {"command": "PASS", "arg": "123456"}, "level": "INFO"}
+{"timestamp": "2026-01-27T12:12:42.299616+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ftp", "event": "login_failed", "data": {"username": "admin", "password": "123456"}, "level": "WARN"}
+{"timestamp": "2026-01-27T12:12:42.802066+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ftp", "event": "disconnect", "data": null, "level": "INFO"}
+{"timestamp": "2026-01-27T12:12:42.816020+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ftp", "event": "connect", "data": null, "level": "INFO"}
+{"timestamp": "2026-01-27T12:12:42.826272+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ftp", "event": "command", "data": {"command": "USER", "arg": "test"}, "level": "INFO"}
+{"timestamp": "2026-01-27T12:12:42.837575+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ftp", "event": "command", "data": {"command": "PASS", "arg": "123456"}, "level": "INFO"}
+{"timestamp": "2026-01-27T12:12:45.843322+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ftp", "event": "login_failed", "data": {"username": "test", "password": "123456"}, "level": "WARN"}
+{"timestamp": "2026-01-27T12:12:46.346985+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ftp", "event": "connect", "data": null, "level": "INFO"}
+{"timestamp": "2026-01-27T12:12:46.360163+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ftp", "event": "disconnect", "data": null, "level": "INFO"}
+{"timestamp": "2026-01-27T12:12:46.370023+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ftp", "event": "command", "data": {"command": "USER", "arg": "ftp"}, "level": "INFO"}
+{"timestamp": "2026-01-27T12:12:46.380980+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ftp", "event": "command", "data": {"command": "PASS", "arg": "test"}, "level": "INFO"}
+{"timestamp": "2026-01-27T12:12:49.388811+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ftp", "event": "login_failed", "data": {"username": "ftp", "password": "test"}, "level": "WARN"}
+{"timestamp": "2026-01-27T12:12:49.890471+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ftp", "event": "disconnect", "data": null, "level": "INFO"}
+{"timestamp": "2026-01-27T12:12:49.903230+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ftp", "event": "connect", "data": null, "level": "INFO"}
+{"timestamp": "2026-01-27T12:12:49.914342+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ftp", "event": "command", "data": {"command": "USER", "arg": "ftp"}, "level": "INFO"}
+{"timestamp": "2026-01-27T12:12:49.924589+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ftp", "event": "command", "data": {"command": "PASS", "arg": "anonymous@"}, "level": "INFO"}
+{"timestamp": "2026-01-27T12:12:52.930642+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ftp", "event": "login_failed", "data": {"username": "ftp", "password": "anonymous@"}, "level": "WARN"}
+{"timestamp": "2026-01-27T12:12:53.433510+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ftp", "event": "disconnect", "data": null, "level": "INFO"}
+{"timestamp": "2026-01-27T12:12:53.446520+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ftp", "event": "connect", "data": null, "level": "INFO"}
+{"timestamp": "2026-01-27T12:12:53.457931+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ftp", "event": "command", "data": {"command": "USER", "arg": "test"}, "level": "INFO"}
+{"timestamp": "2026-01-27T12:12:53.468467+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ftp", "event": "command", "data": {"command": "PASS", "arg": "admin"}, "level": "INFO"}
+{"timestamp": "2026-01-27T12:12:56.474566+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ftp", "event": "login_failed", "data": {"username": "test", "password": "admin"}, "level": "WARN"}
+{"timestamp": "2026-01-27T12:12:56.977004+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ftp", "event": "disconnect", "data": null, "level": "INFO"}
+{"timestamp": "2026-01-27T12:12:56.991085+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ftp", "event": "connect", "data": null, "level": "INFO"}
+{"timestamp": "2026-01-27T12:12:57.001547+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ftp", "event": "command", "data": {"command": "USER", "arg": "test"}, "level": "INFO"}
+{"timestamp": "2026-01-27T12:12:57.013998+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ftp", "event": "command", "data": {"command": "PASS", "arg": "123456"}, "level": "INFO"}
+{"timestamp": "2026-01-27T12:13:00.018187+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ftp", "event": "login_failed", "data": {"username": "test", "password": "123456"}, "level": "WARN"}
+{"timestamp": "2026-01-27T12:13:00.521278+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ftp", "event": "disconnect", "data": null, "level": "INFO"}
+{"timestamp": "2026-01-27T12:13:00.533432+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ftp", "event": "connect", "data": null, "level": "INFO"}
+{"timestamp": "2026-01-27T12:13:00.543855+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ftp", "event": "command", "data": {"command": "USER", "arg": "anonymous"}, "level": "INFO"}
+{"timestamp": "2026-01-27T12:13:00.555408+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ftp", "event": "command", "data": {"command": "PASS", "arg": "anonymous@"}, "level": "INFO"}
+{"timestamp": "2026-01-27T12:13:00.566384+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ftp", "event": "login_success", "data": {"username": "anonymous"}, "level": "INFO"}
+{"timestamp": "2026-01-27T12:13:00.577263+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ftp", "event": "command", "data": {"command": "TYPE", "arg": "A"}, "level": "INFO"}
+{"timestamp": "2026-01-27T12:13:00.588743+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ftp", "event": "command", "data": {"command": "PASV", "arg": ""}, "level": "INFO"}
+{"timestamp": "2026-01-27T12:13:00.599517+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ftp", "event": "command", "data": {"command": "LIST", "arg": ""}, "level": "INFO"}
+{"timestamp": "2026-01-27T12:13:00.610628+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ftp", "event": "command", "data": {"command": "LIST", "path": "/app/ftp_root"}, "level": "INFO"}
+{"timestamp": "2026-01-27T12:13:00.621258+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ftp", "event": "command", "data": {"command": "QUIT", "arg": ""}, "level": "INFO"}
+{"timestamp": "2026-01-27T12:13:00.633070+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ftp", "event": "disconnect", "data": null, "level": "INFO"}
+{"timestamp": "2026-01-27T12:13:01.127448+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ftp", "event": "connect", "data": null, "level": "INFO"}
+{"timestamp": "2026-01-27T12:13:01.146158+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ftp", "event": "command", "data": {"command": "USER", "arg": "admin"}, "level": "INFO"}
+{"timestamp": "2026-01-27T12:13:01.157114+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ftp", "event": "command", "data": {"command": "PASS", "arg": "admin"}, "level": "INFO"}
+{"timestamp": "2026-01-27T12:13:04.163619+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ftp", "event": "login_failed", "data": {"username": "admin", "password": "admin"}, "level": "WARN"}
+{"timestamp": "2026-01-27T12:13:04.666360+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ftp", "event": "disconnect", "data": null, "level": "INFO"}
+{"timestamp": "2026-01-27T12:13:04.680156+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ftp", "event": "connect", "data": null, "level": "INFO"}
+{"timestamp": "2026-01-27T12:13:04.691545+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ftp", "event": "command", "data": {"command": "USER", "arg": "admin"}, "level": "INFO"}
+{"timestamp": "2026-01-27T12:13:04.701975+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ftp", "event": "command", "data": {"command": "PASS", "arg": "123456"}, "level": "INFO"}
+{"timestamp": "2026-01-27T12:13:07.708227+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ftp", "event": "login_failed", "data": {"username": "admin", "password": "123456"}, "level": "WARN"}
+{"timestamp": "2026-01-27T12:13:08.210799+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ftp", "event": "disconnect", "data": null, "level": "INFO"}
+{"timestamp": "2026-01-27T12:13:08.223306+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ftp", "event": "connect", "data": null, "level": "INFO"}
+{"timestamp": "2026-01-27T12:13:08.234055+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ftp", "event": "command", "data": {"command": "USER", "arg": "admin"}, "level": "INFO"}
+{"timestamp": "2026-01-27T12:13:08.244486+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ftp", "event": "command", "data": {"command": "PASS", "arg": "admin"}, "level": "INFO"}
+{"timestamp": "2026-01-27T12:13:11.250625+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ftp", "event": "login_failed", "data": {"username": "admin", "password": "admin"}, "level": "WARN"}
+{"timestamp": "2026-01-27T12:13:11.753600+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ftp", "event": "disconnect", "data": null, "level": "INFO"}
+{"timestamp": "2026-01-27T12:13:11.766883+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ftp", "event": "connect", "data": null, "level": "INFO"}
+{"timestamp": "2026-01-27T12:13:11.786069+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ftp", "event": "command", "data": {"command": "USER", "arg": "ftp"}, "level": "INFO"}
+{"timestamp": "2026-01-27T12:13:11.797304+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ftp", "event": "command", "data": {"command": "PASS", "arg": "anonymous@"}, "level": "INFO"}
+{"timestamp": "2026-01-27T12:13:14.801713+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ftp", "event": "login_failed", "data": {"username": "ftp", "password": "anonymous@"}, "level": "WARN"}
+{"timestamp": "2026-01-27T12:13:15.305125+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ftp", "event": "disconnect", "data": null, "level": "INFO"}
+{"timestamp": "2026-01-27T12:13:15.319647+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ftp", "event": "connect", "data": null, "level": "INFO"}
+{"timestamp": "2026-01-27T12:13:15.331837+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ftp", "event": "command", "data": {"command": "USER", "arg": "ftp"}, "level": "INFO"}
+{"timestamp": "2026-01-27T12:13:15.343186+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ftp", "event": "command", "data": {"command": "PASS", "arg": "anonymous@"}, "level": "INFO"}
+{"timestamp": "2026-01-27T12:13:18.348948+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ftp", "event": "login_failed", "data": {"username": "ftp", "password": "anonymous@"}, "level": "WARN"}
+{"timestamp": "2026-01-27T12:13:18.852197+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ftp", "event": "disconnect", "data": null, "level": "INFO"}
+{"timestamp": "2026-01-27T12:13:18.865131+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ftp", "event": "connect", "data": null, "level": "INFO"}
+{"timestamp": "2026-01-27T12:13:18.875731+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ftp", "event": "command", "data": {"command": "USER", "arg": "ftp"}, "level": "INFO"}
+{"timestamp": "2026-01-27T12:13:18.888462+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ftp", "event": "command", "data": {"command": "PASS", "arg": "anonymous@"}, "level": "INFO"}
+{"timestamp": "2026-01-27T12:13:21.894741+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ftp", "event": "login_failed", "data": {"username": "ftp", "password": "anonymous@"}, "level": "WARN"}
+{"timestamp": "2026-01-27T12:13:22.397715+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ftp", "event": "disconnect", "data": null, "level": "INFO"}
+{"timestamp": "2026-01-27T12:17:37.354567+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ftp", "event": "connect", "data": null, "level": "INFO"}
+{"timestamp": "2026-01-27T12:17:37.372093+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ftp", "event": "command", "data": {"command": "USER", "arg": "admin"}, "level": "INFO"}
+{"timestamp": "2026-01-27T12:17:37.383977+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ftp", "event": "command", "data": {"command": "PASS", "arg": "test"}, "level": "INFO"}
+{"timestamp": "2026-01-27T12:17:40.390053+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ftp", "event": "login_failed", "data": {"username": "admin", "password": "test"}, "level": "WARN"}
+{"timestamp": "2026-01-27T12:17:40.893026+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ftp", "event": "disconnect", "data": null, "level": "INFO"}
+{"timestamp": "2026-01-27T12:17:40.907695+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ftp", "event": "connect", "data": null, "level": "INFO"}
+{"timestamp": "2026-01-27T12:17:40.920441+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ftp", "event": "command", "data": {"command": "USER", "arg": "test"}, "level": "INFO"}
+{"timestamp": "2026-01-27T12:17:40.931940+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ftp", "event": "command", "data": {"command": "PASS", "arg": "123456"}, "level": "INFO"}
+{"timestamp": "2026-01-27T12:17:43.937763+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ftp", "event": "login_failed", "data": {"username": "test", "password": "123456"}, "level": "WARN"}
+{"timestamp": "2026-01-27T12:17:44.438632+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ftp", "event": "disconnect", "data": null, "level": "INFO"}
+{"timestamp": "2026-01-27T12:17:44.452099+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ftp", "event": "connect", "data": null, "level": "INFO"}
+{"timestamp": "2026-01-27T12:17:44.464046+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ftp", "event": "command", "data": {"command": "USER", "arg": "ftp"}, "level": "INFO"}
+{"timestamp": "2026-01-27T12:17:44.477882+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ftp", "event": "command", "data": {"command": "PASS", "arg": "admin"}, "level": "INFO"}
+{"timestamp": "2026-01-27T12:17:47.482006+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ftp", "event": "login_failed", "data": {"username": "ftp", "password": "admin"}, "level": "WARN"}
+{"timestamp": "2026-01-27T12:17:47.984481+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ftp", "event": "disconnect", "data": null, "level": "INFO"}
+{"timestamp": "2026-01-27T12:17:47.996601+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ftp", "event": "connect", "data": null, "level": "INFO"}
+{"timestamp": "2026-01-27T12:17:48.009800+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ftp", "event": "command", "data": {"command": "USER", "arg": "test"}, "level": "INFO"}
+{"timestamp": "2026-01-27T12:17:48.024541+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ftp", "event": "command", "data": {"command": "PASS", "arg": "123456"}, "level": "INFO"}
+{"timestamp": "2026-01-27T12:17:51.028886+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ftp", "event": "login_failed", "data": {"username": "test", "password": "123456"}, "level": "WARN"}
+{"timestamp": "2026-01-27T12:17:51.532528+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ftp", "event": "disconnect", "data": null, "level": "INFO"}
+{"timestamp": "2026-01-27T12:17:51.546029+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ftp", "event": "connect", "data": null, "level": "INFO"}
+{"timestamp": "2026-01-27T12:17:51.556508+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ftp", "event": "command", "data": {"command": "USER", "arg": "admin"}, "level": "INFO"}
+{"timestamp": "2026-01-27T12:17:51.567372+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ftp", "event": "command", "data": {"command": "PASS", "arg": "admin"}, "level": "INFO"}
+{"timestamp": "2026-01-27T12:17:54.571209+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ftp", "event": "login_failed", "data": {"username": "admin", "password": "admin"}, "level": "WARN"}
+{"timestamp": "2026-01-27T12:17:55.074250+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ftp", "event": "disconnect", "data": null, "level": "INFO"}
+{"timestamp": "2026-01-27T12:17:55.086600+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ftp", "event": "connect", "data": null, "level": "INFO"}
+{"timestamp": "2026-01-27T12:17:55.098261+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ftp", "event": "command", "data": {"command": "USER", "arg": "anonymous"}, "level": "INFO"}
+{"timestamp": "2026-01-27T12:17:55.109276+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ftp", "event": "command", "data": {"command": "PASS", "arg": "admin"}, "level": "INFO"}
+{"timestamp": "2026-01-27T12:17:55.120666+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ftp", "event": "login_success", "data": {"username": "anonymous"}, "level": "INFO"}
+{"timestamp": "2026-01-27T12:17:55.130391+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ftp", "event": "command", "data": {"command": "TYPE", "arg": "A"}, "level": "INFO"}
+{"timestamp": "2026-01-27T12:17:55.141326+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ftp", "event": "command", "data": {"command": "PASV", "arg": ""}, "level": "INFO"}
+{"timestamp": "2026-01-27T12:17:55.152737+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ftp", "event": "command", "data": {"command": "LIST", "arg": ""}, "level": "INFO"}
+{"timestamp": "2026-01-27T12:17:55.163315+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ftp", "event": "command", "data": {"command": "LIST", "path": "/app/ftp_root"}, "level": "INFO"}
+{"timestamp": "2026-01-27T12:17:55.176008+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ftp", "event": "command", "data": {"command": "QUIT", "arg": ""}, "level": "INFO"}
+{"timestamp": "2026-01-27T12:17:55.188310+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ftp", "event": "disconnect", "data": null, "level": "INFO"}
+{"timestamp": "2026-01-27T12:17:55.682398+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ftp", "event": "connect", "data": null, "level": "INFO"}
+{"timestamp": "2026-01-27T12:17:55.697624+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ftp", "event": "command", "data": {"command": "USER", "arg": "anonymous"}, "level": "INFO"}
+{"timestamp": "2026-01-27T12:17:55.708709+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ftp", "event": "command", "data": {"command": "PASS", "arg": "test"}, "level": "INFO"}
+{"timestamp": "2026-01-27T12:17:55.720065+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ftp", "event": "login_success", "data": {"username": "anonymous"}, "level": "INFO"}
+{"timestamp": "2026-01-27T12:17:55.731681+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ftp", "event": "command", "data": {"command": "TYPE", "arg": "A"}, "level": "INFO"}
+{"timestamp": "2026-01-27T12:17:55.743070+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ftp", "event": "command", "data": {"command": "PASV", "arg": ""}, "level": "INFO"}
+{"timestamp": "2026-01-27T12:17:55.758852+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ftp", "event": "command", "data": {"command": "LIST", "arg": ""}, "level": "INFO"}
+{"timestamp": "2026-01-27T12:17:55.769255+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ftp", "event": "command", "data": {"command": "LIST", "path": "/app/ftp_root"}, "level": "INFO"}
+{"timestamp": "2026-01-27T12:17:55.780805+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ftp", "event": "command", "data": {"command": "QUIT", "arg": ""}, "level": "INFO"}
+{"timestamp": "2026-01-27T12:17:55.792206+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ftp", "event": "disconnect", "data": null, "level": "INFO"}
+{"timestamp": "2026-01-27T12:17:56.287369+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ftp", "event": "connect", "data": null, "level": "INFO"}
+{"timestamp": "2026-01-27T12:17:56.305304+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ftp", "event": "command", "data": {"command": "USER", "arg": "admin"}, "level": "INFO"}
+{"timestamp": "2026-01-27T12:17:56.316563+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ftp", "event": "command", "data": {"command": "PASS", "arg": "anonymous@"}, "level": "INFO"}
+{"timestamp": "2026-01-27T12:17:59.320711+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ftp", "event": "login_failed", "data": {"username": "admin", "password": "anonymous@"}, "level": "WARN"}
+{"timestamp": "2026-01-27T12:17:59.824959+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ftp", "event": "disconnect", "data": null, "level": "INFO"}
+{"timestamp": "2026-01-27T12:17:59.839620+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ftp", "event": "connect", "data": null, "level": "INFO"}
+{"timestamp": "2026-01-27T12:17:59.854480+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ftp", "event": "command", "data": {"command": "USER", "arg": "admin"}, "level": "INFO"}
+{"timestamp": "2026-01-27T12:17:59.866253+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ftp", "event": "command", "data": {"command": "PASS", "arg": "123456"}, "level": "INFO"}
+{"timestamp": "2026-01-27T12:18:02.871110+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ftp", "event": "login_failed", "data": {"username": "admin", "password": "123456"}, "level": "WARN"}
+{"timestamp": "2026-01-27T12:18:03.373377+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ftp", "event": "disconnect", "data": null, "level": "INFO"}
+{"timestamp": "2026-01-27T12:18:03.387018+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ftp", "event": "connect", "data": null, "level": "INFO"}
+{"timestamp": "2026-01-27T12:18:03.398328+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ftp", "event": "command", "data": {"command": "USER", "arg": "admin"}, "level": "INFO"}
+{"timestamp": "2026-01-27T12:18:03.410497+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ftp", "event": "command", "data": {"command": "PASS", "arg": "test"}, "level": "INFO"}
+{"timestamp": "2026-01-27T12:18:06.415797+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ftp", "event": "login_failed", "data": {"username": "admin", "password": "test"}, "level": "WARN"}
+{"timestamp": "2026-01-27T12:18:06.919011+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ftp", "event": "disconnect", "data": null, "level": "INFO"}
+{"timestamp": "2026-01-27T12:18:06.932132+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ftp", "event": "connect", "data": null, "level": "INFO"}
+{"timestamp": "2026-01-27T12:18:06.942683+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ftp", "event": "command", "data": {"command": "USER", "arg": "test"}, "level": "INFO"}
+{"timestamp": "2026-01-27T12:18:06.953875+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ftp", "event": "command", "data": {"command": "PASS", "arg": "test"}, "level": "INFO"}
+{"timestamp": "2026-01-27T12:18:09.958816+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ftp", "event": "login_failed", "data": {"username": "test", "password": "test"}, "level": "WARN"}
+{"timestamp": "2026-01-27T12:18:10.461686+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ftp", "event": "disconnect", "data": null, "level": "INFO"}
+{"timestamp": "2026-01-27T12:18:10.475007+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ftp", "event": "connect", "data": null, "level": "INFO"}
+{"timestamp": "2026-01-27T12:18:10.486184+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ftp", "event": "command", "data": {"command": "USER", "arg": "ftp"}, "level": "INFO"}
+{"timestamp": "2026-01-27T12:18:10.497049+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ftp", "event": "command", "data": {"command": "PASS", "arg": "admin"}, "level": "INFO"}
+{"timestamp": "2026-01-27T12:18:13.502576+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ftp", "event": "login_failed", "data": {"username": "ftp", "password": "admin"}, "level": "WARN"}
+{"timestamp": "2026-01-27T12:18:14.008587+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ftp", "event": "disconnect", "data": null, "level": "INFO"}
+{"timestamp": "2026-01-27T12:18:14.030024+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ftp", "event": "connect", "data": null, "level": "INFO"}
+{"timestamp": "2026-01-27T12:18:14.047483+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ftp", "event": "command", "data": {"command": "USER", "arg": "admin"}, "level": "INFO"}
+{"timestamp": "2026-01-27T12:18:14.060114+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ftp", "event": "command", "data": {"command": "PASS", "arg": "123456"}, "level": "INFO"}
+{"timestamp": "2026-01-27T12:18:17.065398+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ftp", "event": "login_failed", "data": {"username": "admin", "password": "123456"}, "level": "WARN"}
+{"timestamp": "2026-01-27T12:18:17.567504+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ftp", "event": "disconnect", "data": null, "level": "INFO"}
+{"timestamp": "2026-01-27T12:18:17.582559+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ftp", "event": "connect", "data": null, "level": "INFO"}
+{"timestamp": "2026-01-27T12:18:17.597775+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ftp", "event": "command", "data": {"command": "USER", "arg": "anonymous"}, "level": "INFO"}
+{"timestamp": "2026-01-27T12:18:17.611092+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ftp", "event": "command", "data": {"command": "PASS", "arg": "admin"}, "level": "INFO"}
+{"timestamp": "2026-01-27T12:18:17.623102+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ftp", "event": "login_success", "data": {"username": "anonymous"}, "level": "INFO"}
+{"timestamp": "2026-01-27T12:18:17.636912+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ftp", "event": "command", "data": {"command": "TYPE", "arg": "A"}, "level": "INFO"}
+{"timestamp": "2026-01-27T12:18:17.649711+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ftp", "event": "command", "data": {"command": "PASV", "arg": ""}, "level": "INFO"}
+{"timestamp": "2026-01-27T12:18:17.680154+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ftp", "event": "command", "data": {"command": "LIST", "arg": ""}, "level": "INFO"}
+{"timestamp": "2026-01-27T12:18:17.691262+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ftp", "event": "command", "data": {"command": "LIST", "path": "/app/ftp_root"}, "level": "INFO"}
+{"timestamp": "2026-01-27T12:18:17.702612+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ftp", "event": "command", "data": {"command": "QUIT", "arg": ""}, "level": "INFO"}
+{"timestamp": "2026-01-27T12:18:17.714332+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ftp", "event": "disconnect", "data": null, "level": "INFO"}
+{"timestamp": "2026-01-27T12:18:18.208663+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ftp", "event": "connect", "data": null, "level": "INFO"}
+{"timestamp": "2026-01-27T12:18:18.227343+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ftp", "event": "command", "data": {"command": "USER", "arg": "anonymous"}, "level": "INFO"}
+{"timestamp": "2026-01-27T12:18:18.238835+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ftp", "event": "command", "data": {"command": "PASS", "arg": "admin"}, "level": "INFO"}
+{"timestamp": "2026-01-27T12:18:18.250865+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ftp", "event": "login_success", "data": {"username": "anonymous"}, "level": "INFO"}
+{"timestamp": "2026-01-27T12:18:18.261375+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ftp", "event": "command", "data": {"command": "TYPE", "arg": "A"}, "level": "INFO"}
+{"timestamp": "2026-01-27T12:18:18.272645+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ftp", "event": "command", "data": {"command": "PASV", "arg": ""}, "level": "INFO"}
+{"timestamp": "2026-01-27T12:18:18.284091+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ftp", "event": "command", "data": {"command": "LIST", "arg": ""}, "level": "INFO"}
+{"timestamp": "2026-01-27T12:18:18.293686+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ftp", "event": "command", "data": {"command": "LIST", "path": "/app/ftp_root"}, "level": "INFO"}
+{"timestamp": "2026-01-27T12:18:18.304512+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ftp", "event": "command", "data": {"command": "QUIT", "arg": ""}, "level": "INFO"}
+{"timestamp": "2026-01-27T12:18:18.315420+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ftp", "event": "disconnect", "data": null, "level": "INFO"}
