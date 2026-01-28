@@ -19,7 +19,7 @@ from services.stats_aggregator import StatsService
 from services.firewall import FirewallService
 
 # =========================
-# MODELS (FINAL – NO SMTP FIELDS)
+# MODELS
 # =========================
 from app_models import Base, PacketLog, TrafficStats
 
@@ -55,7 +55,7 @@ def get_db():
         db.close()
 
 # =========================
-# LIFESPAN (SAFE STARTUP)
+# LIFESPAN
 # =========================
 @contextlib.asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -72,7 +72,7 @@ async def lifespan(app: FastAPI):
     print("PhantomNet Shutting Down")
 
 # =========================
-# APP INIT
+# APP INIT (ONLY ONE APP)
 # =========================
 app = FastAPI(
     title="PhantomNet API",
@@ -83,7 +83,10 @@ app = FastAPI(
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173", "http://127.0.0.1:5173"],
+    allow_origins=[
+        "http://localhost:5173",
+        "http://127.0.0.1:5173"
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -105,7 +108,7 @@ def health_check(db: Session = Depends(get_db)):
         return {"status": "error", "database": str(e)}
 
 # =========================
-# DASHBOARD LIVE FEED
+# LIVE TRAFFIC
 # =========================
 @app.get("/analyze-traffic")
 def get_real_traffic(db: Session = Depends(get_db)):
@@ -146,19 +149,15 @@ def get_real_traffic(db: Session = Depends(get_db)):
     }
 
 # =========================
-# DASHBOARD STATS (AUTHORITATIVE)
+# DASHBOARD STATS
 # =========================
 @app.get("/api/stats")
 def get_api_stats(db: Session = Depends(get_db)):
-    """
-    Dashboard statistics.
-    Single source of truth: packet_logs via StatsService.
-    """
     service = StatsService(db)
     return service.calculate_stats()
 
 # =========================
-# EVENTS API (FINAL & STABLE)
+# EVENTS API
 # =========================
 @app.get("/api/events")
 def get_events(
@@ -199,36 +198,21 @@ def get_events(
     ]
 
 # =========================
-# HONEYPOT STATUS (FIXED – NO MORE 404)
+# HONEYPOT STATUS (MAIN)
 # =========================
 @app.get("/api/honeypots/status")
 def honeypot_status():
     return [
-        {
-            "name": "SSH",
-            "port": 22,
-            "status": "active",
-            "last_seen": "2026-01-10 10:30"
-        },
-        {
-            "name": "HTTP",
-            "port": 80,
-            "status": "active",
-            "last_seen": "2026-01-10 10:28"
-        },
-        {
-            "name": "FTP",
-            "port": 21,
-            "status": "inactive",
-            "last_seen": "2026-01-10 09:55"
-        },
-        {
-            "name": "SMTP",
-            "port": 25,
-            "status": "active",
-            "last_seen": "2026-01-10 10:25"
-        }
+        {"name": "SSH", "port": 22, "status": "active", "last_seen": "2026-01-10 10:30"},
+        {"name": "HTTP", "port": 80, "status": "active", "last_seen": "2026-01-10 10:28"},
+        {"name": "FTP", "port": 21, "status": "inactive", "last_seen": "2026-01-10 09:55"},
+        {"name": "SMTP", "port": 25, "status": "active", "last_seen": "2026-01-10 10:25"},
     ]
+
+# 🔹 ALIAS SO FRONTEND /api/honeypots ALSO WORKS
+@app.get("/api/honeypots")
+def honeypot_status_alias():
+    return honeypot_status()
 
 # =========================
 # ACTIVE DEFENSE
