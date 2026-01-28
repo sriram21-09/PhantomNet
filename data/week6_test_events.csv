@@ -1,0 +1,221 @@
+honeypot_type,data,port,path,method,source_ip,event,user_agent,timestamp,level
+smtp,,,,,172.18.0.1,connection_closed,,2026-01-27T12:18:26.885784+00:00,INFO
+smtp,"{'mail_from': 'admin@bank-secure.com> size=245', 'rcpt_to': ['user@example.com'], 'smtp_response': '221 Bye'}",,,,172.18.0.1,quit,,2026-01-27T12:18:26.875435+00:00,INFO
+smtp,"{'mail_from': 'admin@bank-secure.com> size=245', 'rcpt_to': ['user@example.com'], 'smtp_response': '250 Message accepted for delivery'}",,,,172.18.0.1,data_response,,2026-01-27T12:18:26.866036+00:00,ERROR
+smtp,"{'mail_from': 'admin@bank-secure.com> size=245', 'rcpt_to': ['user@example.com'], 'message': 'From: admin@bank-secure.com\nTo: user@example.com\nSubject: Urgent: Verify your account\nContent-Type: text/plain; charset=""utf-8""\nContent-Transfer-Encoding: 7bit\nMIME-Version: 1.0\n\nYour account has been flagged. Please verify immediately.'}",,,,172.18.0.1,data,,2026-01-27T12:18:26.857441+00:00,ERROR
+smtp,"{'mail_from': 'admin@bank-secure.com> size=245', 'rcpt_to': ['user@example.com'], 'smtp_response': '250 OK'}",,,,172.18.0.1,rcpt_to,,2026-01-27T12:18:26.846896+00:00,WARN
+smtp,"{'mail_from': 'admin@bank-secure.com> size=245', 'rcpt_to': [], 'smtp_response': '250 OK'}",,,,172.18.0.1,mail_from,,2026-01-27T12:18:26.838453+00:00,WARN
+smtp,{'hostname': '[10.84.20.65]'},,,,172.18.0.1,ehlo,,2026-01-27T12:18:26.823655+00:00,INFO
+smtp,,,,,172.18.0.1,connection_opened,,2026-01-27T12:18:26.821435+00:00,INFO
+smtp,,,,,172.18.0.1,connection_closed,,2026-01-27T12:18:26.327365+00:00,INFO
+smtp,"{'mail_from': 'support@paypal-secure.net> size=249', 'rcpt_to': ['user@example.com'], 'smtp_response': '221 Bye'}",,,,172.18.0.1,quit,,2026-01-27T12:18:26.317228+00:00,INFO
+smtp,"{'mail_from': 'support@paypal-secure.net> size=249', 'rcpt_to': ['user@example.com'], 'smtp_response': '250 Message accepted for delivery'}",,,,172.18.0.1,data_response,,2026-01-27T12:18:26.306190+00:00,ERROR
+smtp,"{'mail_from': 'support@paypal-secure.net> size=249', 'rcpt_to': ['user@example.com'], 'message': 'From: support@paypal-secure.net\nTo: user@example.com\nSubject: Urgent: Verify your account\nContent-Type: text/plain; charset=""utf-8""\nContent-Transfer-Encoding: 7bit\nMIME-Version: 1.0\n\nYour account has been flagged. Please verify immediately.'}",,,,172.18.0.1,data,,2026-01-27T12:18:26.296318+00:00,ERROR
+smtp,"{'mail_from': 'support@paypal-secure.net> size=249', 'rcpt_to': ['user@example.com'], 'smtp_response': '250 OK'}",,,,172.18.0.1,rcpt_to,,2026-01-27T12:18:26.279721+00:00,WARN
+smtp,"{'mail_from': 'support@paypal-secure.net> size=249', 'rcpt_to': [], 'smtp_response': '250 OK'}",,,,172.18.0.1,mail_from,,2026-01-27T12:18:26.269363+00:00,WARN
+smtp,{'hostname': '[10.84.20.65]'},,,,172.18.0.1,ehlo,,2026-01-27T12:18:26.254172+00:00,INFO
+smtp,,,,,172.18.0.1,connection_opened,,2026-01-27T12:18:26.251775+00:00,INFO
+smtp,,,,,172.18.0.1,connection_closed,,2026-01-27T12:18:25.759609+00:00,INFO
+smtp,"{'mail_from': 'alerts@company-login.org> size=249', 'rcpt_to': ['admin@example.com'], 'smtp_response': '221 Bye'}",,,,172.18.0.1,quit,,2026-01-27T12:18:25.747504+00:00,INFO
+smtp,"{'mail_from': 'alerts@company-login.org> size=249', 'rcpt_to': ['admin@example.com'], 'smtp_response': '250 Message accepted for delivery'}",,,,172.18.0.1,data_response,,2026-01-27T12:18:25.738183+00:00,ERROR
+smtp,"{'mail_from': 'alerts@company-login.org> size=249', 'rcpt_to': ['admin@example.com'], 'message': 'From: alerts@company-login.org\nTo: admin@example.com\nSubject: Urgent: Verify your account\nContent-Type: text/plain; charset=""utf-8""\nContent-Transfer-Encoding: 7bit\nMIME-Version: 1.0\n\nYour account has been flagged. Please verify immediately.'}",,,,172.18.0.1,data,,2026-01-27T12:18:25.729415+00:00,ERROR
+smtp,"{'mail_from': 'alerts@company-login.org> size=249', 'rcpt_to': ['admin@example.com'], 'smtp_response': '250 OK'}",,,,172.18.0.1,rcpt_to,,2026-01-27T12:18:25.719138+00:00,WARN
+smtp,"{'mail_from': 'alerts@company-login.org> size=249', 'rcpt_to': [], 'smtp_response': '250 OK'}",,,,172.18.0.1,mail_from,,2026-01-27T12:18:25.710500+00:00,WARN
+smtp,{'hostname': '[10.84.20.65]'},,,,172.18.0.1,ehlo,,2026-01-27T12:18:25.704143+00:00,INFO
+smtp,,,,,172.18.0.1,connection_opened,,2026-01-27T12:18:25.692851+00:00,INFO
+smtp,,,,,172.18.0.1,connection_closed,,2026-01-27T12:18:25.198552+00:00,INFO
+smtp,"{'mail_from': 'admin@bank-secure.com> size=245', 'rcpt_to': ['user@example.com'], 'smtp_response': '221 Bye'}",,,,172.18.0.1,quit,,2026-01-27T12:18:25.188756+00:00,INFO
+smtp,"{'mail_from': 'admin@bank-secure.com> size=245', 'rcpt_to': ['user@example.com'], 'smtp_response': '250 Message accepted for delivery'}",,,,172.18.0.1,data_response,,2026-01-27T12:18:25.178966+00:00,ERROR
+smtp,"{'mail_from': 'admin@bank-secure.com> size=245', 'rcpt_to': ['user@example.com'], 'message': 'From: admin@bank-secure.com\nTo: user@example.com\nSubject: Urgent: Verify your account\nContent-Type: text/plain; charset=""utf-8""\nContent-Transfer-Encoding: 7bit\nMIME-Version: 1.0\n\nYour account has been flagged. Please verify immediately.'}",,,,172.18.0.1,data,,2026-01-27T12:18:25.170437+00:00,ERROR
+smtp,"{'mail_from': 'admin@bank-secure.com> size=245', 'rcpt_to': ['user@example.com'], 'smtp_response': '250 OK'}",,,,172.18.0.1,rcpt_to,,2026-01-27T12:18:25.159798+00:00,WARN
+smtp,"{'mail_from': 'admin@bank-secure.com> size=245', 'rcpt_to': [], 'smtp_response': '250 OK'}",,,,172.18.0.1,mail_from,,2026-01-27T12:18:25.149191+00:00,WARN
+smtp,{'hostname': '[10.84.20.65]'},,,,172.18.0.1,ehlo,,2026-01-27T12:18:25.142997+00:00,INFO
+smtp,,,,,172.18.0.1,connection_opened,,2026-01-27T12:18:25.131349+00:00,INFO
+smtp,,,,,172.18.0.1,connection_closed,,2026-01-27T12:18:24.637928+00:00,INFO
+smtp,"{'mail_from': 'support@paypal-secure.net> size=249', 'rcpt_to': ['user@example.com'], 'smtp_response': '221 Bye'}",,,,172.18.0.1,quit,,2026-01-27T12:18:24.626746+00:00,INFO
+smtp,"{'mail_from': 'support@paypal-secure.net> size=249', 'rcpt_to': ['user@example.com'], 'smtp_response': '250 Message accepted for delivery'}",,,,172.18.0.1,data_response,,2026-01-27T12:18:24.616766+00:00,ERROR
+smtp,"{'mail_from': 'support@paypal-secure.net> size=249', 'rcpt_to': ['user@example.com'], 'message': 'From: support@paypal-secure.net\nTo: user@example.com\nSubject: Urgent: Verify your account\nContent-Type: text/plain; charset=""utf-8""\nContent-Transfer-Encoding: 7bit\nMIME-Version: 1.0\n\nYour account has been flagged. Please verify immediately.'}",,,,172.18.0.1,data,,2026-01-27T12:18:24.607792+00:00,ERROR
+smtp,"{'mail_from': 'support@paypal-secure.net> size=249', 'rcpt_to': ['user@example.com'], 'smtp_response': '250 OK'}",,,,172.18.0.1,rcpt_to,,2026-01-27T12:18:24.597232+00:00,WARN
+smtp,"{'mail_from': 'support@paypal-secure.net> size=249', 'rcpt_to': [], 'smtp_response': '250 OK'}",,,,172.18.0.1,mail_from,,2026-01-27T12:18:24.588568+00:00,WARN
+smtp,{'hostname': '[10.84.20.65]'},,,,172.18.0.1,ehlo,,2026-01-27T12:18:24.583658+00:00,INFO
+smtp,,,,,172.18.0.1,connection_opened,,2026-01-27T12:18:24.572145+00:00,INFO
+smtp,,,,,172.18.0.1,connection_closed,,2026-01-27T12:18:24.080134+00:00,INFO
+smtp,"{'mail_from': 'alerts@company-login.org> size=248', 'rcpt_to': ['user@example.com'], 'smtp_response': '221 Bye'}",,,,172.18.0.1,quit,,2026-01-27T12:18:24.067954+00:00,INFO
+smtp,"{'mail_from': 'alerts@company-login.org> size=248', 'rcpt_to': ['user@example.com'], 'smtp_response': '250 Message accepted for delivery'}",,,,172.18.0.1,data_response,,2026-01-27T12:18:24.056137+00:00,ERROR
+smtp,"{'mail_from': 'alerts@company-login.org> size=248', 'rcpt_to': ['user@example.com'], 'message': 'From: alerts@company-login.org\nTo: user@example.com\nSubject: Urgent: Verify your account\nContent-Type: text/plain; charset=""utf-8""\nContent-Transfer-Encoding: 7bit\nMIME-Version: 1.0\n\nYour account has been flagged. Please verify immediately.'}",,,,172.18.0.1,data,,2026-01-27T12:18:24.044946+00:00,ERROR
+smtp,"{'mail_from': 'alerts@company-login.org> size=248', 'rcpt_to': ['user@example.com'], 'smtp_response': '250 OK'}",,,,172.18.0.1,rcpt_to,,2026-01-27T12:18:24.028239+00:00,WARN
+smtp,"{'mail_from': 'alerts@company-login.org> size=248', 'rcpt_to': [], 'smtp_response': '250 OK'}",,,,172.18.0.1,mail_from,,2026-01-27T12:18:24.011677+00:00,WARN
+smtp,{'hostname': '[10.84.20.65]'},,,,172.18.0.1,ehlo,,2026-01-27T12:18:24.007306+00:00,INFO
+smtp,,,,,172.18.0.1,connection_opened,,2026-01-27T12:18:23.983729+00:00,INFO
+smtp,,,,,172.18.0.1,connection_closed,,2026-01-27T12:18:23.488856+00:00,INFO
+smtp,"{'mail_from': 'admin@bank-secure.com> size=246', 'rcpt_to': ['admin@example.com'], 'smtp_response': '221 Bye'}",,,,172.18.0.1,quit,,2026-01-27T12:18:23.479010+00:00,INFO
+smtp,"{'mail_from': 'admin@bank-secure.com> size=246', 'rcpt_to': ['admin@example.com'], 'smtp_response': '250 Message accepted for delivery'}",,,,172.18.0.1,data_response,,2026-01-27T12:18:23.469362+00:00,ERROR
+smtp,"{'mail_from': 'admin@bank-secure.com> size=246', 'rcpt_to': ['admin@example.com'], 'message': 'From: admin@bank-secure.com\nTo: admin@example.com\nSubject: Urgent: Verify your account\nContent-Type: text/plain; charset=""utf-8""\nContent-Transfer-Encoding: 7bit\nMIME-Version: 1.0\n\nYour account has been flagged. Please verify immediately.'}",,,,172.18.0.1,data,,2026-01-27T12:18:23.460436+00:00,ERROR
+smtp,"{'mail_from': 'admin@bank-secure.com> size=246', 'rcpt_to': ['admin@example.com'], 'smtp_response': '250 OK'}",,,,172.18.0.1,rcpt_to,,2026-01-27T12:18:23.449238+00:00,WARN
+smtp,"{'mail_from': 'admin@bank-secure.com> size=246', 'rcpt_to': [], 'smtp_response': '250 OK'}",,,,172.18.0.1,mail_from,,2026-01-27T12:18:23.439770+00:00,WARN
+smtp,{'hostname': '[10.84.20.65]'},,,,172.18.0.1,ehlo,,2026-01-27T12:18:23.433680+00:00,INFO
+smtp,,,,,172.18.0.1,connection_opened,,2026-01-27T12:18:23.421936+00:00,INFO
+smtp,,,,,172.18.0.1,connection_closed,,2026-01-27T12:18:22.927689+00:00,INFO
+smtp,"{'mail_from': 'admin@bank-secure.com> size=245', 'rcpt_to': ['user@example.com'], 'smtp_response': '221 Bye'}",,,,172.18.0.1,quit,,2026-01-27T12:18:22.917924+00:00,INFO
+smtp,"{'mail_from': 'admin@bank-secure.com> size=245', 'rcpt_to': ['user@example.com'], 'smtp_response': '250 Message accepted for delivery'}",,,,172.18.0.1,data_response,,2026-01-27T12:18:22.908296+00:00,ERROR
+smtp,"{'mail_from': 'admin@bank-secure.com> size=245', 'rcpt_to': ['user@example.com'], 'message': 'From: admin@bank-secure.com\nTo: user@example.com\nSubject: Urgent: Verify your account\nContent-Type: text/plain; charset=""utf-8""\nContent-Transfer-Encoding: 7bit\nMIME-Version: 1.0\n\nYour account has been flagged. Please verify immediately.'}",,,,172.18.0.1,data,,2026-01-27T12:18:22.900207+00:00,ERROR
+smtp,"{'mail_from': 'admin@bank-secure.com> size=245', 'rcpt_to': ['user@example.com'], 'smtp_response': '250 OK'}",,,,172.18.0.1,rcpt_to,,2026-01-27T12:18:22.888328+00:00,WARN
+smtp,"{'mail_from': 'admin@bank-secure.com> size=245', 'rcpt_to': [], 'smtp_response': '250 OK'}",,,,172.18.0.1,mail_from,,2026-01-27T12:18:22.878816+00:00,WARN
+smtp,{'hostname': '[10.84.20.65]'},,,,172.18.0.1,ehlo,,2026-01-27T12:18:22.875273+00:00,INFO
+smtp,,,,,172.18.0.1,connection_opened,,2026-01-27T12:18:22.853466+00:00,INFO
+smtp,,,,,172.18.0.1,connection_closed,,2026-01-27T12:18:22.360444+00:00,INFO
+smtp,"{'mail_from': 'alerts@company-login.org> size=248', 'rcpt_to': ['user@example.com'], 'smtp_response': '221 Bye'}",,,,172.18.0.1,quit,,2026-01-27T12:18:22.348769+00:00,INFO
+smtp,"{'mail_from': 'alerts@company-login.org> size=248', 'rcpt_to': ['user@example.com'], 'smtp_response': '250 Message accepted for delivery'}",,,,172.18.0.1,data_response,,2026-01-27T12:18:22.338680+00:00,ERROR
+smtp,"{'mail_from': 'alerts@company-login.org> size=248', 'rcpt_to': ['user@example.com'], 'message': 'From: alerts@company-login.org\nTo: user@example.com\nSubject: Urgent: Verify your account\nContent-Type: text/plain; charset=""utf-8""\nContent-Transfer-Encoding: 7bit\nMIME-Version: 1.0\n\nYour account has been flagged. Please verify immediately.'}",,,,172.18.0.1,data,,2026-01-27T12:18:22.329136+00:00,ERROR
+smtp,"{'mail_from': 'alerts@company-login.org> size=248', 'rcpt_to': ['user@example.com'], 'smtp_response': '250 OK'}",,,,172.18.0.1,rcpt_to,,2026-01-27T12:18:22.318480+00:00,WARN
+smtp,"{'mail_from': 'alerts@company-login.org> size=248', 'rcpt_to': [], 'smtp_response': '250 OK'}",,,,172.18.0.1,mail_from,,2026-01-27T12:18:22.309914+00:00,WARN
+smtp,{'hostname': '[10.84.20.65]'},,,,172.18.0.1,ehlo,,2026-01-27T12:18:22.304096+00:00,INFO
+smtp,,,,,172.18.0.1,connection_opened,,2026-01-27T12:18:22.292450+00:00,INFO
+smtp,,,,,172.18.0.1,connection_closed,,2026-01-27T12:18:21.801929+00:00,INFO
+smtp,"{'mail_from': 'alerts@company-login.org> size=249', 'rcpt_to': ['admin@example.com'], 'smtp_response': '221 Bye'}",,,,172.18.0.1,quit,,2026-01-27T12:18:21.788339+00:00,INFO
+smtp,"{'mail_from': 'alerts@company-login.org> size=249', 'rcpt_to': ['admin@example.com'], 'smtp_response': '250 Message accepted for delivery'}",,,,172.18.0.1,data_response,,2026-01-27T12:18:21.777943+00:00,ERROR
+smtp,"{'mail_from': 'alerts@company-login.org> size=249', 'rcpt_to': ['admin@example.com'], 'message': 'From: alerts@company-login.org\nTo: admin@example.com\nSubject: Urgent: Verify your account\nContent-Type: text/plain; charset=""utf-8""\nContent-Transfer-Encoding: 7bit\nMIME-Version: 1.0\n\nYour account has been flagged. Please verify immediately.'}",,,,172.18.0.1,data,,2026-01-27T12:18:21.768827+00:00,ERROR
+smtp,"{'mail_from': 'alerts@company-login.org> size=249', 'rcpt_to': ['admin@example.com'], 'smtp_response': '250 OK'}",,,,172.18.0.1,rcpt_to,,2026-01-27T12:18:21.754439+00:00,WARN
+smtp,"{'mail_from': 'alerts@company-login.org> size=249', 'rcpt_to': [], 'smtp_response': '250 OK'}",,,,172.18.0.1,mail_from,,2026-01-27T12:18:21.745202+00:00,WARN
+smtp,{'hostname': '[10.84.20.65]'},,,,172.18.0.1,ehlo,,2026-01-27T12:18:21.735175+00:00,INFO
+smtp,,,,,172.18.0.1,connection_opened,,2026-01-27T12:18:21.727713+00:00,INFO
+smtp,,,,,172.18.0.1,connection_closed,,2026-01-27T12:18:21.233233+00:00,INFO
+smtp,"{'mail_from': 'alerts@company-login.org> size=249', 'rcpt_to': ['admin@example.com'], 'smtp_response': '221 Bye'}",,,,172.18.0.1,quit,,2026-01-27T12:18:21.223206+00:00,INFO
+smtp,"{'mail_from': 'alerts@company-login.org> size=249', 'rcpt_to': ['admin@example.com'], 'smtp_response': '250 Message accepted for delivery'}",,,,172.18.0.1,data_response,,2026-01-27T12:18:21.212982+00:00,ERROR
+smtp,"{'mail_from': 'alerts@company-login.org> size=249', 'rcpt_to': ['admin@example.com'], 'message': 'From: alerts@company-login.org\nTo: admin@example.com\nSubject: Urgent: Verify your account\nContent-Type: text/plain; charset=""utf-8""\nContent-Transfer-Encoding: 7bit\nMIME-Version: 1.0\n\nYour account has been flagged. Please verify immediately.'}",,,,172.18.0.1,data,,2026-01-27T12:18:21.204604+00:00,ERROR
+smtp,"{'mail_from': 'alerts@company-login.org> size=249', 'rcpt_to': ['admin@example.com'], 'smtp_response': '250 OK'}",,,,172.18.0.1,rcpt_to,,2026-01-27T12:18:21.194361+00:00,WARN
+smtp,"{'mail_from': 'alerts@company-login.org> size=249', 'rcpt_to': [], 'smtp_response': '250 OK'}",,,,172.18.0.1,mail_from,,2026-01-27T12:18:21.185781+00:00,WARN
+smtp,{'hostname': '[10.84.20.65]'},,,,172.18.0.1,ehlo,,2026-01-27T12:18:21.170917+00:00,INFO
+smtp,,,,,172.18.0.1,connection_opened,,2026-01-27T12:18:21.168503+00:00,INFO
+smtp,,,,,172.18.0.1,connection_closed,,2026-01-27T12:18:20.675681+00:00,INFO
+smtp,"{'mail_from': 'admin@bank-secure.com> size=246', 'rcpt_to': ['admin@example.com'], 'smtp_response': '221 Bye'}",,,,172.18.0.1,quit,,2026-01-27T12:18:20.664404+00:00,INFO
+smtp,"{'mail_from': 'admin@bank-secure.com> size=246', 'rcpt_to': ['admin@example.com'], 'smtp_response': '250 Message accepted for delivery'}",,,,172.18.0.1,data_response,,2026-01-27T12:18:20.655050+00:00,ERROR
+smtp,"{'mail_from': 'admin@bank-secure.com> size=246', 'rcpt_to': ['admin@example.com'], 'message': 'From: admin@bank-secure.com\nTo: admin@example.com\nSubject: Urgent: Verify your account\nContent-Type: text/plain; charset=""utf-8""\nContent-Transfer-Encoding: 7bit\nMIME-Version: 1.0\n\nYour account has been flagged. Please verify immediately.'}",,,,172.18.0.1,data,,2026-01-27T12:18:20.646727+00:00,ERROR
+smtp,"{'mail_from': 'admin@bank-secure.com> size=246', 'rcpt_to': ['admin@example.com'], 'smtp_response': '250 OK'}",,,,172.18.0.1,rcpt_to,,2026-01-27T12:18:20.636286+00:00,WARN
+smtp,"{'mail_from': 'admin@bank-secure.com> size=246', 'rcpt_to': [], 'smtp_response': '250 OK'}",,,,172.18.0.1,mail_from,,2026-01-27T12:18:20.627811+00:00,WARN
+smtp,{'hostname': '[10.84.20.65]'},,,,172.18.0.1,ehlo,,2026-01-27T12:18:20.612608+00:00,INFO
+smtp,,,,,172.18.0.1,connection_opened,,2026-01-27T12:18:20.610243+00:00,INFO
+smtp,,,,,172.18.0.1,connection_closed,,2026-01-27T12:18:20.115494+00:00,INFO
+smtp,"{'mail_from': 'alerts@company-login.org> size=249', 'rcpt_to': ['admin@example.com'], 'smtp_response': '221 Bye'}",,,,172.18.0.1,quit,,2026-01-27T12:18:20.105793+00:00,INFO
+smtp,"{'mail_from': 'alerts@company-login.org> size=249', 'rcpt_to': ['admin@example.com'], 'smtp_response': '250 Message accepted for delivery'}",,,,172.18.0.1,data_response,,2026-01-27T12:18:20.096764+00:00,ERROR
+smtp,"{'mail_from': 'alerts@company-login.org> size=249', 'rcpt_to': ['admin@example.com'], 'message': 'From: alerts@company-login.org\nTo: admin@example.com\nSubject: Urgent: Verify your account\nContent-Type: text/plain; charset=""utf-8""\nContent-Transfer-Encoding: 7bit\nMIME-Version: 1.0\n\nYour account has been flagged. Please verify immediately.'}",,,,172.18.0.1,data,,2026-01-27T12:18:20.087836+00:00,ERROR
+smtp,"{'mail_from': 'alerts@company-login.org> size=249', 'rcpt_to': ['admin@example.com'], 'smtp_response': '250 OK'}",,,,172.18.0.1,rcpt_to,,2026-01-27T12:18:20.077460+00:00,WARN
+smtp,"{'mail_from': 'alerts@company-login.org> size=249', 'rcpt_to': [], 'smtp_response': '250 OK'}",,,,172.18.0.1,mail_from,,2026-01-27T12:18:20.069151+00:00,WARN
+smtp,{'hostname': '[10.84.20.65]'},,,,172.18.0.1,ehlo,,2026-01-27T12:18:20.054769+00:00,INFO
+smtp,,,,,172.18.0.1,connection_opened,,2026-01-27T12:18:20.052433+00:00,INFO
+smtp,,,,,172.18.0.1,connection_closed,,2026-01-27T12:18:19.558323+00:00,INFO
+smtp,"{'mail_from': 'alerts@company-login.org> size=249', 'rcpt_to': ['admin@example.com'], 'smtp_response': '221 Bye'}",,,,172.18.0.1,quit,,2026-01-27T12:18:19.548182+00:00,INFO
+smtp,"{'mail_from': 'alerts@company-login.org> size=249', 'rcpt_to': ['admin@example.com'], 'smtp_response': '250 Message accepted for delivery'}",,,,172.18.0.1,data_response,,2026-01-27T12:18:19.537288+00:00,ERROR
+smtp,"{'mail_from': 'alerts@company-login.org> size=249', 'rcpt_to': ['admin@example.com'], 'message': 'From: alerts@company-login.org\nTo: admin@example.com\nSubject: Urgent: Verify your account\nContent-Type: text/plain; charset=""utf-8""\nContent-Transfer-Encoding: 7bit\nMIME-Version: 1.0\n\nYour account has been flagged. Please verify immediately.'}",,,,172.18.0.1,data,,2026-01-27T12:18:19.528744+00:00,ERROR
+smtp,"{'mail_from': 'alerts@company-login.org> size=249', 'rcpt_to': ['admin@example.com'], 'smtp_response': '250 OK'}",,,,172.18.0.1,rcpt_to,,2026-01-27T12:18:19.517767+00:00,WARN
+smtp,"{'mail_from': 'alerts@company-login.org> size=249', 'rcpt_to': [], 'smtp_response': '250 OK'}",,,,172.18.0.1,mail_from,,2026-01-27T12:18:19.508951+00:00,WARN
+smtp,{'hostname': '[10.84.20.65]'},,,,172.18.0.1,ehlo,,2026-01-27T12:18:19.494866+00:00,INFO
+smtp,,,,,172.18.0.1,connection_opened,,2026-01-27T12:18:19.492649+00:00,INFO
+smtp,,,,,172.18.0.1,connection_closed,,2026-01-27T12:18:19.004498+00:00,INFO
+smtp,"{'mail_from': 'alerts@company-login.org> size=249', 'rcpt_to': ['admin@example.com'], 'smtp_response': '221 Bye'}",,,,172.18.0.1,quit,,2026-01-27T12:18:18.988617+00:00,INFO
+smtp,"{'mail_from': 'alerts@company-login.org> size=249', 'rcpt_to': ['admin@example.com'], 'smtp_response': '250 Message accepted for delivery'}",,,,172.18.0.1,data_response,,2026-01-27T12:18:18.978406+00:00,ERROR
+smtp,"{'mail_from': 'alerts@company-login.org> size=249', 'rcpt_to': ['admin@example.com'], 'message': 'From: alerts@company-login.org\nTo: admin@example.com\nSubject: Urgent: Verify your account\nContent-Type: text/plain; charset=""utf-8""\nContent-Transfer-Encoding: 7bit\nMIME-Version: 1.0\n\nYour account has been flagged. Please verify immediately.'}",,,,172.18.0.1,data,,2026-01-27T12:18:18.968877+00:00,ERROR
+smtp,"{'mail_from': 'alerts@company-login.org> size=249', 'rcpt_to': ['admin@example.com'], 'smtp_response': '250 OK'}",,,,172.18.0.1,rcpt_to,,2026-01-27T12:18:18.955591+00:00,WARN
+smtp,"{'mail_from': 'alerts@company-login.org> size=249', 'rcpt_to': [], 'smtp_response': '250 OK'}",,,,172.18.0.1,mail_from,,2026-01-27T12:18:18.944208+00:00,WARN
+smtp,{'hostname': '[10.84.20.65]'},,,,172.18.0.1,ehlo,,2026-01-27T12:18:18.929483+00:00,INFO
+smtp,,,,,172.18.0.1,connection_opened,,2026-01-27T12:18:18.914233+00:00,INFO
+ftp,,,,,172.18.0.1,disconnect,,2026-01-27T12:18:18.315420+00:00,INFO
+ftp,"{'command': 'QUIT', 'arg': ''}",,,,172.18.0.1,command,,2026-01-27T12:18:18.304512+00:00,INFO
+ftp,"{'command': 'LIST', 'path': '/app/ftp_root'}",,,,172.18.0.1,command,,2026-01-27T12:18:18.293686+00:00,INFO
+ftp,"{'command': 'LIST', 'arg': ''}",,,,172.18.0.1,command,,2026-01-27T12:18:18.284091+00:00,INFO
+ftp,"{'command': 'PASV', 'arg': ''}",,,,172.18.0.1,command,,2026-01-27T12:18:18.272645+00:00,INFO
+ftp,"{'command': 'TYPE', 'arg': 'A'}",,,,172.18.0.1,command,,2026-01-27T12:18:18.261375+00:00,INFO
+ftp,{'username': 'anonymous'},,,,172.18.0.1,login_success,,2026-01-27T12:18:18.250865+00:00,INFO
+ftp,"{'command': 'PASS', 'arg': 'admin'}",,,,172.18.0.1,command,,2026-01-27T12:18:18.238835+00:00,INFO
+ftp,"{'command': 'USER', 'arg': 'anonymous'}",,,,172.18.0.1,command,,2026-01-27T12:18:18.227343+00:00,INFO
+ftp,,,,,172.18.0.1,connect,,2026-01-27T12:18:18.208663+00:00,INFO
+ftp,,,,,172.18.0.1,disconnect,,2026-01-27T12:18:17.714332+00:00,INFO
+ftp,"{'command': 'QUIT', 'arg': ''}",,,,172.18.0.1,command,,2026-01-27T12:18:17.702612+00:00,INFO
+ftp,"{'command': 'LIST', 'path': '/app/ftp_root'}",,,,172.18.0.1,command,,2026-01-27T12:18:17.691262+00:00,INFO
+ftp,"{'command': 'LIST', 'arg': ''}",,,,172.18.0.1,command,,2026-01-27T12:18:17.680154+00:00,INFO
+ftp,"{'command': 'PASV', 'arg': ''}",,,,172.18.0.1,command,,2026-01-27T12:18:17.649711+00:00,INFO
+ftp,"{'command': 'TYPE', 'arg': 'A'}",,,,172.18.0.1,command,,2026-01-27T12:18:17.636912+00:00,INFO
+ftp,{'username': 'anonymous'},,,,172.18.0.1,login_success,,2026-01-27T12:18:17.623102+00:00,INFO
+ftp,"{'command': 'PASS', 'arg': 'admin'}",,,,172.18.0.1,command,,2026-01-27T12:18:17.611092+00:00,INFO
+ftp,"{'command': 'USER', 'arg': 'anonymous'}",,,,172.18.0.1,command,,2026-01-27T12:18:17.597775+00:00,INFO
+ftp,,,,,172.18.0.1,connect,,2026-01-27T12:18:17.582559+00:00,INFO
+ftp,,,,,172.18.0.1,disconnect,,2026-01-27T12:18:17.567504+00:00,INFO
+ftp,"{'username': 'admin', 'password': '123456'}",,,,172.18.0.1,login_failed,,2026-01-27T12:18:17.065398+00:00,WARN
+ftp,"{'command': 'PASS', 'arg': '123456'}",,,,172.18.0.1,command,,2026-01-27T12:18:14.060114+00:00,INFO
+ftp,"{'command': 'USER', 'arg': 'admin'}",,,,172.18.0.1,command,,2026-01-27T12:18:14.047483+00:00,INFO
+ftp,,,,,172.18.0.1,connect,,2026-01-27T12:18:14.030024+00:00,INFO
+ftp,,,,,172.18.0.1,disconnect,,2026-01-27T12:18:14.008587+00:00,INFO
+ftp,"{'username': 'ftp', 'password': 'admin'}",,,,172.18.0.1,login_failed,,2026-01-27T12:18:13.502576+00:00,WARN
+ftp,"{'command': 'PASS', 'arg': 'admin'}",,,,172.18.0.1,command,,2026-01-27T12:18:10.497049+00:00,INFO
+ftp,"{'command': 'USER', 'arg': 'ftp'}",,,,172.18.0.1,command,,2026-01-27T12:18:10.486184+00:00,INFO
+ftp,,,,,172.18.0.1,connect,,2026-01-27T12:18:10.475007+00:00,INFO
+ftp,,,,,172.18.0.1,disconnect,,2026-01-27T12:18:10.461686+00:00,INFO
+ftp,"{'username': 'test', 'password': 'test'}",,,,172.18.0.1,login_failed,,2026-01-27T12:18:09.958816+00:00,WARN
+ftp,"{'command': 'PASS', 'arg': 'test'}",,,,172.18.0.1,command,,2026-01-27T12:18:06.953875+00:00,INFO
+ftp,"{'command': 'USER', 'arg': 'test'}",,,,172.18.0.1,command,,2026-01-27T12:18:06.942683+00:00,INFO
+ftp,,,,,172.18.0.1,connect,,2026-01-27T12:18:06.932132+00:00,INFO
+ftp,,,,,172.18.0.1,disconnect,,2026-01-27T12:18:06.919011+00:00,INFO
+ftp,"{'username': 'admin', 'password': 'test'}",,,,172.18.0.1,login_failed,,2026-01-27T12:18:06.415797+00:00,WARN
+ftp,"{'command': 'PASS', 'arg': 'test'}",,,,172.18.0.1,command,,2026-01-27T12:18:03.410497+00:00,INFO
+ftp,"{'command': 'USER', 'arg': 'admin'}",,,,172.18.0.1,command,,2026-01-27T12:18:03.398328+00:00,INFO
+ftp,,,,,172.18.0.1,connect,,2026-01-27T12:18:03.387018+00:00,INFO
+ftp,,,,,172.18.0.1,disconnect,,2026-01-27T12:18:03.373377+00:00,INFO
+ftp,"{'username': 'admin', 'password': '123456'}",,,,172.18.0.1,login_failed,,2026-01-27T12:18:02.871110+00:00,WARN
+ftp,"{'command': 'PASS', 'arg': '123456'}",,,,172.18.0.1,command,,2026-01-27T12:17:59.866253+00:00,INFO
+ftp,"{'command': 'USER', 'arg': 'admin'}",,,,172.18.0.1,command,,2026-01-27T12:17:59.854480+00:00,INFO
+ftp,,,,,172.18.0.1,connect,,2026-01-27T12:17:59.839620+00:00,INFO
+ftp,,,,,172.18.0.1,disconnect,,2026-01-27T12:17:59.824959+00:00,INFO
+ftp,"{'username': 'admin', 'password': 'anonymous@'}",,,,172.18.0.1,login_failed,,2026-01-27T12:17:59.320711+00:00,WARN
+ftp,"{'command': 'PASS', 'arg': 'anonymous@'}",,,,172.18.0.1,command,,2026-01-27T12:17:56.316563+00:00,INFO
+ftp,"{'command': 'USER', 'arg': 'admin'}",,,,172.18.0.1,command,,2026-01-27T12:17:56.305304+00:00,INFO
+ftp,,,,,172.18.0.1,connect,,2026-01-27T12:17:56.287369+00:00,INFO
+ftp,,,,,172.18.0.1,disconnect,,2026-01-27T12:17:55.792206+00:00,INFO
+ftp,"{'command': 'QUIT', 'arg': ''}",,,,172.18.0.1,command,,2026-01-27T12:17:55.780805+00:00,INFO
+ftp,"{'command': 'LIST', 'path': '/app/ftp_root'}",,,,172.18.0.1,command,,2026-01-27T12:17:55.769255+00:00,INFO
+ftp,"{'command': 'LIST', 'arg': ''}",,,,172.18.0.1,command,,2026-01-27T12:17:55.758852+00:00,INFO
+ftp,"{'command': 'PASV', 'arg': ''}",,,,172.18.0.1,command,,2026-01-27T12:17:55.743070+00:00,INFO
+ftp,"{'command': 'TYPE', 'arg': 'A'}",,,,172.18.0.1,command,,2026-01-27T12:17:55.731681+00:00,INFO
+ftp,{'username': 'anonymous'},,,,172.18.0.1,login_success,,2026-01-27T12:17:55.720065+00:00,INFO
+ftp,"{'command': 'PASS', 'arg': 'test'}",,,,172.18.0.1,command,,2026-01-27T12:17:55.708709+00:00,INFO
+ftp,"{'command': 'USER', 'arg': 'anonymous'}",,,,172.18.0.1,command,,2026-01-27T12:17:55.697624+00:00,INFO
+ftp,,,,,172.18.0.1,connect,,2026-01-27T12:17:55.682398+00:00,INFO
+ftp,,,,,172.18.0.1,disconnect,,2026-01-27T12:17:55.188310+00:00,INFO
+ftp,"{'command': 'QUIT', 'arg': ''}",,,,172.18.0.1,command,,2026-01-27T12:17:55.176008+00:00,INFO
+ftp,"{'command': 'LIST', 'path': '/app/ftp_root'}",,,,172.18.0.1,command,,2026-01-27T12:17:55.163315+00:00,INFO
+ftp,"{'command': 'LIST', 'arg': ''}",,,,172.18.0.1,command,,2026-01-27T12:17:55.152737+00:00,INFO
+ftp,"{'command': 'PASV', 'arg': ''}",,,,172.18.0.1,command,,2026-01-27T12:17:55.141326+00:00,INFO
+ftp,"{'command': 'TYPE', 'arg': 'A'}",,,,172.18.0.1,command,,2026-01-27T12:17:55.130391+00:00,INFO
+ftp,{'username': 'anonymous'},,,,172.18.0.1,login_success,,2026-01-27T12:17:55.120666+00:00,INFO
+ftp,"{'command': 'PASS', 'arg': 'admin'}",,,,172.18.0.1,command,,2026-01-27T12:17:55.109276+00:00,INFO
+ftp,"{'command': 'USER', 'arg': 'anonymous'}",,,,172.18.0.1,command,,2026-01-27T12:17:55.098261+00:00,INFO
+ftp,,,,,172.18.0.1,connect,,2026-01-27T12:17:55.086600+00:00,INFO
+ftp,,,,,172.18.0.1,disconnect,,2026-01-27T12:17:55.074250+00:00,INFO
+ftp,"{'username': 'admin', 'password': 'admin'}",,,,172.18.0.1,login_failed,,2026-01-27T12:17:54.571209+00:00,WARN
+ftp,"{'command': 'PASS', 'arg': 'admin'}",,,,172.18.0.1,command,,2026-01-27T12:17:51.567372+00:00,INFO
+ftp,"{'command': 'USER', 'arg': 'admin'}",,,,172.18.0.1,command,,2026-01-27T12:17:51.556508+00:00,INFO
+ftp,,,,,172.18.0.1,connect,,2026-01-27T12:17:51.546029+00:00,INFO
+ftp,,,,,172.18.0.1,disconnect,,2026-01-27T12:17:51.532528+00:00,INFO
+ftp,"{'username': 'test', 'password': '123456'}",,,,172.18.0.1,login_failed,,2026-01-27T12:17:51.028886+00:00,WARN
+ftp,"{'command': 'PASS', 'arg': '123456'}",,,,172.18.0.1,command,,2026-01-27T12:17:48.024541+00:00,INFO
+ftp,"{'command': 'USER', 'arg': 'test'}",,,,172.18.0.1,command,,2026-01-27T12:17:48.009800+00:00,INFO
+ftp,,,,,172.18.0.1,connect,,2026-01-27T12:17:47.996601+00:00,INFO
+ftp,,,,,172.18.0.1,disconnect,,2026-01-27T12:17:47.984481+00:00,INFO
+ftp,"{'username': 'ftp', 'password': 'admin'}",,,,172.18.0.1,login_failed,,2026-01-27T12:17:47.482006+00:00,WARN
+ftp,"{'command': 'PASS', 'arg': 'admin'}",,,,172.18.0.1,command,,2026-01-27T12:17:44.477882+00:00,INFO
+ftp,"{'command': 'USER', 'arg': 'ftp'}",,,,172.18.0.1,command,,2026-01-27T12:17:44.464046+00:00,INFO
+ftp,,,,,172.18.0.1,connect,,2026-01-27T12:17:44.452099+00:00,INFO
+ftp,,,,,172.18.0.1,disconnect,,2026-01-27T12:17:44.438632+00:00,INFO
+ftp,"{'username': 'test', 'password': '123456'}",,,,172.18.0.1,login_failed,,2026-01-27T12:17:43.937763+00:00,WARN
+ftp,"{'command': 'PASS', 'arg': '123456'}",,,,172.18.0.1,command,,2026-01-27T12:17:40.931940+00:00,INFO
+ftp,"{'command': 'USER', 'arg': 'test'}",,,,172.18.0.1,command,,2026-01-27T12:17:40.920441+00:00,INFO
+ftp,,,,,172.18.0.1,connect,,2026-01-27T12:17:40.907695+00:00,INFO
+ftp,,,,,172.18.0.1,disconnect,,2026-01-27T12:17:40.893026+00:00,INFO
+ftp,"{'username': 'admin', 'password': 'test'}",,,,172.18.0.1,login_failed,,2026-01-27T12:17:40.390053+00:00,WARN
+ftp,"{'command': 'PASS', 'arg': 'test'}",,,,172.18.0.1,command,,2026-01-27T12:17:37.383977+00:00,INFO
+ftp,"{'command': 'USER', 'arg': 'admin'}",,,,172.18.0.1,command,,2026-01-27T12:17:37.372093+00:00,INFO
+ftp,,,,,172.18.0.1,connect,,2026-01-27T12:17:37.354567+00:00,INFO
+http,"{'username': ';--', 'password': ';--'}",8080,/admin,POST,172.18.0.1,sqli_attempt,Mozilla/5.0 (AttackSimulator),2026-01-27T12:17:36.928069+00:00,ERROR
+http,"{'username': ';--', 'password': ';--'}",8080,/admin,POST,172.18.0.1,sqli_attempt,Mozilla/5.0 (AttackSimulator),2026-01-27T12:17:36.511386+00:00,ERROR
+http,"{'username': ""' union select"", 'password': ""' union select""}",8080,/admin,POST,172.18.0.1,sqli_attempt,Mozilla/5.0 (AttackSimulator),2026-01-27T12:17:36.104655+00:00,ERROR
+http,"{'username': ""' or 1=1"", 'password': ""' or 1=1""}",8080,/admin,POST,172.18.0.1,sqli_attempt,Mozilla/5.0 (AttackSimulator),2026-01-27T12:17:35.698425+00:00,ERROR
+http,"{'username': '""--', 'password': '""--'}",8080,/admin,POST,172.18.0.1,sqli_attempt,Mozilla/5.0 (AttackSimulator),2026-01-27T12:17:35.290573+00:00,ERROR

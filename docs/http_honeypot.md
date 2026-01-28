@@ -9,58 +9,50 @@
 ## File Location
 backend/honeypots/http/http_honeypot.py
 
----
+```md
+# HTTP Honeypot – PhantomNet
 
 ## Purpose
-The HTTP honeypot simulates an internal admin portal to:
-- Capture credentials
-- Detect SQL injection attempts
-- Monitor malicious HTTP methods
+The HTTP honeypot simulates a vulnerable web admin panel to capture:
+- Credential stuffing
+- Unauthorized access attempts
+- Unsupported HTTP methods
 
----
+## Port
+- Listens on **port 8080**
 
-## Available Endpoints
-/admin (GET) – Admin login page  
-/admin (POST) – Credential capture  
-/forgot-password (GET) – Reset page  
-/forgot-password (POST) – Email capture  
-/admin (PUT) – Returns 403  
-/admin (DELETE) – Returns 404  
+## Endpoints
+- /admin (fake admin login page)
 
----
+## Supported Methods
+- GET
+- POST
 
-## SQL Injection Detection
-Detects patterns like:
-- ' OR 1=1--
-- UNION SELECT
-- --
+## Blocked Methods
+- PUT
+- PATCH
+- DELETE (returns 501)
 
-Logged as:
-event: sqli_attempt  
-level: ERROR
+## Behavior
+- Displays realistic admin login page
+- Always rejects credentials
+- Logs request method, path, headers, and body
 
----
+## Logged Fields
+- timestamp
+- honeypot_type: http
+- source_ip
+- method
+- endpoint
+- payload
+- response_code
 
-## Logging Example
-```json
-{
-  "timestamp": "2025-01-01T11:05:44Z",
-  "source_ip": "192.168.1.20",
-  "honeypot_type": "http",
-  "event": "login_attempt",
-  "method": "POST",
-  "path": "/admin",
-  "data": {
-    "username": "admin",
-    "password": "1234"
-  },
-  "level": "WARN"
-}
+## Example Attack
+```bash
+curl -X POST http://localhost:8080/admin -d "username=admin&password=test"
 
-Security Notes
 
-No real authentication backend
+Why This Matters :- 
 
-Rate limiting per IP
-
-Clean HTTP responses only
+Web attacks are the most common entry point.
+This honeypot helps detect scanning and credential abuse patterns.

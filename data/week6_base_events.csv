@@ -1,0 +1,14 @@
+COPY (
+  SELECT
+    id AS event_id,
+    honeypot_type,
+    source_ip,
+    port,
+    created_at,
+    raw_data
+  FROM events
+  ORDER BY created_at DESC
+  LIMIT 200
+)
+TO '/data/week6_base_events.csv'
+CSV HEADER;
