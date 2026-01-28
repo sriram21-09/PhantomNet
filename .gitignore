@@ -82,3 +82,8 @@ backend/honeypots/logs/
 smtp-venv/
 venv/
 .env
+
+# SSH honeypot private keys
+honeypot_host_key
+honeypot_host_key.pub
+backend/honeypots/ssh/honeypot_host_key*
