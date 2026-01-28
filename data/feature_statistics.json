@@ -1,0 +1,50 @@
+{
+    "dataset": {
+        "total_events": 220,
+        "unique_honeypots": 3
+    },
+    "latency_ms": {
+        "average": 0.04093272754372182,
+        "minimum": 0.03320001997053623,
+        "maximum": 0.1584000128787011
+    },
+    "cpu_usage_percent": {
+        "average": 1.2986363636363636,
+        "peak": 100.0
+    },
+    "memory_usage_mb": {
+        "start": 67.47265625,
+        "end": 67.6328125,
+        "peak": 67.6328125
+    },
+    "data_quality": {
+        "missing_payload_percent": 27.27272727272727,
+        "missing_source_ip_percent": 0.0
+    },
+    "payload_length": {
+        "average": 93.05625,
+        "minimum": 25,
+        "maximum": 347
+    },
+    "honeypot_distribution": {
+        "smtp": 120,
+        "ftp": 95,
+        "http": 5
+    },
+    "event_type_distribution": {
+        "connection_closed": 15,
+        "quit": 15,
+        "data_response": 15,
+        "data": 15,
+        "rcpt_to": 15,
+        "mail_from": 15,
+        "ehlo": 15,
+        "connection_opened": 15,
+        "disconnect": 15,
+        "command": 50,
+        "login_success": 4,
+        "connect": 15,
+        "login_failed": 11,
+        "sqli_attempt": 5
+    }
+}
