@@ -3,17 +3,22 @@ import "./FeatureVector.css";
 
 const FeatureVector = ({ featureVector, eventId }) => {
   if (!featureVector) {
-    return <p>No feature vector data available</p>;
+    return (
+      <div className="feature-vector-container">
+        <p>No feature vector data available</p>
+      </div>
+    );
   }
 
   return (
-    <div className="feature-card">
+    <div className="feature-vector-container">
       <h2>Feature Vector Analysis</h2>
+
       <p className="event-id">
         <strong>Event ID:</strong> {eventId}
       </p>
 
-      <table className="feature-table">
+      <table className="feature-vector-table">
         <thead>
           <tr>
             <th>Feature Name</th>
@@ -21,11 +26,12 @@ const FeatureVector = ({ featureVector, eventId }) => {
             <th>Interpretation</th>
           </tr>
         </thead>
+
         <tbody>
           {Object.entries(featureVector).map(([key, feature]) => (
             <tr key={key}>
               <td>{feature.label}</td>
-              <td>{feature.value}</td>
+              <td>{String(feature.value)}</td>
               <td>{feature.interpretation}</td>
             </tr>
           ))}

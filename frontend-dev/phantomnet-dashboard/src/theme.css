@@ -48,3 +48,18 @@ body[data-theme="dark"] table {
   background-color: #1e1e1e;
   color: #ffffff;
 }
+:root {
+  --bg-color: #ffffff;
+  --card-bg: #ffffff;
+  --text-color: #111827;
+  --muted-text: #4b5563;
+  --border-color: #e5e7eb;
+}
+
+[data-theme="dark"] {
+  --bg-color: #0f172a;
+  --card-bg: #020617;
+  --text-color: #e5e7eb;
+  --muted-text: #9ca3af;
+  --border-color: #1f2933;
+}
