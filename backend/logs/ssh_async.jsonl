@@ -429,3 +429,7 @@
 {"timestamp": "2026-01-27T12:17:28.051359+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ssh", "port": 2222, "event": "login_failed", "data": {"username": "ubuntu"}, "level": "ERROR"}
 {"timestamp": "2026-01-27T15:29:36.656824+00:00", "source_ip": "127.0.0.1", "honeypot_type": "ssh", "port": 2222, "event": "login_attempt", "data": {"username": "PhantomNet", "password": "1234"}, "level": "WARN"}
 {"timestamp": "2026-01-27T15:29:36.658840+00:00", "source_ip": "127.0.0.1", "honeypot_type": "ssh", "port": 2222, "event": "login_success", "data": {"username": "PhantomNet"}, "level": "INFO"}
+{"timestamp": "2026-01-28T04:38:42.959622+00:00", "source_ip": "127.0.0.1", "honeypot_type": "ssh", "port": 2222, "event": "login_attempt", "data": {"username": "PhantomNet", "password": "PhantomNet"}, "level": "WARN"}
+{"timestamp": "2026-01-28T04:38:42.963282+00:00", "source_ip": "127.0.0.1", "honeypot_type": "ssh", "port": 2222, "event": "login_failed", "data": {"username": "PhantomNet"}, "level": "ERROR"}
+{"timestamp": "2026-01-28T04:38:54.388443+00:00", "source_ip": "127.0.0.1", "honeypot_type": "ssh", "port": 2222, "event": "login_attempt", "data": {"username": "PhantomNet", "password": "1234"}, "level": "WARN"}
+{"timestamp": "2026-01-28T04:38:54.388982+00:00", "source_ip": "127.0.0.1", "honeypot_type": "ssh", "port": 2222, "event": "login_success", "data": {"username": "PhantomNet"}, "level": "INFO"}
