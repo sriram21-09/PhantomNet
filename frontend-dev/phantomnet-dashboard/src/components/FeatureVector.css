@@ -1,0 +1,37 @@
+/* Base card */
+.feature-card {
+  padding: 20px;
+  border-radius: 10px;
+  margin-top: 20px;
+  background-color: var(--card-bg);
+  color: var(--text-primary);
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.08);
+}
+
+/* Event ID text */
+.event-id {
+  margin-bottom: 15px;
+  color: var(--text-secondary);
+}
+
+/* Table */
+.feature-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.feature-table th,
+.feature-table td {
+  padding: 10px;
+  border: 1px solid var(--border-color);
+  text-align: left;
+}
+
+.feature-table th {
+  background-color: var(--table-header-bg);
+  color: var(--text-primary);
+}
+
+.feature-table tr:nth-child(even) {
+  background-color: var(--table-row-alt);
+}

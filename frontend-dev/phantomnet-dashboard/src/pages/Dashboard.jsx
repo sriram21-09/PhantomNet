@@ -5,6 +5,8 @@
  * and network visualization.
  */
 import React, { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
+
 import MetricCard from "../components/MetricCard";
 import LoadingSpinner from "../components/LoadingSpinner";
 import HoneypotStatus from "../components/Honeypotstatus";
@@ -37,7 +39,7 @@ const Dashboard = () => {
           uniqueIPs: data.uniqueIPs ?? 0,
           activeHoneypots: data.activeHoneypots ?? 0,
           avgThreatScore: data.avgThreatScore ?? 0,
-          criticalAlerts: data.criticalAlerts ?? 0
+          criticalAlerts: data.criticalAlerts ?? 0,
         });
       } catch (err) {
         setError(err.message);
@@ -66,6 +68,23 @@ const Dashboard = () => {
       <div className="dashboard-header">
         <h1>Dashboard</h1>
         <p>This is the PhantomNet dashboard. More content will be added later.</p>
+
+        {/* ✅ VIEW FEATURE ANALYSIS BUTTON */}
+        <Link to="/dashboard/features">
+          <button
+            style={{
+              marginTop: "15px",
+              padding: "10px 18px",
+              backgroundColor: "#2563eb",
+              color: "white",
+              border: "none",
+              borderRadius: "6px",
+              cursor: "pointer",
+            }}
+          >
+            View Feature Analysis
+          </button>
+        </Link>
       </div>
 
       {/* =========================
@@ -91,7 +110,7 @@ const Dashboard = () => {
             display: "flex",
             gap: "20px",
             marginTop: "20px",
-            flexWrap: "wrap"
+            flexWrap: "wrap",
           }}
         >
           <MetricCard title="Total Events" value={stats.totalEvents} color="#e3f2fd" />
@@ -103,6 +122,38 @@ const Dashboard = () => {
             color="#fff3e0"
           />
           <MetricCard title="Critical Alerts" value={stats.criticalAlerts} color="#ffebee" />
+
+          {/* ✅ FEATURE ANALYSIS CARD */}
+          <div
+            style={{
+              background: "white",
+              padding: "20px",
+              borderRadius: "10px",
+              boxShadow: "0 4px 10px rgba(0,0,0,0.1)",
+              minWidth: "220px",
+            }}
+          >
+            <h3>Feature Analysis</h3>
+            <p style={{ fontSize: "14px", color: "#555" }}>
+              Inspect extracted ML features for network events.
+            </p>
+
+            <Link to="/dashboard/features">
+              <button
+                style={{
+                  marginTop: "10px",
+                  padding: "8px 14px",
+                  backgroundColor: "#1e40af",
+                  color: "white",
+                  border: "none",
+                  borderRadius: "6px",
+                  cursor: "pointer",
+                }}
+              >
+                Open
+              </button>
+            </Link>
+          </div>
         </div>
       )}
 
