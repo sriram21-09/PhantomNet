@@ -70,3 +70,26 @@ body[data-theme="dark"] table {
 body[data-theme="dark"] th {
   background-color: #020617;
 }
+/* =========================
+   LIGHT THEME VARIABLES
+========================= */
+.light {
+  --card-bg: #ffffff;
+  --text-primary: #111827;
+  --text-secondary: #4b5563;
+  --border-color: #e5e7eb;
+  --table-header-bg: #f3f4f6;
+  --table-row-alt: #f9fafb;
+}
+
+/* =========================
+   DARK THEME VARIABLES
+========================= */
+.dark {
+  --card-bg: #0f172a;
+  --text-primary: #f9fafb;
+  --text-secondary: #9ca3af;
+  --border-color: #334155;
+  --table-header-bg: #1e293b;
+  --table-row-alt: #020617;
+}

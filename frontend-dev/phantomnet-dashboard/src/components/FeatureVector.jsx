@@ -1,31 +1,38 @@
-const FeatureVector = ({ featureVector }) => {
+import React from "react";
+import "./FeatureVector.css";
+
+const FeatureVector = ({ featureVector, eventId }) => {
   if (!featureVector) {
-    return <p>No feature data available</p>;
+    return (
+      <div className="feature-vector-container">
+        <p>No feature vector data available</p>
+      </div>
+    );
   }
 
-  const { eventId, protocol, features } = featureVector;
-
   return (
-    <div className="section">
+    <div className="feature-vector-container">
       <h2>Feature Vector Analysis</h2>
 
-      <p>
-        <strong>Event ID:</strong> {eventId}<br />
-        <strong>Protocol:</strong> {protocol}
+      <p className="event-id">
+        <strong>Event ID:</strong> {eventId}
       </p>
 
-      <table style={{ width: "100%", marginTop: "16px" }}>
+      <table className="feature-vector-table">
         <thead>
           <tr>
-            <th align="left">Feature</th>
-            <th align="left">Value</th>
+            <th>Feature Name</th>
+            <th>Value</th>
+            <th>Interpretation</th>
           </tr>
         </thead>
+
         <tbody>
-          {Object.entries(features).map(([key, value]) => (
+          {Object.entries(featureVector).map(([key, feature]) => (
             <tr key={key}>
-              <td>{key}</td>
-              <td>{value}</td>
+              <td>{feature.label}</td>
+              <td>{String(feature.value)}</td>
+              <td>{feature.interpretation}</td>
             </tr>
           ))}
         </tbody>

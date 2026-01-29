@@ -1,0 +1,48 @@
+.feature-vector-container {
+  background-color: var(--card-bg);
+  color: var(--text-color);
+  padding: 24px;
+  border-radius: 10px;
+  border: 1px solid var(--border-color);
+}
+
+.feature-vector-container h2 {
+  margin-bottom: 6px;
+  color: var(--text-color);
+}
+
+.feature-vector-container .event-id {
+  color: var(--muted-text);
+  margin-bottom: 16px;
+}
+
+/* Table */
+.feature-vector-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 16px;
+}
+
+.feature-vector-table th {
+  text-align: left;
+  padding: 12px;
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  border-bottom: 2px solid var(--border-color);
+  font-weight: 600;
+}
+
+.feature-vector-table td {
+  padding: 12px;
+  border-bottom: 1px solid var(--border-color);
+  color: var(--text-color);
+}
+
+.feature-vector-table tr:hover {
+  background-color: rgba(255, 255, 255, 0.04);
+}
+
+/* Interpretation text slightly muted */
+.feature-vector-table td:last-child {
+  color: var(--muted-text);
+}
