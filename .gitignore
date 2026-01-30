@@ -1,0 +1,49 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.venv/
+venv/
+
+# Env files
+.env
+*.env
+
+# Coverage
+.coverage
+htmlcov/
+
+# Databases
+*.db
+*.sqlite3
+
+# Logs
+*.log
+logs/
+
+# Frontend
+node_modules/
+dist/
+
+# OS
+.DS_Store
+Thumbs.db
+ 
+ # Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+venv/
+*/venv/
+smtp-venv/
+
+# Local data / artifacts
+.coverage
+week6_day3_events.csv
+week6_day4_pipeline_events.csv
+
+# Environment files
+.env
+*.env
