@@ -1,0 +1,16 @@
+.feature-analysis {
+  padding: 20px;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* LIGHT MODE */
+.feature-analysis.light {
+  background-color: #ffffff;
+  color: #000000;
+}
+
+/* DARK MODE */
+.feature-analysis.dark {
+  background-color: #0f172a;
+  color: #e5e7eb;
+}

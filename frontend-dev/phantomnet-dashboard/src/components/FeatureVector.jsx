@@ -1,5 +1,7 @@
 import React from "react";
 import "./FeatureVector.css";
+import ThreatIndicator from "./ThreatIndicator";
+
 
 const FeatureVector = ({ featureVector, eventId }) => {
   if (!featureVector) {
