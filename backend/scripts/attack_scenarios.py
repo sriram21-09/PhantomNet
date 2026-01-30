@@ -26,7 +26,7 @@ from datetime import datetime
 # SSH Honeypot
 SSH_HONEYPOT_HOST = "127.0.0.1"
 SSH_HONEYPOT_PORT = 2222   # change ONLY if your SSH honeypot uses a different port
-SSH_ATTEMPTS = 10
+SSH_ATTEMPTS = 15
 SSH_WINDOW_SECONDS = 30
 
 # HTTP Honeypot
@@ -36,12 +36,12 @@ HTTP_ATTEMPTS = 15
 #FTP Honeypot
 FTP_HONEYPOT_HOST = "127.0.0.1"
 FTP_HONEYPOT_PORT = 2121   # change if your FTP honeypot uses a different port
-FTP_ATTEMPTS = 15
+FTP_ATTEMPTS = 10
 
 #SMTP Honeypot
 SMTP_HONEYPOT_HOST = "127.0.0.1"
 SMTP_HONEYPOT_PORT = 2525
-SMTP_ATTEMPTS = 15
+SMTP_ATTEMPTS = 10
 
 
 # ===============================
