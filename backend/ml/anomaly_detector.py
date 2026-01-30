@@ -1,8 +1,9 @@
 import numpy as np
 import joblib
 import os
+import time
 from sklearn.ensemble import IsolationForest
-from backend.ml.feature_extractor import FeatureExtractor
+from ml.feature_extractor import FeatureExtractor
 
 # Path to save the trained model
 MODEL_PATH = "backend/ml/model.pkl"
@@ -57,16 +58,24 @@ class AnomalyDetector:
                 # Default to 'Normal' if no trained model exists
                 return 1, 0.0
 
-        # Extract features and convert to numeric vector
+        # Extract features
         feature_dict = self.extractor.extract_features(log_entry)
         vector = np.array(
             list(feature_dict.values()),
             dtype=float
         ).reshape(1, -1)
 
-        # Predict
+        # -------- LATENCY MEASUREMENT (ML INFERENCE ONLY) --------
+        start_time = time.perf_counter()
+
         pred = self.model.predict(vector)[0]
         score = self.model.decision_function(vector)[0]
+
+        end_time = time.perf_counter()
+        latency_ms = (end_time - start_time) * 1000
+
+        print(f"[LATENCY] ML inference time: {latency_ms:.2f} ms")
+        # --------------------------------------------------------
 
         return pred, score
 
