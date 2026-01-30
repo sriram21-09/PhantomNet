@@ -1,15 +1,17 @@
 from scapy.all import sniff, IP, TCP, UDP, ICMP
-from services.feature_extractor import FeatureExtractor
-from services.ai_predictor import ThreatDetector
-from db_core import SessionLocal
-from app_models import PacketLog
 import threading
 from datetime import datetime
 
+from db_core import SessionLocal
+from app_models import PacketLog
+
+# ✅ WEEK 6 ML PIPELINE
+from ml.threat_correlation import ThreatCorrelator
+
+
 class RealTimeSniffer:
     def __init__(self):
-        self.extractor = FeatureExtractor()
-        self.detector = ThreatDetector()
+        self.threat_correlator = ThreatCorrelator()
         self.running = False
 
     def packet_callback(self, packet):
@@ -17,30 +19,50 @@ class RealTimeSniffer:
             return
 
         try:
-            # 1. Extract Data
             src_ip = packet[IP].src
             dst_ip = packet[IP].dst
             length = len(packet)
-            
-            if packet.haslayer(TCP): protocol = 'TCP'
-            elif packet.haslayer(UDP): protocol = 'UDP'
-            elif packet.haslayer(ICMP): protocol = 'ICMP'
-            else: protocol = 'OTHER'
 
-            # 2. AI Analysis
-            norm_dur = self.extractor.normalize(0.1, 'duration') 
-            proto_vec = self.extractor.encode_protocol(protocol)
-            ip_vec = self.extractor.extract_ip_patterns(src_ip, dst_ip)
-            features = [norm_dur, ip_vec[0], ip_vec[1]] + proto_vec
+            if packet.haslayer(TCP):
+                protocol = "TCP"
+            elif packet.haslayer(UDP):
+                protocol = "UDP"
+            elif packet.haslayer(ICMP):
+                protocol = "ICMP"
+            else:
+                protocol = "OTHER"
 
-            label, score = self.detector.predict(features)
-            
-            # 3. Determine Status
-            status = "BENIGN"
-            if score > 0.80: status = "MALICIOUS"
-            elif score > 0.50: status = "SUSPICIOUS"
+            # -----------------------------
+            # 1️⃣ BUILD LOG ENTRY
+            # -----------------------------
+            log_entry = {
+                "src_ip": src_ip,
+                "dst_ip": dst_ip,
+                "protocol": protocol,
+                "packet_length": length,
+                "attacker_ip": src_ip,   # required by threat correlator
+                "timestamp": datetime.utcnow()
+            }
 
-            # 4. Save to Database
+            # -----------------------------
+            # 2️⃣ THREAT CORRELATION (FULL PIPELINE)
+            # -----------------------------
+            threat = self.threat_correlator.evaluate(log_entry)
+
+            attack_type = threat["verdict"]                 # SAFE / WARNING / HIGH / CRITICAL
+            risk_score = threat["total_risk_score"]         # 0–100
+
+            # Normalize attack_type for DB
+            if attack_type == "CRITICAL":
+                attack_label = "MALICIOUS"
+            elif attack_type in ("HIGH", "WARNING"):
+                attack_label = "SUSPICIOUS"
+            else:
+                attack_label = "BENIGN"
+
+            # -----------------------------
+            # 3️⃣ SAVE TO DATABASE
+            # -----------------------------
             db = SessionLocal()
             new_log = PacketLog(
                 timestamp=datetime.utcnow(),
@@ -48,28 +70,32 @@ class RealTimeSniffer:
                 dst_ip=dst_ip,
                 protocol=protocol,
                 length=length,
-                is_malicious=(status == "MALICIOUS"),
-                threat_score=float(score),
-                attack_type=status # Storing status (Malicious/Suspicious/Benign)
+                is_malicious=(attack_label == "MALICIOUS"),
+                threat_score=risk_score,
+                attack_type=attack_label
             )
             db.add(new_log)
             db.commit()
             db.close()
 
-            # Optional: Print only Warnings to console
-            if score > 0.5:
-                print(f"[{status}] {src_ip} -> {dst_ip} | Score: {score:.2f} (Saved to DB)")
+            # -----------------------------
+            # 4️⃣ CONSOLE OUTPUT
+            # -----------------------------
+            if attack_label != "BENIGN":
+                print(
+                    f"[{attack_label}] {src_ip} -> {dst_ip} | "
+                    f"Risk: {risk_score:.1f}"
+                )
 
         except Exception as e:
-            pass
+            print(f"[Sniffer Error] {e}")
 
     def start_background_sniffer(self):
-        """Starts sniffing in a background thread so the API can run too."""
         if not self.running:
             self.running = True
             t = threading.Thread(target=self._run_sniff, daemon=True)
             t.start()
-            print("✅ Background Sniffer Started")
+            print("✅ Background Sniffer Started (ML-Driven)")
 
     def _run_sniff(self):
         sniff(prn=self.packet_callback, store=0)
