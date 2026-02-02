@@ -15,6 +15,7 @@ const Navbar = () => {
       {/* RIGHT */}
       <div className="navbar-right">
         <Link to="/dashboard">Dashboard</Link>
+        <Link to="/threat-analysis">Threat Analysis</Link>
         <Link to="/events">Events</Link>
         <Link to="/about">About</Link>
 

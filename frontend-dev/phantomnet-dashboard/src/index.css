@@ -93,3 +93,37 @@ body[data-theme="dark"] th {
   --table-header-bg: #1e293b;
   --table-row-alt: #020617;
 }
+
+.page-container {
+  padding: 20px;
+}
+
+.page-container h1 {
+  margin-bottom: 10px;
+}
+
+.page-container p {
+  color: #b0b0b0;
+}
+/* =========================
+   FEATURE ANALYSIS SLOT (DASHBOARD)
+========================= */
+.feature-analysis-card {
+  background-color: var(--card-bg);
+  color: var(--text-primary);
+  padding: 20px;
+  border-radius: 10px;
+  min-width: 220px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.feature-analysis-card h3 {
+  margin-top: 0;
+  color: var(--text-primary);
+}
+
+.feature-analysis-card p {
+  font-size: 14px;
+  color: var(--text-secondary);
+}

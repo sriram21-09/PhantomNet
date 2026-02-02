@@ -1,13 +1,14 @@
-import { useEffect, useState } from "react";
+import { useState, useEffect } from "react";
 import { ThemeContext } from "./ThemeContext";
 
 const ThemeProvider = ({ children }) => {
   const [theme, setTheme] = useState("light");
 
   const toggleTheme = () => {
-    setTheme((prev) => (prev === "light" ? "dark" : "light"));
+    setTheme((prev) => (prev === "dark" ? "light" : "dark"));
   };
 
+  // 🔑 THIS IS THE KEY FIX
   useEffect(() => {
     if (theme === "dark") {
       document.body.classList.add("dark");
