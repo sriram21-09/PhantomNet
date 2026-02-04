@@ -1,0 +1,221 @@
+/* =================================
+   ANOMALY DASHBOARD – SOC STYLE
+================================= */
+
+.anomaly-dashboard {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 48px 24px;
+}
+
+/* =================================
+   HEADER
+================================= */
+
+.anomaly-header {
+  text-align: center;
+  margin-bottom: 48px;
+}
+
+.anomaly-header h1 {
+  font-size: 2.4rem;
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+
+.anomaly-header p {
+  color: var(--muted-text);
+  font-size: 1.05rem;
+}
+
+/* =================================
+   SUMMARY GRID
+================================= */
+
+.anomaly-summary {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 24px;
+  margin-bottom: 48px;
+}
+
+.anomaly-summary-card {
+  background-color: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+}
+
+body[data-theme="light"] .anomaly-summary-card {
+  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.08);
+}
+
+.anomaly-summary-card .label {
+  font-size: 0.9rem;
+  color: var(--muted-text);
+}
+
+.anomaly-summary-card .value {
+  font-size: 1.9rem;
+  font-weight: 700;
+  margin-top: 6px;
+}
+
+/* =================================
+   SEVERITY COLORS
+================================= */
+
+.severity-high {
+  border-left: 4px solid #ef4444;
+}
+
+.severity-medium {
+  border-left: 4px solid #f59e0b;
+}
+
+/* =================================
+   SCORE BAR
+================================= */
+
+.score-bar {
+  width: 100%;
+  height: 8px;
+  background-color: rgba(148, 163, 184, 0.25);
+  border-radius: 8px;
+  margin-top: 10px;
+  overflow: hidden;
+}
+
+.score-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #3b82f6, #2563eb);
+  border-radius: 8px;
+}
+
+.score-value {
+  display: block;
+  margin-top: 6px;
+  font-size: 0.9rem;
+  color: var(--muted-text);
+}
+
+/* =================================
+   ALERTS SECTION
+================================= */
+
+.anomaly-section {
+  margin-top: 32px;
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.section-header h2 {
+  font-size: 1.5rem;
+}
+
+/* =================================
+   ALERT LIST
+================================= */
+
+.anomaly-alerts {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.anomaly-alert-card {
+  display: flex;
+  align-items: center;
+  background-color: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 14px;
+  padding: 16px;
+  gap: 14px;
+  transition: background-color 0.2s ease;
+}
+
+.anomaly-alert-card:hover {
+  background-color: rgba(59, 130, 246, 0.06);
+}
+
+/* =================================
+   SEVERITY DOT
+================================= */
+
+.severity-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+
+.severity-high {
+  background-color: #ef4444;
+}
+
+.severity-medium {
+  background-color: #f59e0b;
+}
+
+.severity-low {
+  background-color: #22c55e;
+}
+
+/* =================================
+   ALERT CONTENT
+================================= */
+
+.alert-content {
+  flex: 1;
+}
+
+.alert-title {
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: 2px;
+}
+
+.alert-description {
+  font-size: 0.95rem;
+  color: var(--muted-text);
+}
+
+.alert-meta {
+  display: flex;
+  gap: 16px;
+  margin-top: 6px;
+  font-size: 0.85rem;
+  color: var(--muted-text);
+}
+
+/* =================================
+   SEVERITY LABEL
+================================= */
+
+.alert-severity-label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 999px;
+  border: 1px solid transparent;
+}
+
+.alert-severity-label.severity-high {
+  color: #ef4444;
+  border-color: rgba(239, 68, 68, 0.4);
+}
+
+.alert-severity-label.severity-medium {
+  color: #f59e0b;
+  border-color: rgba(245, 158, 11, 0.4);
+}
+
+.alert-severity-label.severity-low {
+  color: #22c55e;
+  border-color: rgba(34, 197, 94, 0.4);
+}

@@ -17,7 +17,7 @@ body {
    THEME VARIABLES
 ================================ */
 :root {
-  /* Light theme – slightly colorful cyber */
+  /* Light theme */
   --bg-color: linear-gradient(
     180deg,
     #eef3fb 0%,
@@ -28,12 +28,11 @@ body {
   --card-bg: #ffffff;
   --text-color: #0f172a;
 
-  /* blue-tinted muted text (not boring grey) */
+  /* 🔥 Indigo-blue instead of grey */
   --muted-text: #5b6f95;
 
   --border-color: #dbe3f1;
 
-  /* cyber blue accent */
   --primary: #2563eb;
   --primary-hover: #1d4ed8;
 }
@@ -42,17 +41,11 @@ body {
    DARK THEME
 ================================ */
 body[data-theme="dark"] {
-  /* Dark cyber SOC style */
-  --bg-color: radial-gradient(
-    circle at top,
-    #0f172a 0%,
-    #020617 70%
-  );
-
+  --bg-color: radial-gradient(circle at top, #0f172a 0%, #020617 70%);
   --card-bg: rgba(15, 23, 42, 0.9);
   --text-color: #e5e7eb;
 
-  /* soft cyber blue instead of dull grey */
+  /* 🔥 Indigo-blue for dark */
   --muted-text: #9fb3d9;
 
   --border-color: #1f2a44;
@@ -62,49 +55,7 @@ body[data-theme="dark"] {
 }
 
 /* ================================
-   COMMON LAYOUT
-================================ */
-.page-container {
-  min-height: 100vh;
-  background: var(--bg-color);
-  color: var(--text-color);
-}
-
-/* ================================
-   CARDS (BORDER-FOCUSED, PRO)
-================================ */
-.card {
-  background-color: var(--card-bg);
-  border: 1px solid var(--border-color);
-  border-radius: 16px;
-  transition: border-color 0.2s ease;
-}
-
-body[data-theme="dark"] .card {
-  border-color: rgba(59, 130, 246, 0.25);
-}
-
-/* ================================
-   TABLES
-================================ */
-table {
-  width: 100%;
-  border-collapse: collapse;
-  background-color: var(--card-bg);
-}
-
-th,
-td {
-  padding: 8px 12px;
-  border: 1px solid var(--border-color);
-}
-
-th {
-  font-weight: 600;
-}
-
-/* ================================
-   TEXT HELPERS
+   COMMON HELPERS
 ================================ */
 .text-muted,
 .muted-text {
@@ -115,16 +66,24 @@ th {
   color: #ef4444;
   font-weight: 600;
 }
-
-/* ================================
-   LINKS & BUTTONS
-================================ */
-a {
-  color: inherit;
-  text-decoration: none;
+/* ===== NAVBAR LINK FIX (REMOVE UNDERLINES) ===== */
+.navbar a {
+  text-decoration: none !important;
+  border-bottom: none !important;
+  color: var(--muted-text);
+  font-weight: 600;
 }
 
-button {
-  cursor: pointer;
-  font-family: inherit;
+.navbar a:hover {
+  text-decoration: none !important;
+  color: var(--primary);
+}
+/* ===== FIX WHITE BACKGROUND GAP BETWEEN SECTIONS ===== */
+.dashboard-container {
+  background: var(--bg-color);
+}
+
+/* Ensure sections inherit gradient, not white */
+.dashboard-container > * {
+  background-color: transparent;
 }
