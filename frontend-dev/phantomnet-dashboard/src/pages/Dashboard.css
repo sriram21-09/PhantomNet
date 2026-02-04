@@ -1,0 +1,151 @@
+/* ================================
+   DASHBOARD HERO (MEDIUM HEIGHT)
+================================ */
+.dashboard-container {
+  position: relative;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 64px 24px 48px; /* ⬅️ medium hero height */
+}
+
+/* Light theme hero – soft cyber blue */
+body[data-theme="light"] .dashboard-container::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 120%;
+  height: 360px; /* ⬅️ medium height */
+  background: linear-gradient(
+    180deg,
+    rgba(37, 99, 235, 0.14),
+    rgba(37, 99, 235, 0.05),
+    transparent
+  );
+  z-index: -1;
+}
+
+/* Dark theme hero – deep cyber glow */
+body[data-theme="dark"] .dashboard-container::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 120%;
+  height: 400px; /* ⬅️ medium height */
+  background: radial-gradient(
+    circle at top,
+    rgba(59, 130, 246, 0.25),
+    rgba(2, 6, 23, 0.96)
+  );
+  z-index: -1;
+}
+
+/* ================================
+   HEADER (SLIGHT EMPHASIS)
+================================ */
+.dashboard-header {
+  text-align: center;
+  margin-bottom: 60px;
+  animation: heroFade 0.6s ease-out both; /* ⬅️ subtle animation */
+}
+
+.dashboard-header h1 {
+  font-size: 2.9rem; /* ⬅️ slightly emphasized */
+  font-weight: 800;
+  margin-bottom: 10px;
+  letter-spacing: -0.5px;
+}
+
+.dashboard-header p {
+  color: var(--muted-text);
+  font-size: 1.08rem;
+  margin-bottom: 24px;
+}
+
+/* ================================
+   SUBTLE HERO ANIMATION
+================================ */
+@keyframes heroFade {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ================================
+   BUTTONS
+================================ */
+.primary-btn {
+  background: linear-gradient(
+    135deg,
+    var(--primary),
+    var(--primary-hover)
+  );
+  color: #ffffff;
+  border: none;
+  padding: 12px 26px;
+  border-radius: 14px;
+  font-weight: 600;
+  box-shadow: 0 6px 18px rgba(37, 99, 235, 0.35);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.primary-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 26px rgba(37, 99, 235, 0.45);
+}
+
+.secondary-btn {
+  border: 1px solid var(--border-color);
+  background-color: var(--card-bg);
+  color: var(--text-color);
+  padding: 8px 16px;
+  border-radius: 10px;
+}
+
+/* ================================
+   METRICS GRID
+================================ */
+.metrics-section {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 26px;
+  margin-top: 32px;
+}
+
+/* ================================
+   CARDS (BORDER-FOCUSED)
+================================ */
+.metric-card,
+.feature-analysis-card {
+  background-color: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 18px;
+  padding: 22px;
+  transition: border-color 0.2s ease, transform 0.2s ease;
+}
+
+.metric-card:hover,
+.feature-analysis-card:hover {
+  transform: translateY(-3px);
+  border-color: var(--primary);
+}
+
+/* Light theme subtle depth */
+body[data-theme="light"] .metric-card,
+body[data-theme="light"] .feature-analysis-card {
+  box-shadow: 0 6px 14px rgba(15, 23, 42, 0.08);
+}
+
+/* Dark theme border glow */
+body[data-theme="dark"] .metric-card,
+body[data-theme="dark"] .feature-analysis-card {
+  border-color: rgba(59, 130, 246, 0.28);
+}

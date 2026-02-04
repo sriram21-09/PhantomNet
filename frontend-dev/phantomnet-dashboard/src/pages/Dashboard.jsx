@@ -9,6 +9,7 @@ import { Link } from "react-router-dom";
 
 import MetricCard from "../components/MetricCard";
 import LoadingSpinner from "../components/LoadingSpinner";
+import "./Dashboard.css";
 import HoneypotStatus from "../components/Honeypotstatus";
 import NetworkVisualization from "../components/NetworkVisualization";
 import { ThemeContext } from "../context/ThemeContext";

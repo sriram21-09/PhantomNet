@@ -1,213 +1,102 @@
-/* =========================
-   GLOBAL RESET
-========================= */
-* {
+/* ================================
+   GLOBAL APP RESET
+================================ */
+#root {
   margin: 0;
   padding: 0;
-  box-sizing: border-box;
 }
 
-/* =========================
-   LIGHT MODE (DEFAULT)
-========================= */
-body {
-  font-family: Arial, Helvetica, sans-serif;
-  background-color: #f9fafb;
-  color: #111827;
-}
-
-/* =========================
-   DARK MODE BASE
-========================= */
-body.dark {
-  background-color: #111827;
-  color: #e5e7eb;
-}
-
-/* =========================
-   PAGE CONTAINER
-========================= */
-.page-container {
-  min-height: 100vh;
-  padding: 20px;
-  background-color: #f9fafb;
-}
-
-body.dark .page-container {
-  background-color: #111827;
-}
-
-/* =========================
-   NAVBAR (FINAL FIX)  ✅ YOUR CODE – UNCHANGED
-========================= */
+/* ================================
+   NAVBAR (PRO CYBER STYLE)
+================================ */
 .navbar {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 14px 30px;
-  background-color: #2563eb;
-  color: white;
+
+  padding: 16px 32px;
+
+  backdrop-filter: blur(14px);
+  background: linear-gradient(
+    180deg,
+    rgba(2, 6, 23, 0.9),
+    rgba(2, 6, 23, 0.75)
+  );
+
+  border-bottom: 1px solid rgba(59, 130, 246, 0.25);
 }
 
-.navbar-left {
-  display: flex;
-  align-items: center;
+/* Light theme navbar */
+body[data-theme="light"] .navbar {
+  background: linear-gradient(
+    180deg,
+    #ffffff,
+    #f8fafc
+  );
+  border-bottom: 1px solid var(--border-color);
 }
 
+/* ================================
+   NAVBAR BRAND
+================================ */
 .navbar-logo {
-  margin: 0;
-  font-size: 22px;
-  font-weight: bold;
+  font-size: 1.5rem;
+  font-weight: 800;
+  letter-spacing: 0.6px;
 }
 
+/* ================================
+   NAVBAR LINKS
+================================ */
 .navbar-right {
   display: flex;
   align-items: center;
-  gap: 20px;
 }
 
 .navbar-right a {
-  color: white;
-  text-decoration: none;
-  font-weight: 600;
+  margin-right: 18px;
+  font-weight: 500;
+  color: var(--text-color);
+  position: relative;
 }
 
-.navbar-right a:hover {
-  text-decoration: underline;
+/* underline hover – subtle & pro */
+.navbar-right a::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -6px;
+  width: 0%;
+  height: 2px;
+  background: var(--primary);
+  transition: width 0.25s ease;
 }
 
-/* Theme button */
+.navbar-right a:hover::after {
+  width: 100%;
+}
+
+/* ================================
+   THEME TOGGLE BUTTON
+================================ */
 .theme-btn {
+  margin-left: 12px;
   padding: 6px 14px;
-  border-radius: 6px;
-  border: none;
-  cursor: pointer;
-  font-weight: 600;
+
+  border-radius: 10px;
+  border: 1px solid var(--border-color);
+
+  background-color: var(--card-bg);
+  color: var(--text-color);
+
+  font-weight: 500;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
 }
 
-/* =========================
-   DARK MODE NAVBAR
-========================= */
-body.dark .navbar {
-  background-color: #1e3a8a;
-}
-
-body.dark .navbar-right a {
-  color: #e5e7eb;
-}
-
-body.dark .theme-btn {
-  background-color: #334155;
-  color: #e5e7eb;
-}
-
-/* =========================
-   🔹 REQUIRED ADDITIONS (DO NOT DELETE)
-========================= */
-
-/* Light mode theme button visibility */
-.theme-btn {
-  background-color: #ffffff;
-  color: #111827;
-}
-
-/* Hover effects */
 .theme-btn:hover {
-  opacity: 0.9;
-}
-
-/* Ensure links don’t stack */
-.navbar a {
-  display: inline-block;
-}
-
-/* =========================
-   DASHBOARD
-========================= */
-.dashboard-container {
-  max-width: 1200px;
-  margin: auto;
-}
-
-.dashboard-header h1 {
-  margin-bottom: 8px;
-}
-
-.dashboard-header p {
-  color: #555;
-}
-
-body.dark .dashboard-header p {
-  color: #cbd5f5;
-}
-
-/* =========================
-   METRIC CARDS
-========================= */
-.metric-card {
-  padding: 20px;
-  min-width: 180px;
-  text-align: center;
-  border-radius: 10px;
-  border: 1px solid #e5e7eb;
-  background-color: #ffffff;
-  color: #111827;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-}
-
-body.dark .metric-card {
-  background-color: #1f2933;
-  color: #e5e7eb;
-  border-color: #374151;
-}
-
-.metric-title {
-  margin-bottom: 8px;
-}
-
-.metric-value {
-  margin: 0;
-  font-size: 24px;
-}
-
-.metric-icon {
-  font-size: 24px;
-  margin-bottom: 8px;
-}
-
-/* =========================
-   CARDS (Honeypot / Network)
-========================= */
-.card {
-  background-color: #ffffff;
-  color: #111827;
-  padding: 16px;
-  border-radius: 10px;
-  border: 1px solid #e5e7eb;
-}
-
-body.dark .card {
-  background-color: #1f2933;
-  color: #e5e7eb;
-  border: 1px solid #374151;
-}
-
-/* Active / inactive */
-.card.active {
-  border-left: 5px solid #22c55e;
-}
-
-.card.inactive {
-  border-left: 5px solid #ef4444;
-}
-
-/* =========================
-   ERROR TEXT
-========================= */
-.error {
-  color: #dc2626;
-}
-
-body.dark .error {
-  color: #f87171;
+  border-color: var(--primary);
 }
