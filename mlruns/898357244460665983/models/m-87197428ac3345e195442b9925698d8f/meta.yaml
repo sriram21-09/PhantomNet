@@ -1,0 +1,10 @@
+artifact_location: file:///C:\Users\vivekananda reddy\PhantomNet\mlruns/898357244460665983/models/m-87197428ac3345e195442b9925698d8f/artifacts
+creation_timestamp: 1770202728436
+experiment_id: '898357244460665983'
+last_updated_timestamp: 1770202735143
+model_id: m-87197428ac3345e195442b9925698d8f
+model_type: null
+name: model
+source_run_id: 4893607343b642a09a8bda7b12040c2a
+status: 2
+status_message: null

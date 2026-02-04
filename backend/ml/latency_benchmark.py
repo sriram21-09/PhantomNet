@@ -4,6 +4,9 @@ import numpy as np
 import pandas as pd
 import mlflow
 import mlflow.sklearn
+from config.mlflow_env import *
+
+
 
 # ======================
 # PATH & MLFLOW SETUP

@@ -2,6 +2,8 @@ import time
 import os
 import pandas as pd
 from sklearn.ensemble import RandomForestClassifier
+from config.mlflow_env import *
+
 
 from training_framework import TrainingFramework
 from evaluation import evaluate_classification

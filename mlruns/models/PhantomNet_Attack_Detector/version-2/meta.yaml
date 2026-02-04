@@ -1,0 +1,15 @@
+creation_timestamp: 1770201646303
+current_stage: Staging
+deployment_job_state: null
+description: null
+last_updated_timestamp: 1770201672636
+model_id: m-3df463c95bca44f5b560e72d3f9b7e2d
+name: PhantomNet_Attack_Detector
+run_id: d7213ba1ce9c45ce9fa79952b1f48074
+run_link: null
+source: models:/m-3df463c95bca44f5b560e72d3f9b7e2d
+status: READY
+status_message: null
+storage_location: file:///C:\Users\vivekananda reddy\PhantomNet\mlruns/898357244460665983/models/m-3df463c95bca44f5b560e72d3f9b7e2d/artifacts
+user_id: null
+version: 2
