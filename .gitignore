@@ -47,3 +47,8 @@ week6_day4_pipeline_events.csv
 # Environment files
 .env
 *.env
+
+# Data / generated artifacts
+data/*.csv
+data/*.json
+data/*.jsonl
