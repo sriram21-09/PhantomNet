@@ -1,16 +1,7 @@
-// src/components/MetricCard.jsx
-
-const MetricCard = ({
-  title = "Metric",
-  value = "--",
-  icon = null
-}) => {
+const MetricCard = ({ title, value, variant = "blue" }) => {
   return (
-    <div className="metric-card card">
-      {/* Optional Icon */}
-      {icon && <div className="metric-icon">{icon}</div>}
-
-      <h3 className="metric-title">{title}</h3>
+    <div className={`metric-card metric-${variant}`}>
+      <p className="metric-title">{title}</p>
       <h2 className="metric-value">{value}</h2>
     </div>
   );

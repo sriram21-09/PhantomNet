@@ -1,65 +1,89 @@
-.light {
-  background-color: #ffffff;
-  color: #000000;
+/* ================================
+   GLOBAL RESET & BASE
+================================ */
+* {
+  box-sizing: border-box;
 }
 
-.dark {
-  background-color: #121212;
-  color: #ffffff;
-}
-
-.dark table {
-  background-color: #1e1e1e;
-}
-
-.dark th {
-  background-color: #0f172a;
-}
-
-.dark td {
-  border-color: #333;
-}
-
-/* LIGHT THEME (DEFAULT) */
 body {
   margin: 0;
-  font-family: Arial, sans-serif;
-  background-color: #f5f5f5;
-  color: #000;
+  font-family: "Inter", Arial, sans-serif;
+  background: var(--bg-color);
+  color: var(--text-color);
+  transition: background 0.35s ease, color 0.35s ease;
 }
 
-/* DARK THEME */
-body[data-theme="dark"] {
-  background-color: #0f172a;
-  color: #e5e7eb;
-}
-
-body[data-theme="dark"] {
-  background-color: #121212;
-  color: #e0e0e0;
-}
-
-body[data-theme="dark"] .page-container {
-  background-color: #1e1e1e;
-  color: #ffffff;
-}
-
-body[data-theme="dark"] table {
-  background-color: #1e1e1e;
-  color: #ffffff;
-}
+/* ================================
+   THEME VARIABLES
+================================ */
 :root {
-  --bg-color: #ffffff;
+  /* Light theme */
+  --bg-color: linear-gradient(
+    180deg,
+    #eef3fb 0%,
+    #f8fafc 35%,
+    #f8fafc 100%
+  );
+
   --card-bg: #ffffff;
-  --text-color: #111827;
-  --muted-text: #4b5563;
-  --border-color: #e5e7eb;
+  --text-color: #0f172a;
+
+  /* 🔥 Indigo-blue instead of grey */
+  --muted-text: #5b6f95;
+
+  --border-color: #dbe3f1;
+
+  --primary: #2563eb;
+  --primary-hover: #1d4ed8;
 }
 
-[data-theme="dark"] {
-  --bg-color: #0f172a;
-  --card-bg: #020617;
+/* ================================
+   DARK THEME
+================================ */
+body[data-theme="dark"] {
+  --bg-color: radial-gradient(circle at top, #0f172a 0%, #020617 70%);
+  --card-bg: rgba(15, 23, 42, 0.9);
   --text-color: #e5e7eb;
-  --muted-text: #9ca3af;
-  --border-color: #1f2933;
+
+  /* 🔥 Indigo-blue for dark */
+  --muted-text: #9fb3d9;
+
+  --border-color: #1f2a44;
+
+  --primary: #3b82f6;
+  --primary-hover: #2563eb;
+}
+
+/* ================================
+   COMMON HELPERS
+================================ */
+.text-muted,
+.muted-text {
+  color: var(--muted-text);
+}
+
+.error-text {
+  color: #ef4444;
+  font-weight: 600;
+}
+/* ===== NAVBAR LINK FIX (REMOVE UNDERLINES) ===== */
+.navbar a {
+  text-decoration: none !important;
+  border-bottom: none !important;
+  color: var(--muted-text);
+  font-weight: 600;
+}
+
+.navbar a:hover {
+  text-decoration: none !important;
+  color: var(--primary);
+}
+/* ===== FIX WHITE BACKGROUND GAP BETWEEN SECTIONS ===== */
+.dashboard-container {
+  background: var(--bg-color);
+}
+
+/* Ensure sections inherit gradient, not white */
+.dashboard-container > * {
+  background-color: transparent;
 }

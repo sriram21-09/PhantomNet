@@ -1,0 +1,89 @@
+/* ===== NETWORK SECTION ===== */
+.network-section {
+  margin-top: 48px;
+}
+
+/* ===== GRID ===== */
+.network-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: 22px;
+  margin-top: 16px;
+}
+
+/* ===== NODE CARD ===== */
+.network-node {
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 18px;
+  padding: 18px;
+  box-shadow: 0 8px 22px rgba(37, 99, 235, 0.08);
+  transition: transform 0.25s ease, border-color 0.25s ease;
+}
+
+.network-node:hover {
+  transform: translateY(-4px);
+  border-color: var(--primary);
+}
+
+/* ===== HEADER (ICON + STATUS) ===== */
+.node-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+/* ICON */
+.node-icon {
+  font-size: 1.2rem;
+  color: var(--primary);
+}
+
+/* STATUS DOT */
+.node-status {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+
+/* STATUS COLORS */
+.node-status.active {
+  background-color: #22c55e;
+}
+
+.node-status.idle {
+  background-color: #f59e0b;
+}
+
+/* PULSE EFFECT (HONEYPOTS) */
+.node-status.pulse {
+  box-shadow: 0 0 0 rgba(34, 197, 94, 0.7);
+  animation: pulse 1.8s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.6);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(34, 197, 94, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(34, 197, 94, 0);
+  }
+}
+
+/* ===== TEXT ===== */
+.network-node h4 {
+  margin: 0 0 8px;
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: var(--text-primary);
+}
+
+.network-node p {
+  margin: 4px 0;
+  font-size: 0.85rem;
+  color: var(--muted-text);
+}

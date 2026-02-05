@@ -8,13 +8,9 @@ const ThemeProvider = ({ children }) => {
     setTheme((prev) => (prev === "dark" ? "light" : "dark"));
   };
 
-  // 🔑 THIS IS THE KEY FIX
+  // ✅ Correct way: sync theme with CSS variables
   useEffect(() => {
-    if (theme === "dark") {
-      document.body.classList.add("dark");
-    } else {
-      document.body.classList.remove("dark");
-    }
+    document.body.setAttribute("data-theme", theme);
   }, [theme]);
 
   return (
