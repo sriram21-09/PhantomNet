@@ -1,5 +1,7 @@
 from ml.anomaly_detector import AnomalyDetector
 from ml.signatures import SignatureEngine
+
+
 class ThreatCorrelator:
     def __init__(self):
         self.ai_brain = AnomalyDetector()
