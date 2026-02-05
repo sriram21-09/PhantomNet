@@ -1,0 +1,15 @@
+.ml-dashboard {
+  padding: 20px;
+}
+
+.ml-metrics {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 16px;
+}
+
+.metric-card {
+  padding: 12px;
+  border-radius: 8px;
+  background-color: var(--card-bg);
+}

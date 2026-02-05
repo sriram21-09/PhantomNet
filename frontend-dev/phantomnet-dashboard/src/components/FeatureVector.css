@@ -6,6 +6,11 @@
   border: 1px solid var(--border-color);
 }
 
+/* ✅ RESPONSIVE SAFETY ADDITION */
+.feature-vector-container {
+  overflow-x: auto;
+}
+
 .feature-vector-container h2 {
   margin-bottom: 6px;
   color: var(--text-color);
@@ -16,11 +21,13 @@
   margin-bottom: 16px;
 }
 
-/* Table */
+/* ================= TABLE ================= */
+
 .feature-vector-table {
   width: 100%;
   border-collapse: collapse;
   margin-top: 16px;
+  min-width: 700px; /* ✅ prevents column squish */
 }
 
 .feature-vector-table th {

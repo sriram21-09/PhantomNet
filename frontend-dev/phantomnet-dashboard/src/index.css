@@ -6,8 +6,8 @@ html, body, #root {
 
 /* Light theme (default) */
 body {
-  background-color: #f5f5f5;
-  color: #000;
+  background-color: #f5f7fb; /* slightly cooler blue-grey */
+  color: #0f172a;
 }
 
 /* Dark theme */
@@ -52,8 +52,8 @@ body[data-theme="dark"] select {
 
 /* THEME COLORS */
 body[data-theme="light"] {
-  background-color: #f5f7fb;
-  color: #000;
+  background-color: #f5f7fb; /* indigo-tinted light */
+  color: #0f172a;
 }
 
 body[data-theme="dark"] {
@@ -70,16 +70,17 @@ body[data-theme="dark"] table {
 body[data-theme="dark"] th {
   background-color: #020617;
 }
+
 /* =========================
    LIGHT THEME VARIABLES
 ========================= */
 .light {
   --card-bg: #ffffff;
-  --text-primary: #111827;
-  --text-secondary: #4b5563;
-  --border-color: #e5e7eb;
-  --table-header-bg: #f3f4f6;
-  --table-row-alt: #f9fafb;
+  --text-primary: #0f172a;        /* deep indigo */
+  --text-secondary: #5b6f95;      /* indigo-blue muted text */
+  --border-color: #dbe3f1;        /* soft blue border */
+  --table-header-bg: #eef2ff;     /* indigo tint */
+  --table-row-alt: #f5f7ff;       /* very light indigo */
 }
 
 /* =========================
@@ -87,9 +88,49 @@ body[data-theme="dark"] th {
 ========================= */
 .dark {
   --card-bg: #0f172a;
-  --text-primary: #f9fafb;
-  --text-secondary: #9ca3af;
-  --border-color: #334155;
+  --text-primary: #f8fafc;
+  --text-secondary: #9fb3d9;      /* soft cyber blue */
+  --border-color: #1f2a44;        /* indigo border */
   --table-header-bg: #1e293b;
   --table-row-alt: #020617;
+}
+
+.page-container {
+  min-height: 100vh;
+  width: 100%;
+  background: var(--bg-color);
+  color: var(--text-color);
+}
+
+.page-container h1 {
+  margin-bottom: 10px;
+}
+
+/* 🔵 CHANGED from dull grey to indigo-blue */
+.page-container p {
+  color: #5b6f95; /* readable indigo-muted */
+}
+
+/* =========================
+   FEATURE ANALYSIS SLOT (DASHBOARD)
+========================= */
+.feature-analysis-card {
+  background-color: var(--card-bg);
+  color: var(--text-primary);
+  padding: 20px;
+  border-radius: 10px;
+  min-width: 220px;
+  box-shadow: 0 4px 10px rgba(37, 99, 235, 0.15); /* subtle blue glow */
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.feature-analysis-card h3 {
+  margin-top: 0;
+  color: var(--text-primary);
+}
+
+/* 🔵 CHANGED from grey to indigo-muted */
+.feature-analysis-card p {
+  font-size: 14px;
+  color: var(--text-secondary);
 }

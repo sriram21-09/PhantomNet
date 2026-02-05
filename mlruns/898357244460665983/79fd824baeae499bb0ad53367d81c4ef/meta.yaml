@@ -1,0 +1,14 @@
+artifact_uri: file:///C:\Users\vivekananda reddy\PhantomNet\mlruns/898357244460665983/79fd824baeae499bb0ad53367d81c4ef/artifacts
+end_time: 1770204482062
+entry_point_name: ''
+experiment_id: '898357244460665983'
+lifecycle_stage: active
+run_id: 79fd824baeae499bb0ad53367d81c4ef
+run_name: binary_attack_random_forest
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1770204476769
+status: 3
+tags: []
+user_id: vivekananda reddy

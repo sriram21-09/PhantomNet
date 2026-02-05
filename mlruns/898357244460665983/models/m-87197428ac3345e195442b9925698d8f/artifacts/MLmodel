@@ -1,0 +1,23 @@
+artifact_path: file:///C:\Users\vivekananda reddy\PhantomNet\mlruns/898357244460665983/models/m-87197428ac3345e195442b9925698d8f/artifacts
+flavors:
+  python_function:
+    env:
+      conda: conda.yaml
+      virtualenv: python_env.yaml
+    loader_module: mlflow.sklearn
+    model_path: model.pkl
+    predict_fn: predict
+    python_version: 3.13.5
+  sklearn:
+    code: null
+    pickled_model: model.pkl
+    serialization_format: cloudpickle
+    sklearn_version: 1.8.0
+    skops_trusted_types: null
+mlflow_version: 3.9.0
+model_id: m-87197428ac3345e195442b9925698d8f
+model_size_bytes: 540043
+model_uuid: m-87197428ac3345e195442b9925698d8f
+prompts: null
+run_id: 4893607343b642a09a8bda7b12040c2a
+utc_time_created: '2026-02-04 10:58:48.498158'
