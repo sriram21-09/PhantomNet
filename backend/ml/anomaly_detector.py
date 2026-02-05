@@ -5,7 +5,6 @@ import time
 from sklearn.ensemble import IsolationForest
 from ml.feature_extractor import FeatureExtractor
 
-
 # Path to save the trained model
 MODEL_PATH = "backend/ml/model.pkl"
 
@@ -87,8 +86,3 @@ class AnomalyDetector:
             self.is_trained = True
             return True
         return False
-    def save(self):
-        """Persist trained model to disk."""
-        if not self.is_trained:
-            raise RuntimeError("Model is not trained. Cannot save.")
-        joblib.dump(self.model, MODEL_PATH)

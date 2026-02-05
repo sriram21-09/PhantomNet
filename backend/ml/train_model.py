@@ -1,80 +1,61 @@
-import logging
-import os
 import pandas as pd
-import numpy as np
+import pickle
+import os
+import sys
 
-from dotenv import load_dotenv
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from backend.app_models import PacketLog
-from backend.ml.feature_extractor import FeatureExtractor
-from backend.ml.anomaly_detector import AnomalyDetector
+from database.database import SessionLocal
+from database.models import AttackSession
+from ml.feature_extractor import FeatureExtractor
+from sklearn.ensemble import RandomForestClassifier
 
-# --------------------------------------------------
-# ENV + LOGGING
-# --------------------------------------------------
-load_dotenv()
-
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger("PhantomNet-ML")
-
-DATABASE_URL = os.getenv("DATABASE_URL") or "sqlite:///./phantomnet.db"
-
-# --------------------------------------------------
-# DATABASE
-# --------------------------------------------------
-engine = create_engine(
-    DATABASE_URL,
-    connect_args={"check_same_thread": False} if "sqlite" in DATABASE_URL else {}
-)
-SessionLocal = sessionmaker(bind=engine)
-
-# --------------------------------------------------
-# TRAINING PIPELINE
-# --------------------------------------------------
-def main():
-    logger.info("🔌 Attempting connection to Database...")
+def train_model():
+    print("🔌 Connecting to Database...")
     db = SessionLocal()
-    logger.info("✅ Database Connection ESTABLISHED.")
+    extractor = FeatureExtractor(db)
+    
+    sessions = db.query(AttackSession).all()
+    print(f"📊 Found {len(sessions)} sessions in database.")
 
-    logs = (
-        db.query(PacketLog)
-        .order_by(PacketLog.timestamp.desc())
-        .limit(300)
-        .all()
-    )
-
-    if len(logs) < 300:
-        logger.error(f"❌ Only {len(logs)} logs found. Need at least 300.")
+    if len(sessions) < 5:
+        print("❌ Not enough data! Run 'python scripts/seed_data.py' first.")
         return
 
-    extractor = FeatureExtractor()
-    detector = AnomalyDetector()
+    training_data = []
+    labels = []
 
-    X = []
-    for log in logs:
-        log_entry = {
-            "src_ip": log.src_ip,
-            "dst_ip": log.dst_ip,
-            "protocol": log.protocol,
-            "packet_length": log.length,
-            "timestamp": log.timestamp
-        }
-        features = extractor.extract_features(log_entry)
-        X.append(list(features.values()))
+    print("🧠 Extracting features...")
+    for session in sessions:
+        features = extractor.extract_features(session.id)
+        
+        training_data.append([
+            features["duration_seconds"],
+            features["event_count"],
+            features["unique_ports"],
+            features["events_per_second"]
+        ])
 
-    X = np.array(X, dtype=float)
+        if features["events_per_second"] > 1.0 or features["unique_ports"] > 2:
+            labels.append(1) 
+        else:
+            labels.append(0) 
 
-    logger.info(f"🧠 Training IsolationForest on {X.shape[0]} samples ({X.shape[1]} features)")
-    detector.model.fit(X)
-    detector.is_trained = True
+    X = pd.DataFrame(training_data, columns=["duration", "event_count", "unique_ports", "eps"])
+    y = labels
 
-    detector.save()
-    logger.info("✅ Model trained and saved successfully")
+    print(f"🤖 Training Random Forest on {len(X)} records...")
+    model = RandomForestClassifier(n_estimators=50)
+    model.fit(X, y)
 
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    model_path = os.path.join(current_dir, "threat_model.pkl")
+
+    with open(model_path, "wb") as f:
+        pickle.dump(model, f)
+
+    print(f"✅ Model Retrained & Saved at: {model_path}")
     db.close()
 
-
 if __name__ == "__main__":
-    main()
+    train_model()
