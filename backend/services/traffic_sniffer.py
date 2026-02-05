@@ -6,6 +6,8 @@ from db_core import SessionLocal
 from app_models import PacketLog
 
 # ✅ WEEK 6 ML PIPELINE
+from ml.feature_extractor import FeatureExtractor
+from ml.anomaly_detector import AnomalyDetector
 from ml.threat_correlation import ThreatCorrelator
 
 
