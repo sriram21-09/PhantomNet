@@ -1,0 +1,46 @@
+name: PhantomNet ML CI
+
+on:
+  push:
+    branches: [ "main", "develop" ]
+  pull_request:
+    branches: [ "main", "develop" ]
+
+jobs:
+  ml-tests:
+    name: Run ML Unit & Integration Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y sqlite3
+
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Set MLflow environment
+        run: |
+          echo "MLFLOW_TRACKING_URI=./mlruns" >> $GITHUB_ENV
+          echo "MLFLOW_REGISTRY_URI=./mlruns" >> $GITHUB_ENV
+
+      - name: Run ML tests
+        run: |
+          cd backend/ml
+          pytest -v
+
+      - name: Run ML pipeline integration tests
+        run: |
+          cd backend/tests/ml
+          pytest -v
