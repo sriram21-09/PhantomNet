@@ -8,9 +8,10 @@ from datetime import datetime, timedelta
 # --------------------------------------------------
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 PROJECT_ROOT = os.path.abspath(os.path.join(SCRIPT_DIR, "..", ".."))
+BACKEND_ROOT = os.path.abspath(os.path.join(SCRIPT_DIR, ".."))
 
-if PROJECT_ROOT not in sys.path:
-    sys.path.insert(0, PROJECT_ROOT)
+if BACKEND_ROOT not in sys.path:
+    sys.path.insert(0, BACKEND_ROOT)
 
 # --------------------------------------------------
 # CI DETECTION
@@ -20,12 +21,12 @@ IS_CI = os.getenv("CI", "false").lower() == "true"
 # --------------------------------------------------
 # IMPORTS
 # --------------------------------------------------
-from backend.ml.train_model import train_model
+from ml.train_model import train_model
 
 if not IS_CI:
     # Only import DB stuff when NOT in CI
-    from backend.database.database import SessionLocal, engine, Base
-    from backend.database.models import AttackSession, Event
+    from database.database import SessionLocal, engine, Base
+    from database.models import AttackSession, Event
 
 # --------------------------------------------------
 # SEED + TRAIN
