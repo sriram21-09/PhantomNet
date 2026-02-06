@@ -23,7 +23,7 @@ PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..
 if PROJECT_ROOT not in sys.path:
     sys.path.insert(0, PROJECT_ROOT)
 
-from backend.ml.feature_extractor import FeatureExtractor
+from backend.ml.feature_extractor_v2 import FeatureExtractor
 
 # --------------------------------------------------
 # Input / Output paths
