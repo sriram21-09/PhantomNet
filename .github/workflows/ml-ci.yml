@@ -57,6 +57,13 @@ jobs:
           echo "MLFLOW_REGISTRY_URI=file://$GITHUB_WORKSPACE/mlruns" >> $GITHUB_ENV
 
       # --------------------------------------------------
+      # 🔥 RESET MLFLOW STATE (MUST BE BEFORE TRAINING)
+      # --------------------------------------------------
+      - name: Reset MLflow state (CI only)
+        run: |
+          rm -rf mlruns
+
+      # --------------------------------------------------
       # REQUIRED DATA FOR CI (INPUT TO FEATURE PIPELINE)
       # --------------------------------------------------
       - name: Prepare Week 6 mixed events dataset (CI stub)
