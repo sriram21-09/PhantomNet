@@ -23,18 +23,46 @@ IS_CI = os.getenv("CI", "false").lower() == "true"
 # --------------------------------------------------
 from ml.train_model import train_model
 
-if not IS_CI:
-    # Only import DB stuff when NOT in CI
-    from database.database import SessionLocal, engine, Base
-    from database.models import AttackSession, Event
+# Only import DB stuff when NOT in CI
+from database.database import SessionLocal, engine, Base
+from database.models import AttackSession, Event
 
 # --------------------------------------------------
 # SEED + TRAIN
 # --------------------------------------------------
 def force_seed_and_train():
     if IS_CI:
-        print("⚠️ CI detected — skipping PostgreSQL seeding")
-        print("🧠 Running ML training only...")
+        print("⚠️ CI detected — creating tables but skipping extensive seeding")
+        # Start fresh in CI
+        Base.metadata.drop_all(bind=engine)
+        Base.metadata.create_all(bind=engine)
+        
+        # Seed minimal data to allow training to run (needs >= 5 sessions)
+        db = SessionLocal()
+        print("🌱 Seeding minimal CI data...")
+        for _ in range(6):
+            session = AttackSession(
+                attacker_ip="127.0.0.1",
+                start_time=datetime.utcnow(),
+                threat_score=5.0,
+            )
+            db.add(session)
+            db.commit()
+            db.refresh(session)
+            # Add at least one event
+            event = Event(
+                session_id=session.id,
+                source_ip="127.0.0.1",
+                src_port=80,
+                honeypot_type="http",
+                raw_data="CI data",
+                timestamp=datetime.utcnow()
+            )
+            db.add(event)
+        db.commit()
+        db.close()
+            
+        print("🧠 Running ML training...")
         train_model()
         return
 
