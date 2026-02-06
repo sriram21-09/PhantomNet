@@ -49,7 +49,7 @@ jobs:
           python -m pip list
 
       # --------------------------------------------------
-      # MLflow configuration (local, CI-safe)
+      # MLflow configuration (CI-safe)
       # --------------------------------------------------
       - name: Set MLflow environment
         run: |
@@ -57,7 +57,7 @@ jobs:
           echo "MLFLOW_REGISTRY_URI=file://$GITHUB_WORKSPACE/mlruns" >> $GITHUB_ENV
 
       # --------------------------------------------------
-      # REQUIRED DATA FOR CI (prevents FileNotFoundError)
+      # REQUIRED DATA FOR CI (INPUT TO FEATURE PIPELINE)
       # --------------------------------------------------
       - name: Prepare Week 6 mixed events dataset (CI stub)
         run: |
@@ -65,7 +65,16 @@ jobs:
           echo "length,threat_score,is_malicious,attack_type,timestamp,src_ip,dst_ip,dst_port,protocol,honeypot_type" > data/week6_mixed_events.csv
 
       # --------------------------------------------------
-      # TRAINING PIPELINE (MANDATORY FOR CI)
+      # REQUIRED DATA FOR TRAINING SCRIPT
+      # --------------------------------------------------
+      - name: Prepare Week 6 training events dataset (CI stub)
+        run: |
+          mkdir -p data
+          echo "event,data" > data/week6_test_events.csv
+          echo "login_failed,test_payload" >> data/week6_test_events.csv
+
+      # --------------------------------------------------
+      # TRAINING PIPELINE
       # --------------------------------------------------
       - name: Regenerate training dataset
         run: |
