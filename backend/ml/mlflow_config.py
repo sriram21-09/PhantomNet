@@ -1,62 +1,40 @@
-import os
 import mlflow
 import mlflow.sklearn
 from contextlib import contextmanager
+from config.mlflow_env import TRACKING_URI, MODEL_NAME, DEFAULT_STAGE
 
-# ==================================================
-# MLFLOW CONFIG (CI + LOCAL SAFE)
-# ==================================================
-
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-PROJECT_ROOT = os.path.abspath(os.path.join(BASE_DIR, "..", ".."))
-
-MLRUNS_DIR = os.path.join(PROJECT_ROOT, "mlruns")
-os.makedirs(MLRUNS_DIR, exist_ok=True)
-
-TRACKING_URI = f"file://{MLRUNS_DIR}"
-
-mlflow.set_tracking_uri(TRACKING_URI)
-mlflow.set_registry_uri(TRACKING_URI)
-
-EXPERIMENT_NAME = "PhantomNet-ML"
+# --------------------------------------------------
+# DO NOT compute paths here
+# --------------------------------------------------
 
 def setup_mlflow():
-    """
-    Idempotent MLflow setup.
-    Safe to call multiple times.
-    """
     mlflow.set_tracking_uri(TRACKING_URI)
-    mlflow.set_registry_uri(TRACKING_URI)
-    mlflow.set_experiment(EXPERIMENT_NAME)
-
-# ==================================================
-# RUN CONTEXT
-# ==================================================
+    mlflow.set_experiment("PhantomNet-ML")
 
 @contextmanager
-def start_run(run_name: str | None = None):
+def start_run(run_name=None):
     with mlflow.start_run(run_name=run_name):
         yield
 
-# ==================================================
-# LOGGING HELPERS
-# ==================================================
-
 def log_params(params: dict):
-    for key, value in params.items():
-        mlflow.log_param(key, value)
+    for k, v in params.items():
+        mlflow.log_param(k, v)
 
 def log_metrics(metrics: dict):
-    for key, value in metrics.items():
-        mlflow.log_metric(key, value)
+    for k, v in metrics.items():
+        mlflow.log_metric(k, v)
 
-def log_model(model):
-    """
-    Logs model AND makes it registrable.
-    """
-    mlflow.sklearn.log_model(
-        sk_model=model,
-        artifact_path="model",
-        registered_model_name="PhantomNet_Attack_Detector"
+def log_model(model, model_name=MODEL_NAME, stage=DEFAULT_STAGE):
+    mlflow.sklearn.log_model(model, artifact_path="model")
+
+    result = mlflow.register_model(
+        model_uri="runs:/{}/model".format(mlflow.active_run().info.run_id),
+        name=model_name
     )
 
+    client = mlflow.tracking.MlflowClient()
+    client.transition_model_version_stage(
+        name=model_name,
+        version=result.version,
+        stage=stage
+    )

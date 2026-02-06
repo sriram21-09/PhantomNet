@@ -4,27 +4,14 @@ import traceback
 import pandas as pd
 from sklearn.ensemble import RandomForestClassifier
 
-# --------------------------------------------------
-# FORCE MLflow config FIRST (CRITICAL)
-# --------------------------------------------------
-from config.mlflow_env import TRACKING_URI
+from config.mlflow_env import TRACKING_URI, MODEL_NAME, DEFAULT_STAGE
 import mlflow
-
 mlflow.set_tracking_uri(TRACKING_URI)
 mlflow.set_registry_uri(TRACKING_URI)
 
-# --------------------------------------------------
-# Internal imports
-# --------------------------------------------------
 from training_framework import TrainingFramework
 from evaluation import evaluate_classification
-from mlflow_config import (
-    setup_mlflow,
-    start_run,
-    log_params,
-    log_metrics,
-    log_model
-)
+from mlflow_config import setup_mlflow, start_run, log_params, log_metrics, log_model
 
 # --------------------------------------------------
 # PATH SETUP
@@ -38,17 +25,13 @@ POSSIBLE_FILES = [
     "week6_test_events.csv"
 ]
 
-CSV_PATH = None
-for fname in POSSIBLE_FILES:
-    path = os.path.join(DATA_DIR, fname)
-    if os.path.exists(path):
-        CSV_PATH = path
-        break
+CSV_PATH = next(
+    (os.path.join(DATA_DIR, f) for f in POSSIBLE_FILES if os.path.exists(os.path.join(DATA_DIR, f))),
+    None
+)
 
 if CSV_PATH is None:
-    raise FileNotFoundError(
-        f"No valid Week 6 CSV found in {DATA_DIR}"
-    )
+    raise FileNotFoundError(f"No valid Week 6 CSV found in {DATA_DIR}")
 
 # --------------------------------------------------
 # CONFIG
@@ -63,7 +46,7 @@ ATTACK_EVENTS = {
     "connect",
     "mail_from",
     "rcpt_to",
-    "data",
+    "data"
 }
 
 # --------------------------------------------------
@@ -71,18 +54,12 @@ ATTACK_EVENTS = {
 # --------------------------------------------------
 def main():
     try:
-        print("[ML] Loading dataset...")
-        print(f"[ML] Dataset path: {CSV_PATH}")
+        print("[ML] Loading dataset:", CSV_PATH)
         df = pd.read_csv(CSV_PATH)
 
-        # ------------------------------
-        # Feature engineering
-        # ------------------------------
         if "payload_length" not in df.columns:
-            print("[ML] Computing payload_length feature...")
             df["payload_length"] = df["data"].astype(str).apply(len)
 
-        print("[ML] Creating binary attack label...")
         df["is_attack"] = df["event"].apply(
             lambda x: 1 if str(x).lower() in ATTACK_EVENTS else 0
         )
@@ -90,10 +67,6 @@ def main():
         print("[ML] Label distribution:")
         print(df["is_attack"].value_counts())
 
-        # ------------------------------
-        # MLflow + model
-        # ------------------------------
-        print("[ML] Setting up MLflow...")
         setup_mlflow()
 
         model = RandomForestClassifier(
@@ -118,31 +91,17 @@ def main():
             log_params({
                 "model": "RandomForest",
                 "n_estimators": 200,
-                "features": FEATURE_COLUMNS,
-                "label": LABEL_COLUMN
             })
 
             log_metrics(metrics)
-
-            # IMPORTANT: log_model only takes model
             log_model(result["model"])
 
-            print("[ML] Training complete")
-            print("[ML] Metrics:", metrics)
-
-            # ------------------------------
-            # Inference latency
-            # ------------------------------
-            start = time.time()
-            _ = result["model"].predict(result["X_test"])
-            latency_ms = (time.time() - start) * 1000
-            print(f"[ML] Inference latency: {latency_ms:.2f} ms")
+            print("[ML] Training complete:", metrics)
 
     except Exception as e:
-        print("[ML] ERROR during training:", e)
+        print("[ML] ERROR:", e)
         traceback.print_exc()
         raise
-
 
 if __name__ == "__main__":
     main()
