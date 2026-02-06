@@ -3,51 +3,67 @@ import os
 import random
 from datetime import datetime, timedelta
 
-# Add backend to path
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+# --------------------------------------------------
+# PATH FIX (CRITICAL FOR CI)
+# --------------------------------------------------
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+BACKEND_DIR = os.path.abspath(os.path.join(SCRIPT_DIR, ".."))
+PROJECT_ROOT = os.path.abspath(os.path.join(BACKEND_DIR, ".."))
 
+# Ensure backend is importable
+if BACKEND_DIR not in sys.path:
+    sys.path.insert(0, BACKEND_DIR)
+
+# --------------------------------------------------
+# Imports (now safe)
+# --------------------------------------------------
 from database.database import SessionLocal, engine, Base
 from database.models import AttackSession, Event
 from ml.train_model import train_model
 
+# --------------------------------------------------
+# SEED + TRAIN
+# --------------------------------------------------
 def force_seed_and_train():
     print("🧹 Cleaning Database...")
     Base.metadata.drop_all(bind=engine)
     Base.metadata.create_all(bind=engine)
-    
-    db = SessionLocal()
-    print("🌱 Injecting 50 Fake Hackers directly into SQL...")
 
-    for i in range(50):
-        # 1. Create a Fake Session
-        attacker_ip = f"{random.randint(1, 255)}.{random.randint(1, 255)}.{random.randint(1, 255)}.{random.randint(1, 255)}"
-        
+    db = SessionLocal()
+    print("🌱 Injecting synthetic attack sessions...")
+
+    for _ in range(50):
+        attacker_ip = ".".join(str(random.randint(1, 255)) for _ in range(4))
+
         session = AttackSession(
             attacker_ip=attacker_ip,
             start_time=datetime.utcnow(),
             threat_score=random.random() * 10
         )
         db.add(session)
-        db.commit() # Save to get the ID
+        db.commit()
+        db.refresh(session)
 
-        # 2. Add some events to this session
         for _ in range(random.randint(5, 20)):
             event = Event(
                 session_id=session.id,
                 source_ip=attacker_ip,
                 src_port=random.randint(1024, 65535),
-                honeypot_type=random.choice(["ssh", "http", "smb"]),
-                raw_data="Direct DB Seed",
-                timestamp=datetime.utcnow() - timedelta(minutes=random.randint(1, 60))
+                honeypot_type=random.choice(["ssh", "http", "ftp", "smtp"]),
+                raw_data="CI synthetic seed",
+                timestamp=datetime.utcnow() - timedelta(
+                    minutes=random.randint(1, 60)
+                )
             )
             db.add(event)
-    
-    db.commit()
-    print("✅ Database successfully seeded with diverse data!")
-    db.close()
 
-    print("\n🧠 Starting Training immediately...")
+    db.commit()
+    db.close()
+    print("✅ Database seeded successfully")
+
+    print("\n🧠 Starting ML training pipeline...")
     train_model()
+
 
 if __name__ == "__main__":
     force_seed_and_train()
