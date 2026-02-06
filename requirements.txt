@@ -29,3 +29,6 @@ python-dateutil>=2.9.0
 pytz>=2024.1
 tzdata>=2024.1
 six>=1.16.0
+
+# Testing
+pytest>=7.0.0
