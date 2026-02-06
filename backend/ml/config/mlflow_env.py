@@ -1,7 +1,19 @@
 import os
 import mlflow
 
-BASE_DIR = os.path.abspath(os.path.join(__file__, "../../../.."))
-MLRUNS_PATH = os.path.join(BASE_DIR, "mlruns")
+# Resolve project root
+PROJECT_ROOT = os.path.abspath(
+    os.path.join(os.path.dirname(__file__), "..", "..")
+)
 
-mlflow.set_tracking_uri(f"file:///{MLRUNS_PATH}")
+# Repo-local mlruns directory
+MLRUNS_DIR = os.path.join(PROJECT_ROOT, "mlruns")
+os.makedirs(MLRUNS_DIR, exist_ok=True)
+
+# Use file:// URI (OS-agnostic, CI-safe)
+TRACKING_URI = f"file://{MLRUNS_DIR}"
+
+mlflow.set_tracking_uri(TRACKING_URI)
+mlflow.set_registry_uri(TRACKING_URI)
+
+MODEL_NAME = "PhantomNet_Attack_Detector"

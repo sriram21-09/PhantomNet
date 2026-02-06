@@ -53,11 +53,19 @@ jobs:
       # --------------------------------------------------
       - name: Set MLflow environment
         run: |
-          echo "MLFLOW_TRACKING_URI=./mlruns" >> $GITHUB_ENV
-          echo "MLFLOW_REGISTRY_URI=./mlruns" >> $GITHUB_ENV
+          echo "MLFLOW_TRACKING_URI=file://$GITHUB_WORKSPACE/mlruns" >> $GITHUB_ENV
+          echo "MLFLOW_REGISTRY_URI=file://$GITHUB_WORKSPACE/mlruns" >> $GITHUB_ENV
 
       # --------------------------------------------------
-      # TRAINING PIPELINE (MANDATORY for CI)
+      # REQUIRED DATA FOR CI (prevents FileNotFoundError)
+      # --------------------------------------------------
+      - name: Prepare Week 6 mixed events dataset (CI stub)
+        run: |
+          mkdir -p data
+          echo "length,threat_score,is_malicious,attack_type,timestamp,src_ip,dst_ip,dst_port,protocol,honeypot_type" > data/week6_mixed_events.csv
+
+      # --------------------------------------------------
+      # TRAINING PIPELINE (MANDATORY FOR CI)
       # --------------------------------------------------
       - name: Regenerate training dataset
         run: |
