@@ -12,35 +12,73 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # --------------------------------------------------
+      # Checkout
+      # --------------------------------------------------
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      # --------------------------------------------------
+      # Python setup
+      # --------------------------------------------------
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.11"
 
+      # --------------------------------------------------
+      # System dependencies (MLflow local backend)
+      # --------------------------------------------------
       - name: Install system dependencies
         run: |
           sudo apt-get update
           sudo apt-get install -y sqlite3
 
+      # --------------------------------------------------
+      # Python dependencies
+      # --------------------------------------------------
       - name: Install Python dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements.txt
+          python -m pip install -r requirements.txt
 
+      - name: Debug installed packages
+        run: |
+          python -V
+          python -m pip --version
+          python -m pip list
+
+      # --------------------------------------------------
+      # MLflow configuration (local, CI-safe)
+      # --------------------------------------------------
       - name: Set MLflow environment
         run: |
           echo "MLFLOW_TRACKING_URI=./mlruns" >> $GITHUB_ENV
           echo "MLFLOW_REGISTRY_URI=./mlruns" >> $GITHUB_ENV
 
-      - name: Run ML tests
+      # --------------------------------------------------
+      # TRAINING PIPELINE (MANDATORY for CI)
+      # --------------------------------------------------
+      - name: Regenerate training dataset
+        run: |
+          python backend/scripts/regenerate_training_dataset.py
+
+      - name: Run training pipeline
+        run: |
+          python backend/scripts/seed_and_train.py
+
+      # --------------------------------------------------
+      # ML UNIT TESTS
+      # --------------------------------------------------
+      - name: Run ML unit tests
         run: |
           cd backend/ml
-          pytest -v
+          python -m pytest -v
 
+      # --------------------------------------------------
+      # ML INTEGRATION TESTS
+      # --------------------------------------------------
       - name: Run ML pipeline integration tests
         run: |
           cd backend/tests/ml
-          pytest -v
+          python -m pytest -v
