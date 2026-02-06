@@ -32,12 +32,21 @@ class TrainingFramework:
         X = df[self.feature_columns]
         y = df[self.label_column]
 
+        if len(df) < 2:
+            # CI edge case: Single sample can't be split
+            print("[ML] WARNING: Dataset too small (n<2). Using same sample for train/test.")
+            X = df[self.feature_columns]
+            y = df[self.label_column]
+            return X, X, y, y
+
+        stratify = y if len(df) >= 10 else None # Avoid stratification for tiny datasets
+        
         return train_test_split(
             X,
             y,
-            test_size=self.test_size,
+            test_size=self.test_size if len(df) > 5 else 0.5, # Ensure at least 1 sample in each
             random_state=self.random_state,
-            stratify=y
+            stratify=stratify
         )
 
     def train(self, df):
