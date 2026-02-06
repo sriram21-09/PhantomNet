@@ -52,3 +52,7 @@ week6_day4_pipeline_events.csv
 data/*.csv
 data/*.json
 data/*.jsonl
+
+# MLflow
+mlruns/
+backend/ml/mlruns/

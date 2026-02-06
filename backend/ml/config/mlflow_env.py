@@ -1,5 +1,6 @@
 import os
 import mlflow
+import pathlib
 
 # --------------------------------------------------
 # Project root (CI-safe)
@@ -10,7 +11,8 @@ PROJECT_ROOT = os.path.abspath(os.path.join(BASE_DIR, "..", "..", ".."))
 MLRUNS_DIR = os.path.join(PROJECT_ROOT, "mlruns")
 os.makedirs(MLRUNS_DIR, exist_ok=True)
 
-TRACKING_URI = f"file://{MLRUNS_DIR}"
+# Use pathlib to generate a valid file URI on all platforms (handles backslashes on Windows)
+TRACKING_URI = pathlib.Path(MLRUNS_DIR).as_uri()
 
 MODEL_NAME = "PhantomNet_Attack_Detector"
 DEFAULT_STAGE = "Staging"
