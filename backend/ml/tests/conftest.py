@@ -20,6 +20,17 @@ def setup_mlflow_model():
     mlflow.set_tracking_uri(TRACKING_URI)
     mlflow.set_registry_uri(TRACKING_URI)
     
+    # Ensure default experiment exists
+    experiment = mlflow.get_experiment_by_name("PhantomNet-ML")
+    if experiment is None:
+        try:
+             mlflow.create_experiment("PhantomNet-ML")
+        except:
+             # If exact name collision or race condition, ignore
+             pass
+    mlflow.set_experiment("PhantomNet-ML")
+
+
     client = mlflow.tracking.MlflowClient()
     
     # Check if a usable version exists
