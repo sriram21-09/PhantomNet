@@ -1,8 +1,40 @@
+import {
+  FaChartLine,
+  FaNetworkWired,
+  FaServer,
+  FaShieldAlt,
+  FaExclamationTriangle
+} from "react-icons/fa";
+import "./MetricCard.css";
+
+const iconMap = {
+  blue: FaChartLine,
+  cyan: FaNetworkWired,
+  green: FaServer,
+  orange: FaShieldAlt,
+  red: FaExclamationTriangle,
+};
+
 const MetricCard = ({ title, value, variant = "blue" }) => {
+  const Icon = iconMap[variant] || FaChartLine;
+
   return (
-    <div className={`metric-card metric-${variant}`}>
-      <p className="metric-title">{title}</p>
-      <h2 className="metric-value">{value}</h2>
+    <div className={`metric-card variant-${variant}`}>
+      <div className="metric-glow"></div>
+      <div className="metric-content">
+        <div className="metric-header">
+          <span className="metric-title">{title}</span>
+          <div className="metric-icon">
+            <Icon />
+          </div>
+        </div>
+        <div className="metric-value">
+          {typeof value === 'number' ? value.toLocaleString() : value}
+        </div>
+        <div className="metric-bar">
+          <div className="metric-bar-fill"></div>
+        </div>
+      </div>
     </div>
   );
 };

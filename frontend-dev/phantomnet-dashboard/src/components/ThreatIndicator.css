@@ -1,3 +1,81 @@
+/* ==========================================
+   THREAT INDICATOR - Premium Design
+   ========================================== */
+
 .threat-indicator {
   width: 100%;
+}
+
+.threat-indicator h3 {
+  font-size: 16px;
+  font-weight: 700;
+  color: #f8fafc;
+  margin: 0 0 20px 0;
+}
+
+.threat-bar-container {
+  height: 20px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 10px;
+  overflow: hidden;
+  margin-bottom: 16px;
+}
+
+.threat-bar {
+  height: 100%;
+  border-radius: 10px;
+  transition: width 0.5s ease, background 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.threat-bar::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+.threat-bar.low {
+  background: linear-gradient(90deg, #22c55e, #4ade80);
+  box-shadow: 0 0 20px rgba(34, 197, 94, 0.3);
+}
+
+.threat-bar.medium {
+  background: linear-gradient(90deg, #f59e0b, #fbbf24);
+  box-shadow: 0 0 20px rgba(245, 158, 11, 0.3);
+}
+
+.threat-bar.high {
+  background: linear-gradient(90deg, #ef4444, #f87171);
+  box-shadow: 0 0 20px rgba(239, 68, 68, 0.3);
+}
+
+.threat-score {
+  font-size: 18px;
+  font-weight: 700;
+  margin: 0;
+}
+
+.threat-indicator:has(.threat-bar.low) .threat-score {
+  color: #4ade80;
+}
+
+.threat-indicator:has(.threat-bar.medium) .threat-score {
+  color: #fbbf24;
+}
+
+.threat-indicator:has(.threat-bar.high) .threat-score {
+  color: #f87171;
 }

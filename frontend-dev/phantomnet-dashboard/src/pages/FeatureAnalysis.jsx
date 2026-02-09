@@ -6,68 +6,62 @@ import {
   anomalousSSHEvent,
 } from "../mocks/mlMockData";
 import { ThemeContext } from "../context/ThemeContext";
+import { FaBrain, FaCheck, FaExclamationTriangle } from "react-icons/fa";
 import "./FeatureAnalysis.css";
 
 const FeatureAnalysis = () => {
   const { theme } = useContext(ThemeContext);
-
-  // 🔹 TEST-ONLY STATE
   const [testEvent, setTestEvent] = useState(normalSSHEvent);
 
   return (
-    <div className={`page-container feature-analysis ${theme}`}>
-      {/* =========================
-          HEADER
-      ========================== */}
+    <div className="feature-wrapper">
+      {/* Header */}
       <div className="feature-header">
-        <h1>Feature Analysis</h1>
-        <p className="muted-text">
-          Inspect extracted machine-learning features and
-          analyze threat scores for security events.
-        </p>
+        <div className="header-content">
+          <div className="header-icon">
+            <FaBrain />
+          </div>
+          <div>
+            <h1>Feature Analysis</h1>
+            <p>ML Feature Extraction • Threat Scoring Logic</p>
+          </div>
+        </div>
       </div>
 
-      {/* =========================
-          TEST CONTROL PANEL
-      ========================== */}
-      <div className="feature-test-panel">
-        <h3>Test Controls</h3>
-        <p className="muted-text">
-          Switch between mock events to validate feature extraction
-          and threat scoring logic.
-        </p>
-
+      {/* Test Control Panel */}
+      <div className="test-panel">
+        <div className="panel-header">
+          <h3>Test Controls</h3>
+          <p>Switch between mock events to validate feature extraction and threat scoring logic.</p>
+        </div>
         <div className="test-buttons">
           <button
-            className="secondary-btn"
+            className={`test-btn normal ${testEvent === normalSSHEvent ? "active" : ""}`}
             onClick={() => setTestEvent(normalSSHEvent)}
           >
+            <FaCheck />
             Normal Event
           </button>
-
           <button
-            className="secondary-btn"
+            className={`test-btn anomalous ${testEvent === anomalousSSHEvent ? "active" : ""}`}
             onClick={() => setTestEvent(anomalousSSHEvent)}
           >
+            <FaExclamationTriangle />
             Anomalous Event
           </button>
         </div>
       </div>
 
-      {/* =========================
-          FEATURE VECTOR
-      ========================== */}
-      <div className="feature-section">
+      {/* Feature Vector */}
+      <div className="analysis-section">
         <FeatureVector
           eventId={testEvent.eventId}
           featureVector={testEvent}
         />
       </div>
 
-      {/* =========================
-          THREAT INDICATOR
-      ========================== */}
-      <div className="feature-section">
+      {/* Threat Indicator */}
+      <div className="analysis-section">
         <ThreatIndicator
           eventId={testEvent.eventId}
           threatScore={testEvent.features.threat_score.value}

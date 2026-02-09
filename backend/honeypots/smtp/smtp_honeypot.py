@@ -1,7 +1,17 @@
 import asyncio
 import json
 import os
+import sys
 from datetime import datetime, timezone
+
+# Database logger for accurate last_seen
+try:
+    sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+    from db_logger import log_smtp_activity
+    DB_ENABLED = True
+except ImportError:
+    DB_ENABLED = False
+    print("[SMTP] Database logger not available, using file-only logging")
 
 # ======================
 # CONFIG
@@ -22,6 +32,17 @@ open(LOG_FILE, "a").close()
 def log_event(data):
     with open(LOG_FILE, "a") as f:
         f.write(json.dumps(data) + "\n")
+    
+    # Also log to database for accurate last_seen
+    if DB_ENABLED:
+        try:
+            src_ip = data.get("source_ip", "unknown")
+            event = data.get("event", "activity")
+            level = data.get("level", "INFO")
+            is_malicious = level in ["WARN", "ERROR"]
+            log_smtp_activity(src_ip, event, is_malicious=is_malicious)
+        except Exception as e:
+            print(f"[SMTP] DB logging failed: {e}")
 
 async def send_response(writer, source_ip, mail_from, rcpt_to, code, message, event, level="INFO"):
     response = f"{code} {message}\r\n"

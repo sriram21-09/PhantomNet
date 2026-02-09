@@ -1,136 +1,350 @@
-/* Ensure full height */
-html, body, #root {
+/* ==========================================
+   GLOBAL STYLES - Premium Design System
+   ========================================== */
+
+/* Font Import - MUST BE FIRST */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Reset & Base */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
   height: 100%;
   margin: 0;
+  overflow-x: hidden;
 }
 
-/* Light theme (default) */
-body {
-  background-color: #f5f7fb; /* slightly cooler blue-grey */
-  color: #0f172a;
-}
-
-/* Dark theme */
+/* ==========================================
+   DARK THEME (Default)
+   ========================================== */
+:root,
 body[data-theme="dark"] {
-  background-color: #0f172a;
-  color: #e5e7eb;
-}
+  --color-primary: #3b82f6;
+  --color-primary-light: #60a5fa;
+  --color-secondary: #8b5cf6;
+  --color-accent: #22d3ee;
+  --color-success: #22c55e;
+  --color-warning: #f59e0b;
+  --color-danger: #ef4444;
 
-/* Page containers */
-body[data-theme="dark"] .events-container,
-body[data-theme="dark"] .dashboard-container {
-  background-color: #0f172a;
-}
+  --bg-primary: #020617;
+  --bg-secondary: #0f172a;
+  --bg-tertiary: #1e293b;
+  --bg-card: rgba(15, 23, 42, 0.6);
+  --bg-card-solid: #0f172a;
 
-/* Tables */
-body[data-theme="dark"] table {
-  background-color: #020617;
-  color: #e5e7eb;
-}
-
-body[data-theme="dark"] th {
-  background-color: #020617;
-}
-
-body[data-theme="dark"] td {
-  border-color: #1e293b;
-}
-
-/* Inputs & selects */
-body[data-theme="dark"] input,
-body[data-theme="dark"] select {
-  background-color: #020617;
-  color: #e5e7eb;
-  border: 1px solid #334155;
-}
-
-/* Page wrapper */
-.page-container {
-  min-height: calc(100vh - 60px);
-  padding: 30px;
-}
-
-/* THEME COLORS */
-body[data-theme="light"] {
-  background-color: #f5f7fb; /* indigo-tinted light */
-  color: #0f172a;
-}
-
-body[data-theme="dark"] {
-  background-color: #0f172a;
-  color: #e5e7eb;
-}
-
-/* Tables */
-body[data-theme="dark"] table {
-  background-color: #020617;
-  color: #e5e7eb;
-}
-
-body[data-theme="dark"] th {
-  background-color: #020617;
-}
-
-/* =========================
-   LIGHT THEME VARIABLES
-========================= */
-.light {
-  --card-bg: #ffffff;
-  --text-primary: #0f172a;        /* deep indigo */
-  --text-secondary: #5b6f95;      /* indigo-blue muted text */
-  --border-color: #dbe3f1;        /* soft blue border */
-  --table-header-bg: #eef2ff;     /* indigo tint */
-  --table-row-alt: #f5f7ff;       /* very light indigo */
-}
-
-/* =========================
-   DARK THEME VARIABLES
-========================= */
-.dark {
-  --card-bg: #0f172a;
   --text-primary: #f8fafc;
-  --text-secondary: #9fb3d9;      /* soft cyber blue */
-  --border-color: #1f2a44;        /* indigo border */
-  --table-header-bg: #1e293b;
-  --table-row-alt: #020617;
+  --text-secondary: #94a3b8;
+  --text-muted: #64748b;
+
+  --border-subtle: rgba(255, 255, 255, 0.05);
+  --border-light: rgba(255, 255, 255, 0.1);
+
+  --shadow-glow: 0 0 40px rgba(59, 130, 246, 0.15);
+  --shadow-card: 0 10px 40px rgba(0, 0, 0, 0.3);
+
+  --navbar-bg: rgba(2, 6, 23, 0.8);
+  --table-header: rgba(30, 41, 59, 0.5);
+  --input-bg: rgba(15, 23, 42, 0.6);
 }
 
+/* ==========================================
+   LIGHT THEME - Vibrant & Premium
+   ========================================== */
+body[data-theme="light"] {
+  --color-primary: #2563eb;
+  --color-primary-light: #3b82f6;
+  --color-secondary: #7c3aed;
+  --color-accent: #0891b2;
+  --color-success: #059669;
+  --color-warning: #d97706;
+  --color-danger: #dc2626;
+
+  --bg-primary: #f8fafc;
+  --bg-secondary: #f1f5f9;
+  --bg-tertiary: #e2e8f0;
+  --bg-card: rgba(255, 255, 255, 0.95);
+  --bg-card-solid: #ffffff;
+
+  --text-primary: #0f172a;
+  --text-secondary: #334155;
+  --text-muted: #64748b;
+
+  --border-subtle: rgba(0, 0, 0, 0.06);
+  --border-light: rgba(0, 0, 0, 0.1);
+
+  --shadow-glow: 0 4px 30px rgba(59, 130, 246, 0.15);
+  --shadow-card: 0 4px 25px rgba(0, 0, 0, 0.08);
+
+  --navbar-bg: rgba(255, 255, 255, 0.9);
+  --table-header: #f1f5f9;
+  --input-bg: #ffffff;
+}
+
+/* ==========================================
+   BODY STYLES
+   ========================================== */
+body {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  transition: background-color 0.4s ease, color 0.3s ease;
+}
+
+/* Dark mode background gradient */
+body[data-theme="dark"]::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(ellipse at 50% 0%, rgba(56, 189, 248, 0.08) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 20%, rgba(37, 99, 235, 0.05) 0%, transparent 40%),
+    radial-gradient(ellipse at 20% 80%, rgba(168, 85, 247, 0.04) 0%, transparent 40%);
+  pointer-events: none;
+  z-index: -1;
+}
+
+/* Light mode - Vibrant gradient background */
+body[data-theme="light"]::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(ellipse at 0% 0%, rgba(59, 130, 246, 0.15) 0%, transparent 50%),
+    radial-gradient(ellipse at 100% 0%, rgba(139, 92, 246, 0.12) 0%, transparent 50%),
+    radial-gradient(ellipse at 50% 100%, rgba(6, 182, 212, 0.1) 0%, transparent 50%),
+    radial-gradient(ellipse at 100% 100%, rgba(245, 158, 11, 0.08) 0%, transparent 40%);
+  pointer-events: none;
+  z-index: -1;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-secondary);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--text-muted);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-secondary);
+}
+
+/* Selection */
+::selection {
+  background: rgba(59, 130, 246, 0.3);
+  color: var(--text-primary);
+}
+
+/* ==========================================
+   COMMON STYLES
+   ========================================== */
+
+/* Page Container */
 .page-container {
   min-height: 100vh;
   width: 100%;
-  background: var(--bg-color);
-  color: var(--text-color);
+  padding: 24px;
 }
 
-.page-container h1 {
-  margin-bottom: 10px;
-}
-
-/* 🔵 CHANGED from dull grey to indigo-blue */
-.page-container p {
-  color: #5b6f95; /* readable indigo-muted */
-}
-
-/* =========================
-   FEATURE ANALYSIS SLOT (DASHBOARD)
-========================= */
-.feature-analysis-card {
-  background-color: var(--card-bg);
+/* Tables */
+table {
+  background-color: transparent;
   color: var(--text-primary);
-  padding: 20px;
-  border-radius: 10px;
-  min-width: 220px;
-  box-shadow: 0 4px 10px rgba(37, 99, 235, 0.15); /* subtle blue glow */
-  transition: background-color 0.3s ease, color 0.3s ease;
+  border-collapse: separate;
+  border-spacing: 0;
+  width: 100%;
 }
 
-.feature-analysis-card h3 {
-  margin-top: 0;
-  color: var(--text-primary);
+th {
+  background-color: var(--table-header);
+  font-weight: 700;
+  text-align: left;
+  padding: 14px 16px;
+  color: var(--text-muted);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  border-bottom: 1px solid var(--border-subtle);
 }
 
-/* 🔵 CHANGED from grey to indigo-muted */
-.feature-analysis-card p {
+td {
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--border-subtle);
   font-size: 14px;
-  color: var(--text-secondary);
+  color: var(--text-primary);
+}
+
+tr:last-child td {
+  border-bottom: none;
+}
+
+tr:hover td {
+  background-color: var(--border-subtle);
+}
+
+/* Form Controls */
+input,
+select,
+textarea {
+  background-color: var(--input-bg);
+  color: var(--text-primary);
+  border: 1px solid var(--border-light);
+  padding: 12px 16px;
+  border-radius: 10px;
+  outline: none;
+  font-size: 14px;
+  transition: all 0.3s ease;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: var(--text-muted);
+}
+
+/* Buttons */
+button {
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Links */
+a {
+  color: var(--color-primary-light);
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+a:hover {
+  color: var(--color-accent);
+}
+
+/* Utility Classes */
+.glassmorphism {
+  background: var(--bg-card);
+  backdrop-filter: blur(20px);
+  border: 1px solid var(--border-subtle);
+  border-radius: 16px;
+}
+
+.gradient-text {
+  background: linear-gradient(135deg, var(--color-primary-light), var(--color-accent));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulse {
+
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.5;
+  }
+}
+
+@keyframes glow {
+
+  0%,
+  100% {
+    box-shadow: 0 0 20px rgba(59, 130, 246, 0.3);
+  }
+
+  50% {
+    box-shadow: 0 0 40px rgba(59, 130, 246, 0.5);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+/* Loading Spinner */
+.loading-spinner {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 40px;
+}
+
+/* Error State */
+.error {
+  color: var(--color-danger);
+  padding: 16px 24px;
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  border-radius: 10px;
+}
+
+/* Hide scrollbar */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Radius */
+:root {
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
 }

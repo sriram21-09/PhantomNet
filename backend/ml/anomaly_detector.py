@@ -3,7 +3,11 @@ import joblib
 import os
 import time
 from sklearn.ensemble import IsolationForest
-from ml.feature_extractor_v2 import FeatureExtractor
+# Fix import for project root execution
+try:
+    from backend.ml.feature_extractor_v2 import FeatureExtractor
+except ImportError:
+    from ml.feature_extractor_v2 import FeatureExtractor
 
 # Path to save the trained model
 MODEL_PATH = "backend/ml/model.pkl"

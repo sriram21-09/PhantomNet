@@ -2,13 +2,21 @@ import { useState, useEffect } from "react";
 import { ThemeContext } from "./ThemeContext";
 
 const ThemeProvider = ({ children }) => {
-  const [theme, setTheme] = useState("light");
+  // Default to dark theme, but check localStorage for saved preference
+  const [theme, setTheme] = useState(() => {
+    const saved = localStorage.getItem("phantomnet-theme");
+    return saved || "dark"; // Default to dark if no saved preference
+  });
 
   const toggleTheme = () => {
-    setTheme((prev) => (prev === "dark" ? "light" : "dark"));
+    setTheme((prev) => {
+      const newTheme = prev === "dark" ? "light" : "dark";
+      localStorage.setItem("phantomnet-theme", newTheme);
+      return newTheme;
+    });
   };
 
-  // ✅ Correct way: sync theme with CSS variables
+  // Sync theme with CSS variables
   useEffect(() => {
     document.body.setAttribute("data-theme", theme);
   }, [theme]);

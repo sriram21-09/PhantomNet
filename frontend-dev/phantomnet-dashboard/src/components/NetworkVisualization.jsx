@@ -1,72 +1,126 @@
+import { useEffect, useState } from "react";
 import {
   FaServer,
   FaNetworkWired,
   FaLock,
   FaGlobe,
-  FaFolderOpen,
+  FaFolder,
+  FaEnvelope,
 } from "react-icons/fa";
 import "./NetworkVisualization.css";
 
 const NetworkVisualization = () => {
+  const [nodes, setNodes] = useState({
+    ssh: { count: 0, status: "inactive" },
+    http: { count: 0, status: "inactive" },
+    ftp: { count: 0, status: "inactive" },
+    smtp: { count: 0, status: "inactive" },
+  });
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const res = await fetch("/api/honeypots/status");
+        if (!res.ok) throw new Error("Failed to fetch");
+        const data = await res.json();
+
+        const nodeMap = {
+          ssh: { count: 0, status: "inactive" },
+          http: { count: 0, status: "inactive" },
+          ftp: { count: 0, status: "inactive" },
+          smtp: { count: 0, status: "inactive" },
+        };
+
+        data.forEach((service) => {
+          const key = service.name.toLowerCase();
+          if (nodeMap[key]) {
+            nodeMap[key] = {
+              count: service.packet_count || 0,
+              status: service.status,
+            };
+          }
+        });
+
+        setNodes(nodeMap);
+      } catch (err) {
+        console.error("Network Viz Error:", err);
+      }
+    };
+
+    fetchData();
+    const interval = setInterval(fetchData, 2000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const honeypots = [
+    { key: "ssh", name: "SSH", icon: FaLock, port: 2222 },
+    { key: "http", name: "HTTP", icon: FaGlobe, port: 8080 },
+    { key: "ftp", name: "FTP", icon: FaFolder, port: 2121 },
+    { key: "smtp", name: "SMTP", icon: FaEnvelope, port: 2525 },
+  ];
+
   return (
-    <div className="network-section">
-      <h2>Network Topology</h2>
+    <div className="network-wrapper">
+      <div className="network-header">
+        <h3>Live Mesh Topology</h3>
+        <span className="refresh-info">Real-time • 2s refresh</span>
+      </div>
 
-      <div className="network-grid">
-        {/* Controller */}
-        <div className="network-node active">
-          <div className="node-header">
-            <FaServer className="node-icon" />
-            <span className="node-status active" />
+      {/* Core Infrastructure */}
+      <div className="core-grid">
+        <div className="core-card controller">
+          <div className="core-glow"></div>
+          <div className="core-content">
+            <div className="core-icon">
+              <FaServer />
+            </div>
+            <div className="core-info">
+              <h4>Controller</h4>
+              <p>Primary Node • Online</p>
+            </div>
+            <div className="core-status active"></div>
           </div>
-          <h4>Controller</h4>
-          <p>Role: Control Node</p>
-          <p>Packets: 1361</p>
         </div>
 
-        {/* Switch */}
-        <div className="network-node active">
-          <div className="node-header">
-            <FaNetworkWired className="node-icon" />
-            <span className="node-status active" />
+        <div className="core-card switch">
+          <div className="core-glow"></div>
+          <div className="core-content">
+            <div className="core-icon">
+              <FaNetworkWired />
+            </div>
+            <div className="core-info">
+              <h4>Switch</h4>
+              <p>VLAN 10, 20</p>
+            </div>
+            <div className="core-status active"></div>
           </div>
-          <h4>Switch</h4>
-          <p>Role: Network Switch</p>
-          <p>Packets: 1106</p>
         </div>
+      </div>
 
-        {/* SSH Honeypot */}
-        <div className="network-node active">
-          <div className="node-header">
-            <FaLock className="node-icon" />
-            <span className="node-status active pulse" />
-          </div>
-          <h4>SSH Honeypot</h4>
-          <p>Role: Service Node</p>
-          <p>Packets: 547</p>
-        </div>
+      {/* Honeypot Nodes */}
+      <div className="nodes-grid">
+        {honeypots.map((hp) => {
+          const Icon = hp.icon;
+          const nodeData = nodes[hp.key];
+          const isActive = nodeData.status === "active";
 
-        {/* HTTP Honeypot */}
-        <div className="network-node active">
-          <div className="node-header">
-            <FaGlobe className="node-icon" />
-            <span className="node-status active pulse" />
-          </div>
-          <h4>HTTP Honeypot</h4>
-          <p>Role: Service Node</p>
-          <p>Packets: 736</p>
-        </div>
-
-        {/* FTP Honeypot */}
-        <div className="network-node idle">
-          <div className="node-header">
-            <FaFolderOpen className="node-icon" />
-            <span className="node-status idle" />
-          </div>
-          <h4>FTP Honeypot</h4>
-          <p>Role: Service Node</p>
-          <p>Packets: 431</p>
-        </div>
+          return (
+            <div key={hp.key} className={`node-card ${isActive ? "active" : "inactive"}`}>
+              {isActive && <div className="node-glow"></div>}
+              <div className="node-content">
+                <div className={`node-icon ${isActive ? "active" : ""}`}>
+                  <Icon />
+                </div>
+                <h4>{hp.name}</h4>
+                <p className="node-port">Port {hp.port}</p>
+                <div className={`node-badge ${isActive ? "active" : ""}`}>
+                  <span className="badge-dot"></span>
+                  {nodeData.count.toLocaleString()} pkts
+                </div>
+              </div>
+            </div>
+          );
+        })}
       </div>
     </div>
   );

@@ -1,0 +1,188 @@
+/* ==========================================
+   NAVBAR - Premium Dual-Theme Design
+   ========================================== */
+
+.navbar-premium {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    backdrop-filter: blur(20px);
+    transition: all 0.3s ease;
+}
+
+body[data-theme="dark"] .navbar-premium {
+    background: rgba(2, 6, 23, 0.8);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+body[data-theme="light"] .navbar-premium {
+    background: rgba(255, 255, 255, 0.85);
+    border-bottom: 1px solid rgba(59, 130, 246, 0.1);
+    box-shadow: 0 2px 20px rgba(0, 0, 0, 0.06);
+}
+
+.navbar-inner {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 24px;
+    height: 64px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+/* Logo */
+.navbar-logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    text-decoration: none;
+    transition: transform 0.3s ease;
+}
+
+.navbar-logo:hover {
+    transform: scale(1.02);
+}
+
+.logo-icon {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #3b82f6, #22d3ee);
+    border-radius: 10px;
+    font-size: 18px;
+    color: white;
+    box-shadow: 0 4px 20px rgba(59, 130, 246, 0.3);
+}
+
+.logo-text {
+    font-size: 20px;
+    font-weight: 700;
+    background: linear-gradient(135deg, #60a5fa, #22d3ee);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+/* Navigation Links */
+.navbar-links {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.nav-link {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 16px;
+    border-radius: 10px;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+body[data-theme="dark"] .nav-link {
+    color: #64748b;
+}
+
+body[data-theme="dark"] .nav-link:hover {
+    color: #f8fafc;
+    background: rgba(255, 255, 255, 0.05);
+}
+
+body[data-theme="dark"] .nav-link.active {
+    color: #22d3ee;
+    background: rgba(34, 211, 238, 0.1);
+}
+
+body[data-theme="light"] .nav-link {
+    color: #475569;
+}
+
+body[data-theme="light"] .nav-link:hover {
+    color: #0f172a;
+    background: rgba(59, 130, 246, 0.08);
+}
+
+body[data-theme="light"] .nav-link.active {
+    color: #2563eb;
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.12), rgba(37, 99, 235, 0.08));
+}
+
+.nav-link.active::after {
+    content: '';
+    position: absolute;
+    bottom: -1px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 20px;
+    height: 2px;
+    border-radius: 2px;
+}
+
+body[data-theme="dark"] .nav-link.active::after {
+    background: linear-gradient(90deg, #3b82f6, #22d3ee);
+}
+
+body[data-theme="light"] .nav-link.active::after {
+    background: linear-gradient(90deg, #2563eb, #0891b2);
+}
+
+.nav-icon {
+    font-size: 14px;
+}
+
+/* Theme Toggle */
+.theme-toggle {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+body[data-theme="dark"] .theme-toggle {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #94a3b8;
+}
+
+body[data-theme="dark"] .theme-toggle:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: #f8fafc;
+}
+
+body[data-theme="light"] .theme-toggle {
+    background: linear-gradient(135deg, #f1f5f9, #e2e8f0);
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    color: #475569;
+}
+
+body[data-theme="light"] .theme-toggle:hover {
+    background: linear-gradient(135deg, #e2e8f0, #cbd5e1);
+    color: #0f172a;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .navbar-links {
+        display: none;
+    }
+
+    .nav-link span {
+        display: none;
+    }
+
+    .theme-toggle span {
+        display: none;
+    }
+}

@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { FaChartLine } from "react-icons/fa";
 
 import MetricCard from "../components/MetricCard";
 import LoadingSpinner from "../components/LoadingSpinner";
 import HoneypotStatus from "../components/Honeypotstatus";
 import NetworkVisualization from "../components/NetworkVisualization";
+import { Button } from "../components/ui/button";
 import "./Dashboard.css";
 
 const Dashboard = () => {
@@ -16,7 +18,7 @@ const Dashboard = () => {
     const fetchStats = async () => {
       try {
         setLoading(true);
-        const res = await fetch("http://127.0.0.1:8000/api/stats");
+        const res = await fetch("/api/stats");
         if (!res.ok) throw new Error("Failed to fetch stats");
         const data = await res.json();
 
@@ -38,40 +40,49 @@ const Dashboard = () => {
   }, []);
 
   return (
-    <div className="dashboard-container">
-      {/* HEADER */}
+    <div className="dashboard-wrapper">
+      {/* Dashboard Header */}
       <div className="dashboard-header">
-        <h1>Dashboard</h1>
-        <p>Live system overview and security metrics</p>
-
-        <Link to="/dashboard/features">
-          <button className="primary-btn">View Feature Analysis</button>
-        </Link>
+        <div className="header-content">
+          <div className="header-title">
+            <div className="title-badge">LIVE</div>
+            <h1>Command Center</h1>
+            <p>AI-Powered Threat Defense • Real-time Monitoring</p>
+          </div>
+          <Link to="/features">
+            <Button className="analysis-btn">
+              <FaChartLine />
+              <span>Analysis</span>
+            </Button>
+          </Link>
+        </div>
       </div>
 
       {loading && <LoadingSpinner />}
-      {error && <p className="error-text">{error}</p>}
+      {error && <div className="error-banner">{error}</div>}
 
       {!loading && stats && (
-        <div className="metrics-section">
-          <MetricCard title="Total Events" value={stats.totalEvents} variant="blue" />
-          <MetricCard title="Unique IPs" value={stats.uniqueIPs} variant="cyan" />
-          <MetricCard title="Active Honeypots" value={stats.activeHoneypots} variant="green" />
-          <MetricCard
-            title="Avg Threat Score"
-            value={`${stats.avgThreatScore}%`}
-            variant="orange"
-          />
-          <MetricCard
-            title="Critical Alerts"
-            value={stats.criticalAlerts}
-            variant="red"
-          />
-        </div>
-      )}
+        <>
+          {/* Metrics Row */}
+          <div className="metrics-grid">
+            <MetricCard title="Total Events" value={stats.totalEvents} variant="blue" />
+            <MetricCard title="Unique IPs" value={stats.uniqueIPs} variant="cyan" />
+            <MetricCard title="Active Nodes" value={stats.activeHoneypots} variant="green" />
+            <MetricCard title="Threat Score" value={`${stats.avgThreatScore}%`} variant="orange" />
+            <MetricCard title="Critical Alerts" value={stats.criticalAlerts} variant="red" />
+          </div>
 
-      <HoneypotStatus />
-      <NetworkVisualization />
+          {/* Main Panels */}
+          <div className="panels-grid">
+            <div className="panel network-panel">
+              <NetworkVisualization />
+            </div>
+            <div className="panel honeypot-panel">
+              <HoneypotStatus />
+            </div>
+          </div>
+        </>
+      )}
     </div>
   );
 };

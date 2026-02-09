@@ -3,6 +3,16 @@ import json
 import os
 from datetime import datetime, timezone
 
+# Database logger for accurate last_seen
+try:
+    import sys
+    sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+    from db_logger import log_ssh_activity
+    DB_ENABLED = True
+except ImportError:
+    DB_ENABLED = False
+    print("[SSH] Database logger not available, using file-only logging")
+
 # --------------------------
 # Paths
 # --------------------------
@@ -34,6 +44,14 @@ def log_json(ip, event, data=None):
     }
     with open(JSON_LOG, "a") as f:
         f.write(json.dumps(entry) + "\n")
+    
+    # Also log to database for accurate last_seen
+    if DB_ENABLED:
+        try:
+            is_malicious = event in ["login_failed", "brute_force"]
+            log_ssh_activity(ip, event, is_malicious=is_malicious)
+        except Exception as e:
+            print(f"[SSH] DB logging failed: {e}")
 
 
 def log_error(exc, context=""):

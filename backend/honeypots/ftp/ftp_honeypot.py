@@ -1,9 +1,19 @@
 import os
 import json
+import sys
 from datetime import datetime, timezone
 from pyftpdlib.authorizers import DummyAuthorizer
 from pyftpdlib.handlers import FTPHandler
 from pyftpdlib.servers import FTPServer
+
+# Database logger for accurate last_seen
+try:
+    sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+    from db_logger import log_ftp_activity
+    DB_ENABLED = True
+except ImportError:
+    DB_ENABLED = False
+    print("[FTP] Database logger not available, using file-only logging")
 
 # ======================
 # CONFIG
@@ -45,6 +55,14 @@ def log_event(ip, event, data=None, level="INFO"):
             "data": data,
             "level": level
         }) + "\n")
+    
+    # Also log to database for accurate last_seen
+    if DB_ENABLED:
+        try:
+            is_malicious = event in ["login_failed", "exfiltration_attempt"]
+            log_ftp_activity(ip, event, is_malicious=is_malicious)
+        except Exception as e:
+            print(f"[FTP] DB logging failed: {e}")
 
 def log_error(msg, ip):
     with open(ERROR_LOG, "a", encoding="utf-8") as f:

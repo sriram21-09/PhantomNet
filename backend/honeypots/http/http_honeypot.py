@@ -5,6 +5,14 @@ from datetime import datetime, timezone
 from collections import defaultdict
 from urllib.parse import parse_qs
 
+# Database logger for accurate last_seen
+try:
+    from db_logger import log_http_activity
+    DB_ENABLED = True
+except ImportError:
+    DB_ENABLED = False
+    print("[HTTP] Database logger not available, using file-only logging")
+
 # ======================
 # CONFIG
 # ======================
@@ -28,7 +36,17 @@ ip_connections = defaultdict(int)
 def log(level, payload):
     payload["level"] = level
     with open(LOG_FILE, "a") as f:
-        f.write(json.dumps(payload) + "\n")
+        f.write(json.dumps(payload) + "\\n")
+    
+    # Also log to database for accurate last_seen
+    if DB_ENABLED:
+        try:
+            src_ip = payload.get("source_ip", "unknown")
+            event_type = payload.get("event", "activity")
+            is_malicious = level == "ERROR"  # SQLi attempts are errors
+            log_http_activity(src_ip, event_type, is_malicious=is_malicious)
+        except Exception as e:
+            print(f"[HTTP] DB logging failed: {e}")
 
 def log_error(msg, context):
     with open(ERROR_LOG, "a") as f:

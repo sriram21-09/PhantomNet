@@ -1,55 +1,79 @@
-.feature-vector-container {
-  background-color: var(--card-bg);
-  color: var(--text-color);
-  padding: 24px;
-  border-radius: 10px;
-  border: 1px solid var(--border-color);
-}
+/* ==========================================
+   FEATURE VECTOR - Premium Design
+   ========================================== */
 
-/* ✅ RESPONSIVE SAFETY ADDITION */
 .feature-vector-container {
-  overflow-x: auto;
+  width: 100%;
 }
 
 .feature-vector-container h2 {
-  margin-bottom: 6px;
-  color: var(--text-color);
+  font-size: 18px;
+  font-weight: 700;
+  background: linear-gradient(135deg, #c084fc, #60a5fa);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin: 0 0 16px 0;
 }
 
-.feature-vector-container .event-id {
-  color: var(--muted-text);
-  margin-bottom: 16px;
+.event-id {
+  font-size: 13px;
+  color: #64748b;
+  margin: 0 0 20px 0;
+  padding: 10px 14px;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 8px;
+  display: inline-block;
 }
 
-/* ================= TABLE ================= */
+.event-id strong {
+  color: #94a3b8;
+  margin-right: 8px;
+}
 
 .feature-vector-table {
   width: 100%;
   border-collapse: collapse;
-  margin-top: 16px;
-  min-width: 700px; /* ✅ prevents column squish */
 }
 
 .feature-vector-table th {
+  padding: 14px 16px;
   text-align: left;
-  padding: 12px;
-  background-color: var(--bg-color);
-  color: var(--text-color);
-  border-bottom: 2px solid var(--border-color);
-  font-weight: 600;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: #64748b;
+  background: rgba(30, 41, 59, 0.5);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .feature-vector-table td {
-  padding: 12px;
-  border-bottom: 1px solid var(--border-color);
-  color: var(--text-color);
+  padding: 14px 16px;
+  font-size: 14px;
+  color: #e2e8f0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.03);
 }
 
-.feature-vector-table tr:hover {
-  background-color: rgba(255, 255, 255, 0.04);
+.feature-vector-table td:first-child {
+  font-weight: 600;
+  color: #c084fc;
 }
 
-/* Interpretation text slightly muted */
+.feature-vector-table td:nth-child(2) {
+  font-family: 'JetBrains Mono', monospace;
+  color: #22d3ee;
+}
+
 .feature-vector-table td:last-child {
-  color: var(--muted-text);
+  color: #94a3b8;
+  font-size: 13px;
+}
+
+.feature-vector-table tr:hover td {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.feature-vector-table tr:last-child td {
+  border-bottom: none;
 }
