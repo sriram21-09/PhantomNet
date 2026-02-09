@@ -56,3 +56,6 @@ data/*.jsonl
 # MLflow
 mlruns/
 backend/ml/mlruns/
+# SSH honeypot keys
+backend/honeypots/ssh/honeypot_host_key
+backend/honeypots/ssh/*.key
