@@ -7,11 +7,13 @@ from urllib.parse import parse_qs
 
 # Database logger for accurate last_seen
 try:
+    import sys
+    sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
     from db_logger import log_http_activity
     DB_ENABLED = True
-except ImportError:
+except Exception as e:
     DB_ENABLED = False
-    print("[HTTP] Database logger not available, using file-only logging")
+    print(f"[HTTP] Database logger not available, using file-only logging. Error: {e}")
 
 # ======================
 # CONFIG

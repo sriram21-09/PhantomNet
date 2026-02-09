@@ -83,13 +83,9 @@ jobs:
       # --------------------------------------------------
       # TRAINING PIPELINE
       # --------------------------------------------------
-      - name: Regenerate training dataset
+      - name: Retrain Isolation Forest
         run: |
-          python backend/scripts/regenerate_training_dataset.py
-
-      - name: Run training pipeline
-        run: |
-          python backend/scripts/seed_and_train.py
+          python -m backend.ml.retrain_isolation_forest
 
       # --------------------------------------------------
       # ML UNIT TESTS
