@@ -38,7 +38,7 @@ ip_connections = defaultdict(int)
 def log(level, payload):
     payload["level"] = level
     with open(LOG_FILE, "a") as f:
-        f.write(json.dumps(payload) + "\\n")
+        f.write(json.dumps(payload) + "\n")
     
     # Also log to database for accurate last_seen
     if DB_ENABLED:
