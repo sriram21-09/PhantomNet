@@ -6,6 +6,8 @@ import MetricCard from "../components/MetricCard";
 import LoadingSpinner from "../components/LoadingSpinner";
 import HoneypotStatus from "../components/Honeypotstatus";
 import NetworkVisualization from "../components/NetworkVisualization";
+import AnomalyGaugeCard from "../components/AnomalyGaugeCard";
+import { threatMetrics } from "../mocks/threatData";
 import { Button } from "../components/ui/button";
 import "./Dashboard.css";
 
@@ -70,6 +72,22 @@ const Dashboard = () => {
             <MetricCard title="Active Nodes" value={stats.activeHoneypots} variant="green" />
             <MetricCard title="Threat Score" value={`${stats.avgThreatScore}%`} variant="orange" />
             <MetricCard title="Critical Alerts" value={stats.criticalAlerts} variant="red" />
+          </div>
+
+          {/* Threat Metrics Section */}
+          <div className="metrics-grid">
+            <MetricCard
+              title="Threat Level"
+              value={`${threatMetrics.threatLevel}%`}
+              variant={
+                threatMetrics.threatLevel < 40
+                  ? "green"
+                  : threatMetrics.threatLevel < 70
+                  ? "orange"
+                  : "red"
+              }
+            />
+            <AnomalyGaugeCard anomalyScore={threatMetrics.anomalyScore} />
           </div>
 
           {/* Main Panels */}
