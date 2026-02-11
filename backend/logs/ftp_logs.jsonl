@@ -1,0 +1,10 @@
+{"timestamp": "2026-02-11T07:38:14.471662+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ftp", "event": "connect", "data": null, "level": "INFO"}
+{"timestamp": "2026-02-11T07:38:14.493734+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ftp", "event": "command", "data": {"command": "OPTS", "arg": "UTF8 ON"}, "level": "INFO"}
+{"timestamp": "2026-02-11T07:38:21.636246+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ftp", "event": "command", "data": {"command": "USER", "arg": "PhantomNet"}, "level": "INFO"}
+{"timestamp": "2026-02-11T07:38:24.103253+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ftp", "event": "command", "data": {"command": "PASS", "arg": "1234"}, "level": "INFO"}
+{"timestamp": "2026-02-11T07:38:24.119878+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ftp", "event": "login_success", "data": {"username": "PhantomNet"}, "level": "INFO"}
+{"timestamp": "2026-02-11T07:38:32.670567+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ftp", "event": "command", "data": {"command": "XMKD", "arg": "hello"}, "level": "INFO"}
+{"timestamp": "2026-02-11T07:38:39.755151+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ftp", "event": "command", "data": {"command": "XPWD", "arg": ""}, "level": "INFO"}
+{"timestamp": "2026-02-11T07:38:43.235610+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ftp", "event": "command", "data": {"command": "EPRT", "arg": "|2|::1|39256|"}, "level": "INFO"}
+{"timestamp": "2026-02-11T07:38:43.251279+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ftp", "event": "command", "data": {"command": "NLST", "arg": ""}, "level": "INFO"}
+{"timestamp": "2026-02-11T07:39:45.827452+00:00", "source_ip": "172.18.0.1", "honeypot_type": "ftp", "event": "disconnect", "data": null, "level": "INFO"}
