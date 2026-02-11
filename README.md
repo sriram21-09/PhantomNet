@@ -631,6 +631,27 @@ Your stars help other students discover PhantomNet
 * **Attack Simulation:** Generates synthetic traffic for SSH, FTP, HTTP, SQL, and RDP attacks.
 * **Cyberpunk UI:** Custom "Dark Mode" interface for high-visibility monitoring.
 
+## 🚀 Deployment (Week 8)
+
+### Rapid Deployment (Windows/PowerShell)
+1.  **Configure Environment**:
+    -   Copy `.env.example` to `.env`.
+    -   Update `POSTGRES_PASSWORD`, `SECRET_KEY`, and other credentials in `.env`.
+2.  **Run Deploy Script**:
+    ```powershell
+    ./scripts/deploy.ps1
+    ```
+    This script will:
+    -   Pull the latest code.
+    -   Build optimized production images.
+    -   Start all services with production settings (restart policies, resource limits).
+    -   Clean up unused docker images.
+
+### Manual Deployment (Docker)
+```bash
+docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build
+```
+
 ## 🛠️ Tech Stack
 * **Frontend:** React.js, Vite, Axios, CSS3
 * **Backend:** Python 3.10+, FastAPI, Uvicorn

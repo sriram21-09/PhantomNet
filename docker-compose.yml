@@ -60,6 +60,16 @@ services:
     depends_on:
       - postgres
 
+  frontend:
+    build:
+      context: ./frontend-dev/phantomnet-dashboard
+      dockerfile: Dockerfile
+    container_name: phantomnet_frontend
+    ports:
+      - "3000:80"
+    depends_on:
+      - api
+
   api:
     build:
       context: .
