@@ -45,16 +45,39 @@ FAKE_FILE_SIZES = {
 # ======================
 # LOGGING
 # ======================
+import logging
+from logging.handlers import RotatingFileHandler
+
+# Configure Logger for FTP Logs
+ftp_logger = logging.getLogger("phantom_ftp")
+ftp_logger.setLevel(logging.INFO)
+# Use RotatingFileHandler to prevent huge files (10MB limit, 5 backups)
+handler = RotatingFileHandler(LOG_FILE, maxBytes=10*1024*1024, backupCount=5, encoding='utf-8')
+# Raw message formatter - no prefixes, just JSON
+handler.setFormatter(logging.Formatter('%(message)s'))
+ftp_logger.addHandler(handler)
+
+# Configure Error Logger
+error_logger = logging.getLogger("phantom_ftp_error")
+error_logger.setLevel(logging.ERROR)
+err_handler = RotatingFileHandler(ERROR_LOG, maxBytes=10*1024*1024, backupCount=3, encoding='utf-8')
+err_handler.setFormatter(logging.Formatter('%(asctime)s | %(message)s'))
+error_logger.addHandler(err_handler)
+
 def log_event(ip, event, data=None, level="INFO"):
-    with open(LOG_FILE, "a", encoding="utf-8") as f:
-        f.write(json.dumps({
-            "timestamp": datetime.now(timezone.utc).isoformat(),
-            "source_ip": ip,
-            "honeypot_type": "ftp",
-            "event": event,
-            "data": data,
-            "level": level
-        }) + "\n")
+    entry = {
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "source_ip": ip,
+        "honeypot_type": "ftp",
+        "event": event,
+        "data": data,
+        "level": level
+    }
+    # Clean JSON dump + threading/process safety via logging module
+    try:
+        ftp_logger.info(json.dumps(entry))
+    except (TypeError, ValueError) as e:
+        error_logger.error(f"JSON serialization failed for {ip}: {e}")
     
     # Also log to database for accurate last_seen
     if DB_ENABLED:
@@ -65,8 +88,7 @@ def log_event(ip, event, data=None, level="INFO"):
             print(f"[FTP] DB logging failed: {e}")
 
 def log_error(msg, ip):
-    with open(ERROR_LOG, "a", encoding="utf-8") as f:
-        f.write(f"{datetime.now(timezone.utc).isoformat()} | {ip} | {msg}\n")
+    error_logger.error(f"{ip} | {msg}")
 
 # ======================
 # HANDLER
