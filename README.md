@@ -481,13 +481,15 @@ docker-compose -f docker-compose.test.yml up
 - [x] PostgreSQL database schema
 - [x] React frontend skeleton
 - [x] Basic API endpoints
+- [x] HTTP/FTP honeypots
+- [x] ML threat scoring
+- [x] Dashboard visualization
+- [x] Real-time notifications
 
 ### 🔄 In Progress
 
-- [ ] HTTP/FTP honeypots
-- [ ] ML threat scoring
-- [ ] Dashboard visualization
-- [ ] Real-time notifications
+- [ ] Database honeypot
+- [ ] Web application honeypot
 
 ### 🔮 Planned
 
