@@ -1,0 +1,2 @@
+{"timestamp": "2026-02-11T07:36:13.948776+00:00", "source_ip": "172.18.0.1", "honeypot_type": "http", "port": 8080, "event": "sqli_attempt", "method": "POST", "path": "/admin", "user_agent": "curl/8.16.0", "data": {"username": "admin' OR 1=1--", "password": "test"}, "level": "ERROR"}
+{"timestamp": "2026-02-11T07:36:17.600202+00:00", "source_ip": "172.18.0.1", "honeypot_type": "http", "port": 8080, "event": "sqli_attempt", "method": "POST", "path": "/admin", "user_agent": "curl/8.16.0", "data": {"username": "admin' OR 1=1--", "password": "test"}, "level": "ERROR"}
