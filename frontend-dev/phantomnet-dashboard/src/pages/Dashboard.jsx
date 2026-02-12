@@ -6,14 +6,18 @@ import MetricCard from "../components/MetricCard";
 import LoadingSpinner from "../components/LoadingSpinner";
 import HoneypotStatus from "../components/Honeypotstatus";
 import NetworkVisualization from "../components/NetworkVisualization";
+import AnomalyGaugeCard from "../components/AnomalyGaugeCard";
+import { fetchThreatMetrics } from "../services/api";
 import { Button } from "../components/ui/button";
 import "./Dashboard.css";
 
 const Dashboard = () => {
   const [stats, setStats] = useState(null);
+  const [threatMetrics, setThreatMetrics] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
+  // Existing Stats Fetch
   useEffect(() => {
     const fetchStats = async () => {
       try {
@@ -37,6 +41,23 @@ const Dashboard = () => {
     };
 
     fetchStats();
+  }, []);
+
+  // Threat Metrics Live API + Auto Refresh
+  useEffect(() => {
+    const loadThreatMetrics = async () => {
+      try {
+        const data = await fetchThreatMetrics();
+        setThreatMetrics(data);
+      } catch (err) {
+        console.error("Threat metrics fetch error:", err);
+      }
+    };
+
+    loadThreatMetrics();
+    const interval = setInterval(loadThreatMetrics, 5000);
+
+    return () => clearInterval(interval);
   }, []);
 
   return (
@@ -71,6 +92,29 @@ const Dashboard = () => {
             <MetricCard title="Threat Score" value={`${stats.avgThreatScore}%`} variant="orange" />
             <MetricCard title="Critical Alerts" value={stats.criticalAlerts} variant="red" />
           </div>
+
+          {/* Threat Intelligence Section (Upgraded Slots) */}
+          {threatMetrics && (
+            <div className="threat-section">
+              <div className="threat-slot">
+                <MetricCard
+                  title="Threat Level"
+                  value={`${threatMetrics.threatLevel}%`}
+                  variant={
+                    threatMetrics.threatLevel < 40
+                      ? "green"
+                      : threatMetrics.threatLevel < 70
+                      ? "orange"
+                      : "red"
+                  }
+                />
+              </div>
+
+              <div className="threat-slot">
+                <AnomalyGaugeCard anomalyScore={threatMetrics.anomalyScore} />
+              </div>
+            </div>
+          )}
 
           {/* Main Panels */}
           <div className="panels-grid">
