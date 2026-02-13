@@ -7,6 +7,9 @@ import LoadingSpinner from "../components/LoadingSpinner";
 import HoneypotStatus from "../components/Honeypotstatus";
 import NetworkVisualization from "../components/NetworkVisualization";
 import AnomalyGaugeCard from "../components/AnomalyGaugeCard";
+import AttackTimeline from "../components/AttackTimeline";
+import ProtocolChart from "../components/ProtocolChart";
+import TopAttackers from "../components/TopAttackers";
 import { fetchThreatMetrics } from "../services/api";
 import { Button } from "../components/ui/button";
 import "../styles/pages/Dashboard.css";
@@ -93,10 +96,19 @@ const Dashboard = () => {
             <MetricCard title="Critical Alerts" value={stats.criticalAlerts} variant="red" />
           </div>
 
-          {/* Threat Intelligence Section (Upgraded Slots) */}
-          {/* Threat Intelligence Section (Upgraded Slots) */}
+          {/* Core Analytics Row */}
+          <div className="analytics-row">
+            <div className="analytics-main pro-card">
+              <AttackTimeline />
+            </div>
+            <div className="analytics-side pro-card">
+              <ProtocolChart />
+            </div>
+          </div>
+
+          {/* Threat Intelligence Section */}
           <div className="threat-section">
-            <div className="threat-slot">
+            <div className="threat-slot pro-card">
               {threatMetrics ? (
                 <MetricCard
                   title="Threat Level"
@@ -114,22 +126,26 @@ const Dashboard = () => {
               )}
             </div>
 
-            <div className="threat-slot">
+            <div className="threat-slot pro-card">
               {threatMetrics ? (
                 <AnomalyGaugeCard anomalyScore={threatMetrics.anomalyScore} />
               ) : (
                 <div className="skeleton-card"></div>
               )}
             </div>
+
+            <div className="threat-slot honeypot-min-panel">
+              <HoneypotStatus />
+            </div>
           </div>
 
-          {/* Main Panels */}
+          {/* Main Panels & Detailed List */}
           <div className="panels-grid">
             <div className="panel network-panel">
               <NetworkVisualization />
             </div>
-            <div className="panel honeypot-panel">
-              <HoneypotStatus />
+            <div className="panel attackers-panel">
+              <TopAttackers />
             </div>
           </div>
         </>
