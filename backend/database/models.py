@@ -13,10 +13,20 @@ class PacketLog(Base):
     timestamp = Column(DateTime, default=datetime.utcnow)
     src_ip = Column(String, index=True)
     dst_ip = Column(String)
+<<<<<<< Updated upstream
+=======
+    src_port = Column(Integer, default=0)
+    dst_port = Column(Integer, default=0)
+>>>>>>> Stashed changes
     protocol = Column(String)
     length = Column(Integer)
     attack_type = Column(String, nullable=True)
     threat_score = Column(Float, default=0.0)
+<<<<<<< Updated upstream
+=======
+    threat_level = Column(String, nullable=True)
+    confidence = Column(Float, nullable=True)
+>>>>>>> Stashed changes
     is_malicious = Column(Boolean, default=False)
     event = Column(String, nullable=True) # e.g., "login_attempt"
 

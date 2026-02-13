@@ -23,10 +23,17 @@ class RealTimeSniffer:
             dst_ip = packet[IP].dst
             length = len(packet)
 
+            src_port = 0
+            dst_port = 0
+
             if packet.haslayer(TCP):
                 protocol = "TCP"
+                src_port = packet[TCP].sport
+                dst_port = packet[TCP].dport
             elif packet.haslayer(UDP):
                 protocol = "UDP"
+                src_port = packet[UDP].sport
+                dst_port = packet[UDP].dport
             elif packet.haslayer(ICMP):
                 protocol = "ICMP"
             else:
@@ -38,10 +45,12 @@ class RealTimeSniffer:
             log_entry = {
                 "src_ip": src_ip,
                 "dst_ip": dst_ip,
+                "src_port": src_port,
+                "dst_port": dst_port,
                 "protocol": protocol,
-                "packet_length": length,
-                "attacker_ip": src_ip,   # required by threat correlator
-                "timestamp": datetime.utcnow()
+                "length": length,
+                "attacker_ip": src_ip,
+                "timestamp": datetime.utcnow().isoformat()
             }
 
             # -----------------------------
@@ -68,6 +77,8 @@ class RealTimeSniffer:
                 timestamp=datetime.utcnow(),
                 src_ip=src_ip,
                 dst_ip=dst_ip,
+                src_port=src_port,
+                dst_port=dst_port,
                 protocol=protocol,
                 length=length,
                 is_malicious=(attack_label == "MALICIOUS"),
