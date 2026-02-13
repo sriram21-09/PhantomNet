@@ -1,9 +1,9 @@
 # Serve pre-built application with Nginx
-FROM nginx:alpine
+FROM nginxinc/nginx-unprivileged:alpine
 
 # Copy local build artifacts
-COPY dist /usr/share/nginx/html
+COPY --chown=nginx:nginx dist /usr/share/nginx/html
 
-EXPOSE 80
+EXPOSE 8080
 
 CMD ["nginx", "-g", "daemon off;"]

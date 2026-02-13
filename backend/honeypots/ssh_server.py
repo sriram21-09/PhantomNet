@@ -3,17 +3,17 @@ import threading
 import paramiko
 import psycopg2
 import logging
+import os
 
 # --- SETUP LOGGING ---
 # Writes logs to a temporary file so we can see errors even if the console is silent
 logging.basicConfig(filename='/tmp/ssh_debug.log', level=logging.DEBUG, format='%(asctime)s %(message)s')
 
 # --- CONFIGURATION ---
-DB_NAME = "phantomnet"
-DB_USER = "phantom"
-DB_PASS = "securepass"
-# We use the socket folder because network localhost is isolated in Mininet
-DB_HOST = "/var/run/postgresql" 
+DB_NAME = os.getenv("DB_NAME", "phantomnet")
+DB_USER = os.getenv("DB_USER", "phantom")
+DB_PASS = os.getenv("DB_PASSWORD", "securepass")
+DB_HOST = os.getenv("DB_HOST", "/var/run/postgresql")
 
 # Generate a host key (in a real app, you would load a saved key)
 HOST_KEY = paramiko.RSAKey.generate(2048)
@@ -40,11 +40,11 @@ def log_attack_to_db(ip, username, password):
         conn.close()
         
         logging.info("✅ SUCCESS: Attack saved to Database!")
-        print(f"✅ Logged attack: {username}/{password}")
+        logging.info(f"✅ Logged attack: {username}/{password}")
         
     except Exception as e:
         logging.error(f"❌ DB ERROR: {e}")
-        print(f"❌ DB ERROR: {e}")
+        logging.error(f"❌ DB ERROR: {e}")
 
 class SSHServer(paramiko.ServerInterface):
     def __init__(self, client_ip):
@@ -90,7 +90,7 @@ def start_server():
     sock.listen(100)
     
     logging.info("🪤 SSH Honeypot V2 STARTED")
-    print("🪤 SMART SSH Honeypot Active on Port 2222 (Logging to DB & /tmp/ssh_debug.log)")
+    logging.info("🪤 SMART SSH Honeypot Active on Port 2222 (Logging to DB & /tmp/ssh_debug.log)")
 
     while True:
         try:
