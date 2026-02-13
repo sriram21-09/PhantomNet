@@ -12,7 +12,7 @@ import ProtocolChart from "../components/ProtocolChart";
 import TopAttackers from "../components/TopAttackers";
 import { fetchThreatMetrics } from "../services/api";
 import { Button } from "../components/ui/button";
-import "../styles/pages/Dashboard.css";
+import "../Styles/pages/Dashboard.css";
 
 const Dashboard = () => {
   const [stats, setStats] = useState(null);
@@ -96,6 +96,16 @@ const Dashboard = () => {
             <MetricCard title="Critical Alerts" value={stats.criticalAlerts} variant="red" />
           </div>
 
+          {/* New Priority Section: Network & Status */}
+          <div className="priority-section">
+            <div className="priority-main">
+              <NetworkVisualization />
+            </div>
+            <div className="priority-side pro-card">
+              <HoneypotStatus />
+            </div>
+          </div>
+
           {/* Core Analytics Row */}
           <div className="analytics-row">
             <div className="analytics-main pro-card">
@@ -106,43 +116,35 @@ const Dashboard = () => {
             </div>
           </div>
 
-          {/* Threat Intelligence Section */}
-          <div className="threat-section">
-            <div className="threat-slot pro-card">
-              {threatMetrics ? (
-                <MetricCard
-                  title="Threat Level"
-                  value={`${threatMetrics.threatLevel}%`}
-                  variant={
-                    threatMetrics.threatLevel < 40
-                      ? "green"
-                      : threatMetrics.threatLevel < 70
-                        ? "orange"
-                        : "red"
-                  }
-                />
-              ) : (
-                <div className="skeleton-card"></div>
-              )}
-            </div>
-
-            <div className="threat-slot pro-card">
-              {threatMetrics ? (
-                <AnomalyGaugeCard anomalyScore={threatMetrics.anomalyScore} />
-              ) : (
-                <div className="skeleton-card"></div>
-              )}
-            </div>
-
-            <div className="threat-slot honeypot-min-panel">
-              <HoneypotStatus />
-            </div>
-          </div>
-
-          {/* Main Panels & Detailed List */}
+          {/* Threat Intelligence & Detailed Panels */}
           <div className="panels-grid">
-            <div className="panel network-panel">
-              <NetworkVisualization />
+            <div className="panel threat-intel-panel">
+              <div className="threat-intel-grid">
+                <div className="threat-slot pro-card">
+                  {threatMetrics ? (
+                    <MetricCard
+                      title="Threat Level"
+                      value={`${threatMetrics.threatLevel}%`}
+                      variant={
+                        threatMetrics.threatLevel < 40
+                          ? "green"
+                          : threatMetrics.threatLevel < 70
+                            ? "orange"
+                            : "red"
+                      }
+                    />
+                  ) : (
+                    <div className="skeleton-card"></div>
+                  )}
+                </div>
+                <div className="threat-slot pro-card">
+                  {threatMetrics ? (
+                    <AnomalyGaugeCard anomalyScore={threatMetrics.anomalyScore} />
+                  ) : (
+                    <div className="skeleton-card"></div>
+                  )}
+                </div>
+              </div>
             </div>
             <div className="panel attackers-panel">
               <TopAttackers />

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   FaServer,
   FaNetworkWired,
@@ -7,7 +7,7 @@ import {
   FaFolder,
   FaEnvelope,
 } from "react-icons/fa";
-import "../styles/components/NetworkVisualization.css";
+import "./NetworkVisualization.css";
 
 const NetworkVisualization = () => {
   const [nodes, setNodes] = useState({
@@ -78,67 +78,91 @@ const NetworkVisualization = () => {
   }
 
   return (
-    <div className="network-wrapper">
+    <div className="network-visualization-container pro-card">
       <div className="network-header">
-        <h3>Live Mesh Topology</h3>
-        <span className="refresh-info">Real-time • 2s refresh</span>
-      </div>
-
-      {/* Core Infrastructure */}
-      <div className="core-grid">
-        <div className="core-card controller">
-          <div className="core-glow"></div>
-          <div className="core-content">
-            <div className="core-icon">
-              <FaServer />
-            </div>
-            <div className="core-info">
-              <h4>Controller</h4>
-              <p>Primary Node • Online</p>
-            </div>
-            <div className="core-status active"></div>
+        <div className="header-icon-group">
+          <div className="network-main-icon"><FaNetworkWired /></div>
+          <div className="header-text">
+            <h3>Live Mesh Topology</h3>
+            <span className="refresh-info">Real-time Node Monitoring • 2s refresh</span>
           </div>
         </div>
-
-        <div className="core-card switch">
-          <div className="core-glow"></div>
-          <div className="core-content">
-            <div className="core-icon">
-              <FaNetworkWired />
-            </div>
-            <div className="core-info">
-              <h4>Switch</h4>
-              <p>VLAN 10, 20</p>
-            </div>
-            <div className="core-status active"></div>
-          </div>
+        <div className="system-health-badge">
+          <span className="pulse-dot"></span>
+          SYSTEM OPTIMAL
         </div>
       </div>
 
-      {/* Honeypot Nodes */}
-      <div className="nodes-grid">
-        {honeypots.map((hp) => {
-          const Icon = hp.icon;
-          const nodeData = nodes[hp.key];
-          const isActive = nodeData.status === "active";
-
-          return (
-            <div key={hp.key} className={`node-card ${isActive ? "active" : "inactive"}`}>
-              {isActive && <div className="node-glow"></div>}
-              <div className="node-content">
-                <div className={`node-icon ${isActive ? "active" : ""}`}>
-                  <Icon />
+      <div className="viz-content-grid">
+        {/* Core Infrastructure Section */}
+        <div className="infra-section">
+          <div className="hud-label">CORE INFRASTRUCTURE</div>
+          <div className="core-stack">
+            <div className="core-hud-card controller">
+              <div className="hud-corner top-left"></div>
+              <div className="hud-corner bottom-right"></div>
+              <div className="core-hud-content">
+                <div className="core-hud-icon"><FaServer /></div>
+                <div className="core-hud-info">
+                  <span className="core-name">Controller</span>
+                  <span className="core-desc">Primary Node • 127.0.0.1</span>
                 </div>
-                <h4>{hp.name}</h4>
-                <p className="node-port">Port {hp.port}</p>
-                <div className={`node-badge ${isActive ? "active" : ""}`}>
-                  <span className="badge-dot"></span>
-                  {nodeData.count.toLocaleString()} pkts
-                </div>
+                <div className="core-hud-status active">ONLINE</div>
               </div>
             </div>
-          );
-        })}
+
+            <div className="core-hud-card switch">
+              <div className="hud-corner top-right"></div>
+              <div className="hud-corner bottom-left"></div>
+              <div className="core-hud-content">
+                <div className="core-hud-icon"><FaNetworkWired /></div>
+                <div className="core-hud-info">
+                  <span className="core-name">Core Switch</span>
+                  <span className="core-desc">VLAN 10, 20 Traffic</span>
+                </div>
+                <div className="core-hud-status active">ACTIVE</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Honeypot Nodes Section */}
+        <div className="nodes-section">
+          <div className="hud-label">ACTIVE ASSET NODES (HONEYPOTS)</div>
+          <div className="nodes-hud-grid">
+            {honeypots.map((hp) => {
+              const Icon = hp.icon;
+              const nodeData = nodes[hp.key];
+              const isActive = nodeData.status === "active";
+
+              return (
+                <div key={hp.key} className={`node-hud-card ${isActive ? "active" : "inactive"}`}>
+                  <div className="node-hud-glow"></div>
+                  <div className="node-hud-header">
+                    <div className="node-hud-icon">
+                      <Icon />
+                    </div>
+                    <div className="node-hud-title">
+                      <span className="node-name">{hp.name}</span>
+                      <span className="node-port">PORT {hp.port}</span>
+                    </div>
+                  </div>
+                  <div className="node-hud-body">
+                    <div className="data-stream-viz">
+                      {[...Array(5)].map((_, i) => (
+                        <div key={i} className={`stream-bit ${isActive ? 'flowing' : ''}`} style={{ animationDelay: `${i * 0.2}s` }}></div>
+                      ))}
+                    </div>
+                    <div className="node-stats-badge">
+                      <span className="stats-value">{nodeData.count.toLocaleString()}</span>
+                      <span className="stats-label">PKTS</span>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
       </div>
     </div>
   );

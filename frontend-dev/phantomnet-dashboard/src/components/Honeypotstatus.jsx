@@ -1,6 +1,6 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { FaLock, FaGlobe, FaFolder, FaEnvelope } from "react-icons/fa";
-import "../styles/components/HoneypotStatus.css";
+import "./HoneypotStatus.css";
 
 const iconMap = {
   SSH: FaLock,
@@ -64,39 +64,59 @@ const HoneypotStatus = () => {
   }, []);
 
   return (
-    <div className="honeypot-wrapper">
-      <div className="honeypot-header">
-        <h3>Honeypot Status</h3>
-        <span className="live-badge">
-          <span className="live-dot"></span>
-          Live
-        </span>
+    <div className="honeypot-monitor-container">
+      <div className="monitor-header">
+        <div className="monitor-title">
+          <h3>Honeypot Network Status</h3>
+          <p>Global Sensing Grid • Real-time Health</p>
+        </div>
+        <div className="status-summary">
+          <span className="summary-dot"></span>
+          <span className="summary-text">7/7 SCANNING</span>
+        </div>
       </div>
 
-      {error && <div className="honeypot-error">{error}</div>}
+      {error && <div className="monitor-error">{error}</div>}
 
-      <div className="honeypot-list">
+      <div className="status-scroller">
         {honeypots.map((hp) => {
           const Icon = iconMap[hp.name] || FaGlobe;
           const isActive = hp.status === "active";
 
           return (
-            <div key={hp.name} className={`honeypot-item ${isActive ? "active" : "inactive"}`}>
-              <div className="honeypot-icon">
-                <Icon />
-              </div>
-              <div className="honeypot-info">
-                <div className="honeypot-name">
-                  <span>{hp.name}</span>
-                  <span className={`status-badge ${isActive ? "online" : "offline"}`}>
-                    {isActive ? "ONLINE" : "OFFLINE"}
-                  </span>
+            <div key={hp.name} className={`status-row ${isActive ? "active" : "inactive"}`}>
+              <div className="row-glass"></div>
+              <div className="status-row-content">
+                <div className="row-icon-side">
+                  <div className="row-icon-box">
+                    <Icon />
+                  </div>
+                  <div className="health-ring"></div>
                 </div>
-                <div className="honeypot-details">
-                  Port: {hp.port} • Last: {formatLastSeen(hp.last_seen)}
+
+                <div className="row-info-main">
+                  <div className="row-top">
+                    <span className="hp-name">{hp.name} Service</span>
+                    <div className={`status-badge-new ${isActive ? "online" : "offline"}`}>
+                      <span className="badge-pulse"></span>
+                      {isActive ? "STABLE" : "SIGNAL LOST"}
+                    </div>
+                  </div>
+                  <div className="row-bottom">
+                    <span className="detail-item">NODE_ID: {hp.name.toUpperCase()}</span>
+                    <span className="detail-separator">|</span>
+                    <span className="detail-item">PORT: {hp.port}</span>
+                    <span className="detail-separator">|</span>
+                    <span className="detail-item">LAST_PING: {formatLastSeen(hp.last_seen)}</span>
+                  </div>
+                </div>
+
+                <div className="row-action-side">
+                  <div className="pulse-indicator-container">
+                    <div className={`ping-pulse ${isActive ? 'active' : ''}`}></div>
+                  </div>
                 </div>
               </div>
-              <div className={`status-indicator ${isActive ? "active" : ""}`}></div>
             </div>
           );
         })}

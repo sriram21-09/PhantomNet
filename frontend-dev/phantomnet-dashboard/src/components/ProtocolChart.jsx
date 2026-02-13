@@ -62,6 +62,17 @@ const ProtocolChart = () => {
                                 const { cx, cy, innerRadius, outerRadius, startAngle, endAngle, fill } = props;
                                 return (
                                     <g>
+                                        {/* Outer glow sector */}
+                                        <Sector
+                                            cx={cx}
+                                            cy={cy}
+                                            innerRadius={outerRadius + 2}
+                                            outerRadius={outerRadius + 4}
+                                            startAngle={startAngle}
+                                            endAngle={endAngle}
+                                            fill={fill}
+                                            opacity={0.4}
+                                        />
                                         <Sector
                                             cx={cx}
                                             cy={cy}
@@ -71,52 +82,67 @@ const ProtocolChart = () => {
                                             endAngle={endAngle}
                                             fill={fill}
                                         />
-                                        <Sector
-                                            cx={cx}
-                                            cy={cy}
-                                            innerRadius={innerRadius}
-                                            outerRadius={outerRadius + 12}
-                                            startAngle={startAngle}
-                                            endAngle={endAngle}
-                                            fill={fill}
-                                            opacity={0.3}
-                                        />
                                     </g>
                                 );
                             }}
                             data={protocolData}
                             cx="50%"
                             cy="55%"
-                            innerRadius={70}
-                            outerRadius={90}
-                            paddingAngle={8}
+                            innerRadius={75}
+                            outerRadius={95}
+                            paddingAngle={5}
                             dataKey="value"
                             onMouseEnter={onPieEnter}
                             onMouseLeave={onPieLeave}
                             stroke="none"
+                            animationBegin={0}
+                            animationDuration={800}
                         >
                             {protocolData.map((entry, index) => (
                                 <Cell
                                     key={`cell-${index}`}
                                     fill={COLORS[index % COLORS.length]}
-                                    style={{ filter: activeIndex === index ? 'drop-shadow(0 0 8px rgba(255,255,255,0.2))' : 'none', transition: 'all 0.3s ease' }}
+                                    style={{
+                                        filter: activeIndex === index ? `drop-shadow(0 0 12px ${COLORS[index]}66)` : 'none',
+                                        transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)'
+                                    }}
                                 />
                             ))}
                         </Pie>
-                        <Tooltip content={<ProTooltip />} />
+                        {/* Hidden native tooltip to allow center HUD logic to stay simple */}
+                        <Tooltip content={<div style={{ display: 'none' }} />} />
                     </PieChart>
                 </ResponsiveContainer>
 
-                {/* Central Total Label */}
-                <div className="chart-center-label">
-                    <span className="total-value">{totalValue}%</span>
-                    <span className="total-label">TRAFFIC</span>
+                {/* Central Cyber-HUD Label */}
+                <div className={`chart-center-label ${activeIndex !== null ? 'hud-active' : ''}`}>
+                    {activeIndex === null ? (
+                        <div className="hud-default">
+                            <span className="total-value">{totalValue}%</span>
+                            <span className="total-label">TRAFFIC</span>
+                        </div>
+                    ) : (
+                        <div className="hud-content">
+                            <span className="hud-protocol" style={{ color: COLORS[activeIndex] }}>
+                                {protocolData[activeIndex].name}
+                            </span>
+                            <span className="hud-value" style={{ color: COLORS[activeIndex] }}>
+                                {protocolData[activeIndex].value}%
+                            </span>
+                            <span className="hud-label">DISTRIBUTION</span>
+                        </div>
+                    )}
                 </div>
             </div>
             <div className="custom-legend">
                 {protocolData.map((entry, index) => (
-                    <div key={index} className="legend-item">
-                        <div className="legend-dot" style={{ backgroundColor: COLORS[index] }}></div>
+                    <div
+                        key={index}
+                        className={`legend-item ${activeIndex === index ? 'active' : ''}`}
+                        onMouseEnter={() => onPieEnter(null, index)}
+                        onMouseLeave={onPieLeave}
+                    >
+                        <div className="legend-dot" style={{ backgroundColor: COLORS[index], boxShadow: `0 0 8px ${COLORS[index]}` }}></div>
                         <span className="legend-name">{entry.name}</span>
                         <span className="legend-percent">{entry.value}%</span>
                     </div>

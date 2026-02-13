@@ -25,14 +25,19 @@ const mockTimelineData = [
 const CustomTooltip = ({ active, payload, label }) => {
     if (active && payload && payload.length) {
         return (
-            <div className="pro-tooltip">
+            <div className="timeline-tooltip">
                 <div className="tooltip-header">
                     <span className="tooltip-time">{label}</span>
-                    <div className="status-dot pulse"></div>
+                    <div className="status-dot pulse" style={{ background: '#3b82f6' }}></div>
                 </div>
                 <div className="tooltip-body">
-                    <span className="tooltip-label">Events</span>
-                    <span className="tooltip-value">{payload[0].value}</span>
+                    <div className="tooltip-row">
+                        <span className="tooltip-label">Events</span>
+                        <span className="tooltip-value">{payload[0].value}</span>
+                    </div>
+                </div>
+                <div className="tooltip-footer">
+                    <div className="trend-line"></div>
                 </div>
             </div>
         );
@@ -49,23 +54,26 @@ const AttackTimeline = () => {
                     Attack Timeline (24h)
                 </h3>
                 <div className="timeline-stats">
-                    <span className="trend positive">+12% vs yesterday</span>
+                    <span className="trend-badge positive">
+                        <span className="trend-icon">↑</span>
+                        +12% vs yesterday
+                    </span>
                 </div>
             </div>
             <div className="chart-container" style={{ width: "100%", height: 320 }}>
                 <ResponsiveContainer>
-                    <AreaChart data={mockTimelineData}>
+                    <AreaChart data={mockTimelineData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
                         <defs>
                             <linearGradient id="colorEvents" x1="0" y1="0" x2="0" y2="1">
-                                <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.6} />
+                                <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3} />
                                 <stop offset="95%" stopColor="#3b82f6" stopOpacity={0} />
                             </linearGradient>
                             <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
-                                <feGaussianBlur stdDeviation="3" result="blur" />
+                                <feGaussianBlur stdDeviation="4" result="blur" />
                                 <feComposite in="SourceGraphic" in2="blur" operator="over" />
                             </filter>
                         </defs>
-                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(255,255,255,0.05)" />
+                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(148, 163, 184, 0.1)" />
                         <XAxis
                             dataKey="time"
                             stroke="#64748b"
@@ -81,7 +89,14 @@ const AttackTimeline = () => {
                             axisLine={false}
                             dx={-5}
                         />
-                        <Tooltip content={<CustomTooltip />} cursor={{ stroke: 'rgba(59, 130, 246, 0.2)', strokeWidth: 2 }} />
+                        <Tooltip
+                            content={<CustomTooltip />}
+                            cursor={{
+                                stroke: 'rgba(59, 130, 246, 0.4)',
+                                strokeWidth: 1,
+                                strokeDasharray: '4 4'
+                            }}
+                        />
                         <Area
                             type="monotone"
                             dataKey="events"
@@ -89,8 +104,14 @@ const AttackTimeline = () => {
                             strokeWidth={3}
                             fillOpacity={1}
                             fill="url(#colorEvents)"
-                            filter="url(#glow)"
-                            animationDuration={2000}
+                            activeDot={{
+                                r: 6,
+                                fill: "#3b82f6",
+                                stroke: "#fff",
+                                strokeWidth: 2,
+                                className: "glowing-active-dot"
+                            }}
+                            animationDuration={1500}
                         />
                     </AreaChart>
                 </ResponsiveContainer>
