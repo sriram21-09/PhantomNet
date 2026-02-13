@@ -33,6 +33,8 @@ venv/
 # PhantomNet Specific
 *.log
 *.sqlite3
+*.db
+backend/phantomnet.db
 backend/ml/model.pkl
 backend/ml/scaler.pkl
 backend/ml/threat_model.pkl
