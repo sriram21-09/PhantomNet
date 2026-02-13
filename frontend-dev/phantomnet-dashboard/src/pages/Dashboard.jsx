@@ -11,6 +11,7 @@ import AttackTimeline from "../components/AttackTimeline";
 import ProtocolChart from "../components/ProtocolChart";
 import TopAttackers from "../components/TopAttackers";
 import OptimizedThreatLevel from "../components/OptimizedThreatLevel";
+import WelcomeModal from "../components/WelcomeModal";
 import { fetchThreatMetrics } from "../services/api";
 import { Button } from "../components/ui/button";
 import "../styles/pages/Dashboard.css";
@@ -66,11 +67,12 @@ const Dashboard = () => {
 
   return (
     <div className="dashboard-wrapper">
+      <WelcomeModal />
       {/* Dashboard Header */}
       <div className="dashboard-header">
         <div className="header-content">
           <div className="header-title">
-            <div className="title-badge">LIVE</div>
+            <div className="title-badge" title="Live data feed synchronized with backend">LIVE</div>
             <h1>Command Center</h1>
             <p>AI-Powered Threat Defense • Real-time Monitoring</p>
           </div>

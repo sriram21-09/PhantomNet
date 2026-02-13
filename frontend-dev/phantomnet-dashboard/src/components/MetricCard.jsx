@@ -19,7 +19,7 @@ const MetricCard = ({ title, value, variant = "blue" }) => {
   const Icon = iconMap[variant] || FaChartLine;
 
   return (
-    <div className={`metric-card variant-${variant}`}>
+    <div className={`metric-card variant-${variant}`} title={`Real-time telemetry for ${title}`}>
       <div className="metric-glow"></div>
       <div className="metric-content">
         <div className="metric-header">
