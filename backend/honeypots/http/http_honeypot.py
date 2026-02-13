@@ -207,6 +207,7 @@ class HoneypotHandler(BaseHTTPRequestHandler):
             self.wfile.write(FORGOT_PAGE.encode())
 
         else:
+            self._log_event("scan_attempt", "INFO")
             self.send_response(404)
             self.send_header("Content-Type", "text/plain")
             self.end_headers()

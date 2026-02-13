@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { FaLock, FaGlobe, FaFolder, FaEnvelope } from "react-icons/fa";
-import "./HoneypotStatus.css";
+import "../styles/components/HoneypotStatus.css";
 
 const iconMap = {
   SSH: FaLock,

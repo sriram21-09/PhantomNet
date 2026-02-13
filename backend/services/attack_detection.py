@@ -5,7 +5,7 @@ from typing import List, Dict, Any
 
 # Local imports
 from database.database import SessionLocal
-from app_models import PacketLog
+from database.models import PacketLog
 
 class AttackDetectionService:
     def __init__(self, db: Session = None):

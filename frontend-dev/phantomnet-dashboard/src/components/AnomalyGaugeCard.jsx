@@ -4,7 +4,7 @@ import {
   PolarAngleAxis,
   ResponsiveContainer,
 } from "recharts";
-import "./MetricCard.css";
+import "../styles/components/MetricCard.css";
 
 const AnomalyGaugeCard = ({ anomalyScore }) => {
   const percentage = Math.round(anomalyScore * 100);

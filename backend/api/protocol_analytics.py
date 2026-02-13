@@ -6,7 +6,7 @@ from datetime import datetime, timedelta
 # Local imports
 from database.database import get_db
 from services.attack_detection import AttackDetectionService
-from app_models import PacketLog
+from database.models import PacketLog
 
 router = APIRouter(
     prefix="/api/v1/analytics",

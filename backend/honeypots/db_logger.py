@@ -11,7 +11,7 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')
 
 try:
     from database import SessionLocal
-    from app_models import PacketLog
+    from database.models import PacketLog
     DB_AVAILABLE = True
 except Exception as e:
     print(f"[DB Logger] Database not available: {e}")
