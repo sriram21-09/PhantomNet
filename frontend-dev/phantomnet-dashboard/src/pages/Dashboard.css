@@ -1,7 +1,6 @@
 /* ==========================================
    DASHBOARD - Premium Dual-Theme Design
    ========================================== */
-
 .dashboard-wrapper {
   min-height: 100vh;
   padding: 24px;
@@ -310,4 +309,73 @@ body[data-theme="light"] .panel-card {
 
 body[data-theme="light"] .panel-card:hover {
   box-shadow: 0 8px 35px rgba(59, 130, 246, 0.12), 0 0 0 1px rgba(255, 255, 255, 0.5) inset;
+}
+/* ==========================================
+   THREAT INTELLIGENCE SECTION
+   ========================================== */
+
+.threat-section {
+  margin-top: 60px;
+  margin-bottom: 40px;
+  padding: 40px 30px;
+  border-radius: 28px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 30px;
+  position: relative;
+}
+
+/* BIG TOP DIVIDER */
+.threat-section::before {
+  content: "";
+  position: absolute;
+  top: -30px;
+  left: 0;
+  width: 100%;
+  height: 4px;
+  border-radius: 4px;
+  background: linear-gradient(
+    90deg,
+    #3b82f6,
+    #8b5cf6,
+    #06b6d4
+  );
+}
+
+/* Section Title */
+.threat-section::after {
+  content: "THREAT INTELLIGENCE";
+  position: absolute;
+  top: -52px;
+  left: 0;
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+}
+
+body[data-theme="dark"] .threat-section {
+  background: rgba(2, 6, 23, 0.8);
+  border: 1px solid rgba(56, 189, 248, 0.3);
+  box-shadow: 0 25px 70px rgba(0, 0, 0, 0.7);
+}
+
+body[data-theme="light"] .threat-section {
+  background: #ffffff;
+  border: 1px solid rgba(37, 99, 235, 0.25);
+  box-shadow: 0 20px 60px rgba(37, 99, 235, 0.12);
+}
+
+body[data-theme="dark"] .threat-section::after {
+  color: #38bdf8;
+}
+
+body[data-theme="light"] .threat-section::after {
+  color: #2563eb;
+}
+
+@media (max-width: 1024px) {
+  .threat-section {
+    grid-template-columns: 1fr;
+  }
 }

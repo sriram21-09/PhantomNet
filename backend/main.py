@@ -29,6 +29,7 @@ from dotenv import load_dotenv
 from services.traffic_sniffer import RealTimeSniffer
 from services.stats_aggregator import StatsService
 from services.firewall import FirewallService
+from services.threat_analyzer import threat_analyzer
 
 # =========================
 # MODELS
@@ -82,11 +83,15 @@ async def lifespan(app: FastAPI):
         sniffer = RealTimeSniffer()
         sniffer.start_background_sniffer()
         print("PhantomNet Sniffer Started")
+        
+        # Start Threat Analyzer Background Service
+        threat_analyzer.start()
     else:
         print("Sniffer disabled (CI/Test mode)")
 
     yield
     print("PhantomNet Shutting Down")
+    threat_analyzer.stop()
 
 # =========================
 # APP INIT (ONLY ONE APP)
@@ -108,6 +113,15 @@ app.add_middleware(
 
 # Register Routers
 app.include_router(model_metrics_router)
+
+# =========================
+# ROUTERS
+# =========================
+from api.threat_scoring import router as threat_router
+from api.protocol_analytics import router as analytics_router
+
+app.include_router(threat_router)
+app.include_router(analytics_router)
 
 # =========================
 # CORE ENDPOINTS

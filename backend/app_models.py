@@ -34,6 +34,8 @@ class PacketLog(Base):
     # Detection & scoring
     is_malicious = Column(Boolean, default=False)
     threat_score = Column(Float, default=0.0)
+    anomaly_score = Column(Float, default=0.0)  # Raw isolation forest score
+    threat_level = Column(String(16), index=True, nullable=True)  # HIGH / MEDIUM / LOW
     attack_type = Column(String(32), nullable=True)  # BENIGN / SUSPICIOUS / MALICIOUS
 
     # =========================

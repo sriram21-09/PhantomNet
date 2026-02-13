@@ -28,7 +28,8 @@ def get_db_engine():
                 DATABASE_URL, 
                 pool_pre_ping=True, # Auto-detect broken connections
                 pool_size=10, 
-                max_overflow=20
+                max_overflow=20,
+                connect_args={"check_same_thread": False} if "sqlite" in DATABASE_URL else {}
             )
             # Test connection
             with engine.connect() as connection:

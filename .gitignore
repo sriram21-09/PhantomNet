@@ -1,61 +1,42 @@
+
 # Python
 __pycache__/
-*.pyc
-*.pyo
-*.pyd
-.venv/
-venv/
-
-# Env files
-.env
-*.env
-
-# Coverage
-.coverage
-htmlcov/
-
-# Databases
-*.db
-*.sqlite3
-
-# Logs
-*.log
-logs/
-
-# Frontend
-node_modules/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+build/
+develop-eggs/
 dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
 
-# OS
-.DS_Store
-Thumbs.db
- 
- # Python
-__pycache__/
-*.pyc
-*.pyo
-*.pyd
+# Virtual Environment
 venv/
-*/venv/
-smtp-venv/
-
-# Local data / artifacts
-.coverage
-week6_day3_events.csv
-week6_day4_pipeline_events.csv
-
-# Environment files
 .env
-*.env
 
-# Data / generated artifacts
-data/*.csv
-data/*.json
-data/*.jsonl
+# IDEs
+.vscode/
+.idea/
 
-# MLflow
-mlruns/
-backend/ml/mlruns/
-# SSH honeypot keys
-backend/honeypots/ssh/honeypot_host_key
-backend/honeypots/ssh/*.key
+# PhantomNet Specific
+*.log
+*.sqlite3
+backend/ml/model.pkl
+backend/ml/scaler.pkl
+backend/ml/threat_model.pkl
+
+# Logs (Added to prevent merge conflicts)
+backend/logs/*.jsonl
+data/predictions.csv

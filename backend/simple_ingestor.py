@@ -77,10 +77,10 @@ def ingest_logs():
     try:
         # Define log files to watch
         log_files = {
-            "ssh": os.path.join(LOG_DIR, "ssh.jsonl"),
-            "http": os.path.join(LOG_DIR, "http.jsonl"),
-            "ftp": os.path.join(LOG_DIR, "ftp.jsonl"),
-            "smtp": os.path.join(LOG_DIR, "smtp.jsonl"),
+            "ssh": os.path.join(LOG_DIR, "ssh.jsonl"),  # This one was correct
+            "http": os.path.join(LOG_DIR, "http_logs.jsonl"),
+            "ftp": os.path.join(LOG_DIR, "ftp_logs.jsonl"),
+            "smtp": os.path.join(LOG_DIR, "smtp_logs.jsonl"),
         }
 
         for proto, filepath in log_files.items():

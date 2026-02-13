@@ -1,0 +1,97 @@
+============================= test session starts =============================
+platform win32 -- Python 3.11.9, pytest-9.0.2, pluggy-1.6.0 -- C:\Users\srira\Project\PhantomNet\backend\venv\Scripts\python.exe
+cachedir: .pytest_cache
+rootdir: C:\Users\srira\Project\PhantomNet
+plugins: anyio-3.7.1
+collecting ... collected 0 items / 1 error
+
+=================================== ERRORS ====================================
+__________________ ERROR collecting tests/test_threat_api.py __________________
+tests\test_threat_api.py:7: in <module>
+    client = TestClient(app)
+             ^^^^^^^^^^^^^^^
+backend\venv\Lib\site-packages\starlette\testclient.py:399: in __init__
+    super().__init__(
+E   TypeError: Client.__init__() got an unexpected keyword argument 'app'
+============================== warnings summary ===============================
+backend\venv\Lib\site-packages\scapy\layers\ipsec.py:512
+  C:\Users\srira\Project\PhantomNet\backend\venv\Lib\site-packages\scapy\layers\ipsec.py:512: CryptographyDeprecationWarning: TripleDES has been moved to cryptography.hazmat.decrepit.ciphers.algorithms.TripleDES and will be removed from cryptography.hazmat.primitives.ciphers.algorithms in 48.0.0.
+    cipher=algorithms.TripleDES,
+
+backend\venv\Lib\site-packages\scapy\layers\ipsec.py:516
+  C:\Users\srira\Project\PhantomNet\backend\venv\Lib\site-packages\scapy\layers\ipsec.py:516: CryptographyDeprecationWarning: TripleDES has been moved to cryptography.hazmat.decrepit.ciphers.algorithms.TripleDES and will be removed from cryptography.hazmat.primitives.ciphers.algorithms in 48.0.0.
+    cipher=algorithms.TripleDES,
+
+backend\app_models.py:13
+  C:\Users\srira\Project\PhantomNet\backend\app_models.py:13: MovedIn20Warning: The ``declarative_base()`` function is now available as sqlalchemy.orm.declarative_base(). (deprecated since: 2.0) (Background on SQLAlchemy 2.0 at: https://sqlalche.me/e/b8d9)
+    Base = declarative_base()
+
+backend\venv\Lib\site-packages\pydantic\fields.py:799: 10 warnings
+  C:\Users\srira\Project\PhantomNet\backend\venv\Lib\site-packages\pydantic\fields.py:799: PydanticDeprecatedSince20: Using extra keyword arguments on `Field` is deprecated and will be removed. Use `json_schema_extra` instead. (Extra keys: 'example'). Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.5/migration/
+    warn(
+
+backend\venv\Lib\site-packages\mlflow\gateway\config.py:66
+  C:\Users\srira\Project\PhantomNet\backend\venv\Lib\site-packages\mlflow\gateway\config.py:66: PydanticDeprecatedSince20: Pydantic V1 style `@validator` validators are deprecated. You should migrate to Pydantic V2 style `@field_validator` validators, see the migration guide for more details. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.5/migration/
+    @validator("cohere_api_key", pre=True)
+
+backend\venv\Lib\site-packages\mlflow\gateway\config.py:74
+  C:\Users\srira\Project\PhantomNet\backend\venv\Lib\site-packages\mlflow\gateway\config.py:74: PydanticDeprecatedSince20: Pydantic V1 style `@validator` validators are deprecated. You should migrate to Pydantic V2 style `@field_validator` validators, see the migration guide for more details. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.5/migration/
+    @validator("ai21labs_api_key", pre=True)
+
+backend\venv\Lib\site-packages\mlflow\gateway\config.py:83
+  C:\Users\srira\Project\PhantomNet\backend\venv\Lib\site-packages\mlflow\gateway\config.py:83: PydanticDeprecatedSince20: Pydantic V1 style `@validator` validators are deprecated. You should migrate to Pydantic V2 style `@field_validator` validators, see the migration guide for more details. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.5/migration/
+    @validator("mosaicml_api_key", pre=True)
+
+backend\venv\Lib\site-packages\mlflow\gateway\config.py:113
+  C:\Users\srira\Project\PhantomNet\backend\venv\Lib\site-packages\mlflow\gateway\config.py:113: PydanticDeprecatedSince20: Pydantic V1 style `@validator` validators are deprecated. You should migrate to Pydantic V2 style `@field_validator` validators, see the migration guide for more details. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.5/migration/
+    @validator("openai_api_key", pre=True)
+
+backend\venv\Lib\site-packages\mlflow\gateway\config.py:170
+  C:\Users\srira\Project\PhantomNet\backend\venv\Lib\site-packages\mlflow\gateway\config.py:170: PydanticDeprecatedSince20: Pydantic V1 style `@validator` validators are deprecated. You should migrate to Pydantic V2 style `@field_validator` validators, see the migration guide for more details. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.5/migration/
+    @validator("anthropic_api_key", pre=True)
+
+backend\venv\Lib\site-packages\mlflow\gateway\config.py:178
+  C:\Users\srira\Project\PhantomNet\backend\venv\Lib\site-packages\mlflow\gateway\config.py:178: PydanticDeprecatedSince20: Pydantic V1 style `@validator` validators are deprecated. You should migrate to Pydantic V2 style `@field_validator` validators, see the migration guide for more details. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.5/migration/
+    @validator("palm_api_key", pre=True)
+
+backend\venv\Lib\site-packages\mlflow\gateway\config.py:218
+  C:\Users\srira\Project\PhantomNet\backend\venv\Lib\site-packages\mlflow\gateway\config.py:218: PydanticDeprecatedSince20: Pydantic V1 style `@validator` validators are deprecated. You should migrate to Pydantic V2 style `@field_validator` validators, see the migration guide for more details. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.5/migration/
+    @validator("mistral_api_key", pre=True)
+
+backend\venv\Lib\site-packages\mlflow\gateway\config.py:297
+  C:\Users\srira\Project\PhantomNet\backend\venv\Lib\site-packages\mlflow\gateway\config.py:297: PydanticDeprecatedSince20: Pydantic V1 style `@validator` validators are deprecated. You should migrate to Pydantic V2 style `@field_validator` validators, see the migration guide for more details. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.5/migration/
+    @validator("provider", pre=True)
+
+backend\venv\Lib\site-packages\mlflow\gateway\config.py:318
+  C:\Users\srira\Project\PhantomNet\backend\venv\Lib\site-packages\mlflow\gateway\config.py:318: PydanticDeprecatedSince20: Pydantic V1 style `@validator` validators are deprecated. You should migrate to Pydantic V2 style `@field_validator` validators, see the migration guide for more details. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.5/migration/
+    @validator("config", pre=True)
+
+backend\venv\Lib\site-packages\mlflow\gateway\config.py:358
+  C:\Users\srira\Project\PhantomNet\backend\venv\Lib\site-packages\mlflow\gateway\config.py:358: PydanticDeprecatedSince20: Pydantic V1 style `@validator` validators are deprecated. You should migrate to Pydantic V2 style `@field_validator` validators, see the migration guide for more details. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.5/migration/
+    @validator("name")
+
+backend\venv\Lib\site-packages\mlflow\gateway\config.py:368
+  C:\Users\srira\Project\PhantomNet\backend\venv\Lib\site-packages\mlflow\gateway\config.py:368: PydanticDeprecatedSince20: Pydantic V1 style `@validator` validators are deprecated. You should migrate to Pydantic V2 style `@field_validator` validators, see the migration guide for more details. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.5/migration/
+    @validator("model", pre=True)
+
+backend\venv\Lib\site-packages\mlflow\gateway\config.py:379
+  C:\Users\srira\Project\PhantomNet\backend\venv\Lib\site-packages\mlflow\gateway\config.py:379: PydanticDeprecatedSince20: Pydantic V1 style `@root_validator` validators are deprecated. You should migrate to Pydantic V2 style `@model_validator` validators, see the migration guide for more details. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.5/migration/
+    @root_validator(skip_on_failure=True)
+
+backend\venv\Lib\site-packages\mlflow\gateway\config.py:401
+  C:\Users\srira\Project\PhantomNet\backend\venv\Lib\site-packages\mlflow\gateway\config.py:401: PydanticDeprecatedSince20: Pydantic V1 style `@validator` validators are deprecated. You should migrate to Pydantic V2 style `@field_validator` validators, see the migration guide for more details. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.5/migration/
+    @validator("route_type", pre=True)
+
+backend\venv\Lib\site-packages\mlflow\gateway\config.py:407
+  C:\Users\srira\Project\PhantomNet\backend\venv\Lib\site-packages\mlflow\gateway\config.py:407: PydanticDeprecatedSince20: Pydantic V1 style `@validator` validators are deprecated. You should migrate to Pydantic V2 style `@field_validator` validators, see the migration guide for more details. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.5/migration/
+    @validator("limit", pre=True)
+
+backend\venv\Lib\site-packages\pydantic\_internal\_config.py:271
+  C:\Users\srira\Project\PhantomNet\backend\venv\Lib\site-packages\pydantic\_internal\_config.py:271: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.5/migration/
+    warnings.warn(DEPRECATION_MESSAGE, DeprecationWarning)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+ERROR tests/test_threat_api.py - TypeError: Client.__init__() got an unexpect...
+!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!
+======================== 28 warnings, 1 error in 2.63s ========================

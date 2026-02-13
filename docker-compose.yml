@@ -1,7 +1,4 @@
-version: '3.8'
-
 services:
-  # --- 1. The Memory (Database) ---
   postgres:
     image: postgres:15-alpine
     container_name: phantomnet_postgres
@@ -11,93 +8,92 @@ services:
       POSTGRES_DB: phantomnet
     volumes:
       - postgres_data:/var/lib/postgresql/data
-    networks:
-      - phantomnet_network
     ports:
       - "5432:5432"
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
       interval: 5s
       timeout: 5s
       retries: 5
 
-  # --- 2. The Brain (API) ---
-  api:
-    build: 
-      context: ./backend
-      dockerfile: Dockerfile
-    container_name: phantomnet_api
-    depends_on:
-      postgres:
-        condition: service_healthy
-    environment:
-      - DATABASE_URL=postgresql://postgres:postgres@phantomnet_postgres:5432/phantomnet
-    networks:
-      - phantomnet_network
-    ports:
-      - "8000:8000"
-    volumes:
-      - ./backend:/app  # Live code reloading
-    extra_hosts:
-      - "host-gateway:host-gateway"
-
-  # --- 3. The Dashboard (Frontend) ---
-  frontend:
-    build: 
-      context: ./frontend
-      dockerfile: Dockerfile
-    container_name: phantomnet_frontend
-    ports:
-      - "8501:8501"
-    depends_on:
-      - api
-    networks:
-      - phantomnet_network
-
-  # --- 4. The Sensors (Honeypots) ---
   ssh_honeypot:
     build: ./honeypots/ssh
     container_name: phantomnet_ssh
     ports:
-      - "2222:2222"
-    networks:
-      - phantomnet_network
+      - "2222:2222" # ✅ FIXED
+    environment:
+      DB_NAME: phantomnet
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+      DB_HOST: postgres
+    volumes:
+      - ./backend/logs:/logs
     depends_on:
-      - api
+      - postgres
 
   http_honeypot:
     build: ./honeypots/http
     container_name: phantomnet_http
     ports:
       - "8080:8080"
-    networks:
-      - phantomnet_network
+    volumes:
+      - ./backend/logs:/logs
     depends_on:
-      - api
+      - postgres
 
   ftp_honeypot:
     build: ./honeypots/ftp
     container_name: phantomnet_ftp
     ports:
       - "2121:2121"
-      - "30000-30009:30000-30009"
-    networks:
-      - phantomnet_network
+      - "30000-30020:30000-30020"
+    volumes:
+      - ./backend/logs:/logs
     depends_on:
-      - api
-      
-  smtp_honeypot:
-    build: ./honeypots/smtp
+      - postgres
+
+  smtp-honeypot:
+    build:
+      context: ./backend/honeypots/smtp
+      dockerfile: Dockerfile
     container_name: phantomnet_smtp
     ports:
       - "2525:2525"
-    networks:
-      - phantomnet_network
+    volumes:
+      - ./backend/logs:/logs
+    depends_on:
+      - postgres
+
+  frontend:
+    build:
+      context: ./frontend-dev/phantomnet-dashboard
+      dockerfile: Dockerfile
+    container_name: phantomnet_frontend
+    ports:
+      - "3000:80"
     depends_on:
       - api
 
+  api:
+    build:
+      context: .
+      dockerfile: backend/api/Dockerfile
+    container_name: phantomnet_api
+    ports:
+      - "8000:8000"
+    environment:
+      ENVIRONMENT: production
+      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/phantomnet
+      DB_HOST: postgres
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+      DB_NAME: phantomnet
+      DB_PORT: 5432
+    depends_on:
+      - postgres
+
 networks:
-  phantomnet_network:
+  phantomnet:
     driver: bridge
 
 volumes:
