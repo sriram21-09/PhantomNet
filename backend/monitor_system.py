@@ -2,7 +2,7 @@ import os
 import time
 from datetime import datetime, timedelta
 from database import SessionLocal
-from app_models import PacketLog
+from database.models import PacketLog
 from sqlalchemy import text
 
 # CONFIGURATION

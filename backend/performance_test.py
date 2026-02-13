@@ -1,9 +1,10 @@
+
 import time
 import threading
 import random
 from sqlalchemy import text
 from database import SessionLocal
-from app_models import PacketLog
+from database.models import PacketLog, TrafficStats
 from datetime import datetime
 
 # CONFIGURATION

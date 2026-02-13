@@ -3,7 +3,7 @@ import threading
 from datetime import datetime
 
 from db_core import SessionLocal
-from app_models import PacketLog
+from database.models import PacketLog
 
 # ✅ WEEK 6 ML PIPELINE
 from ml.threat_correlation import ThreatCorrelator

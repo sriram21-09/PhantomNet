@@ -7,7 +7,7 @@ import {
   FaFolder,
   FaEnvelope,
 } from "react-icons/fa";
-import "./NetworkVisualization.css";
+import "../styles/components/NetworkVisualization.css";
 
 const NetworkVisualization = () => {
   const [nodes, setNodes] = useState({
@@ -16,6 +16,8 @@ const NetworkVisualization = () => {
     ftp: { count: 0, status: "inactive" },
     smtp: { count: 0, status: "inactive" },
   });
+
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -44,6 +46,8 @@ const NetworkVisualization = () => {
         setNodes(nodeMap);
       } catch (err) {
         console.error("Network Viz Error:", err);
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -58,6 +62,20 @@ const NetworkVisualization = () => {
     { key: "ftp", name: "FTP", icon: FaFolder, port: 2121 },
     { key: "smtp", name: "SMTP", icon: FaEnvelope, port: 2525 },
   ];
+
+  if (loading) {
+    return (
+      <div className="network-wrapper">
+        <div className="network-header">
+          <h3>Live Mesh Topology</h3>
+          <span className="refresh-info">Initializing...</span>
+        </div>
+        <div className="network-loading">
+          <div className="pulse-ring"></div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="network-wrapper">

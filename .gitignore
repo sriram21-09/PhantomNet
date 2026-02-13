@@ -40,3 +40,5 @@ backend/ml/threat_model.pkl
 # Logs (Added to prevent merge conflicts)
 backend/logs/*.jsonl
 data/predictions.csv
+
+backend/logs/*.jsonl

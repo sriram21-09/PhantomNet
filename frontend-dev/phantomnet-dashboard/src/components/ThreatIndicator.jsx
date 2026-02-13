@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from "react";
-import "./ThreatIndicator.css";
+import "../styles/components/ThreatIndicator.css";
 import { getEventFeatures } from "../api/mlClient";
 import { normalSSHEvent } from "../mocks/mlMockData";
 
 const ThreatIndicator = ({ eventId, threatScore: propThreatScore }) => {
   const [threatScore, setThreatScore] = useState(
     propThreatScore ??
-      normalSSHEvent.features.threat_score.value ??
-      0
+    normalSSHEvent.features.threat_score.value ??
+    0
   );
   const [_loading, setLoading] = useState(false);
   const [_error, setError] = useState(null);
@@ -28,8 +28,8 @@ const ThreatIndicator = ({ eventId, threatScore: propThreatScore }) => {
         console.warn("ThreatIndicator API failed, using mock score");
         setThreatScore(
           propThreatScore ??
-            normalSSHEvent.features.threat_score.value ??
-            0
+          normalSSHEvent.features.threat_score.value ??
+          0
         );
         setError(err.message);
       } finally {

@@ -9,7 +9,7 @@ import NetworkVisualization from "../components/NetworkVisualization";
 import AnomalyGaugeCard from "../components/AnomalyGaugeCard";
 import { fetchThreatMetrics } from "../services/api";
 import { Button } from "../components/ui/button";
-import "./Dashboard.css";
+import "../styles/pages/Dashboard.css";
 
 const Dashboard = () => {
   const [stats, setStats] = useState(null);
@@ -94,9 +94,10 @@ const Dashboard = () => {
           </div>
 
           {/* Threat Intelligence Section (Upgraded Slots) */}
-          {threatMetrics && (
-            <div className="threat-section">
-              <div className="threat-slot">
+          {/* Threat Intelligence Section (Upgraded Slots) */}
+          <div className="threat-section">
+            <div className="threat-slot">
+              {threatMetrics ? (
                 <MetricCard
                   title="Threat Level"
                   value={`${threatMetrics.threatLevel}%`}
@@ -104,17 +105,23 @@ const Dashboard = () => {
                     threatMetrics.threatLevel < 40
                       ? "green"
                       : threatMetrics.threatLevel < 70
-                      ? "orange"
-                      : "red"
+                        ? "orange"
+                        : "red"
                   }
                 />
-              </div>
-
-              <div className="threat-slot">
-                <AnomalyGaugeCard anomalyScore={threatMetrics.anomalyScore} />
-              </div>
+              ) : (
+                <div className="skeleton-card"></div>
+              )}
             </div>
-          )}
+
+            <div className="threat-slot">
+              {threatMetrics ? (
+                <AnomalyGaugeCard anomalyScore={threatMetrics.anomalyScore} />
+              ) : (
+                <div className="skeleton-card"></div>
+              )}
+            </div>
+          </div>
 
           {/* Main Panels */}
           <div className="panels-grid">

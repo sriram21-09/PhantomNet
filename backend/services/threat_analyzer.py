@@ -8,7 +8,7 @@ from typing import List, Optional
 
 # Local imports
 from database.database import SessionLocal
-from app_models import PacketLog
+from database.models import PacketLog
 from ml.threat_scoring_service import score_threat
 from schemas.threat_schema import ThreatInput
 
@@ -71,18 +71,16 @@ class ThreatAnalyzerService:
     def _process_unscored_logs(self):
         db: Session = SessionLocal()
         try:
-            # Fetch logs where threat_level is NULL
+            # Fetch logs where threat_score is NULL
             # Limit to 50 to avoid blocking
             logs = db.query(PacketLog).filter(
-                PacketLog.threat_level.is_(None)
+                PacketLog.threat_score.is_(None)
             ).order_by(PacketLog.timestamp.desc()).limit(50).all()
-
-            if not logs:
-                return
 
             updated_count = 0
             for log in logs:
                 # 1. Check Cache
+                # ... (skipping cache logic for brevity in replace block if possible, but context requires full block)
                 cached = self._get_cached_score(log.src_ip)
                 if cached:
                     result = cached['result']
@@ -103,11 +101,11 @@ class ThreatAnalyzerService:
                         continue
 
                 # 3. Update DB Record
-                log.threat_score = result.score
-                log.threat_level = result.threat_level
-                log.anomaly_score = result.confidence # Using confidence as proxy for anomaly score if not raw
-                log.attack_type = result.decision # ALLOW/BLOCK maps to decision
-                log.is_malicious = result.threat_level in ["HIGH", "CRITICAL"]
+                log.threat_score = result.get("score", 0.0)
+                # log.threat_level = result.threat_level  <-- COLUMN DOES NOT EXIST
+                # log.anomaly_score = result.confidence   <-- COLUMN DOES NOT EXIST
+                log.attack_type = result.get("decision", "BENIGN")
+                log.is_malicious = result.get("threat_level", "LOW") in ["HIGH", "CRITICAL"]
                 
                 updated_count += 1
 
