@@ -1,0 +1,24 @@
+[
+    {
+        "version": "1.0",
+        "date": "2026-02-13",
+        "model_type": "Isolation Forest",
+        "description": "Initial optimized model for anomaly detection.",
+        "metrics": {
+            "f1_score": 0.5409,
+            "precision": 0.8776,
+            "recall": 0.3909
+        },
+        "parameters": {
+            "n_estimators": 50,
+            "max_samples": 0.5,
+            "contamination": "auto"
+        },
+        "artifacts": [
+            "models/isolation_forest_optimized.pkl",
+            "models/hyperparameter_results.json",
+            "reports/model_performance/confusion_matrix.png",
+            "reports/model_performance/roc_curve.png"
+        ]
+    }
+]

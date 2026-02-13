@@ -36,6 +36,11 @@ from services.firewall import FirewallService
 from app_models import Base, PacketLog, TrafficStats
 
 # =========================
+# API ROUTERS
+# =========================
+from api.model_metrics import router as model_metrics_router
+
+# =========================
 # ENVIRONMENT SETUP
 # =========================
 load_dotenv()
@@ -100,6 +105,9 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Register Routers
+app.include_router(model_metrics_router)
 
 # =========================
 # CORE ENDPOINTS
