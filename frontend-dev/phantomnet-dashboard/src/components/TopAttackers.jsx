@@ -1,5 +1,6 @@
 import React, { useState } from "react";
-import { FaSort, FaSortUp, FaSortDown, FaShieldAlt } from "react-icons/fa";
+import { FaSort, FaSortUp, FaSortDown, FaShieldAlt, FaChevronLeft, FaChevronRight } from "react-icons/fa";
+import { usePagination } from "../hooks/usePagination";
 
 const initialAttackers = [
     { ip: "192.168.1.105", count: 1245, country: "USA", risk: "High" },
@@ -12,13 +13,24 @@ const initialAttackers = [
     { ip: "91.23.45.67", count: 120, country: "UK", risk: "Medium" },
     { ip: "5.6.7.8", count: 80, country: "Japan", risk: "Low" },
     { ip: "123.123.123.123", count: 45, country: "Canada", risk: "High" },
+    { ip: "10.0.0.1", count: 30, country: "Local", risk: "Low" },
+    { ip: "172.16.0.5", count: 25, country: "Private", risk: "Medium" },
+    { ip: "192.168.0.1", count: 10, country: "Router", risk: "Low" },
 ];
 
 const TopAttackers = () => {
     const [attackers, setAttackers] = useState(initialAttackers);
     const [sortConfig, setSortConfig] = useState({ key: "count", direction: "desc" });
 
-    const maxCount = Math.max(...attackers.map(a => a.count));
+    const {
+        currentPage,
+        totalPages,
+        paginatedData,
+        nextPage,
+        prevPage,
+    } = usePagination(attackers, 10); // Updated to 10 per page as requested
+
+    const maxCount = Math.max(...initialAttackers.map(a => a.count));
 
     const sortData = (key) => {
         let direction = "desc";
@@ -48,7 +60,25 @@ const TopAttackers = () => {
                     <div className="title-icon reputation"><FaShieldAlt /></div>
                     Top Threat Vectors
                 </h3>
-                <span className="last-updated">Real-time Feed</span>
+                <div className="pagination-controls">
+                    <span className="page-info">Page {currentPage} of {totalPages}</span>
+                    <div className="pagination-buttons">
+                        <button
+                            className="pagination-btn"
+                            onClick={prevPage}
+                            disabled={currentPage === 1}
+                        >
+                            <FaChevronLeft />
+                        </button>
+                        <button
+                            className="pagination-btn"
+                            onClick={nextPage}
+                            disabled={currentPage === totalPages}
+                        >
+                            <FaChevronRight />
+                        </button>
+                    </div>
+                </div>
             </div>
             <div className="table-container">
                 <table className="premium-table pro-table">
@@ -69,7 +99,7 @@ const TopAttackers = () => {
                         </tr>
                     </thead>
                     <tbody>
-                        {attackers.map((attacker, index) => (
+                        {paginatedData.map((attacker, index) => (
                             <tr key={index}>
                                 <td className="font-mono ip-column">
                                     {attacker.ip}

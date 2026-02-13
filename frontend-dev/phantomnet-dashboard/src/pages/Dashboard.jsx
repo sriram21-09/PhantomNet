@@ -10,6 +10,7 @@ import AnomalyGaugeCard from "../components/AnomalyGaugeCard";
 import AttackTimeline from "../components/AttackTimeline";
 import ProtocolChart from "../components/ProtocolChart";
 import TopAttackers from "../components/TopAttackers";
+import OptimizedThreatLevel from "../components/OptimizedThreatLevel";
 import { fetchThreatMetrics } from "../services/api";
 import { Button } from "../components/ui/button";
 import "../styles/pages/Dashboard.css";
@@ -110,17 +111,7 @@ const Dashboard = () => {
           <div className="threat-section">
             <div className="threat-slot pro-card">
               {threatMetrics ? (
-                <MetricCard
-                  title="Threat Level"
-                  value={`${threatMetrics.threatLevel}%`}
-                  variant={
-                    threatMetrics.threatLevel < 40
-                      ? "green"
-                      : threatMetrics.threatLevel < 70
-                        ? "orange"
-                        : "red"
-                  }
-                />
+                <OptimizedThreatLevel threatLevel={threatMetrics.threatLevel} />
               ) : (
                 <div className="skeleton-card"></div>
               )}
