@@ -42,3 +42,7 @@ backend/logs/*.jsonl
 data/predictions.csv
 
 backend/logs/*.jsonl
+
+backend/.venv/
+
+phantomnet.db
