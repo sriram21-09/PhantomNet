@@ -5,7 +5,7 @@ try:
         dbname="phantomnet",
         user="postgres",
         password="password@321",
-        host="localhost",
+        host="phantomnet_postgres",
         port=5432
     )
     print("Database connected successfully")

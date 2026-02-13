@@ -32,7 +32,7 @@ def get_db_connection():
             dbname="phantomnet_db",
             user="postgres",
             password="password",  # Update if you changed your DB password
-            host="localhost",
+            host="phantomnet_postgres",
             port="5432"
         )
         return conn

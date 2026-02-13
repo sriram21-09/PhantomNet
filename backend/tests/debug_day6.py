@@ -6,7 +6,7 @@ from sqlalchemy import create_engine, Column, Integer, String, DateTime
 from sqlalchemy.orm import sessionmaker, declarative_base
 
 # ⚠️ REPLACE 'Luckky' WITH YOUR REAL PASSWORD
-DATABASE_URL = "postgresql://postgres:Luckky@localhost:5432/phantomnet_db"
+DATABASE_URL = "postgresql://postgres:Luckky@phantomnet_postgres:5432/phantomnet_db"
 
 Base = declarative_base()
 

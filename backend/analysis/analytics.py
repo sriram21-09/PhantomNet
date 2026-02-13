@@ -10,7 +10,7 @@ sys.path.append(parent_dir)
 from database.models import Event
 
 # REPLACE WITH YOUR REAL PASSWORD
-DATABASE_URL = "postgresql://postgres:Luckky@localhost:5432/phantomnet_db"
+DATABASE_URL = "postgresql://postgres:Luckky@phantomnet_postgres:5432/phantomnet_db"
 
 engine = create_engine(DATABASE_URL)
 Session = sessionmaker(bind=engine)

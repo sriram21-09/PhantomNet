@@ -24,7 +24,7 @@ except ImportError as e:
     sys.exit(1)
 
 # ⚠️ YOUR DATABASE URL
-DATABASE_URL = "postgresql://postgres:Luckky@localhost:5432/phantomnet_db"
+DATABASE_URL = "postgresql://postgres:Luckky@phantomnet_postgres:5432/phantomnet_db"
 
 print("🌱 Connecting to Database...")
 engine = create_engine(DATABASE_URL)

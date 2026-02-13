@@ -1,7 +1,7 @@
 from sqlalchemy import create_engine
 from database.models import Base
 # IMPORTANT: Replace YOUR_PASSWORD with your real Postgres password below
-DATABASE_URL = "postgresql://postgres:Luckky@localhost:5432/phantomnet_db"
+DATABASE_URL = "postgresql://postgres:Luckky@phantomnet_postgres:5432/phantomnet_db"
 
 def init_db():
     try:

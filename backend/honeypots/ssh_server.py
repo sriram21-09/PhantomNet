@@ -12,7 +12,7 @@ logging.basicConfig(filename='/tmp/ssh_debug.log', level=logging.DEBUG, format='
 DB_NAME = "phantomnet"
 DB_USER = "phantom"
 DB_PASS = "securepass"
-# We use the socket folder because network localhost is isolated in Mininet
+# We use the socket folder because network phantomnet_postgres is isolated in Mininet
 DB_HOST = "/var/run/postgresql" 
 
 # Generate a host key (in a real app, you would load a saved key)

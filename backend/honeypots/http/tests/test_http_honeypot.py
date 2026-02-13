@@ -1,6 +1,6 @@
 import requests
 
-BASE_URL = "http://localhost:8080"
+BASE_URL = "http://phantomnet_postgres:8080"
 
 def test_get_admin():
     """Admin page should load"""

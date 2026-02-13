@@ -231,7 +231,7 @@ def honeypot_status(db: Session = Depends(get_db)):
     
     # 1. Determine Hostnames based on Environment
     # If running in Docker (default), use service names.
-    # If running locally (dev), use localhost.
+    # If running locally (dev), use phantomnet_postgres.
     is_local = any(env in ENVIRONMENT.lower() for env in ["local", "development", "dev"])
     
     services = [
@@ -349,7 +349,7 @@ def honeypot_status(db: Session = Depends(get_db)):
     data = []
     for svc in services:
         # Determine target host
-        host = "localhost" if is_local else svc["host_docker"]
+        host = "phantomnet_postgres" if is_local else svc["host_docker"]
         
         # Check Socket
         status = check_service_status(host, svc["port"])
@@ -380,8 +380,8 @@ def honeypot_status_alias(db: Session = Depends(get_db)):
 # =========================
 @app.post("/active-defense/block/{ip}")
 def block_ip_address(ip: str):
-    if ip in ["127.0.0.1", "localhost", "::1"]:
-        return {"status": "error", "message": "Cannot block localhost"}
+    if ip in ["127.0.0.1", "phantomnet_postgres", "::1"]:
+        return {"status": "error", "message": "Cannot block phantomnet_postgres"}
 
     result = FirewallService.block_ip(ip)
     if result["status"] == "error":

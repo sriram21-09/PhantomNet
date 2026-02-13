@@ -1,61 +1,94 @@
 import pandas as pd
-import pickle
+import numpy as np
+from sqlalchemy import create_engine
+from sklearn.ensemble import IsolationForest
+import joblib
 import os
-import sys
+from dotenv import load_dotenv
 
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+# 1. Load Environment Variables (to get DB connection)
+load_dotenv()
+DATABASE_URL = os.getenv("DATABASE_URL")
 
-from database.database import SessionLocal
-from database.models import AttackSession
-from ml.feature_extractor import FeatureExtractor
-from sklearn.ensemble import RandomForestClassifier
+# --- CONFIGURATION ---
+MODEL_PATH = "models/isolation_forest_v1.pkl"
+# Features to train on: [Source Port, Destination Port, Protocol (0=TCP, 1=UDP)]
+FEATURES = ['src_port', 'dst_port', 'protocol_num']
 
-def train_model():
-    print("🔌 Connecting to Database...")
-    db = SessionLocal()
-    extractor = FeatureExtractor(db)
-    
-    sessions = db.query(AttackSession).all()
-    print(f"📊 Found {len(sessions)} sessions in database.")
-
-    if len(sessions) < 5:
-        print("❌ Not enough data! Run 'python scripts/seed_data.py' first.")
-        return
-
-    training_data = []
-    labels = []
-
-    print("🧠 Extracting features...")
-    for session in sessions:
-        features = extractor.extract_features(session.id)
+def get_data():
+    """Fetches logs from DB. If empty, generates mock data for training."""
+    try:
+        print("🔌 Connecting to Database...")
+        engine = create_engine(DATABASE_URL)
         
-        training_data.append([
-            features["duration_seconds"],
-            features["event_count"],
-            features["unique_ports"],
-            features["events_per_second"]
-        ])
+        # Query logs (Assuming table name is 'logs' or 'events')
+        # Adjust table name if yours is different!
+        query = "SELECT * FROM logs" 
+        df = pd.read_sql(query, engine)
+        
+        if df.empty:
+            raise ValueError("Database is empty")
+            
+        print(f"✅ Loaded {len(df)} records from Database.")
+        return df
 
-        if features["events_per_second"] > 1.0 or features["unique_ports"] > 2:
-            labels.append(1) 
-        else:
-            labels.append(0) 
+    except Exception as e:
+        print(f"⚠️  Database read failed or empty ({e}). Generating MOCK training data...")
+        # Generate fake normal traffic (Port 80/443)
+        normal_data = pd.DataFrame({
+            'src_port': np.random.randint(1024, 65535, 1000),
+            'dst_port': np.random.choice([80, 443, 8080], 1000),
+            'protocol_num': [0] * 1000  # TCP
+        })
+        # Generate fake attack traffic (Port 22/23 scanning)
+        attack_data = pd.DataFrame({
+            'src_port': np.random.randint(1024, 65535, 50),
+            'dst_port': np.random.choice([22, 23, 3389], 50),
+            'protocol_num': [0] * 50
+        })
+        return pd.concat([normal_data, attack_data], ignore_index=True)
 
-    X = pd.DataFrame(training_data, columns=["duration", "event_count", "unique_ports", "eps"])
-    y = labels
+def preprocess(df):
+    """Cleans data for the model."""
+    # Ensure protocol is numeric (TCP=0, UDP=1, Other=2)
+    if 'protocol' in df.columns and df['protocol'].dtype == 'O':
+        df['protocol_num'] = df['protocol'].map({'TCP': 0, 'UDP': 1}).fillna(2)
+    elif 'protocol_num' not in df.columns:
+        df['protocol_num'] = 0 # Default to TCP if missing
+        
+    # Ensure ports are integers
+    df['src_port'] = pd.to_numeric(df['src_port'], errors='coerce').fillna(0)
+    df['dst_port'] = pd.to_numeric(df['dst_port'], errors='coerce').fillna(0)
+    
+    return df[FEATURES]
 
-    print(f"🤖 Training Random Forest on {len(X)} records...")
-    model = RandomForestClassifier(n_estimators=50)
-    model.fit(X, y)
-
-    current_dir = os.path.dirname(os.path.abspath(__file__))
-    model_path = os.path.join(current_dir, "threat_model.pkl")
-
-    with open(model_path, "wb") as f:
-        pickle.dump(model, f)
-
-    print(f"✅ Model Retrained & Saved at: {model_path}")
-    db.close()
+def train():
+    print("🔄 Fetching Data...")
+    raw_df = get_data()
+    
+    print("🧹 Preprocessing...")
+    train_df = preprocess(raw_df)
+    
+    print(f"🧠 Training Isolation Forest on {len(train_df)} samples...")
+    # Initialize with default parameters as requested
+    clf = IsolationForest(
+        n_estimators=100, 
+        contamination=0.05, # Expect ~5% anomalies
+        random_state=42,
+        n_jobs=-1
+    )
+    clf.fit(train_df)
+    
+    # Calculate Anomaly Scores (Validation)
+    scores = clf.decision_function(train_df)
+    print(f"📊 Validation Scores (Mean): {scores.mean():.4f}")
+    
+    # Create 'models' directory if it doesn't exist
+    os.makedirs(os.path.dirname(MODEL_PATH), exist_ok=True)
+    
+    print(f"💾 Saving model to {MODEL_PATH}...")
+    joblib.dump(clf, MODEL_PATH)
+    print("✅ Training Complete.")
 
 if __name__ == "__main__":
-    train_model()
+    train()

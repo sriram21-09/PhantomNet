@@ -2,7 +2,7 @@ from sqlalchemy import create_engine, text
 from database.models import Base
 
 # ⚠️ REPLACE WITH YOUR PASSWORD
-DATABASE_URL = "postgresql://postgres:Luckky@localhost:5432/phantomnet_db"
+DATABASE_URL = "postgresql://postgres:Luckky@phantomnet_postgres:5432/phantomnet_db"
 
 engine = create_engine(DATABASE_URL)
 

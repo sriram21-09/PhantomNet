@@ -1,7 +1,7 @@
 import ftplib
 import pytest
 
-FTP_HOST = "localhost"
+FTP_HOST = "phantomnet_postgres"
 FTP_PORT = 2121
 
 VALID_USER = "PhantomNet"
