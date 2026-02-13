@@ -18,7 +18,7 @@ except ImportError as e:
     sys.exit(1)
 
 # ⚠️ REPLACE WITH YOUR PASSWORD
-DATABASE_URL = "postgresql://postgres:Luckky@localhost:5432/phantomnet_db"
+DATABASE_URL = "postgresql://postgres:Luckky@phantomnet_postgres:5432/phantomnet_db"
 
 class TestIngestor(unittest.TestCase):
     

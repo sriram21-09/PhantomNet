@@ -69,7 +69,7 @@ def start_server():
     server.listen(5)
     
     print(f"🪤 HTTP Honeypot Active on Port {BIND_PORT}")
-    print("   (Go to http://localhost:5000 to test)")
+    print("   (Go to http://phantomnet_postgres:5000 to test)")
 
     while True:
         client, addr = server.accept()

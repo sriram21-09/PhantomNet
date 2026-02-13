@@ -6,15 +6,18 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: phantomnet
-    ports:
-      - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
-  ssh-honeypot:
-    build:
-      context: ./backend/honeypots/ssh
-      dockerfile: Dockerfile
+  ssh_honeypot:
+    build: ./honeypots/ssh
     container_name: phantomnet_ssh
     ports:
       - "2222:2222" # ✅ FIXED
@@ -28,10 +31,8 @@ services:
     depends_on:
       - postgres
 
-  http-honeypot:
-    build:
-      context: ./backend/honeypots/http
-      dockerfile: Dockerfile
+  http_honeypot:
+    build: ./honeypots/http
     container_name: phantomnet_http
     ports:
       - "8080:8080"
@@ -40,10 +41,8 @@ services:
     depends_on:
       - postgres
 
-  ftp-honeypot:
-    build:
-      context: ./backend/honeypots/ftp
-      dockerfile: Dockerfile
+  ftp_honeypot:
+    build: ./honeypots/ftp
     container_name: phantomnet_ftp
     ports:
       - "2121:2121"
@@ -71,7 +70,7 @@ services:
       dockerfile: Dockerfile
     container_name: phantomnet_frontend
     ports:
-      - "3000:8080"
+      - "3000:80"
     depends_on:
       - api
 
