@@ -4,7 +4,7 @@ import pytest
 import os
 import json
 
-HOST = "localhost"
+HOST = "phantomnet_postgres"
 PORT = 2222
 
 VALID_USER = "PhantomNet"

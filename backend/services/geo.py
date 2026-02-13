@@ -5,8 +5,8 @@ class GeoService:
 
     @staticmethod
     def get_country(ip: str):
-        # 1. Check Localhost / Private IPs
-        if ip in ["127.0.0.1", "localhost", "::1"]:
+        # 1. Check phantomnet_postgres / Private IPs
+        if ip in ["127.0.0.1", "phantomnet_postgres", "::1"]:
             return "🏳️ Local"
         
         if ip.startswith("192.168.") or ip.startswith("10."):

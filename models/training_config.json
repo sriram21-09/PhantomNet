@@ -1,0 +1,23 @@
+{
+    "model_type": "IsolationForest",
+    "n_estimators": 100,
+    "contamination": 0.1,
+    "input_features": [
+        "packet_length",
+        "protocol_encoding",
+        "source_ip_event_rate",
+        "destination_port_class",
+        "threat_score",
+        "malicious_flag_ratio",
+        "attack_type_frequency",
+        "time_of_day_deviation",
+        "burst_rate",
+        "packet_size_variance",
+        "honeypot_interaction_count",
+        "session_duration_estimate",
+        "unique_destination_count",
+        "rolling_average_deviation",
+        "z_score_anomaly"
+    ],
+    "random_state": 42
+}

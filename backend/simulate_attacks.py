@@ -7,7 +7,7 @@ DB_CONFIG = {
     "dbname": "phantomnet",
     "user": "phantom",
     "password": "password@321",  # Your DB Password
-    "host": "localhost",
+    "host": "phantomnet_postgres",
     "port": "5432"
 }
 

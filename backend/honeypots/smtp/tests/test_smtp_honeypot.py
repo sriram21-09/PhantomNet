@@ -1,7 +1,7 @@
 import socket
 import time
 
-SMTP_HOST = "localhost"
+SMTP_HOST = "phantomnet_postgres"
 SMTP_PORT = 2525
 
 def send_cmd(sock, cmd):
