@@ -2,7 +2,7 @@ import pandas as pd
 import logging
 from schemas.threat_schema import ThreatInput, ThreatResponse
 import ml.model_loader as model_loader
-from ml.feature_extractor_v2 import FeatureExtractor
+from ml.feature_extractor import FeatureExtractor
 
 # Setup Logger
 logger = logging.getLogger(__name__)

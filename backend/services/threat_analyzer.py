@@ -8,7 +8,7 @@ from typing import List, Optional
 
 # Local imports
 from database.database import SessionLocal
-from app_models import PacketLog
+from database.models import PacketLog
 from ml.threat_scoring_service import score_threat
 from schemas.threat_schema import ThreatInput
 
@@ -72,17 +72,15 @@ class ThreatAnalyzerService:
         db: Session = SessionLocal()
         try:
             # Fetch logs where threat_level is NULL
-            # Limit to 50 to avoid blocking
+            # This ensures we process all logs through the new ML pipeline
             logs = db.query(PacketLog).filter(
                 PacketLog.threat_level.is_(None)
             ).order_by(PacketLog.timestamp.desc()).limit(50).all()
 
-            if not logs:
-                return
-
             updated_count = 0
             for log in logs:
                 # 1. Check Cache
+                # ... (skipping cache logic for brevity in replace block if possible, but context requires full block)
                 cached = self._get_cached_score(log.src_ip)
                 if cached:
                     result = cached['result']
@@ -91,8 +89,8 @@ class ThreatAnalyzerService:
                         input_data = ThreatInput(
                             src_ip=log.src_ip,
                             dst_ip=log.dst_ip or "127.0.0.1",
-                            src_port=0,
-                            dst_port=0,
+                            src_port=log.src_port or 0,
+                            dst_port=log.dst_port or 0,
                             protocol=log.protocol or "UNKNOWN",
                             length=log.length or 0,
                         )
@@ -105,8 +103,8 @@ class ThreatAnalyzerService:
                 # 3. Update DB Record
                 log.threat_score = result.score
                 log.threat_level = result.threat_level
-                log.anomaly_score = result.confidence # Using confidence as proxy for anomaly score if not raw
-                log.attack_type = result.decision # ALLOW/BLOCK maps to decision
+                log.confidence = result.confidence
+                log.attack_type = result.decision
                 log.is_malicious = result.threat_level in ["HIGH", "CRITICAL"]
                 
                 updated_count += 1

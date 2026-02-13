@@ -10,7 +10,7 @@ import {
   FaMoon,
   FaSun
 } from "react-icons/fa";
-import "./Navbar.css";
+import "../styles/components/Navbar.css";
 
 const Navbar = () => {
   const { theme, toggleTheme } = useContext(ThemeContext);

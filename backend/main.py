@@ -34,7 +34,7 @@ from services.threat_analyzer import threat_analyzer
 # =========================
 # MODELS
 # =========================
-from app_models import Base, PacketLog, TrafficStats
+from database.models import Base, PacketLog, TrafficStats
 
 # =========================
 # API ROUTERS
@@ -119,9 +119,11 @@ app.include_router(model_metrics_router)
 # =========================
 from api.threat_scoring import router as threat_router
 from api.protocol_analytics import router as analytics_router
+from api.metrics import router as metrics_router
 
 app.include_router(threat_router)
 app.include_router(analytics_router)
+app.include_router(metrics_router)
 
 # =========================
 # CORE ENDPOINTS
@@ -231,14 +233,18 @@ def get_events(
 # =========================
 # HONEYPOT STATUS (MAIN)
 # =========================
-def check_service_status(host, port):
+def check_service_status(host, port, protocol="TCP"):
     """
     Checks if a service is reachable on the given host and port.
     Returns 'active' if reachable, 'inactive' otherwise.
+    For HTTP, sends a byte to ensure the server acknowledges it as a request (logging side effect).
     """
     try:
         # Timeout is short (0.5s) to avoid UI hanging
-        with socket.create_connection((host, port), timeout=0.5):
+        with socket.create_connection((host, port), timeout=0.5) as sock:
+            if protocol == "HTTP":
+                # Send a basic request to trigger the honeypot logger
+                sock.sendall(b"GET / HTTP/1.1\r\nHost: localhost\r\n\r\n")
             return "active"
     except (socket.timeout, socket.error):
         return "inactive"
@@ -371,10 +377,10 @@ def honeypot_status(db: Session = Depends(get_db)):
     data = []
     for svc in services:
         # Determine target host
-        host = "phantomnet_postgres" if is_local else svc["host_docker"]
+        host = "127.0.0.1" if is_local else svc["host_docker"]
         
         # Check Socket
-        status = check_service_status(host, svc["port"])
+        status = check_service_status(host, svc["port"], svc["protocol"])
         
         # Get Last Seen - use helper with fallback
         last_seen = get_last_seen(svc["protocol"])
