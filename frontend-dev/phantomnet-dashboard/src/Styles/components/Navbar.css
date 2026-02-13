@@ -137,39 +137,77 @@ body[data-theme="light"] .nav-link.active::after {
     font-size: 14px;
 }
 
-/* Theme Toggle */
-.theme-toggle {
+/* Pro Theme Toggle */
+.theme-toggle-pro {
     display: flex;
     align-items: center;
-    gap: 8px;
-    padding: 8px 16px;
-    border-radius: 8px;
-    font-size: 13px;
-    font-weight: 500;
+    gap: 12px;
     cursor: pointer;
+    padding: 4px 8px;
+    border-radius: 20px;
+    transition: all 0.3s ease;
+    user-select: none;
+}
+
+.theme-toggle-pro:hover {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.toggle-track {
+    width: 48px;
+    height: 24px;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 12px;
+    position: relative;
+    border: 1px solid rgba(255, 255, 255, 0.1);
     transition: all 0.3s ease;
 }
 
-body[data-theme="dark"] .theme-toggle {
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+body[data-theme="light"] .toggle-track {
+    background: #e2e8f0;
+    border-color: rgba(0, 0, 0, 0.05);
+}
+
+.toggle-thumb {
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 18px;
+    height: 18px;
+    background: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.theme-toggle-pro.dark .toggle-thumb {
+    transform: translateX(24px);
+    background: #1e293b;
+    color: #fbbf24;
+}
+
+.theme-toggle-pro.light .toggle-thumb {
+    background: #ffffff;
+    color: #3b82f6;
+}
+
+.toggle-thumb svg {
+    font-size: 10px;
+}
+
+.toggle-label {
+    font-size: 12px;
+    font-weight: 600;
     color: #94a3b8;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
 }
 
-body[data-theme="dark"] .theme-toggle:hover {
-    background: rgba(255, 255, 255, 0.1);
-    color: #f8fafc;
-}
-
-body[data-theme="light"] .theme-toggle {
-    background: linear-gradient(135deg, #f1f5f9, #e2e8f0);
-    border: 1px solid rgba(0, 0, 0, 0.08);
-    color: #475569;
-}
-
-body[data-theme="light"] .theme-toggle:hover {
-    background: linear-gradient(135deg, #e2e8f0, #cbd5e1);
-    color: #0f172a;
+body[data-theme="light"] .toggle-label {
+    color: #64748b;
 }
 
 /* Responsive */
@@ -182,7 +220,7 @@ body[data-theme="light"] .theme-toggle:hover {
         display: none;
     }
 
-    .theme-toggle span {
+    .theme-toggle-pro .toggle-label {
         display: none;
     }
 }
