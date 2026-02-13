@@ -41,8 +41,10 @@ backend/ml/threat_model.pkl
 backend/logs/*.jsonl
 data/predictions.csv
 
-backend/logs/*.jsonl
-
+# Hidden / Virtual Environments
+.venv/
+*/.venv/
 backend/.venv/
-
 phantomnet.db
+backend/full_schema.sql
+backend/verify_output.txt

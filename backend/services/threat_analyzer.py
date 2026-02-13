@@ -71,10 +71,10 @@ class ThreatAnalyzerService:
     def _process_unscored_logs(self):
         db: Session = SessionLocal()
         try:
-            # Fetch logs where threat_score is NULL
-            # Limit to 50 to avoid blocking
+            # Fetch logs where threat_level is NULL
+            # This ensures we process all logs through the new ML pipeline
             logs = db.query(PacketLog).filter(
-                PacketLog.threat_score.is_(None)
+                PacketLog.threat_level.is_(None)
             ).order_by(PacketLog.timestamp.desc()).limit(50).all()
 
             updated_count = 0
@@ -89,8 +89,8 @@ class ThreatAnalyzerService:
                         input_data = ThreatInput(
                             src_ip=log.src_ip,
                             dst_ip=log.dst_ip or "127.0.0.1",
-                            src_port=0,
-                            dst_port=0,
+                            src_port=log.src_port or 0,
+                            dst_port=log.dst_port or 0,
                             protocol=log.protocol or "UNKNOWN",
                             length=log.length or 0,
                         )
@@ -101,11 +101,11 @@ class ThreatAnalyzerService:
                         continue
 
                 # 3. Update DB Record
-                log.threat_score = result.get("score", 0.0)
-                # log.threat_level = result.threat_level  <-- COLUMN DOES NOT EXIST
-                # log.anomaly_score = result.confidence   <-- COLUMN DOES NOT EXIST
-                log.attack_type = result.get("decision", "BENIGN")
-                log.is_malicious = result.get("threat_level", "LOW") in ["HIGH", "CRITICAL"]
+                log.threat_score = result.score
+                log.threat_level = result.threat_level
+                log.confidence = result.confidence
+                log.attack_type = result.decision
+                log.is_malicious = result.threat_level in ["HIGH", "CRITICAL"]
                 
                 updated_count += 1
 

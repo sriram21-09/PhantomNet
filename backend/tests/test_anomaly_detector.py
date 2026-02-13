@@ -5,9 +5,10 @@ from backend.ml.anomaly_detector import AnomalyDetector
 @pytest.fixture
 def detector():
     # Remove old model to ensure fresh test
-    if os.path.exists("backend/ml/model.pkl"):
+    model_path = os.path.join("ml", "model.pkl")
+    if os.path.exists(model_path):
         try:
-            os.remove("backend/ml/model.pkl")
+            os.remove(model_path)
         except PermissionError:
             pass # Ignore if file is locked
     return AnomalyDetector()
@@ -25,7 +26,7 @@ def test_training_flow(detector):
     
     # Check if model saved
     assert detector.is_trained == True
-    assert os.path.exists("backend/ml/model.pkl")
+    assert os.path.exists(os.path.join("ml", "model.pkl"))
 
 def test_detection(detector):
     """Test that it can predict on new data."""
