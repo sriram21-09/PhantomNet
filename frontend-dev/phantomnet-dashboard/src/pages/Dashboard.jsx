@@ -136,6 +136,10 @@ const Dashboard = () => {
                 <div className="skeleton-card"></div>
               )}
             </div>
+
+            <div className="threat-slot honeypot-min-panel">
+              <HoneypotStatus />
+            </div>
           </div>
 
           {/* Main Panels & Detailed List */}
@@ -146,7 +150,7 @@ const Dashboard = () => {
           </div>
         </>
       )}
-    </div>
+    </div >
   );
 };
 

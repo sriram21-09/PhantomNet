@@ -31,7 +31,11 @@ class ErrorBoundary extends React.Component {
                             <h2 className="glitch-text" data-text="SYSTEM DEGRADED">SYSTEM DEGRADED</h2>
                         </div>
                         <p>A critical anomaly has compromised the command center interface. Security protocols have stablized the core.</p>
+<<<<<<< HEAD
                         <button className="retry-btn" onClick={handleRetry}>
+=======
+                        <button className="retry-btn" onClick={this.handleRetry}>
+>>>>>>> 3601938f (perf: optimize components, add pagination hook, and implement 5s API caching)
                             <FaRedo /> Re-establish Link
                         </button>
                     </div>
