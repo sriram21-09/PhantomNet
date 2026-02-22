@@ -1,5 +1,6 @@
-import React from "react";
+import React, { useContext } from "react";
 import { FaChartLine } from "react-icons/fa";
+import { ThemeContext } from "../context/ThemeContext";
 import {
     LineChart,
     Line,
@@ -30,14 +31,9 @@ const CustomTooltip = ({ active, payload, label }) => {
                     <span className="tooltip-time">{label}</span>
                     <div className="status-dot pulse" style={{ background: '#3b82f6' }}></div>
                 </div>
-                <div className="tooltip-body">
-                    <div className="tooltip-row">
-                        <span className="tooltip-label">Events</span>
-                        <span className="tooltip-value">{payload[0].value}</span>
-                    </div>
-                </div>
-                <div className="tooltip-footer">
-                    <div className="trend-line"></div>
+                <div className="tooltip-body" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <span className="tooltip-label">Events</span>
+                    <span className="tooltip-value">{payload[0].value}</span>
                 </div>
             </div>
         );
@@ -46,6 +42,12 @@ const CustomTooltip = ({ active, payload, label }) => {
 };
 
 const AttackTimeline = () => {
+    const { theme } = useContext(ThemeContext);
+    const isDark = theme === "dark";
+
+    const gridColor = isDark ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.05)";
+    const textColor = isDark ? "#64748b" : "#475569";
+
     return (
         <div className="attack-timeline-card pro-card">
             <div className="card-header">
@@ -73,17 +75,17 @@ const AttackTimeline = () => {
                                 <feComposite in="SourceGraphic" in2="blur" operator="over" />
                             </filter>
                         </defs>
-                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(148, 163, 184, 0.1)" />
+                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={gridColor} />
                         <XAxis
                             dataKey="time"
-                            stroke="#64748b"
+                            stroke={textColor}
                             fontSize={11}
                             tickLine={false}
                             axisLine={false}
                             dy={10}
                         />
                         <YAxis
-                            stroke="#64748b"
+                            stroke={textColor}
                             fontSize={11}
                             tickLine={false}
                             axisLine={false}

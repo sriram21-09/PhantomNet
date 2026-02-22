@@ -1,11 +1,23 @@
 // frontend/src/services/api.js
+import { apiCache } from "../utils/apiCache";
+
+const BASE_URL = "/api";
 
 export const fetchThreatMetrics = async () => {
-  const response = await fetch("/api/threat-metrics");
+  const CACHE_KEY = "threat_metrics";
+  const cachedData = apiCache.get(CACHE_KEY);
+
+  if (cachedData) {
+    return cachedData;
+  }
+
+  const response = await fetch(`${BASE_URL}/threat-metrics`);
 
   if (!response.ok) {
     throw new Error("Failed to fetch threat metrics");
   }
 
-  return await response.json();
+  const data = await response.json();
+  apiCache.set(CACHE_KEY, data, 5000); // 5s TTL
+  return data;
 };

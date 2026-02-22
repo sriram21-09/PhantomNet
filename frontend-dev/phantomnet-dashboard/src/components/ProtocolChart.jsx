@@ -23,7 +23,7 @@ const ProTooltip = ({ active, payload }) => {
     if (active && payload && payload.length) {
         const data = payload[0].payload;
         return (
-            <div className="pro-tooltip protocol-tooltip-pro">
+            <div className="pro-tooltip">
                 <div className="tooltip-header">
                     <span className="tooltip-time">{data.name}</span>
                     <div className="status-dot pulse" style={{ background: payload[0].fill }}></div>
