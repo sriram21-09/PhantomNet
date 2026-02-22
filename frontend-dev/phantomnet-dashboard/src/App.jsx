@@ -9,6 +9,7 @@ import About from "./pages/About";
 import FeatureAnalysis from "./pages/FeatureAnalysis";
 import ThreatAnalysis from "./pages/ThreatAnalysis";
 import AnomalyDashboard from "./pages/AnomalyDashboard";
+import NetworkTopology from "./components/NetworkTopology";
 
 
 function App() {
@@ -27,6 +28,7 @@ function App() {
               <Route path="/about" element={<About />} />
               <Route path="/threat-analysis" element={<ThreatAnalysis />} />
               <Route path="/anomalies" element={<AnomalyDashboard />} />
+              <Route path="/topology" element={<NetworkTopology />} />
             </Routes>
           </div>
         </BrowserRouter>

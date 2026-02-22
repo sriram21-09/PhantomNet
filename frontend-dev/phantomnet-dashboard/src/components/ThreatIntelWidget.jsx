@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { FaShieldAlt, FaExclamationTriangle, FaInfoCircle, FaGlobe, FaSearch, FaHistory } from 'react-icons/fa';
+import './ThreatIntelWidget.css';
 
 /**
  * ThreatIntelWidget - A professional-grade UI component for IP security enrichment.
@@ -20,7 +21,8 @@ const ThreatIntelWidget = ({ ip }) => {
         setLoading(true);
         setError(null);
         try {
-            const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:8000';
+            // Vite replacement for process.env
+            const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000';
             const response = await fetch(`${apiUrl}/api/v1/enrich/ip/${targetIp}`);
 
             if (!response.ok) {
@@ -124,76 +126,6 @@ const ThreatIntelWidget = ({ ip }) => {
                     )}
                 </div>
             ) : null}
-
-            <style jsx>{`
-                .threat-intel-pro {
-                    background: rgba(17, 24, 39, 0.7);
-                    backdrop-filter: blur(20px);
-                    border: 1px solid rgba(255, 255, 255, 0.08);
-                    border-radius: 16px;
-                    padding: 20px;
-                    width: 340px;
-                    font-family: 'Outfit', 'Inter', sans-serif;
-                    color: #f1f5f9;
-                    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
-                    transition: transform 0.2s ease;
-                }
-                .pro-header {
-                    display: flex;
-                    justify-content: space-between;
-                    align-items: center;
-                    margin-bottom: 20px;
-                }
-                .header-main { display: flex; align-items: center; gap: 10px; }
-                .header-icon { color: #3b82f6; font-size: 1.2rem; }
-                .ip-title { font-weight: 600; font-size: 1rem; color: #f8fafc; }
-                .status-badge {
-                    padding: 4px 10px;
-                    border-radius: 6px;
-                    font-size: 0.7rem;
-                    font-weight: 700;
-                    letter-spacing: 0.05em;
-                }
-                .status-critical { background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); }
-                .status-suspicious { background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.3); }
-                .status-clean { background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3); }
-                
-                .metrics-row {
-                    display: grid;
-                    grid-template-columns: 1fr 1fr;
-                    gap: 12px;
-                    margin-bottom: 20px;
-                }
-                .metric-item {
-                    background: rgba(31, 41, 55, 0.5);
-                    padding: 12px;
-                    border-radius: 12px;
-                    text-align: center;
-                    border: 1px solid rgba(255, 255, 255, 0.05);
-                }
-                .metric-item label { display: block; font-size: 0.7rem; color: #94a3b8; margin-bottom: 4px; }
-                .metric-item .value { font-size: 1.4rem; font-weight: 700; }
-
-                .details-list { display: flex; flex-direction: column; gap: 10px; }
-                .detail-row { display: flex; align-items: center; gap: 8px; font-size: 0.85rem; }
-                .detail-row svg { color: #64748b; font-size: 0.9rem; }
-                .detail-row .label { color: #64748b; margin-right: 4px; }
-                .detail-row .text { color: #cbd5e1; font-weight: 500; }
-
-                .footer-timestamp {
-                    margin-top: 20px;
-                    padding-top: 12px;
-                    border-top: 1px solid rgba(255, 255, 255, 0.05);
-                    font-size: 0.7rem;
-                    color: #64748b;
-                    text-align: right;
-                }
-
-                .pro-loading .skeleton-line { height: 12px; background: rgba(255,255,255,0.05); border-radius: 6px; margin-bottom: 12px; width: 60%; }
-                .pro-loading .skeleton-box { height: 60px; background: rgba(255,255,255,0.05); border-radius: 12px; }
-
-                .pro-error { color: #f87171; display: flex; align-items: center; gap: 10px; font-size: 0.9rem; }
-            `}</style>
         </div>
     );
 };

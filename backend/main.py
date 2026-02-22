@@ -41,6 +41,7 @@ from database.models import Base, PacketLog, TrafficStats
 # =========================
 from api.model_metrics import router as model_metrics_router
 from api.threat_intel import router as threat_intel_router
+from api.topology import router as topology_router
 
 # =========================
 # ENVIRONMENT SETUP
@@ -115,6 +116,7 @@ app.add_middleware(
 # Register Routers
 app.include_router(model_metrics_router)
 app.include_router(threat_intel_router)
+app.include_router(topology_router)
 
 # =========================
 # ROUTERS

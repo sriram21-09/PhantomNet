@@ -33,15 +33,28 @@ body[data-theme="dark"] {
   --color-primary-light: #60a5fa;
   --color-secondary: #8b5cf6;
   --color-accent: #22d3ee;
+<<<<<<< HEAD
   --color-success: #22c55e;
+=======
+  /* HUD Colors */
+  --color-cyan: #06b6d4;
+  --color-red: #ef4444;
+  --color-alert: #ef4444;
+>>>>>>> a1f097c9 (feat(topology): implement interactive network topology with React Flow, real-time WebSocket updates, node interactions, and PNG export)
   --color-warning: #f59e0b;
   --color-danger: #ef4444;
 
   --bg-primary: #020617;
+<<<<<<< HEAD
   --bg-secondary: #0f172a;
   --bg-tertiary: #1e293b;
   --bg-card: rgba(15, 23, 42, 0.6);
   --bg-card-solid: #0f172a;
+=======
+  --bg-hud: rgba(15, 23, 42, 0.7);
+  --bg-glass: rgba(15, 23, 42, 0.4);
+  --bg-map: radial-gradient(circle at 50% 50%, #030821 0%, #010414 70%);
+>>>>>>> a1f097c9 (feat(topology): implement interactive network topology with React Flow, real-time WebSocket updates, node interactions, and PNG export)
 
   --text-primary: #f8fafc;
   --text-secondary: #94a3b8;
@@ -53,9 +66,57 @@ body[data-theme="dark"] {
   --shadow-glow: 0 0 40px rgba(59, 130, 246, 0.15);
   --shadow-card: 0 10px 40px rgba(0, 0, 0, 0.3);
 
+<<<<<<< HEAD
   --navbar-bg: rgba(2, 6, 23, 0.8);
   --table-header: rgba(30, 41, 59, 0.5);
   --input-bg: rgba(15, 23, 42, 0.6);
+=======
+  --hud-scanline: linear-gradient(to bottom,
+      transparent 50%,
+      rgba(18, 16, 16, 0.1) 50%);
+
+  --shadow-card: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+}
+
+/* ==========================================
+   PREMIUM UTILITIES
+   ========================================== */
+.pro-card {
+  background: var(--bg-hud);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--border-hud);
+  border-radius: 12px;
+  box-shadow: var(--shadow-card);
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.pro-card:hover {
+  border-color: var(--border-bright);
+  box-shadow: var(--glow-primary);
+}
+
+.pro-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--color-primary), transparent);
+  opacity: 0.3;
+}
+
+.hud-font {
+  font-family: 'JetBrains Mono', monospace;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.glow-text {
+  text-shadow: 0 0 8px var(--color-primary-glow);
+>>>>>>> a1f097c9 (feat(topology): implement interactive network topology with React Flow, real-time WebSocket updates, node interactions, and PNG export)
 }
 
 /* ==========================================
@@ -66,29 +127,42 @@ body[data-theme="light"] {
   --color-primary-light: #3b82f6;
   --color-secondary: #7c3aed;
   --color-accent: #0891b2;
+  /* HUD Colors Light */
+  --color-cyan: #0284c7;
+  --color-red: #dc2626;
   --color-success: #059669;
   --color-warning: #d97706;
   --color-danger: #dc2626;
 
-  --bg-primary: #f8fafc;
+  --bg-primary: #f1f5f9;
   --bg-secondary: #f1f5f9;
   --bg-tertiary: #e2e8f0;
+  --bg-hud: rgba(255, 255, 255, 0.85);
+  --bg-glass: rgba(255, 255, 255, 0.5);
   --bg-card: rgba(255, 255, 255, 0.95);
   --bg-card-solid: #ffffff;
+  --bg-map: radial-gradient(circle at center, rgba(59, 130, 246, 0.03) 0%, #f8fafc 100%);
 
+  --text-hud: #0f172a;
   --text-primary: #0f172a;
   --text-secondary: #334155;
   --text-muted: #64748b;
 
+  --border-hud: rgba(59, 130, 246, 0.15);
+  --border-bright: rgba(59, 130, 246, 0.3);
   --border-subtle: rgba(0, 0, 0, 0.06);
   --border-light: rgba(0, 0, 0, 0.1);
 
-  --shadow-glow: 0 4px 30px rgba(59, 130, 246, 0.15);
-  --shadow-card: 0 4px 25px rgba(0, 0, 0, 0.08);
+  --shadow-glow: 0 4px 30px rgba(59, 130, 246, 0.12);
+  --shadow-card: 0 10px 40px rgba(59, 130, 246, 0.08);
 
   --navbar-bg: rgba(255, 255, 255, 0.9);
   --table-header: #f1f5f9;
   --input-bg: #ffffff;
+
+  --hud-scanline: linear-gradient(to bottom,
+      transparent 50%,
+      rgba(59, 130, 246, 0.02) 50%);
 }
 
 /* ==========================================
