@@ -11,6 +11,8 @@ import AttackTimeline from "../components/AttackTimeline";
 import ProtocolChart from "../components/ProtocolChart";
 import TopAttackers from "../components/TopAttackers";
 import OptimizedThreatLevel from "../components/OptimizedThreatLevel";
+import CyberMeshMap from "../components/CyberMeshMap";
+import TrendsChart from "../components/TrendsChart";
 import WelcomeModal from "../components/WelcomeModal";
 import { fetchThreatMetrics } from "../services/api";
 import { Button } from "../components/ui/button";
