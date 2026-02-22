@@ -40,6 +40,7 @@ from database.models import Base, PacketLog, TrafficStats
 # API ROUTERS
 # =========================
 from api.model_metrics import router as model_metrics_router
+from api.threat_intel import router as threat_intel_router
 
 # =========================
 # ENVIRONMENT SETUP
@@ -113,6 +114,7 @@ app.add_middleware(
 
 # Register Routers
 app.include_router(model_metrics_router)
+app.include_router(threat_intel_router)
 
 # =========================
 # ROUTERS
@@ -416,3 +418,4 @@ def block_ip_address(ip: str):
         raise HTTPException(status_code=500, detail=result["message"])
 
     return result
+ 
