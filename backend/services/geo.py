@@ -4,31 +4,39 @@ class GeoService:
     _cache = {}
 
     @staticmethod
-    def get_country(ip: str):
+    def get_geo_info(ip: str):
         # 1. Check phantomnet_postgres / Private IPs
         if ip in ["127.0.0.1", "phantomnet_postgres", "::1"]:
-            return "🏳️ Local"
+            return {"country": "Local", "city": "Internal", "lat": 0.0, "lon": 0.0, "flag": "🏳️"}
         
         if ip.startswith("192.168.") or ip.startswith("10."):
-            return "🏠 LAN"
+            return {"country": "LAN", "city": "Internal", "lat": 0.0, "lon": 0.0, "flag": "🏠"}
 
-        # 2. Check Cache (Don't limit yourself by spamming the API)
+        # 2. Check Cache
         if ip in GeoService._cache:
             return GeoService._cache[ip]
 
         # 3. Ask the Internet (ip-api.com)
         try:
-            response = requests.get(f"http://ip-api.com/json/{ip}?fields=countryCode", timeout=2)
+            fields = "status,message,country,countryCode,city,lat,lon"
+            response = requests.get(f"http://ip-api.com/json/{ip}?fields={fields}", timeout=2)
             if response.status_code == 200:
                 data = response.json()
-                country = data.get("countryCode", "??")
-                
-                # Convert "US" -> 🇺🇸
-                flag = GeoService.get_flag_emoji(country)
-                GeoService._cache[ip] = flag
-                return flag
+                if data.get("status") == "success":
+                    flag = GeoService.get_flag_emoji(data.get("countryCode"))
+                    geo_data = {
+                        "country": data.get("country"),
+                        "city": data.get("city"),
+                        "lat": data.get("lat"),
+                        "lon": data.get("lon"),
+                        "flag": flag
+                    }
+                    GeoService._cache[ip] = geo_data
+                    return geo_data
         except:
-            return "🌐" # Return Globe if internet fails
+            pass
+
+        return {"country": "Unknown", "city": "Unknown", "lat": 0.0, "lon": 0.0, "flag": "🌐"}
 
         return "🌐"
 

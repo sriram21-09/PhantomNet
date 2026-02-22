@@ -155,10 +155,15 @@ def get_real_traffic(db: Session = Depends(get_db)):
     data = []
 
     for log in logs:
-        try:
-            location = GeoService.get_country(log.src_ip)
-        except Exception:
-            location = "UNKNOWN"
+        # Use persistent field if available, else look up (for legacy logs)
+        location = log.country or "UNKNOWN"
+        if location == "UNKNOWN":
+            try:
+                from services.geo import GeoService
+                geo = GeoService.get_geo_info(log.src_ip)
+                location = geo.get("flag", "🌐") + " " + geo.get("country", "Unknown")
+            except:
+                location = "UNKNOWN"
 
         data.append({
             "packet_info": {
@@ -166,7 +171,10 @@ def get_real_traffic(db: Session = Depends(get_db)):
                 "dst": log.dst_ip,
                 "proto": log.protocol,
                 "length": log.length,
-                "location": location
+                "location": location,
+                "city": log.city,
+                "lat": log.latitude,
+                "lon": log.longitude
             },
             "ai_analysis": {
                 "prediction": log.attack_type or "BENIGN",

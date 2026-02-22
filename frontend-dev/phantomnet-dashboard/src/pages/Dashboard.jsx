@@ -109,10 +109,15 @@ const Dashboard = () => {
             </div>
           </div>
 
+          {/* Global Threat Mesh Section */}
+          <div className="mesh-row">
+            <CyberMeshMap />
+          </div>
+
           {/* Core Analytics Row */}
           <div className="analytics-row">
             <div className="analytics-main pro-card">
-              <AttackTimeline />
+              <TrendsChart />
             </div>
             <div className="analytics-side pro-card">
               <ProtocolChart />

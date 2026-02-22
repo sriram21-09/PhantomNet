@@ -30,32 +30,69 @@ body,
 :root,
 body[data-theme="dark"] {
   --color-primary: #3b82f6;
-  --color-primary-light: #60a5fa;
-  --color-secondary: #8b5cf6;
+  --color-primary-glow: rgba(59, 130, 246, 0.5);
   --color-accent: #22d3ee;
-  --color-success: #22c55e;
+  --color-alert: #ef4444;
   --color-warning: #f59e0b;
-  --color-danger: #ef4444;
+  --color-success: #10b981;
 
   --bg-primary: #020617;
-  --bg-secondary: #0f172a;
-  --bg-tertiary: #1e293b;
-  --bg-card: rgba(15, 23, 42, 0.6);
-  --bg-card-solid: #0f172a;
+  --bg-hud: rgba(15, 23, 42, 0.7);
+  --bg-glass: rgba(15, 23, 42, 0.4);
 
-  --text-primary: #f8fafc;
-  --text-secondary: #94a3b8;
+  --text-hud: #f8fafc;
+  --text-dim: #94a3b8;
   --text-muted: #64748b;
 
-  --border-subtle: rgba(255, 255, 255, 0.05);
-  --border-light: rgba(255, 255, 255, 0.1);
+  --border-hud: rgba(59, 130, 246, 0.2);
+  --border-bright: rgba(59, 130, 246, 0.4);
 
-  --shadow-glow: 0 0 40px rgba(59, 130, 246, 0.15);
-  --shadow-card: 0 10px 40px rgba(0, 0, 0, 0.3);
+  --glow-primary: 0 0 20px var(--color-primary-glow);
+  --glow-accent: 0 0 15px rgba(34, 211, 238, 0.3);
 
-  --navbar-bg: rgba(2, 6, 23, 0.8);
-  --table-header: rgba(30, 41, 59, 0.5);
-  --input-bg: rgba(15, 23, 42, 0.6);
+  --hud-scanline: linear-gradient(to bottom,
+      transparent 50%,
+      rgba(18, 16, 16, 0.1) 50%);
+}
+
+/* ==========================================
+   PREMIUM UTILITIES
+   ========================================== */
+.pro-card {
+  background: var(--bg-hud);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--border-hud);
+  border-radius: 12px;
+  box-shadow: var(--shadow-card);
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.pro-card:hover {
+  border-color: var(--border-bright);
+  box-shadow: var(--glow-primary);
+}
+
+.pro-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--color-primary), transparent);
+  opacity: 0.3;
+}
+
+.hud-font {
+  font-family: 'JetBrains Mono', monospace;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.glow-text {
+  text-shadow: 0 0 8px var(--color-primary-glow);
 }
 
 /* ==========================================

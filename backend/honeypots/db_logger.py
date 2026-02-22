@@ -12,6 +12,7 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')
 try:
     from database import SessionLocal
     from database.models import PacketLog
+    from services.geo import GeoService
     DB_AVAILABLE = True
 except Exception as e:
     print(f"[DB Logger] Database not available: {e}")
@@ -45,6 +46,9 @@ def log_to_database(
     try:
         db = SessionLocal()
         
+        # GeoIP Enrichment
+        geo = GeoService.get_geo_info(src_ip)
+
         log_entry = PacketLog(
             timestamp=datetime.utcnow(),
             src_ip=src_ip,
@@ -53,7 +57,11 @@ def log_to_database(
             length=length,
             is_malicious=is_malicious,
             threat_score=threat_score,
-            attack_type=attack_type or event_type.upper()
+            attack_type=attack_type or event_type.upper(),
+            country=geo.get("country"),
+            city=geo.get("city"),
+            latitude=geo.get("lat"),
+            longitude=geo.get("lon")
         )
         
         db.add(log_entry)
@@ -78,3 +86,6 @@ def log_ftp_activity(src_ip: str, event_type: str = "activity", **kwargs):
 
 def log_smtp_activity(src_ip: str, event_type: str = "activity", **kwargs):
     return log_to_database("SMTP", src_ip, event_type, **kwargs)
+
+def log_mysql_activity(src_ip: str, event_type: str = "activity", **kwargs):
+    return log_to_database("MYSQL", src_ip, event_type, **kwargs)
