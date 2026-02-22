@@ -10,10 +10,18 @@ import AnomalyGaugeCard from "../components/AnomalyGaugeCard";
 import AttackTimeline from "../components/AttackTimeline";
 import ProtocolChart from "../components/ProtocolChart";
 import TopAttackers from "../components/TopAttackers";
+<<<<<<< HEAD
 import OptimizedThreatLevel from "../components/OptimizedThreatLevel";
 import WelcomeModal from "../components/WelcomeModal";
+<<<<<<< HEAD
 import CyberMeshMap from "../components/CyberMeshMap";
 import TrendsChart from "../components/TrendsChart";
+=======
+=======
+import TrendsChart from "../components/TrendsChart";
+import CyberMeshMap from "../components/CyberMeshMap";
+>>>>>>> 9b210023 (feat: high-fidelity threat mesh v2.1, mysql rollback, and workspace cleanup)
+>>>>>>> 24076281 (fix(topology): fix topology crash and implement full light mode support for pro components)
 import { fetchThreatMetrics } from "../services/api";
 import { Button } from "../components/ui/button";
 import "../Styles/pages/Dashboard.css";
@@ -74,9 +82,17 @@ const Dashboard = () => {
       <div className="dashboard-header">
         <div className="header-content">
           <div className="header-title">
+<<<<<<< HEAD
             <div className="title-badge" title="Live data feed synchronized with backend">LIVE</div>
             <h1>Command Center</h1>
             <p>AI-Powered Threat Defense • Real-time Monitoring</p>
+=======
+            <div className="dashboard-header-premium">
+              <div className="header-badge hud-font">NODE_DELTA_V.2</div>
+              <h1 className="dashboard-title glow-text">Command Center</h1>
+              <p className="dashboard-subtitle text-dim">GLOBAL THREAT DEFENSE MESH | LIVE FEED SYNCHRONIZED</p>
+            </div>
+>>>>>>> 9b210023 (feat: high-fidelity threat mesh v2.1, mysql rollback, and workspace cleanup)
           </div>
           <Link to="/features">
             <Button className="analysis-btn">
@@ -121,6 +137,7 @@ const Dashboard = () => {
             </div>
           </div>
 
+<<<<<<< HEAD
           {/* Threat Intelligence Section */}
           <div className="threat-section">
             <div className="threat-slot pro-card">
@@ -129,6 +146,44 @@ const Dashboard = () => {
               ) : (
                 <div className="skeleton-card"></div>
               )}
+=======
+          {/* Legacy Timeline Row */}
+          <div className="analytics-row">
+            <div className="analytics-full pro-card">
+              <AttackTimeline />
+            </div>
+          </div>
+
+          {/* Threat Intelligence & Detailed Panels */}
+          <div className="panels-grid">
+            <div className="panel threat-intel-panel">
+              <div className="threat-intel-grid">
+                <div className="threat-slot pro-card">
+                  {threatMetrics ? (
+                    <MetricCard
+                      title="Threat Level"
+                      value={`${threatMetrics.threatLevel}%`}
+                      variant={
+                        threatMetrics.threatLevel < 40
+                          ? "green"
+                          : threatMetrics.threatLevel < 70
+                            ? "orange"
+                            : "red"
+                      }
+                    />
+                  ) : (
+                    <div className="skeleton-card"></div>
+                  )}
+                </div>
+                <div className="threat-slot pro-card">
+                  {threatMetrics ? (
+                    <AnomalyGaugeCard anomalyScore={threatMetrics.anomalyScore} />
+                  ) : (
+                    <div className="skeleton-card"></div>
+                  )}
+                </div>
+              </div>
+>>>>>>> 9b210023 (feat: high-fidelity threat mesh v2.1, mysql rollback, and workspace cleanup)
             </div>
 
             <div className="threat-slot pro-card">

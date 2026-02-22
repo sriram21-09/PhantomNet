@@ -17,14 +17,16 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
 <<<<<<< HEAD
-=======
     "html-to-image": "^1.11.13",
     "leaflet": "^1.9.4",
     "lucide-react": "^0.575.0",
->>>>>>> a1f097c9 (feat(topology): implement interactive network topology with React Flow, real-time WebSocket updates, node interactions, and PNG export)
+=======
+    "leaflet": "^1.9.4",
+>>>>>>> 24076281 (fix(topology): fix topology crash and implement full light mode support for pro components)
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
     "react-icons": "^5.5.0",
+    "react-leaflet": "^5.0.0",
     "react-router-dom": "^7.10.1",
     "recharts": "^3.7.0",
     "run": "^1.5.0",
