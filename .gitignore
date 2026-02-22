@@ -50,3 +50,6 @@ backend/.venv/
 phantomnet.db
 backend/full_schema.sql
 backend/verify_output.txt
+
+# Automation Scripts (private to project lead)
+automation/
