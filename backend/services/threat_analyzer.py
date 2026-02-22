@@ -111,7 +111,8 @@ class ThreatAnalyzerService:
 
             if updated_count > 0:
                 db.commit()
-                logger.info(f"Analyzed and updated {updated_count} logs.")
+                # Change to DEBUG to avoid terminal spam
+                logger.debug(f"Analyzed and updated {updated_count} logs.")
 
         except Exception as e:
             logger.error(f"Database error: {e}")

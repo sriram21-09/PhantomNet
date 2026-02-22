@@ -957,8 +957,16 @@ body[data-theme="light"] .threat-section::after {
 .analytics-row {
   display: grid;
   grid-template-columns: 2fr 1fr;
-  gap: 24px;
-  margin-bottom: 24px;
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.mesh-row {
+  margin-bottom: 1.5rem;
+}
+
+.analytics-full {
+  width: 100%;
 }
 
 .analytics-main,

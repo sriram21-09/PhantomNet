@@ -1,0 +1,629 @@
+.cyber-mesh-card {
+    position: relative;
+    background: #010414;
+    overflow: hidden;
+    padding: 0;
+    border: 1px solid var(--border-hud);
+}
+
+/* Header Enhancements */
+.header-title-group {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.status-indicator {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.pulse-dot {
+    width: 6px;
+    height: 6px;
+    background: #22c55e;
+    border-radius: 50%;
+    box-shadow: 0 0 8px #22c55e;
+    animation: healthPulse 2s infinite;
+}
+
+.live-status {
+    font-size: 10px;
+    color: #22c55e;
+    letter-spacing: 1px;
+    opacity: 0.8;
+}
+
+/* Threat HUD Overlay */
+.threat-hud-overlay {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    width: 200px;
+    background: rgba(1, 4, 20, 0.85);
+    border: 1px solid rgba(59, 130, 246, 0.3);
+    border-left: 4px solid var(--color-cyan);
+    padding: 12px;
+    z-index: 10;
+    pointer-events: none;
+    backdrop-filter: blur(8px);
+    animation: hudFlicker 4s infinite;
+}
+
+.hud-header {
+    font-size: 10px;
+    color: var(--color-cyan);
+    margin-bottom: 10px;
+    border-bottom: 1px solid rgba(59, 130, 246, 0.2);
+    padding-bottom: 4px;
+}
+
+.hud-data-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 11px;
+    margin-bottom: 4px;
+}
+
+.hud-label {
+    color: #64748b;
+}
+
+.hud-value {
+    color: #cbd5e1;
+    font-weight: 700;
+}
+
+.glowing-cyan {
+    color: var(--color-cyan);
+    text-shadow: 0 0 10px var(--color-cyan);
+}
+
+.score-row {
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px dashed rgba(59, 130, 246, 0.2);
+}
+
+.threat-high {
+    color: var(--color-red);
+}
+
+.threat-low {
+    color: #22c55e;
+}
+
+.hud-footer {
+    font-size: 9px;
+    color: #475569;
+    margin-top: 10px;
+    text-align: right;
+}
+
+@keyframes hudFlicker {
+
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    92% {
+        opacity: 1;
+    }
+
+    93% {
+        opacity: 0.8;
+    }
+
+    94% {
+        opacity: 1;
+    }
+
+    95% {
+        opacity: 0.9;
+    }
+
+    96% {
+        opacity: 1;
+    }
+}
+
+/* Map Elements */
+.map-viewport {
+    flex: 1;
+    position: relative;
+    background: radial-gradient(circle at 50% 50%, #030821 0%, #010414 70%);
+}
+
+.land-path {
+    fill: rgba(59, 130, 246, 0.03);
+    stroke: rgba(59, 130, 246, 0.2);
+    stroke-width: 0.5;
+    transition: all 0.3s ease;
+}
+
+.land-path:hover {
+    fill: rgba(59, 130, 246, 0.08);
+    stroke: rgba(59, 130, 246, 0.4);
+}
+
+/* Attack Arcs */
+.attack-arc {
+    stroke: url(#arcGradient);
+    stroke-dasharray: 1000;
+    stroke-dashoffset: 1000;
+    animation: arcDraw 3s linear infinite;
+    filter: drop-shadow(0 0 5px var(--color-cyan));
+}
+
+.attack-arc.malicious {
+    stroke: url(#arcGradientMalicious);
+    filter: drop-shadow(0 0 5px var(--color-red));
+}
+
+@keyframes arcDraw {
+    0% {
+        stroke-dashoffset: 1000;
+    }
+
+    50% {
+        stroke-dashoffset: 0;
+    }
+
+    100% {
+        stroke-dashoffset: -1000;
+    }
+}
+
+/* Hub Styling */
+.hub-core {
+    fill: var(--color-cyan);
+    filter: drop-shadow(0 0 10px var(--color-cyan));
+    animation: corePulse 2s infinite ease-in-out;
+}
+
+@keyframes corePulse {
+
+    0%,
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+
+    50% {
+        transform: scale(1.2);
+        opacity: 0.8;
+    }
+}
+
+.hub-ring {
+    stroke: var(--color-cyan);
+    opacity: 0.4;
+    animation: ringRotate 10s linear infinite;
+}
+
+.hub-ring-outer {
+    stroke: var(--color-cyan);
+    opacity: 0.2;
+    animation: ringRotateReverse 15s linear infinite;
+}
+
+@keyframes ringRotate {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes ringRotateReverse {
+    from {
+        transform: rotate(360deg);
+    }
+
+    to {
+        transform: rotate(0deg);
+    }
+}
+
+/* Scanline Enhancement */
+.topo-scanline {
+    fill: linear-gradient(to bottom, transparent, rgba(59, 130, 246, 0.1), transparent);
+    animation: topoScan 8s linear infinite;
+    pointer-events: none;
+}
+
+@keyframes topoScan {
+    0% {
+        transform: translateY(-100%);
+        opacity: 0;
+    }
+
+    10% {
+        opacity: 0.5;
+    }
+
+    90% {
+        opacity: 0.5;
+    }
+
+    100% {
+        transform: translateY(400px);
+        opacity: 0;
+    }
+}
+
+/* Footer Stream */
+.footer-meta {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.meta-label {
+    font-size: 10px;
+    color: #64748b;
+    letter-spacing: 1px;
+}
+
+.stream-visualizer {
+    display: flex;
+    gap: 3px;
+}
+
+.stream-bit {
+    width: 3px;
+    height: 10px;
+    background: rgba(59, 130, 246, 0.2);
+    border-radius: 1px;
+    animation: bitFlicker 1.5s infinite;
+}
+
+@keyframes bitFlicker {
+
+    0%,
+    100% {
+        opacity: 0.3;
+        transform: scaleY(1);
+    }
+
+    50% {
+        opacity: 1;
+        transform: scaleY(1.4);
+        background: var(--color-cyan);
+    }
+}
+
+/* Global Threat Mesh Ultra-High Fidelity V2.1 */
+.cyber-mesh-card.ultra-v2 {
+    background: rgba(4, 8, 16, 0.95);
+    border: 1px solid rgba(59, 130, 246, 0.15);
+    position: relative;
+    overflow: hidden;
+    height: 380px;
+    /* More compact cinematic height */
+    margin-bottom: 24px;
+    box-shadow: 0 0 40px rgba(0, 0, 0, 0.5), inset 0 0 100px rgba(2, 6, 23, 0.8);
+}
+
+.card-header.small-hdr {
+    background: rgba(2, 6, 23, 0.9);
+    padding: 8px 16px;
+    border-bottom: 1px solid rgba(59, 130, 246, 0.1);
+}
+
+.mega-title {
+    font-size: 1.1rem;
+    letter-spacing: 2.5px;
+    font-weight: 800;
+}
+
+.v-tag {
+    font-size: 0.65rem;
+    background: var(--color-cyan);
+    color: black;
+    padding: 1px 4px;
+    border-radius: 2px;
+    vertical-align: middle;
+    margin-left: 8px;
+}
+
+.map-viewport {
+    position: relative;
+    height: 300px;
+    background: radial-gradient(circle at center, rgba(59, 130, 246, 0.03) 0%, transparent 70%);
+}
+
+.mesh-svg.high-res {
+    width: 100%;
+    height: 100%;
+}
+
+/* Landmass Styling V2 */
+.land-path.v2 {
+    fill: rgba(59, 130, 246, 0.08);
+    /* Faint topographical feel */
+    stroke: rgba(59, 130, 246, 0.3);
+    stroke-width: 0.5;
+    transition: all 0.5s ease;
+}
+
+.land-path.v2:hover {
+    fill: rgba(59, 130, 246, 0.15);
+    stroke: rgba(59, 130, 246, 0.8);
+}
+
+.island {
+    fill: rgba(59, 130, 246, 0.1);
+    stroke: none;
+}
+
+/* Radar Sweep Animations */
+.radar-beam-h {
+    animation: radarH 4s infinite linear;
+}
+
+.radar-beam-v {
+    animation: radarV 6s infinite linear;
+}
+
+@keyframes radarH {
+    0% {
+        transform: translateY(0);
+        opacity: 0;
+    }
+
+    10% {
+        opacity: 1;
+    }
+
+    90% {
+        opacity: 1;
+    }
+
+    100% {
+        transform: translateY(400px);
+        opacity: 0;
+    }
+}
+
+@keyframes radarV {
+    0% {
+        transform: translateX(0);
+        opacity: 0;
+    }
+
+    10% {
+        opacity: 1;
+    }
+
+    90% {
+        opacity: 1;
+    }
+
+    100% {
+        transform: translateX(800px);
+        opacity: 0;
+    }
+}
+
+/* Arcs V2 */
+.attack-arc-v2 {
+    fill: none;
+    stroke-width: 1.5;
+    stroke-dasharray: 1000;
+    stroke-dashoffset: 1000;
+    animation: arcStrike 2.5s infinite ease-out;
+    filter: drop-shadow(0 0 5px var(--color-cyan));
+}
+
+.active-arc {
+    stroke: var(--color-cyan);
+}
+
+.danger-arc {
+    stroke: #ff3e3e;
+    filter: drop-shadow(0 0 8px #ff3e3e);
+}
+
+.ghost-arc {
+    fill: none;
+    stroke: rgba(59, 130, 246, 0.06);
+    stroke-width: 1;
+    stroke-dasharray: 400;
+    stroke-dashoffset: 400;
+    animation: arcStrike 6s infinite linear;
+}
+
+@keyframes arcStrike {
+    0% {
+        stroke-dashoffset: 1000;
+        opacity: 0;
+    }
+
+    20% {
+        opacity: 1;
+    }
+
+    80% {
+        opacity: 1;
+    }
+
+    100% {
+        stroke-dashoffset: 0;
+        opacity: 0;
+    }
+}
+
+/* HUD Overlay Condensed */
+.threat-hud-overlay.condensed {
+    position: absolute;
+    top: 15px;
+    right: 20px;
+    width: 220px;
+    background: rgba(1, 4, 12, 0.85);
+    border: 1px solid rgba(59, 130, 246, 0.3);
+    backdrop-filter: blur(8px);
+    z-index: 10;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.8);
+    font-size: 0.75rem;
+}
+
+.glass-title {
+    background: rgba(59, 130, 246, 0.15);
+    padding: 4px 10px;
+    border-bottom: 1px solid rgba(59, 130, 246, 0.2);
+    color: var(--color-cyan);
+    font-size: 0.65rem;
+    letter-spacing: 2px;
+}
+
+.hud-body {
+    padding: 10px;
+}
+
+.hud-val-large {
+    display: block;
+    font-size: 1.1rem;
+    font-weight: 800;
+    margin-bottom: 2px;
+}
+
+.hud-sub {
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 0.65rem;
+}
+
+.hud-stats-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin: 10px 0;
+}
+
+.stat-box {
+    background: rgba(255, 255, 255, 0.03);
+    padding: 4px;
+    border-left: 2px solid rgba(59, 130, 246, 0.4);
+}
+
+.stat-lbl {
+    display: block;
+    font-size: 0.5rem;
+    color: rgba(255, 255, 255, 0.4);
+}
+
+.stat-val {
+    color: var(--color-cyan);
+    font-weight: 700;
+}
+
+.stat-val.danger {
+    color: #ff3e3e;
+}
+
+.hud-terminal-feed {
+    margin-top: 10px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    padding-top: 6px;
+    font-family: 'Courier New', monospace;
+    font-size: 0.6rem;
+    color: rgba(59, 130, 246, 0.7);
+    height: 60px;
+    overflow: hidden;
+}
+
+.feed-line {
+    margin-bottom: 2px;
+    white-space: nowrap;
+}
+
+/* Hub Core V2 */
+.hub-core-v2 {
+    fill: var(--color-cyan);
+    filter: drop-shadow(0 0 10px var(--color-cyan));
+    animation: corePulse 2s infinite ease-in-out;
+}
+
+.hub-ring {
+    stroke: rgba(59, 130, 246, 0.4);
+}
+
+.rotate {
+    animation: spin 10s infinite linear;
+}
+
+.rotate-rev {
+    animation: spin-rev 15s infinite linear;
+}
+
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes spin-rev {
+    from {
+        transform: rotate(360deg);
+    }
+
+    to {
+        transform: rotate(0deg);
+    }
+}
+
+/* Footer V2 */
+.map-footer.v2-footer {
+    height: 30px;
+    background: rgba(1, 4, 12, 0.95);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 16px;
+    border-top: 1px solid rgba(59, 130, 246, 0.1);
+    font-size: 0.6rem;
+    color: rgba(255, 255, 255, 0.3);
+}
+
+.meta-tag {
+    margin-right: 15px;
+    letter-spacing: 1px;
+}
+
+.blink {
+    animation: blinker 1.5s infinite;
+}
+
+@keyframes blinker {
+    50% {
+        opacity: 0;
+    }
+}
+
+.footer-timestamp {
+    font-size: 11px;
+    color: var(--color-cyan);
+    opacity: 0.7;
+}
+
+@keyframes healthPulse {
+
+    0%,
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+
+    50% {
+        transform: scale(1.4);
+        opacity: 0.5;
+    }
+}

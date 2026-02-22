@@ -46,7 +46,8 @@ def score_threat(input_data: ThreatInput) -> ThreatResponse:
     model = model_loader.load_model()
     
     if not model:
-        logger.error("Model not available for scoring.")
+        # Reduced to debug to avoid terminal flood as requested
+        logger.debug("Model not available for scoring. Using fallback values.")
         # Fallback response if model is missing
         return ThreatResponse(
             score=0.0,

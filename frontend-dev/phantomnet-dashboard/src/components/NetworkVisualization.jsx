@@ -15,6 +15,7 @@ const NetworkVisualization = () => {
     http: { count: 0, status: "inactive" },
     ftp: { count: 0, status: "inactive" },
     smtp: { count: 0, status: "inactive" },
+    mysql: { count: 0, status: "inactive" },
   });
 
   const [loading, setLoading] = useState(true);
@@ -31,6 +32,7 @@ const NetworkVisualization = () => {
           http: { count: 0, status: "inactive" },
           ftp: { count: 0, status: "inactive" },
           smtp: { count: 0, status: "inactive" },
+          mysql: { count: 0, status: "inactive" },
         };
 
         data.forEach((service) => {
@@ -133,7 +135,7 @@ const NetworkVisualization = () => {
             {honeypots.map((hp) => {
               const Icon = hp.icon;
               const nodeData = nodes[hp.key];
-              const isActive = nodeData.status === "active";
+              const isActive = (nodeData && nodeData.status === "active");
 
               return (
                 <div key={hp.key} className={`node-hud-card ${isActive ? "active" : "inactive"}`}>
@@ -154,7 +156,7 @@ const NetworkVisualization = () => {
                       ))}
                     </div>
                     <div className="node-stats-badge">
-                      <span className="stats-value">{nodeData.count.toLocaleString()}</span>
+                      <span className="stats-value">{nodeData ? nodeData.count.toLocaleString() : 0}</span>
                       <span className="stats-label">PKTS</span>
                     </div>
                   </div>

@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Internal Admin Dashboard - PhantomNet</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f0f2f5; margin: 0; display: flex; align-items: center; justify-content: center; height: 100vh; }
+        .login-card { background: white; padding: 2.5rem; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 100%; max-width: 400px; }
+        .login-card h2 { margin-top: 0; color: #1c1e21; font-size: 1.5rem; text-align: center; }
+        .login-card p { color: #606770; font-size: 0.9rem; text-align: center; margin-bottom: 2rem; }
+        .form-group { margin-bottom: 1.25rem; }
+        .form-group label { display: block; margin-bottom: 0.5rem; color: #4b4f56; font-size: 0.85rem; font-weight: 600; }
+        .form-group input { width: 100%; padding: 0.75rem; border: 1px solid #dddfe2; border-radius: 6px; box-sizing: border-box; font-size: 1rem; }
+        .form-group input:focus { outline: none; border-color: #1877f2; box-shadow: 0 0 0 2px #e7f3ff; }
+        .btn-submit { width: 100%; padding: 0.75rem; background: #1877f2; color: white; border: none; border-radius: 6px; font-size: 1.1rem; font-weight: 600; cursor: pointer; transition: background 0.2s; }
+        .btn-submit:hover { background: #166fe5; }
+        .footer-links { margin-top: 1.5rem; text-align: center; border-top: 1px solid #dddfe2; padding-top: 1rem; }
+        .footer-links a { color: #1877f2; text-decoration: none; font-size: 0.85rem; }
+        .footer-links a:hover { text-decoration: underline; }
+        .alert { background: #fff3cd; color: #856404; padding: 0.75rem; border-radius: 6px; font-size: 0.85rem; margin-bottom: 1.5rem; border: 1px solid #ffeeba; }
+    </style>
+</head>
+<body>
+    <div class="login-card">
+        <h2>PhantomNet Admin</h2>
+        <p>Restricted Internal Access Only</p>
+        
+        <div class="alert">
+            <strong>Maintenance Alert:</strong> Scheduled DB maintenance on Sunday 02:00 UTC. System may be intermittent.
+        </div>
+
+        <form action="/admin" method="POST">
+            <div class="form-group">
+                <label for="username">User ID</label>
+                <input type="text" id="username" name="username" required autocomplete="off">
+            </div>
+            <div class="form-group">
+                <label for="password">Security Token / Password</label>
+                <input type="password" id="password" name="password" required>
+            </div>
+            <button type="submit" class="btn-submit">Authenticate</button>
+        </form>
+
+        <div class="footer-links">
+            <a href="/forgot-password">Security Reset</a> &bull; <a href="/help">System Status</a>
+        </div>
+        <p style="margin-top: 1.5rem; font-size: 0.7rem; color: #90949c;">
+            &copy; 2026 Phantom Deception Systems. Unauthorized access is monitored and logged.
+        </p>
+    </div>
+</body>
+</html>
