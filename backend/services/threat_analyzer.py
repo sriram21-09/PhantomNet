@@ -97,8 +97,17 @@ class ThreatAnalyzerService:
                         result = score_threat(input_data)
                         self._cache_score(log.src_ip, result)
                     except Exception as e:
-                        logger.error(f"Failed to score log {log.id}: {e}")
-                        continue
+                        logger.error(f"Error processing unscored logs: {e}")
+                    
+                    # 4. Notify Topology Visualization of new activity
+                    try:
+                        from api.topology import push_topology_event
+                        # Just a heartbeat update for now, telling the UI "something happened"
+                        asyncio.run(push_topology_event("TRAFFIC_TICK", {"count": len(logs)})) # Changed unscored_logs to logs
+                    except Exception as ws_e:
+                        logger.debug(f"Topology sync skipped: {ws_e}")
+
+                    time.sleep(2)
 
                 # 3. Update DB Record
                 log.threat_score = result.score
@@ -107,6 +116,19 @@ class ThreatAnalyzerService:
                 log.attack_type = result.decision
                 log.is_malicious = result.threat_level in ["HIGH", "CRITICAL"]
                 
+                # 4. Notify Topology Visualization of Threat
+                if log.is_malicious:
+                    try:
+                        from api.topology import push_topology_event
+                        asyncio.run(push_topology_event("THREAT_DETECTED", {
+                            "attacker_ip": log.src_ip,
+                            "target_service": log.dst_port,
+                            "threat_score": result.score,
+                            "attack_type": result.decision
+                        }))
+                    except Exception as ws_e:
+                        logger.debug(f"Topology threat sync failed: {ws_e}")
+
                 updated_count += 1
 
             if updated_count > 0:

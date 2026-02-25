@@ -7,6 +7,7 @@ import {
   FaExclamationTriangle,
   FaListAlt,
   FaInfoCircle,
+  FaNetworkWired
 } from "react-icons/fa";
 import "../styles/components/Navbar.css";
 
@@ -17,6 +18,7 @@ const Navbar = () => {
     { path: "/dashboard", label: "Dashboard", icon: FaTachometerAlt },
     { path: "/threat-analysis", label: "Threat Analysis", icon: FaExclamationTriangle },
     { path: "/events", label: "Events", icon: FaListAlt },
+    { path: "/topology", label: "Topology", icon: FaNetworkWired },
     { path: "/about", label: "About", icon: FaInfoCircle },
   ];
 
