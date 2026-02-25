@@ -3,25 +3,16 @@
 # =========================
 from fastapi import FastAPI, Depends, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from sqlalchemy import create_engine, text, func
-from sqlalchemy.orm import sessionmaker, Session
 import os
 import json
 import contextlib
 import socket
+from sqlalchemy import text, func
 from datetime import datetime
 from dotenv import load_dotenv
 
-# ... (Previous imports remain, but I need to make sure I don't delete them if they are in the range)
-# The user wants to Replace lines 4-216 (huge chunk) or I can do it in smaller chunks. 
-# The file is 230 lines. 
-# Let's target the Import section first, then the Endpoint.
-
-# Wait, I can't easily replace disjoint blocks with `replace_file_content`.
-# usage: "Use this tool ONLY when you are making a SINGLE CONTIGUOUS block of edits".
-# So I should use `multi_replace_file_content` or just replace the specific parts.
-
-# Let's use `multi_replace_file_content`.
+from database.database import get_db, engine
+from database.models import Base, PacketLog, TrafficStats
 
 # =========================
 # INTERNAL SERVICES
@@ -34,43 +25,24 @@ from services.threat_analyzer import threat_analyzer
 # =========================
 # MODELS
 # =========================
-from database.models import Base, PacketLog, TrafficStats
+# (Already imported above)
 
 # =========================
 # API ROUTERS
 # =========================
 from api.model_metrics import router as model_metrics_router
+from api.management import router as management_router
 
 # =========================
 # ENVIRONMENT SETUP
 # =========================
 load_dotenv()
-
-DATABASE_URL = os.getenv("DATABASE_URL")
 ENVIRONMENT = os.getenv("ENVIRONMENT", "local")
-
-if not DATABASE_URL:
-    print("WARNING: DATABASE_URL not set. Using local sqlite DB.")
-    DATABASE_URL = "sqlite:///./phantomnet.db"
 
 # =========================
 # DATABASE SETUP
 # =========================
-engine = create_engine(
-    DATABASE_URL,
-    connect_args={"check_same_thread": False} if "sqlite" in DATABASE_URL else {}
-)
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-
-# =========================
-# DEPENDENCY
-# =========================
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
+# (Already handled in database/database.py)
 
 # =========================
 # LIFESPAN
@@ -113,6 +85,7 @@ app.add_middleware(
 
 # Register Routers
 app.include_router(model_metrics_router)
+app.include_router(management_router)
 
 # =========================
 # ROUTERS
