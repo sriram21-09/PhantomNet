@@ -915,6 +915,17 @@ body[data-theme="light"] .threat-section::after {
   }
 }
 
+.honeypot-wide-panel {
+  grid-column: span 2;
+  width: 100%;
+}
+
+@media (max-width: 1024px) {
+  .honeypot-wide-panel {
+    grid-column: span 1;
+  }
+}
+
 /* Skeleton Loading */
 .skeleton-card {
   width: 100%;
@@ -956,7 +967,7 @@ body[data-theme="light"] .threat-section::after {
 .analytics-main,
 .priority-section {
   display: grid;
-  grid-template-columns: 2.2fr 0.8fr;
+  grid-template-columns: 1fr;
   gap: 24px;
   margin-bottom: 24px;
 }

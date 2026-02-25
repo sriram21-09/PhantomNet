@@ -32,12 +32,9 @@ body[data-theme="dark"] {
   --color-primary: #3b82f6;
   --color-primary-glow: rgba(59, 130, 246, 0.5);
   --color-accent: #22d3ee;
-<<<<<<< HEAD
   /* HUD Colors */
   --color-cyan: #06b6d4;
   --color-red: #ef4444;
-=======
->>>>>>> 24076281 (fix(topology): fix topology crash and implement full light mode support for pro components)
   --color-alert: #ef4444;
   --color-warning: #f59e0b;
   --color-success: #10b981;
@@ -45,10 +42,7 @@ body[data-theme="dark"] {
   --bg-primary: #020617;
   --bg-hud: rgba(15, 23, 42, 0.7);
   --bg-glass: rgba(15, 23, 42, 0.4);
-<<<<<<< HEAD
   --bg-map: radial-gradient(circle at 50% 50%, #030821 0%, #010414 70%);
-=======
->>>>>>> 24076281 (fix(topology): fix topology crash and implement full light mode support for pro components)
 
   --text-hud: #f8fafc;
   --text-dim: #94a3b8;
@@ -63,11 +57,8 @@ body[data-theme="dark"] {
   --hud-scanline: linear-gradient(to bottom,
       transparent 50%,
       rgba(18, 16, 16, 0.1) 50%);
-<<<<<<< HEAD
 
   --shadow-card: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
-=======
->>>>>>> 24076281 (fix(topology): fix topology crash and implement full light mode support for pro components)
 }
 
 /* ==========================================

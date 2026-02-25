@@ -16,13 +16,9 @@
     "build": "^0.1.4",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
-<<<<<<< HEAD
     "html-to-image": "^1.11.13",
     "leaflet": "^1.9.4",
     "lucide-react": "^0.575.0",
-=======
-    "leaflet": "^1.9.4",
->>>>>>> 24076281 (fix(topology): fix topology crash and implement full light mode support for pro components)
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
     "react-icons": "^5.5.0",
