@@ -23,6 +23,12 @@ class PacketLog(Base):
     confidence = Column(Float, nullable=True)
     is_malicious = Column(Boolean, default=False)
     event = Column(String, nullable=True) # e.g., "login_attempt"
+    
+    # GeoIP Enrichment
+    country = Column(String, nullable=True)
+    city = Column(String, nullable=True)
+    latitude = Column(Float, nullable=True)
+    longitude = Column(Float, nullable=True)
 
 class TrafficStats(Base):
     __tablename__ = "traffic_stats"
@@ -53,4 +59,31 @@ class Event(Base):
     honeypot_type = Column(String)
     raw_data = Column(String)
     timestamp = Column(DateTime, default=datetime.utcnow)
+
+class HoneypotNode(Base):
+    __tablename__ = "honeypot_nodes"
+    __table_args__ = {'extend_existing': True}
+
+    id = Column(Integer, primary_key=True, index=True)
+    node_id = Column(String, unique=True, index=True)
+    hostname = Column(String)
+    ip_address = Column(String)
+    status = Column(String, default="active") # active, inactive, pending
+    last_seen = Column(DateTime, default=datetime.utcnow)
+    honeypot_type = Column(String) # SSH, HTTP, etc.
+    policy_id = Column(Integer, ForeignKey("policies.id"), nullable=True)
+
+    policy = relationship("Policy", back_populates="nodes")
+
+class Policy(Base):
+    __tablename__ = "policies"
+    __table_args__ = {'extend_existing': True}
+
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String, unique=True)
+    description = Column(String)
+    config = Column(String) # JSON string for now
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+    nodes = relationship("HoneypotNode", back_populates="policy")
 

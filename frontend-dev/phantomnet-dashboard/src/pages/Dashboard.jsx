@@ -11,8 +11,9 @@ import TopAttackers from "../components/TopAttackers";
 import OptimizedThreatLevel from "../components/OptimizedThreatLevel";
 import PremiumGaugeCard from "../components/PremiumGaugeCard";
 import PremiumMetricCard from "../components/PremiumMetricCard";
-import WelcomeModal from "../components/WelcomeModal";
 import CyberMeshMap from "../components/CyberMeshMap";
+import TrendsChart from "../components/TrendsChart";
+import WelcomeModal from "../components/WelcomeModal";
 import { fetchThreatMetrics } from "../services/api";
 import { Button } from "../components/ui/button";
 import "../Styles/pages/Dashboard.css";
@@ -135,6 +136,11 @@ const Dashboard = () => {
               status="ALERT"
               progress={stats.criticalAlerts > 0 ? 90 : 0}
             />
+          </div>
+
+          {/* Global Threat Mesh Section */}
+          <div className="mesh-row">
+            <CyberMeshMap />
           </div>
 
           {/* Core Analytics Row */}

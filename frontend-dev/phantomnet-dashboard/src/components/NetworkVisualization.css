@@ -104,7 +104,8 @@
 
 @media (max-width: 1400px) {
   .viz-content-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: 1fr 1fr;
+    /* Restored to 2 columns */
   }
 }
 
@@ -231,8 +232,8 @@ body[data-theme="light"] .core-hud-card {
 /* Nodes Section Grid */
 .nodes-hud-grid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 20px;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
 }
 
 @media (max-width: 600px) {

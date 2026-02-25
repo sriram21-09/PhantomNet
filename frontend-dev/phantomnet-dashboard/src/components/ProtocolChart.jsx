@@ -115,21 +115,21 @@ const ProtocolChart = () => {
                 </ResponsiveContainer>
 
                 {/* Central Cyber-HUD Label */}
-                <div className={`chart-center-label ${activeIndex !== null ? 'hud-active' : ''}`}>
+                <div className={`chart-center-label hud-font ${activeIndex !== null ? 'hud-active' : ''}`}>
                     {activeIndex === null ? (
                         <div className="hud-default">
-                            <span className="total-value">{totalValue}%</span>
-                            <span className="total-label">TRAFFIC</span>
+                            <span className="total-value glow-text">{totalValue}%</span>
+                            <span className="total-label text-dim">TRAFFIC</span>
                         </div>
                     ) : (
                         <div className="hud-content">
-                            <span className="hud-protocol" style={{ color: COLORS[activeIndex] }}>
+                            <span className="hud-protocol glow-text" style={{ color: COLORS[activeIndex] }}>
                                 {protocolData[activeIndex].name}
                             </span>
                             <span className="hud-value" style={{ color: COLORS[activeIndex] }}>
                                 {protocolData[activeIndex].value}%
                             </span>
-                            <span className="hud-label">DISTRIBUTION</span>
+                            <span className="hud-label text-dim">DISTRIBUTION</span>
                         </div>
                     )}
                 </div>

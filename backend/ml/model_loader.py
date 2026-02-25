@@ -6,18 +6,21 @@ from ml.config.mlflow_env import TRACKING_URI, MODEL_NAME
 
 # Singleton instance
 _MODEL = None
+_LOAD_ATTEMPTED = False
 
 def load_model():
     """
     Loads the production model from MLflow or local artifacts.
     Implements caching to avoid reloading on every request.
     """
-    global _MODEL
+    global _MODEL, _LOAD_ATTEMPTED
     
     if _MODEL is not None:
         return _MODEL
 
-    print("[MODEL_LOADER] Loading model...")
+    if not _LOAD_ATTEMPTED:
+        print("[MODEL_LOADER] Initializing ML scoring engine...")
+        _LOAD_ATTEMPTED = True
     
     # 1. Try MLflow
     try:
@@ -37,17 +40,17 @@ def load_model():
             _MODEL = mlflow.sklearn.load_model(model_uri)
             return _MODEL
             
-    except Exception as e:
-        print(f"[MODEL_LOADER] MLflow load failed: {e}")
+    except Exception:
+        # Silencing MLflow connection errors if they repeat
+        pass
 
     # 2. Fallback to Local File (if MLflow fails)
     local_path = Path(__file__).parent / "model.pkl"
     if local_path.exists():
-        print(f"[MODEL_LOADER] Loading from local file: {local_path}")
         _MODEL = joblib.load(local_path)
+        print(f"[MODEL_LOADER] Successfully loaded local mode: {local_path}")
         return _MODEL
 
-    print("[MODEL_LOADER] CRITICAL: No model found.")
     return None
 
 def get_model():

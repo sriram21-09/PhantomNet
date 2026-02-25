@@ -95,23 +95,6 @@ class ThreatAnalyzerService:
                             length=log.length or 0,
                         )
                         result = score_threat(input_data)
-                        
-                        # 2. Enrich with Threat Intelligence (Proactively)
-                        try:
-                            import asyncio
-                            from services.threat_intel import threat_intel_service
-                            # Use asyncio.run to call the async enrichment from the background thread
-                            enrichment = asyncio.run(threat_intel_service.enrich_ip(log.src_ip))
-                            
-                            if isinstance(enrichment, dict) and 'abuse_ipdb' in enrichment:
-                                abuse_score = enrichment['abuse_ipdb'].get('abuse_confidence_score', 0)
-                                if abuse_score > 50:
-                                    # Professional Score Scaling
-                                    result.score = min(100, result.score + (abuse_score / 2.5))
-                                    result.threat_level = "HIGH" if result.score >= 70 else result.threat_level
-                        except Exception as intel_e:
-                            logger.error(f"Failed to enrich log {log.id}: {intel_e}")
-
                         self._cache_score(log.src_ip, result)
                     except Exception as e:
                         logger.error(f"Error processing unscored logs: {e}")
@@ -150,7 +133,8 @@ class ThreatAnalyzerService:
 
             if updated_count > 0:
                 db.commit()
-                logger.info(f"Analyzed and updated {updated_count} logs.")
+                # Change to DEBUG to avoid terminal spam
+                logger.debug(f"Analyzed and updated {updated_count} logs.")
 
         except Exception as e:
             logger.error(f"Database error: {e}")

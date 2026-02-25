@@ -7,6 +7,7 @@ const iconMap = {
   HTTP: FaGlobe,
   FTP: FaFolder,
   SMTP: FaEnvelope,
+  MYSQL: FaLock, // Using FaLock for DB as well, or could use another
 };
 
 // Format last_seen as relative time
@@ -64,15 +65,17 @@ const HoneypotStatus = () => {
   }, []);
 
   return (
-    <div className="honeypot-monitor-container">
-      <div className="monitor-header">
+    <div className="honeypot-monitor-container pro-card">
+      <div className="monitor-header hud-font">
         <div className="monitor-title">
-          <h3>Honeypot Network Status</h3>
-          <p>Global Sensing Grid • Real-time Health</p>
+          <h3 className="glow-text">Honeypot Network Status</h3>
+          <p className="text-dim">Global Sensing Grid • Real-time Health</p>
         </div>
         <div className="status-summary">
           <span className="summary-dot"></span>
-          <span className="summary-text">7/7 SCANNING</span>
+          <span className="summary-text">
+            {honeypots.filter(h => h.status === 'active').length}/{honeypots.length} SCANNING
+          </span>
         </div>
       </div>
 
