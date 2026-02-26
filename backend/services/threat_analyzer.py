@@ -11,6 +11,8 @@ from database.database import SessionLocal
 from database.models import PacketLog
 from ml.threat_scoring_service import score_threat
 from schemas.threat_schema import ThreatInput
+from ml_engine.pattern_detector import AdvancedPatternDetector
+from database.database import get_db
 
 # Configure logging
 logger = logging.getLogger("threat_analyzer")
@@ -23,6 +25,8 @@ class ThreatAnalyzerService:
         self._cache = {}  # Simple Dict Cache [IP -> {score, level, timestamp}]
         self._cache_ttl = 60  # Seconds
         self.running = False
+        self.last_pattern_scan = datetime.now()
+        self.pattern_scan_interval = 60 # Run advanced patterns every minute
 
     def start(self):
         """Starts the background analysis loop."""
@@ -46,6 +50,12 @@ class ThreatAnalyzerService:
         while not self._stop_event.is_set():
             try:
                 self._process_unscored_logs()
+                
+                # Check if it's time to run advanced patterns (Distributed Brute Force, Low & Slow)
+                if (datetime.now() - self.last_pattern_scan).total_seconds() >= self.pattern_scan_interval:
+                    self._process_advanced_patterns()
+                    self.last_pattern_scan = datetime.now()
+                    
             except Exception as e:
                 logger.error(f"Error in analysis loop: {e}")
             
@@ -67,6 +77,34 @@ class ThreatAnalyzerService:
             'timestamp': datetime.now(),
             'result': result
         }
+
+    def _process_advanced_patterns(self):
+        db: Session = SessionLocal()
+        try:
+            detector = AdvancedPatternDetector(db)
+            report = detector.run_all_checks()
+            
+            threats_found = False
+            if report.get("distributed_brute_force_ssh"):
+                logger.warning(f"ADVANCED THREAT DETECTED: Distributed Brute Force: {len(report['distributed_brute_force_ssh'])} targets.")
+                threats_found = True
+            
+            if report.get("low_and_slow_scans"):
+                logger.warning(f"ADVANCED THREAT DETECTED: Low and Slow scans from {len(report['low_and_slow_scans'])} sources.")
+                threats_found = True
+                
+            if threats_found:
+                try:
+                    import asyncio
+                    from api.topology import push_topology_event
+                    asyncio.run(push_topology_event("ADVANCED_THREAT_DETECTED", report))
+                except Exception as ws_e:
+                    logger.debug(f"Topology advanced threat sync failed: {ws_e}")
+
+        except Exception as e:
+            logger.error(f"Error in _process_advanced_patterns: {e}")
+        finally:
+            db.close()
 
     def _process_unscored_logs(self):
         db: Session = SessionLocal()
