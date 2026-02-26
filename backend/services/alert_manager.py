@@ -55,6 +55,14 @@ class AlertManager:
             self._update_cache(alert_type, source_ip)
             
             logger.info(f"🚨 ALERT [{level}] {alert_type}: {description} (IP: {source_ip})")
+
+            # TRIGGER AUTOMATED RESPONSE
+            try:
+                from .response_executor import response_executor
+                response_executor.execute_response(level, source_ip=source_ip, attack_type=alert_type)
+            except Exception as e:
+                logger.error(f"Failed to execute automated response: {e}")
+
             return new_alert
         except Exception as e:
             logger.error(f"Failed to create alert: {e}")
