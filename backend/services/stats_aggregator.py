@@ -2,9 +2,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy import func
 from datetime import datetime, timedelta
 
-from app_models import PacketLog
-
-
+from database.models import PacketLog, TrafficStats
 class StatsService:
     def __init__(self, db: Session):
         self.db = db

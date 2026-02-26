@@ -38,12 +38,12 @@ ip_connections = defaultdict(int)
 def log(level, payload):
     payload["level"] = level
     with open(LOG_FILE, "a") as f:
-        f.write(json.dumps(payload) + "\\n")
+        f.write(json.dumps(payload) + "\n")
     
     # Also log to database for accurate last_seen
     if DB_ENABLED:
         try:
-            src_ip = payload.get("source_ip", "unknown")
+            src_ip = payload.get("src_ip", "unknown")
             event_type = payload.get("event", "activity")
             is_malicious = level == "ERROR"  # SQLi attempts are errors
             log_http_activity(src_ip, event_type, is_malicious=is_malicious)
@@ -76,76 +76,17 @@ def is_sqli(value):
     return any(p in value for p in SQLI_PATTERNS)
 
 # ======================
-# FAKE PAGES
-# ======================
-ADMIN_PAGE = """
-<!DOCTYPE html>
-<html>
-<head>
-<title>Admin Dashboard</title>
-<style>
-body { font-family: Arial; background:#f2f4f7; }
-.container {
-  width:420px; margin:80px auto; background:#fff;
-  padding:25px; border-radius:6px;
-  box-shadow:0 3px 10px rgba(0,0,0,.15);
-}
-.notice {
-  background:#fff3cd; padding:10px; font-size:13px;
-  border-left:4px solid #ff9800; margin-bottom:15px;
-}
-.ad {
-  background:#e3f2fd; padding:10px; font-size:12px;
-  border-left:4px solid #2196f3; margin-bottom:15px;
-}
-input,button { width:100%; padding:10px; margin-top:8px; }
-button { background:#2f80ed; color:white; border:none; }
-a { display:block; text-align:center; margin-top:10px; font-size:13px; }
-</style>
-</head>
-<body>
-<div class="container">
-<h2>Admin Dashboard</h2>
-
-<div class="notice">---------------- WELCOME TO PHANTOMNET ---------------</div>
-<div class="ad">Upgrade to Admin Pro for enhanced security.</div>
-
-<form method="POST" action="/admin">
-<input name="username" placeholder="Username" required>
-<input type="password" name="password" placeholder="Password" required>
-<button>Sign in</button>
-</form>
-
-<a href="/forgot-password">Forgot password?</a>
-
-<p style="text-align:center;font-size:12px;color:#888;">
-© 2025 Internal Admin System
-</p>
-</div>
-</body>
-</html>
-"""
-
-FORGOT_PAGE = """
-<!DOCTYPE html>
-<html>
-<head>
-<title>Password Recovery</title>
-</head>
-<body>
-<h3>Password Recovery</h3>
-<form method="POST" action="/forgot-password">
-<input name="email" placeholder="Email address" required>
-<button>Reset Password</button>
-</form>
-</body>
-</html>
-"""
-
-# ======================
 # HANDLER
 # ======================
 class HoneypotHandler(BaseHTTPRequestHandler):
+
+    def _read_template(self, filename):
+        path = os.path.join(BASE_DIR, filename)
+        try:
+            with open(path, "r", encoding="utf-8") as f:
+                return f.read()
+        except:
+            return "<html><body><h1>500 Internal Server Error</h1></body></html>"
 
     def setup(self):
         super().setup()
@@ -154,7 +95,7 @@ class HoneypotHandler(BaseHTTPRequestHandler):
     def _log_event(self, event, level, data=None):
         log(level, {
             "timestamp": datetime.now(timezone.utc).isoformat(),
-            "source_ip": self.client_address[0],
+            "src_ip": self.client_address[0],
             "honeypot_type": "http",
             "port": PORT,
             "event": event,
@@ -194,19 +135,22 @@ class HoneypotHandler(BaseHTTPRequestHandler):
 
         if self.path == "/admin":
             self._log_event("page_view", "INFO")
+            content = self._read_template("fake_admin.html")
             self.send_response(200)
             self.send_header("Content-Type", "text/html")
             self.end_headers()
-            self.wfile.write(ADMIN_PAGE.encode())
+            self.wfile.write(content.encode())
 
         elif self.path == "/forgot-password":
             self._log_event("forgot_password_view", "INFO")
+            content = self._read_template("forgot_password.html")
             self.send_response(200)
             self.send_header("Content-Type", "text/html")
             self.end_headers()
-            self.wfile.write(FORGOT_PAGE.encode())
+            self.wfile.write(content.encode())
 
         else:
+            self._log_event("scan_attempt", "INFO")
             self.send_response(404)
             self.send_header("Content-Type", "text/plain")
             self.end_headers()

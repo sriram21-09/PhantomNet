@@ -1,268 +1,279 @@
 /* ==========================================
-   HONEYPOT STATUS - Premium Dual-Theme
+   HONEYPOT MONITOR - Health Grid
    ========================================== */
 
-.honeypot-wrapper {
+.honeypot-monitor-container {
     height: 100%;
+    display: flex;
+    flex-direction: column;
 }
 
-.honeypot-header {
+.monitor-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 16px;
+    margin-bottom: 24px;
 }
 
-.honeypot-header h3 {
+.monitor-title h3 {
     font-size: 14px;
-    font-weight: 600;
+    font-weight: 800;
     color: var(--text-primary);
     margin: 0;
+    letter-spacing: 0.5px;
 }
 
-.live-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    padding: 6px 14px;
-    border-radius: 20px;
-    font-size: 11px;
+.monitor-title p {
+    font-size: 10px;
+    color: #64748b;
     font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: 0.5px;
-    animation: badgeGlow 2s ease-in-out infinite;
+    margin: 2px 0 0 0;
+    letter-spacing: 1px;
 }
 
-body[data-theme="dark"] .live-badge {
-    background: linear-gradient(135deg, rgba(34, 197, 94, 0.2), rgba(16, 185, 129, 0.15));
-    border: 1px solid rgba(34, 197, 94, 0.4);
-    color: #4ade80;
-    box-shadow: 0 0 15px rgba(34, 197, 94, 0.3);
-}
-
-body[data-theme="light"] .live-badge {
-    background: linear-gradient(135deg, #dcfce7, #bbf7d0);
-    border: 1px solid rgba(34, 197, 94, 0.5);
-    color: #059669;
-    box-shadow: 0 2px 10px rgba(34, 197, 94, 0.25);
-}
-
-@keyframes badgeGlow {
-
-    0%,
-    100% {
-        box-shadow: 0 0 15px rgba(34, 197, 94, 0.3);
-    }
-
-    50% {
-        box-shadow: 0 0 25px rgba(34, 197, 94, 0.5);
-    }
-}
-
-.live-dot {
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-    background: currentColor;
-    animation: livePulse 1.5s ease-in-out infinite;
-}
-
-@keyframes livePulse {
-
-    0%,
-    100% {
-        opacity: 1;
-        transform: scale(1);
-    }
-
-    50% {
-        opacity: 0.5;
-        transform: scale(1.2);
-    }
-}
-
-/* Honeypot List */
-.honeypot-list {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-}
-
-.honeypot-item {
+.status-summary {
     display: flex;
     align-items: center;
-    gap: 14px;
-    padding: 14px 18px;
+    gap: 8px;
+    padding: 4px 12px;
+    background: rgba(34, 197, 94, 0.1);
+    border-radius: 20px;
+    color: #22c55e;
+    font-size: 10px;
+    font-weight: 900;
+}
+
+.summary-dot {
+    width: 6px;
+    height: 6px;
+    background: #22c55e;
+    border-radius: 50%;
+    animation: glowPulse 2s infinite;
+}
+
+@keyframes glowPulse {
+    0% {
+        box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.4);
+    }
+
+    70% {
+        box-shadow: 0 0 0 8px rgba(34, 197, 94, 0);
+    }
+
+    100% {
+        box-shadow: 0 0 0 0 rgba(34, 197, 94, 0);
+    }
+}
+
+/* Status Scroller */
+.status-scroller {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    flex: 1;
+}
+
+.status-row {
+    position: relative;
+    border-radius: 12px;
+    overflow: hidden;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+body[data-theme="dark"] .status-row {
+    background: rgba(15, 23, 42, 0.4);
+}
+
+body[data-theme="light"] .status-row {
+    background: rgba(255, 255, 255, 0.6);
+    border: 1px solid rgba(0, 0, 0, 0.04);
+}
+
+.status-row:hover {
+    transform: translateX(4px);
+    background: rgba(59, 130, 246, 0.05);
+    border-color: rgba(59, 130, 246, 0.2);
+}
+
+.row-glass {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(90deg, rgba(59, 130, 246, 0.03), transparent);
+    pointer-events: none;
+}
+
+.status-row-content {
+    position: relative;
+    z-index: 1;
+    padding: 16px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.row-icon-side {
+    position: relative;
+}
+
+.row-icon-box {
+    width: 42px;
+    height: 42px;
+    background: rgba(148, 163, 184, 0.1);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    color: #64748b;
+    transition: all 0.3s ease;
+}
+
+.status-row.active .row-icon-box {
+    background: rgba(34, 197, 94, 0.1);
+    color: #22c55e;
+}
+
+.status-row.inactive .row-icon-box {
+    background: rgba(239, 68, 68, 0.1);
+    color: #ef4444;
+}
+
+.health-ring {
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    right: -2px;
+    bottom: -2px;
+    border: 2px solid transparent;
     border-radius: 12px;
     transition: all 0.3s ease;
 }
 
-body[data-theme="dark"] .honeypot-item {
-    background: rgba(255, 255, 255, 0.02);
-    border: 1px solid rgba(255, 255, 255, 0.04);
+.status-row.active:hover .health-ring {
+    border-color: rgba(34, 197, 94, 0.3);
+    transform: scale(1.05);
 }
 
-body[data-theme="dark"] .honeypot-item.active {
-    border-left: 3px solid #22c55e;
-}
-
-body[data-theme="dark"] .honeypot-item.inactive {
-    border-left: 3px solid #ef4444;
-}
-
-body[data-theme="dark"] .honeypot-item:hover {
-    background: rgba(255, 255, 255, 0.04);
-    transform: translateX(4px);
-}
-
-body[data-theme="light"] .honeypot-item {
-    background: linear-gradient(145deg, #ffffff, #f8fafc);
-    border: 1px solid rgba(0, 0, 0, 0.05);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
-}
-
-body[data-theme="light"] .honeypot-item.active {
-    border-left: 3px solid #059669;
-    background: linear-gradient(90deg, rgba(240, 253, 244, 0.6), #ffffff);
-}
-
-body[data-theme="light"] .honeypot-item.inactive {
-    border-left: 3px solid #dc2626;
-    background: linear-gradient(90deg, rgba(254, 242, 242, 0.6), #ffffff);
-}
-
-body[data-theme="light"] .honeypot-item:hover {
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
-    transform: translateX(4px);
-}
-
-/* Icon */
-.honeypot-icon {
-    width: 40px;
-    height: 40px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 10px;
-    font-size: 16px;
-    flex-shrink: 0;
-}
-
-body[data-theme="dark"] .honeypot-item.active .honeypot-icon {
-    background: rgba(34, 197, 94, 0.15);
-    color: #4ade80;
-}
-
-body[data-theme="dark"] .honeypot-item.inactive .honeypot-icon {
-    background: rgba(239, 68, 68, 0.15);
-    color: #f87171;
-}
-
-body[data-theme="light"] .honeypot-item.active .honeypot-icon {
-    background: linear-gradient(135deg, #dcfce7, #bbf7d0);
-    color: #059669;
-}
-
-body[data-theme="light"] .honeypot-item.inactive .honeypot-icon {
-    background: linear-gradient(135deg, #fee2e2, #fecaca);
-    color: #dc2626;
-}
-
-/* Info */
-.honeypot-info {
+/* Info Side */
+.row-info-main {
     flex: 1;
-    min-width: 0;
-}
-
-.honeypot-name {
     display: flex;
-    align-items: center;
-    gap: 8px;
-    margin-bottom: 4px;
+    flex-direction: column;
+    gap: 4px;
 }
 
-.honeypot-name span:first-child {
-    font-size: 14px;
-    font-weight: 600;
+.row-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.hp-name {
+    font-size: 13px;
+    font-weight: 800;
     color: var(--text-primary);
 }
 
-.status-badge {
-    padding: 2px 8px;
-    border-radius: 10px;
+.status-badge-new {
     font-size: 9px;
-    font-weight: 700;
-    text-transform: uppercase;
+    font-weight: 900;
+    padding: 2px 8px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
     letter-spacing: 0.5px;
 }
 
-body[data-theme="dark"] .status-badge.online {
-    background: rgba(34, 197, 94, 0.15);
-    color: #4ade80;
+.status-badge-new.online {
+    background: rgba(34, 197, 94, 0.1);
+    color: #22c55e;
 }
 
-body[data-theme="dark"] .status-badge.offline {
-    background: rgba(239, 68, 68, 0.15);
-    color: #f87171;
+.status-badge-new.offline {
+    background: rgba(239, 68, 68, 0.1);
+    color: #ef4444;
 }
 
-body[data-theme="light"] .status-badge.online {
-    background: linear-gradient(135deg, #dcfce7, #bbf7d0);
-    color: #059669;
-}
-
-body[data-theme="light"] .status-badge.offline {
-    background: linear-gradient(135deg, #fee2e2, #fecaca);
-    color: #dc2626;
-}
-
-.honeypot-details {
-    font-size: 11px;
-    color: var(--text-muted);
-}
-
-/* Status Indicator */
-.status-indicator {
-    width: 8px;
-    height: 8px;
+.badge-pulse {
+    width: 4px;
+    height: 4px;
+    background: currentColor;
     border-radius: 50%;
-    background: #ef4444;
-    flex-shrink: 0;
+    animation: miniPulse 1s infinite;
 }
 
-.status-indicator.active {
-    background: #22c55e;
-    box-shadow: 0 0 10px rgba(34, 197, 94, 0.5);
-    animation: indicatorPulse 2s ease-in-out infinite;
-}
-
-@keyframes indicatorPulse {
-
-    0%,
-    100% {
-        opacity: 1;
+@keyframes miniPulse {
+    0% {
         transform: scale(1);
+        opacity: 1;
     }
 
     50% {
-        opacity: 0.6;
-        transform: scale(1.1);
+        transform: scale(1.5);
+        opacity: 0.5;
+    }
+
+    100% {
+        transform: scale(1);
+        opacity: 1;
     }
 }
 
-/* Error */
-.honeypot-error {
-    padding: 16px;
-    text-align: center;
-    border-radius: 10px;
+.row-bottom {
+    display: flex;
+    align-items: center;
+    gap: 8px;
 }
 
-body[data-theme="dark"] .honeypot-error {
-    background: rgba(239, 68, 68, 0.1);
-    color: #f87171;
+.detail-item {
+    font-size: 10px;
+    font-weight: 700;
+    color: #64748b;
+    font-family: 'JetBrains Mono', monospace;
 }
 
-body[data-theme="light"] .honeypot-error {
-    background: linear-gradient(135deg, #fee2e2, #fecaca);
-    color: #dc2626;
+.detail-separator {
+    color: rgba(148, 163, 184, 0.2);
+    font-size: 10px;
+}
+
+/* Action Side / Ping */
+.row-action-side {
+    padding-left: 10px;
+}
+
+.ping-pulse {
+    width: 6px;
+    height: 24px;
+    background: rgba(148, 163, 184, 0.2);
+    border-radius: 3px;
+}
+
+.ping-pulse.active {
+    background: #3b82f6;
+    box-shadow: 0 0 10px rgba(59, 130, 246, 0.4);
+    animation: pingBar 2s infinite ease-in-out;
+}
+
+@keyframes pingBar {
+    0% {
+        height: 10px;
+        opacity: 0.4;
+    }
+
+    50% {
+        height: 28px;
+        opacity: 1;
+    }
+
+    100% {
+        height: 10px;
+        opacity: 0.4;
+    }
 }

@@ -1,0 +1,31 @@
+{
+  "test_date": "2026-02-10",
+  "project": "PhantomNet",
+  "tests": [
+    {
+      "honeypot": "ssh",
+      "attack_type": "brute_force",
+      "tool": "simulated",
+      "result": "detected",
+      "impact": "none",
+      "notes": "Multiple failed login attempts logged, no shell access granted"
+    },
+    {
+      "honeypot": "http",
+      "attack_type": "sql_injection",
+      "tool": "simulated",
+      "result": "detected",
+      "impact": "none",
+      "notes": "SQL injection payload identified and logged, no backend execution"
+    },
+    {
+      "honeypot": "smtp",
+      "attack_type": "spam_relay",
+      "tool": "simulated",
+      "result": "detected",
+      "impact": "none",
+      "notes": "SMTP payload captured, relay not permitted"
+    }
+  ],
+  "conclusion": "All simulated penetration tests were successfully detected by honeypots. No exploitation or lateral movement observed."
+}

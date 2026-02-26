@@ -1,0 +1,53 @@
+.geo-heatmap-card {
+    padding: 1.5rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.map-wrapper {
+    position: relative;
+    margin-top: 1rem;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+}
+
+.heatmap-loading {
+    height: 400px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 12px;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    letter-spacing: 0.05rem;
+}
+
+/* Customizing Leaflet Popups for Cyber Theme */
+.map-popup .leaflet-popup-content-wrapper {
+    background: #1e293b !important;
+    color: #f8fafc !important;
+    border: 1px solid #334155 !important;
+    border-radius: 8px !important;
+    font-family: inherit !important;
+}
+
+.map-popup .leaflet-popup-tip {
+    background: #1e293b !important;
+}
+
+.popup-content {
+    font-size: 0.8rem;
+    line-height: 1.4;
+}
+
+.map-overlay-vignette {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    pointer-events: none;
+    box-shadow: inset 0 0 80px rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+}

@@ -1,0 +1,87 @@
+openapi: 3.0.0
+info:
+  title: PhantomNet Threat Scoring API
+  description: API for real-time threat analysis and scoring using Machine Learning.
+  version: 1.0.0
+paths:
+  /api/v1/analyze/threat-score:
+    post:
+      summary: Analyze Network Traffic
+      description: |
+        Analyzes network packet metadata and returns a threat probability score (0-100),
+        threat level (LOW, MEDIUM, HIGH), and recommended decision.
+      tags:
+        - Threat Analysis
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ThreatInput'
+      responses:
+        '200':
+          description: Successful analysis
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ThreatResponse'
+        '422':
+          description: Validation Error (Missing fields or invalid types)
+        '503':
+          description: ML Model Unavailable
+components:
+  schemas:
+    ThreatInput:
+      type: object
+      required:
+        - src_ip
+        - dst_ip
+        - dst_port
+        - protocol
+        - length
+      properties:
+        src_ip:
+          type: string
+          example: "192.168.1.100"
+        dst_ip:
+          type: string
+          example: "10.0.0.5"
+        dst_port:
+          type: integer
+          example: 80
+        protocol:
+          type: string
+          example: "TCP"
+        length:
+          type: integer
+          example: 512
+        timestamp:
+          type: string
+          format: date-time
+        threat_score:
+          type: number
+          default: 0.0
+        is_malicious:
+          type: boolean
+          default: false
+        attack_type:
+          type: string
+          default: "UNKNOWN"
+        honeypot_type:
+          type: string
+          default: "NONE"
+    ThreatResponse:
+      type: object
+      properties:
+        score:
+          type: number
+          description: Threat probability (0-100)
+        threat_level:
+          type: string
+          enum: [LOW, MEDIUM, HIGH]
+        confidence:
+          type: number
+          description: Model confidence (0-1)
+        decision:
+          type: string
+          enum: [ALLOW, ALERT, BLOCK]

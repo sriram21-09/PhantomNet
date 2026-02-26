@@ -1,0 +1,349 @@
+openapi: 3.1.0
+info:
+  title: PhantomNet API
+  description: AI-Driven Active Defense Platform
+  version: '2.0'
+paths:
+  /api/v1/analyze/threat-score:
+    post:
+      tags:
+      - Analysis
+      summary: Analyze Threat Score
+      description: Analyzes network traffic features and returns a threat score (0-100)
+        and classification.
+      operationId: analyze_threat_api_v1_analyze_threat_score_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ThreatInput'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ThreatResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/analytics/ssh:
+    get:
+      tags:
+      - Analytics
+      summary: Get Ssh Analytics
+      description: Returns SSH attack statistics including brute-force attempts.
+      operationId: get_ssh_analytics_api_v1_analytics_ssh_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: object
+                title: Response Get Ssh Analytics Api V1 Analytics Ssh Get
+  /api/v1/analytics/http:
+    get:
+      tags:
+      - Analytics
+      summary: Get Http Analytics
+      description: Returns HTTP attack statistics.
+      operationId: get_http_analytics_api_v1_analytics_http_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: object
+                title: Response Get Http Analytics Api V1 Analytics Http Get
+  /api/v1/analytics/trends:
+    get:
+      tags:
+      - Analytics
+      summary: Get Attack Trends
+      description: Returns daily attack volume for the last N days.
+      operationId: get_attack_trends_api_v1_analytics_trends_get
+      parameters:
+      - name: days
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 30
+          minimum: 1
+          default: 7
+          title: Days
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                title: Response Get Attack Trends Api V1 Analytics Trends Get
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /:
+    get:
+      summary: Read Root
+      operationId: read_root__get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+  /health:
+    get:
+      summary: Health Check
+      operationId: health_check_health_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+  /analyze-traffic:
+    get:
+      summary: Get Real Traffic
+      operationId: get_real_traffic_analyze_traffic_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+  /api/stats:
+    get:
+      summary: Get Api Stats
+      operationId: get_api_stats_api_stats_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+  /api/events:
+    get:
+      summary: Get Events
+      operationId: get_events_api_events_get
+      parameters:
+      - name: threat
+        in: query
+        required: false
+        schema:
+          type: string
+          default: ALL
+          title: Threat
+      - name: protocol
+        in: query
+        required: false
+        schema:
+          type: string
+          default: ALL
+          title: Protocol
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          default: 100
+          title: Limit
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/honeypots/status:
+    get:
+      summary: Honeypot Status
+      description: 'Returns real-time status of honeypots by checking:
+
+        1. Container connectivity (via socket)
+
+        2. Last seen activity (via DB logs)'
+      operationId: honeypot_status_api_honeypots_status_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+  /api/honeypots:
+    get:
+      summary: Honeypot Status Alias
+      operationId: honeypot_status_alias_api_honeypots_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+  /active-defense/block/{ip}:
+    post:
+      summary: Block Ip Address
+      operationId: block_ip_address_active_defense_block__ip__post
+      parameters:
+      - name: ip
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Ip
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+components:
+  schemas:
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    ThreatInput:
+      properties:
+        src_ip:
+          type: string
+          title: Src Ip
+          description: Source IP address
+          example: 192.168.1.105
+        dst_ip:
+          type: string
+          title: Dst Ip
+          description: Destination IP address
+          example: 10.0.0.5
+        dst_port:
+          type: integer
+          title: Dst Port
+          description: Destination Port
+          example: 80
+        protocol:
+          type: string
+          title: Protocol
+          description: Protocol (TCP, UDP, ICMP)
+          example: TCP
+        length:
+          type: integer
+          title: Length
+          description: Packet Length in bytes
+          example: 64
+        timestamp:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Timestamp
+          description: ISO 8601 Timestamp. Defaults to now.
+          example: '2026-02-11T12:00:00Z'
+        threat_score:
+          type: number
+          title: Threat Score
+          description: Baseline threat score from firewall/rules
+          default: 0.0
+          example: 10.0
+        is_malicious:
+          type: boolean
+          title: Is Malicious
+          description: Known malicious flag (e.g. from blacklist)
+          default: false
+          example: false
+        attack_type:
+          type: string
+          title: Attack Type
+          description: Preliminary attack classification
+          default: UNKNOWN
+          example: UNKNOWN
+        honeypot_type:
+          type: string
+          title: Honeypot Type
+          description: Honeypot type interaction
+          default: NONE
+          example: HTTP
+      type: object
+      required:
+      - src_ip
+      - dst_ip
+      - dst_port
+      - protocol
+      - length
+      title: ThreatInput
+      description: 'Input schema for threat scoring.
+
+        Contains raw packet metadata required to extract features.'
+    ThreatResponse:
+      properties:
+        score:
+          type: number
+          title: Score
+          description: Calculated Threat Probability (0-100)
+        threat_level:
+          type: string
+          title: Threat Level
+          description: 'Categorical Level: LOW, MEDIUM, HIGH'
+        confidence:
+          type: number
+          title: Confidence
+          description: Model Confidence (0.0-1.0)
+        decision:
+          type: string
+          title: Decision
+          description: 'Recommended Action: ALLOW, ALERT, BLOCK'
+      type: object
+      required:
+      - score
+      - threat_level
+      - confidence
+      - decision
+      title: ThreatResponse
+      description: Output schema for threat scoring analysis.
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError

@@ -1,25 +1,24 @@
 import { Link, useLocation } from "react-router-dom";
 import { useContext } from "react";
-import { ThemeContext } from "../context/ThemeContext";
+import ThemeToggle from "./ThemeToggle";
 import {
   FaShieldAlt,
   FaTachometerAlt,
   FaExclamationTriangle,
   FaListAlt,
   FaInfoCircle,
-  FaMoon,
-  FaSun
+  FaNetworkWired
 } from "react-icons/fa";
-import "./Navbar.css";
+import "../styles/components/Navbar.css";
 
 const Navbar = () => {
-  const { theme, toggleTheme } = useContext(ThemeContext);
   const location = useLocation();
 
   const navLinks = [
     { path: "/dashboard", label: "Dashboard", icon: FaTachometerAlt },
     { path: "/threat-analysis", label: "Threat Analysis", icon: FaExclamationTriangle },
     { path: "/events", label: "Events", icon: FaListAlt },
+    { path: "/topology", label: "Topology", icon: FaNetworkWired },
     { path: "/about", label: "About", icon: FaInfoCircle },
   ];
 
@@ -58,11 +57,8 @@ const Navbar = () => {
           })}
         </div>
 
-        {/* Theme Toggle */}
-        <button className="theme-toggle" onClick={toggleTheme}>
-          {theme === "light" ? <FaMoon /> : <FaSun />}
-          <span>{theme === "light" ? "Dark" : "Light"}</span>
-        </button>
+        {/* Theme Toggle Component */}
+        <ThemeToggle />
       </div>
     </nav>
   );

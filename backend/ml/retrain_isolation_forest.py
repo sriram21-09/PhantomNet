@@ -15,12 +15,12 @@ sys.path.append(os.getcwd())
 
 try:
     from backend.ml.anomaly_detector import AnomalyDetector
-    from backend.ml.feature_extractor_v2 import FeatureExtractor
+    from backend.ml.feature_extractor import FeatureExtractor
 except ImportError:
     # Fallback if run from inside backend/ml
     sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..")))
     from backend.ml.anomaly_detector import AnomalyDetector
-    from backend.ml.feature_extractor_v2 import FeatureExtractor
+    from backend.ml.feature_extractor import FeatureExtractor
 
 def generate_mock_logs(n_samples=500):
     logs = []

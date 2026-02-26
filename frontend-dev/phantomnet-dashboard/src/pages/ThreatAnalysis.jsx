@@ -8,7 +8,7 @@ import {
   FaWifi,
   FaUserSecret
 } from "react-icons/fa";
-import "./ThreatAnalysis.css";
+import "../styles/pages/ThreatAnalysis.css";
 
 const ThreatAnalysis = () => {
   const summary = {
@@ -127,7 +127,7 @@ const ThreatAnalysis = () => {
                 <th>Time</th>
                 <th>Source IP</th>
                 <th>Threat Type</th>
-                <th>Score</th>
+                <th className="score-col">Score</th>
                 <th>Severity</th>
               </tr>
             </thead>
@@ -137,7 +137,7 @@ const ThreatAnalysis = () => {
                   <td className="time-cell">{threat.time}</td>
                   <td className="ip-cell">{threat.ip}</td>
                   <td>{threat.type}</td>
-                  <td>{getScoreBar(threat.score)}</td>
+                  <td className="score-col">{getScoreBar(threat.score)}</td>
                   <td>
                     <span className={`severity-badge ${getSeverityColor(threat.severity)}`}>
                       {threat.severity}

@@ -8,6 +8,7 @@ try:
     import sys
     sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
     from db_logger import log_ssh_activity
+    from fake_filesystem import FakeFilesystem
     DB_ENABLED = True
 except ImportError:
     DB_ENABLED = False
@@ -144,29 +145,67 @@ def start_ssh():
                 continue
 
             # Fake shell
-            client.send(b"\nWelcome to Ubuntu 20.04 LTS\n\n")
+            fs = FakeFilesystem(username)
+            client.send(b"\nWelcome to Ubuntu 20.04.1 LTS (GNU/Linux 5.4.0-42-generic x86_64)\n\n")
             cwd = f"/home/{username}"
 
             while True:
                 try:
-                    prompt = f"{username}@honeypot:{cwd}$ "
+                    prompt = fs.get_prompt(username, "phantomnet-server", cwd)
                     client.send(prompt.encode())
 
-                    cmd = clean(receive_line(client))
-                    if not cmd:
+                    cmd_line = clean(receive_line(client))
+                    if not cmd_line:
                         continue
 
-                    log_json(ip, "command", {"cmd": cmd})
+                    log_json(ip, "command", {"cmd": cmd_line})
+                    parts = cmd_line.split()
+                    cmd = parts[0] if parts else ""
+                    args = parts[1:] if len(parts) > 1 else []
 
                     if cmd == "ls":
-                        client.send(b"file1.txt  secrets.log  project.txt\n")
+                        target = args[0] if args else cwd
+                        if not target.startswith("/"):
+                            target = os.path.join(cwd, target)
+                        items = fs.list_dir(target)
+                        if items:
+                            client.send(("  ".join(items) + "\n").encode())
+                        else:
+                            client.send(b"ls: cannot access '" + target.encode() + b"': No such file or directory\n")
+                    
+                    elif cmd == "cat":
+                        if not args:
+                            continue
+                        target = args[0]
+                        if not target.startswith("/"):
+                            target = os.path.join(cwd, target)
+                        content = fs.read_file(target)
+                        client.send((content + "\n").encode())
+
                     elif cmd == "pwd":
                         client.send((cwd + "\n").encode())
+
                     elif cmd == "whoami":
                         client.send((username + "\n").encode())
-                    elif cmd.startswith("cd "):
-                        folder = cmd.split(" ", 1)[1]
-                        cwd = cwd.rstrip("/") + "/" + folder
+
+                    elif cmd == "cd":
+                        if not args:
+                            cwd = f"/home/{username}"
+                            continue
+                        target = args[0]
+                        if target == "~":
+                            cwd = f"/home/{username}"
+                            continue
+                        if not target.startswith("/"):
+                            new_cwd = os.path.join(cwd, target)
+                        else:
+                            new_cwd = target
+                        
+                        if fs.is_dir(new_cwd):
+                            cwd = new_cwd
+                        else:
+                            client.send(b"cd: " + target.encode() + b": No such file or directory\n")
+
                     elif cmd in ("exit", "logout"):
                         log_json(ip, "session_end")
                         client.send(b"logout\n")

@@ -1,0 +1,291 @@
+/* ==========================================
+   NETWORK TOPOLOGY - Pro Visual Effects
+   ========================================== */
+
+.topology-container {
+  width: 100%;
+  height: 600px;
+  background: var(--bg-map);
+  border-radius: 24px;
+  position: relative;
+  overflow: hidden;
+  border: 1px solid var(--border-hud);
+  box-shadow: var(--shadow-card);
+}
+
+.topology-header {
+  position: absolute;
+  top: 24px;
+  left: 24px;
+  z-index: 10;
+  pointer-events: none;
+}
+
+.topology-header h3 {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: var(--text-hud);
+  letter-spacing: -0.025em;
+}
+
+.topology-controls {
+  position: absolute;
+  bottom: 24px;
+  right: 24px;
+  z-index: 10;
+  display: flex;
+  gap: 12px;
+}
+
+.control-btn {
+  background: var(--bg-hud);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--border-hud);
+  color: var(--text-hud);
+  padding: 10px 16px;
+  border-radius: 12px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.2s ease;
+}
+
+.control-btn:hover {
+  background: #1f2937;
+  border-color: #3b82f6;
+  transform: translateY(-2px);
+}
+
+/* Custom Node Styles */
+.pro-node {
+  padding: 16px;
+  border-radius: 16px;
+  min-width: 140px;
+  background: var(--bg-hud);
+  backdrop-filter: blur(8px);
+  border: 1px solid var(--border-hud);
+  color: var(--text-hud);
+  font-family: 'Inter', sans-serif;
+  box-shadow: var(--shadow-card);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.pro-node:hover {
+  border-color: #3b82f6;
+  box-shadow: 0 0 20px rgba(59, 130, 246, 0.3);
+}
+
+.node-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.node-icon {
+  font-size: 1.2rem;
+  color: #3b82f6;
+}
+
+.node-label {
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+
+.node-port {
+  font-size: 0.7rem;
+  color: #64748b;
+  font-family: monospace;
+}
+
+/* Specific Node Colors */
+.node-controller {
+  border-left: 4px solid #3b82f6;
+}
+
+.node-honeypot {
+  border-left: 4px solid #10b981;
+}
+
+.node-attacker {
+  border-left: 4px solid #ef4444;
+}
+
+/* Edge Animations */
+.react-flow__edge-path {
+  stroke-width: 2;
+  transition: stroke 0.3s ease;
+}
+
+.react-flow__edge.active .react-flow__edge-path {
+  stroke: #3b82f6;
+  stroke-width: 3;
+}
+
+@keyframes dashdraw {
+  from {
+    stroke-dashoffset: 20;
+  }
+
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+.react-flow__edge.animated.active .react-flow__edge-path {
+  stroke-dasharray: 5;
+  animation: dashdraw 0.5s linear infinite, attack-pulse 2s ease-in-out infinite;
+}
+
+@keyframes attack-pulse {
+  0% {
+    stroke-opacity: 1;
+    stroke-width: 3;
+  }
+
+  50% {
+    stroke-opacity: 0.6;
+    stroke-width: 5;
+  }
+
+  100% {
+    stroke-opacity: 1;
+    stroke-width: 3;
+  }
+}
+
+/* Node Details Panel */
+.node-details-panel {
+  position: absolute;
+  top: 80px;
+  right: 24px;
+  width: 320px;
+  /* Slightly wider for the widget */
+  max-height: calc(100% - 120px);
+  overflow-y: auto;
+  background: var(--bg-hud);
+  backdrop-filter: blur(20px);
+  border: 1px solid var(--border-bright);
+  border-radius: 20px;
+  padding: 24px;
+  color: var(--text-hud);
+  z-index: 30;
+  box-shadow: var(--shadow-card);
+  animation: slideIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-primary) transparent;
+}
+
+.mini-intel-container {
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 12px;
+  padding: 12px;
+  font-size: 0.8rem;
+}
+
+/* Scoped overrides for the ThreatIntelWidget inside the detail panel */
+.mini-intel-container .threat-intel-widget {
+  background: transparent !important;
+  backdrop-filter: none !important;
+  border: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+.mini-intel-container .widget-header {
+  font-size: 0.75rem !important;
+}
+
+.mini-intel-container .intel-grid {
+  grid-template-columns: 1fr !important;
+  /* Stack for space */
+  gap: 12px !important;
+}
+
+.mini-intel-container .intel-card {
+  padding: 12px !important;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(20px);
+    opacity: 0;
+  }
+
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.details-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  border-bottom: 1px solid var(--border-hud);
+  padding-bottom: 12px;
+}
+
+.details-header h4 {
+  margin: 0;
+  font-size: 1rem;
+  color: #3b82f6;
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  color: #64748b;
+  cursor: pointer;
+  padding: 4px;
+}
+
+.detail-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+  font-size: 0.85rem;
+}
+
+.detail-label {
+  color: #94a3b8;
+}
+
+.detail-value {
+  font-weight: 600;
+  font-family: monospace;
+}
+
+/* Reconnect Overlay */
+.reconnect-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  backdrop-filter: blur(4px);
+}
+
+.reconnect-spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid rgba(59, 130, 246, 0.2);
+  border-top-color: #3b82f6;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 16px;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

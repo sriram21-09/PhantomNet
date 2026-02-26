@@ -1,0 +1,100 @@
+/* ================================
+   GLOBAL RESET & BASE
+================================ */
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: "Inter", Arial, sans-serif;
+  background: var(--bg-color);
+  color: var(--text-color);
+  transition: background 0.35s ease, color 0.35s ease;
+}
+
+/* ================================
+   THEME VARIABLES
+================================ */
+:root {
+  /* Light theme */
+  --bg-color: linear-gradient(180deg,
+      #eef3fb 0%,
+      #f8fafc 35%,
+      #f8fafc 100%);
+
+  --card-bg: #ffffff;
+  --text-color: #0f172a;
+
+  /* 🔥 Indigo-blue instead of grey */
+  --muted-text: #5b6f95;
+
+  --border-color: #dbe3f1;
+
+  --primary: #2563eb;
+  --primary-hover: #1d4ed8;
+}
+
+/* ================================
+   DARK THEME
+================================ */
+body[data-theme="dark"] {
+  --bg-color: #020617;
+  --card-bg: rgba(15, 23, 42, 0.7);
+  --text-color: #f8fafc;
+  --muted-text: #94a3b8;
+  --border-color: rgba(59, 130, 246, 0.15);
+  --primary: #3b82f6;
+  --primary-hover: #60a5fa;
+}
+
+body[data-theme="dark"]::after {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background:
+    radial-gradient(circle at 50% 50%, rgba(59, 130, 246, 0.05) 0%, transparent 80%),
+    repeating-linear-gradient(0deg, transparent, transparent 1px, rgba(0, 0, 0, 0.1) 1px, rgba(0, 0, 0, 0.1) 2px);
+  pointer-events: none;
+  z-index: 9999;
+  opacity: 0.4;
+}
+
+/* ================================
+   COMMON HELPERS
+================================ */
+.text-muted,
+.muted-text {
+  color: var(--muted-text);
+}
+
+.error-text {
+  color: #ef4444;
+  font-weight: 600;
+}
+
+/* ===== NAVBAR LINK FIX (REMOVE UNDERLINES) ===== */
+.navbar a {
+  text-decoration: none !important;
+  border-bottom: none !important;
+  color: var(--muted-text);
+  font-weight: 600;
+}
+
+.navbar a:hover {
+  text-decoration: none !important;
+  color: var(--primary);
+}
+
+/* ===== FIX WHITE BACKGROUND GAP BETWEEN SECTIONS ===== */
+.dashboard-container {
+  background: var(--bg-color);
+}
+
+/* Ensure sections inherit gradient, not white */
+.dashboard-container>* {
+  background-color: transparent;
+}

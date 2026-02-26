@@ -1,0 +1,226 @@
+/* ==========================================
+   NAVBAR - Premium Dual-Theme Design
+   ========================================== */
+
+.navbar-premium {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    backdrop-filter: blur(20px);
+    transition: all 0.3s ease;
+}
+
+body[data-theme="dark"] .navbar-premium {
+    background: rgba(2, 6, 23, 0.8);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+body[data-theme="light"] .navbar-premium {
+    background: rgba(255, 255, 255, 0.85);
+    border-bottom: 1px solid rgba(59, 130, 246, 0.1);
+    box-shadow: 0 2px 20px rgba(0, 0, 0, 0.06);
+}
+
+.navbar-inner {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 24px;
+    height: 64px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+/* Logo */
+.navbar-logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    text-decoration: none;
+    transition: transform 0.3s ease;
+}
+
+.navbar-logo:hover {
+    transform: scale(1.02);
+}
+
+.logo-icon {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #3b82f6, #22d3ee);
+    border-radius: 10px;
+    font-size: 18px;
+    color: white;
+    box-shadow: 0 4px 20px rgba(59, 130, 246, 0.3);
+}
+
+.logo-text {
+    font-size: 20px;
+    font-weight: 700;
+    background: linear-gradient(135deg, #60a5fa, #22d3ee);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+/* Navigation Links */
+.navbar-links {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.nav-link {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 16px;
+    border-radius: 10px;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+body[data-theme="dark"] .nav-link {
+    color: #64748b;
+}
+
+body[data-theme="dark"] .nav-link:hover {
+    color: #f8fafc;
+    background: rgba(255, 255, 255, 0.05);
+}
+
+body[data-theme="dark"] .nav-link.active {
+    color: #22d3ee;
+    background: rgba(34, 211, 238, 0.1);
+}
+
+body[data-theme="light"] .nav-link {
+    color: #475569;
+}
+
+body[data-theme="light"] .nav-link:hover {
+    color: #0f172a;
+    background: rgba(59, 130, 246, 0.08);
+}
+
+body[data-theme="light"] .nav-link.active {
+    color: #2563eb;
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.12), rgba(37, 99, 235, 0.08));
+}
+
+.nav-link.active::after {
+    content: '';
+    position: absolute;
+    bottom: -1px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 20px;
+    height: 2px;
+    border-radius: 2px;
+}
+
+body[data-theme="dark"] .nav-link.active::after {
+    background: linear-gradient(90deg, #3b82f6, #22d3ee);
+}
+
+body[data-theme="light"] .nav-link.active::after {
+    background: linear-gradient(90deg, #2563eb, #0891b2);
+}
+
+.nav-icon {
+    font-size: 14px;
+}
+
+/* Pro Theme Toggle */
+.theme-toggle-pro {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: 20px;
+    transition: all 0.3s ease;
+    user-select: none;
+}
+
+.theme-toggle-pro:hover {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.toggle-track {
+    width: 48px;
+    height: 24px;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 12px;
+    position: relative;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    transition: all 0.3s ease;
+}
+
+body[data-theme="light"] .toggle-track {
+    background: #e2e8f0;
+    border-color: rgba(0, 0, 0, 0.05);
+}
+
+.toggle-thumb {
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 18px;
+    height: 18px;
+    background: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.theme-toggle-pro.dark .toggle-thumb {
+    transform: translateX(24px);
+    background: #1e293b;
+    color: #fbbf24;
+}
+
+.theme-toggle-pro.light .toggle-thumb {
+    background: #ffffff;
+    color: #3b82f6;
+}
+
+.toggle-thumb svg {
+    font-size: 10px;
+}
+
+.toggle-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: #94a3b8;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+}
+
+body[data-theme="light"] .toggle-label {
+    color: #64748b;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .navbar-links {
+        display: none;
+    }
+
+    .nav-link span {
+        display: none;
+    }
+
+    .theme-toggle-pro .toggle-label {
+        display: none;
+    }
+}
