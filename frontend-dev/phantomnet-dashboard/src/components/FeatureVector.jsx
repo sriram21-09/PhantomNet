@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import "../styles/components/FeatureVector.css";
+import "../Styles/components/FeatureVector.css";
 import { getEventFeatures } from "../api/mlClient";
 import { normalSSHEvent } from "../mocks/mlMockData";
 

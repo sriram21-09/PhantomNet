@@ -118,13 +118,13 @@ const INITIAL_NODES = [
     {
         id: 'controller',
         type: 'controller',
-        position: { x: 350, y: 40 },
+        position: { x: 475, y: 40 },
         data: { label: 'Controller' }
     },
-    { id: 'ssh', type: 'honeypot', position: { x: 80, y: 220 }, data: { label: 'SSH', port: 2222, status: 'active' } },
-    { id: 'http', type: 'honeypot', position: { x: 280, y: 220 }, data: { label: 'HTTP', port: 8080, status: 'active' } },
-    { id: 'ftp', type: 'honeypot', position: { x: 480, y: 220 }, data: { label: 'FTP', port: 2121, status: 'active' } },
-    { id: 'smtp', type: 'honeypot', position: { x: 680, y: 220 }, data: { label: 'SMTP', port: 2525, status: 'active' } },
+    { id: 'ssh', type: 'honeypot', position: { x: 100, y: 240 }, data: { label: 'SSH', port: 2222, status: 'active' } },
+    { id: 'http', type: 'honeypot', position: { x: 350, y: 240 }, data: { label: 'HTTP', port: 8080, status: 'active' } },
+    { id: 'ftp', type: 'honeypot', position: { x: 600, y: 240 }, data: { label: 'FTP', port: 2121, status: 'active' } },
+    { id: 'smtp', type: 'honeypot', position: { x: 850, y: 240 }, data: { label: 'SMTP', port: 2525, status: 'active' } },
 ];
 
 const mkEdge = (src, tgt, opts = {}) => ({

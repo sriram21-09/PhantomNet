@@ -9,7 +9,7 @@ import {
   FaInfoCircle,
   FaNetworkWired
 } from "react-icons/fa";
-import "../styles/components/Navbar.css";
+import "../Styles/components/Navbar.css";
 
 const Navbar = () => {
   const location = useLocation();

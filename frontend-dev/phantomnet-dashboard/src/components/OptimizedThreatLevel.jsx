@@ -1,3 +1,4 @@
+import React from "react";
 import PremiumMetricCard from "./PremiumMetricCard";
 
 /**
@@ -25,7 +26,7 @@ const OptimizedThreatLevel = React.memo(({ threatLevel }) => {
             value={`${threatLevel}%`}
             variant={getVariant(threatLevel)}
             progress={threatLevel}
-            subtitle="实时威胁监控"
+            subtitle="REAL-TIME MONITOR"
             status={getStatus(threatLevel)}
         />
     );

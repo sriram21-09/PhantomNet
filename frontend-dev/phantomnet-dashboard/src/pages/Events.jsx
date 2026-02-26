@@ -10,7 +10,7 @@ import {
   FaListAlt
 } from "react-icons/fa";
 import LoadingSpinner from "../components/LoadingSpinner";
-import "../styles/pages/events.css";
+import "../Styles/pages/events.css";
 
 const Events = () => {
   const [allEvents, setAllEvents] = useState([]);
