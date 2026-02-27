@@ -23,6 +23,13 @@ from services.firewall import FirewallService
 from services.threat_analyzer import threat_analyzer
 
 # =========================
+# PERFORMANCE MIDDLEWARE
+# =========================
+from middleware.profiling import ProfilingMiddleware
+from middleware.metrics_collector import MetricsMiddleware, get_metrics_response
+from middleware.cache import cache_response, api_cache
+
+# =========================
 # MODELS
 # =========================
 # (Already imported above)
@@ -82,6 +89,10 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Performance Middleware
+app.add_middleware(ProfilingMiddleware, enable_memory_tracking=False)
+app.add_middleware(MetricsMiddleware)
 
 # Register Routers
 app.include_router(model_metrics_router)
@@ -166,9 +177,20 @@ def get_real_traffic(db: Session = Depends(get_db)):
 # DASHBOARD STATS
 # =========================
 @app.get("/api/stats")
+@cache_response(ttl_seconds=15)
 def get_api_stats(db: Session = Depends(get_db)):
     service = StatsService(db)
     return service.calculate_stats()
+
+@app.get("/metrics")
+def prometheus_metrics():
+    """Prometheus-compatible metrics endpoint."""
+    return get_metrics_response()
+
+@app.get("/api/cache/stats")
+def cache_stats():
+    """Return API cache statistics."""
+    return api_cache.stats
 
 # =========================
 # EVENTS API

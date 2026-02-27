@@ -10,16 +10,16 @@ class PacketLog(Base):
     __table_args__ = {'extend_existing': True}
 
     id = Column(Integer, primary_key=True, index=True)
-    timestamp = Column(DateTime, default=datetime.utcnow)
+    timestamp = Column(DateTime, default=datetime.utcnow, index=True)
     src_ip = Column(String, index=True)
     dst_ip = Column(String)
     src_port = Column(Integer, default=0)
     dst_port = Column(Integer, default=0)
-    protocol = Column(String)
+    protocol = Column(String, index=True)
     length = Column(Integer)
     attack_type = Column(String, nullable=True)
-    threat_score = Column(Float, default=0.0)
-    threat_level = Column(String, nullable=True)
+    threat_score = Column(Float, default=0.0, index=True)
+    threat_level = Column(String, nullable=True, index=True)
     confidence = Column(Float, nullable=True)
     is_malicious = Column(Boolean, default=False)
     event = Column(String, nullable=True) # e.g., "login_attempt"
@@ -54,11 +54,11 @@ class Event(Base):
     
     id = Column(Integer, primary_key=True)
     session_id = Column(Integer, ForeignKey("attack_sessions.id"), index=True)
-    source_ip = Column(String)
+    source_ip = Column(String, index=True)
     src_port = Column(Integer)
     honeypot_type = Column(String)
     raw_data = Column(String)
-    timestamp = Column(DateTime, default=datetime.utcnow)
+    timestamp = Column(DateTime, default=datetime.utcnow, index=True)
 
     # GeoIP Enrichment
     country = Column(String, nullable=True)
