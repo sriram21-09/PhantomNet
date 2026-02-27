@@ -1,10 +1,6 @@
 .cyber-mesh-card {
     position: relative;
-<<<<<<< HEAD
     background: var(--bg-hud);
-=======
-    background: #010414;
->>>>>>> c09ffc2ec0b3c2af687673208beb3e38ecc38319
     overflow: hidden;
     padding: 0;
     border: 1px solid var(--border-hud);
@@ -45,13 +41,8 @@
     top: 20px;
     right: 20px;
     width: 200px;
-<<<<<<< HEAD
     background: var(--bg-hud);
     border: 1px solid var(--border-bright);
-=======
-    background: rgba(1, 4, 20, 0.85);
-    border: 1px solid rgba(59, 130, 246, 0.3);
->>>>>>> c09ffc2ec0b3c2af687673208beb3e38ecc38319
     border-left: 4px solid var(--color-cyan);
     padding: 12px;
     z-index: 10;
@@ -80,11 +71,7 @@
 }
 
 .hud-value {
-<<<<<<< HEAD
     color: var(--text-hud);
-=======
-    color: #cbd5e1;
->>>>>>> c09ffc2ec0b3c2af687673208beb3e38ecc38319
     font-weight: 700;
 }
 
@@ -146,11 +133,7 @@
 .map-viewport {
     flex: 1;
     position: relative;
-<<<<<<< HEAD
     background: var(--bg-map);
-=======
-    background: radial-gradient(circle at 50% 50%, #030821 0%, #010414 70%);
->>>>>>> c09ffc2ec0b3c2af687673208beb3e38ecc38319
 }
 
 .land-path {
@@ -316,13 +299,8 @@
 
 /* Global Threat Mesh Ultra-High Fidelity V2.1 */
 .cyber-mesh-card.ultra-v2 {
-<<<<<<< HEAD
     background: var(--bg-hud);
     border: 1px solid var(--border-hud);
-=======
-    background: rgba(4, 8, 16, 0.95);
-    border: 1px solid rgba(59, 130, 246, 0.15);
->>>>>>> c09ffc2ec0b3c2af687673208beb3e38ecc38319
     position: relative;
     overflow: hidden;
     height: 380px;
@@ -332,15 +310,9 @@
 }
 
 .card-header.small-hdr {
-<<<<<<< HEAD
     background: var(--bg-hud);
     padding: 8px 16px;
     border-bottom: 1px solid var(--border-hud);
-=======
-    background: rgba(2, 6, 23, 0.9);
-    padding: 8px 16px;
-    border-bottom: 1px solid rgba(59, 130, 246, 0.1);
->>>>>>> c09ffc2ec0b3c2af687673208beb3e38ecc38319
 }
 
 .mega-title {
@@ -359,7 +331,6 @@
     margin-left: 8px;
 }
 
-<<<<<<< HEAD
 .card-header.small-hdr {
     display: flex;
     justify-content: space-between;
@@ -403,12 +374,6 @@
     position: relative;
     height: 300px;
     background: var(--bg-map);
-=======
-.map-viewport {
-    position: relative;
-    height: 300px;
-    background: radial-gradient(circle at center, rgba(59, 130, 246, 0.03) 0%, transparent 70%);
->>>>>>> c09ffc2ec0b3c2af687673208beb3e38ecc38319
 }
 
 .mesh-svg.high-res {
@@ -538,13 +503,8 @@
     top: 15px;
     right: 20px;
     width: 220px;
-<<<<<<< HEAD
     background: var(--bg-hud);
     border: 1px solid var(--border-bright);
-=======
-    background: rgba(1, 4, 12, 0.85);
-    border: 1px solid rgba(59, 130, 246, 0.3);
->>>>>>> c09ffc2ec0b3c2af687673208beb3e38ecc38319
     backdrop-filter: blur(8px);
     z-index: 10;
     box-shadow: 0 0 20px rgba(0, 0, 0, 0.8);
@@ -552,15 +512,9 @@
 }
 
 .glass-title {
-<<<<<<< HEAD
     background: var(--border-hud);
     padding: 4px 10px;
     border-bottom: 1px solid var(--border-hud);
-=======
-    background: rgba(59, 130, 246, 0.15);
-    padding: 4px 10px;
-    border-bottom: 1px solid rgba(59, 130, 246, 0.2);
->>>>>>> c09ffc2ec0b3c2af687673208beb3e38ecc38319
     color: var(--color-cyan);
     font-size: 0.65rem;
     letter-spacing: 2px;
@@ -578,11 +532,7 @@
 }
 
 .hud-sub {
-<<<<<<< HEAD
     color: var(--text-muted);
-=======
-    color: rgba(255, 255, 255, 0.5);
->>>>>>> c09ffc2ec0b3c2af687673208beb3e38ecc38319
     font-size: 0.65rem;
 }
 
@@ -594,25 +544,15 @@
 }
 
 .stat-box {
-<<<<<<< HEAD
     background: var(--border-hud);
     padding: 4px;
     border-left: 2px solid var(--color-primary);
-=======
-    background: rgba(255, 255, 255, 0.03);
-    padding: 4px;
-    border-left: 2px solid rgba(59, 130, 246, 0.4);
->>>>>>> c09ffc2ec0b3c2af687673208beb3e38ecc38319
 }
 
 .stat-lbl {
     display: block;
     font-size: 0.5rem;
-<<<<<<< HEAD
     color: var(--text-muted);
-=======
-    color: rgba(255, 255, 255, 0.4);
->>>>>>> c09ffc2ec0b3c2af687673208beb3e38ecc38319
 }
 
 .stat-val {
@@ -626,19 +566,11 @@
 
 .hud-terminal-feed {
     margin-top: 10px;
-<<<<<<< HEAD
     border-top: 1px solid var(--border-hud);
     padding-top: 6px;
     font-family: 'Courier New', monospace;
     font-size: 0.6rem;
     color: var(--color-cyan);
-=======
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
-    padding-top: 6px;
-    font-family: 'Courier New', monospace;
-    font-size: 0.6rem;
-    color: rgba(59, 130, 246, 0.7);
->>>>>>> c09ffc2ec0b3c2af687673208beb3e38ecc38319
     height: 60px;
     overflow: hidden;
 }
@@ -690,24 +622,14 @@
 /* Footer V2 */
 .map-footer.v2-footer {
     height: 30px;
-<<<<<<< HEAD
     background: var(--bg-hud);
-=======
-    background: rgba(1, 4, 12, 0.95);
->>>>>>> c09ffc2ec0b3c2af687673208beb3e38ecc38319
     display: flex;
     justify-content: space-between;
     align-items: center;
     padding: 0 16px;
-<<<<<<< HEAD
     border-top: 1px solid var(--border-hud);
     font-size: 0.6rem;
     color: var(--text-muted);
-=======
-    border-top: 1px solid rgba(59, 130, 246, 0.1);
-    font-size: 0.6rem;
-    color: rgba(255, 255, 255, 0.3);
->>>>>>> c09ffc2ec0b3c2af687673208beb3e38ecc38319
 }
 
 .meta-tag {

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { FaRocket, FaShieldAlt, FaChartLine, FaCheckCircle } from "react-icons/fa";
-import "../styles/components/WelcomeModal.css";
+import "../Styles/components/WelcomeModal.css";
 
 const WelcomeModal = () => {
     const [isVisible, setIsVisible] = useState(false);

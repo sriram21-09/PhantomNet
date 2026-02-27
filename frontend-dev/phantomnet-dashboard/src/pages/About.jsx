@@ -21,7 +21,7 @@ import {
   SiTailwindcss,
   SiScikitlearn
 } from "react-icons/si";
-import "../styles/pages/About.css";
+import "../Styles/pages/About.css";
 
 const About = () => {
   const features = [

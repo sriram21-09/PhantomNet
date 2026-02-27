@@ -138,59 +138,45 @@ const Dashboard = () => {
             />
           </div>
 
-          {/* Global Threat Mesh Section */}
-          <div className="mesh-row">
-            <CyberMeshMap />
-          </div>
-
-          {/* Core Analytics Row */}
-          <div className="analytics-row">
-            <div className="analytics-main">
-              <AttackTimeline />
+          {/* Main Visual Intelligence Section */}
+          <div className="dashboard-content">
+            {/* Critical Vector Analysis Row */}
+            <div className="noc-row main">
+              <div className="mesh-container">
+                <CyberMeshMap />
+              </div>
+              <div className="threat-intelligence-group">
+                {threatMetrics ? (
+                  <OptimizedThreatLevel threatLevel={threatMetrics.threatLevel} />
+                ) : (
+                  <div className="skeleton-card"></div>
+                )}
+                {threatMetrics ? (
+                  <PremiumGaugeCard
+                    title="Anomaly Score"
+                    value={`${Math.round((threatMetrics?.anomalyScore || 0) * 100)}% RISK`}
+                    progress={Math.round((threatMetrics?.anomalyScore || 0) * 100)}
+                    variant="orange"
+                    subtitle="SENSORY FEED"
+                    status="IDENTIFYING"
+                  />
+                ) : (
+                  <div className="skeleton-card"></div>
+                )}
+              </div>
             </div>
-            <div className="analytics-side">
+
+            {/* Temporal & Protocol Analytics Row */}
+            <div className="noc-row analytics">
+              <AttackTimeline />
               <ProtocolChart />
             </div>
-          </div>
 
-          {/* Threat Intelligence Section */}
-          <div className="threat-section">
-            <div className="threat-slot">
-              {threatMetrics ? (
-                <OptimizedThreatLevel threatLevel={threatMetrics.threatLevel} />
-              ) : (
-                <div className="skeleton-card"></div>
-              )}
-            </div>
+            {/* Honeypot Network Status — above Top Threat Vectors */}
+            <HoneypotStatus />
 
-            <div className="threat-slot">
-              {threatMetrics ? (
-                <PremiumGaugeCard
-                  title="Anomaly Score"
-                  value={`${Math.round((threatMetrics?.anomalyScore || 0) * 100)}% RISK`}
-                  progress={Math.round((threatMetrics?.anomalyScore || 0) * 100)}
-                  variant="orange"
-                  subtitle="SENSORY DATA FEED"
-                  status="IDENTIFYING"
-                />
-              ) : (
-                <div className="skeleton-card"></div>
-              )}
-            </div>
-
-            <div className="threat-slot honeypot-wide-panel">
-              <HoneypotStatus />
-            </div>
-          </div>
-
-          {/* Global Threat Mesh Section */}
-          <div className="mesh-section" style={{ marginTop: '24px' }}>
-            <CyberMeshMap />
-          </div>
-
-          {/* Main Panels & Detailed List */}
-          <div className="panels-grid">
-            <div className="panel attackers-panel">
+            {/* Threat Manifest Row */}
+            <div className="noc-row status">
               <TopAttackers />
             </div>
           </div>

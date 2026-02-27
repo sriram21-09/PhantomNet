@@ -1,0 +1,244 @@
+/* ==========================================
+   GEODASHBOARD - Layout & Sidebar
+   ========================================== */
+
+.geo-dashboard-wrapper {
+    height: calc(100vh - 80px);
+    /* Account for Navbar */
+    display: flex;
+    flex-direction: column;
+    padding: 24px;
+    background: transparent;
+}
+
+.geo-content-grid {
+    display: grid;
+    grid-template-columns: 320px 1fr;
+    gap: 20px;
+    flex: 1;
+    min-height: 0;
+}
+
+/* Sidebar Styling */
+.geo-sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.geo-sidebar-card {
+    padding: 20px;
+    background: var(--bg-hud);
+}
+
+.sidebar-header {
+    font-size: 11px;
+    font-weight: 800;
+    color: var(--text-dim);
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    letter-spacing: 1.5px;
+}
+
+.sidebar-section {
+    margin-bottom: 24px;
+}
+
+.section-label {
+    display: block;
+    font-size: 9px;
+    font-weight: 700;
+    color: #475569;
+    margin-bottom: 12px;
+    letter-spacing: 1px;
+}
+
+/* Filter Group */
+.filter-group {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+}
+
+.filter-btn {
+    padding: 8px;
+    font-size: 10px;
+    font-weight: 700;
+    background: rgba(148, 163, 184, 0.05);
+    border: 1px solid rgba(148, 163, 184, 0.1);
+    color: var(--text-muted);
+    border-radius: 6px;
+    transition: all 0.2s ease;
+}
+
+.filter-btn.active {
+    background: rgba(59, 130, 246, 0.1);
+    border-color: rgba(59, 130, 246, 0.3);
+    color: #3b82f6;
+}
+
+/* Severity Toggles */
+.severity-toggle-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.severity-toggle {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 12px;
+    background: rgba(15, 23, 42, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.03);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.severity-toggle span {
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+    color: var(--text-muted);
+}
+
+.toggle-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #475569;
+    box-shadow: 0 0 0 4px rgba(71, 85, 105, 0.1);
+}
+
+.severity-toggle.active.critical .toggle-dot {
+    background: #ef4444;
+    box-shadow: 0 0 8px #ef4444;
+}
+
+.severity-toggle.active.high .toggle-dot {
+    background: #f97316;
+    box-shadow: 0 0 8px #f97316;
+}
+
+.severity-toggle.active.medium .toggle-dot {
+    background: #eab308;
+    box-shadow: 0 0 8px #eab308;
+}
+
+.severity-toggle.active.low .toggle-dot {
+    background: #3b82f6;
+    box-shadow: 0 0 8px #3b82f6;
+}
+
+.severity-toggle.active span {
+    color: var(--text-hud);
+}
+
+/* Live Feed */
+.live-feed {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.feed-list {
+    flex: 1;
+    overflow-y: auto;
+    padding-right: 4px;
+}
+
+.feed-item {
+    padding: 12px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+    transition: background 0.2s ease;
+    animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateX(-10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.feed-item:hover {
+    background: rgba(59, 130, 246, 0.03);
+}
+
+.feed-item-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 4px;
+}
+
+.feed-ip {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-hud);
+    font-family: 'JetBrains Mono', monospace;
+}
+
+.feed-time {
+    font-size: 9px;
+    color: var(--text-muted);
+}
+
+.feed-item-detail {
+    font-size: 10px;
+    color: var(--text-muted);
+    font-weight: 600;
+}
+
+.feed-item.critical {
+    border-left: 2px solid #ef4444;
+}
+
+.feed-item.high {
+    border-left: 2px solid #f97316;
+}
+
+/* Main View Area */
+.geo-main-view {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+/* Stats Mini HUD */
+.geo-stats-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+}
+
+.geo-stat-mini {
+    padding: 15px 20px;
+    background: rgba(15, 23, 42, 0.4);
+}
+
+.geo-stat-mini label {
+    display: block;
+    font-size: 9px;
+    font-weight: 800;
+    color: var(--text-muted);
+    letter-spacing: 1px;
+    margin-bottom: 8px;
+}
+
+.geo-stat-mini .val {
+    font-size: 20px;
+    font-weight: 900;
+    color: var(--text-hud);
+    letter-spacing: -0.5px;
+    font-family: 'JetBrains Mono', monospace;
+}

@@ -5,7 +5,8 @@ import {
   FaShieldAlt,
   FaExclamationTriangle
 } from "react-icons/fa";
-import "../styles/components/MetricCard.css";
+import "../Styles/components/MetricCard.css";
+import "../Styles/Protocol_colors.css";
 
 const iconMap = {
   blue: FaChartLine,

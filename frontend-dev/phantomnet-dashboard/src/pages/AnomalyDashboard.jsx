@@ -7,7 +7,7 @@
  */
 
 import { Link } from "react-router-dom";
-import "../styles/anomaly-dashboard.css";
+import "../Styles/anomaly-dashboard.css";
 import AnomalyAlerts from "../components/AnomalyAlerts";
 
 const AnomalyDashboard = () => {

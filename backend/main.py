@@ -11,6 +11,7 @@ from sqlalchemy import text, func
 from datetime import datetime
 from dotenv import load_dotenv
 
+from sqlalchemy.orm import Session
 from database.database import get_db, engine
 from database.models import Base, PacketLog, TrafficStats
 
