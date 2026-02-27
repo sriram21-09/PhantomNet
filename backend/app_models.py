@@ -54,6 +54,15 @@ class PacketLog(Base):
             f"threat_score={self.threat_score}>"
         )
 
+    # =========================
+    # GeoIP ENRICHMENT
+    # =========================
+    country = Column(String(128), nullable=True)
+    city = Column(String(128), nullable=True)
+    latitude = Column(Float, nullable=True)
+    longitude = Column(Float, nullable=True)
+
+
 
 class TrafficStats(Base):
     """

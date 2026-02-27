@@ -24,6 +24,13 @@ from services.firewall import FirewallService
 from services.threat_analyzer import threat_analyzer
 
 # =========================
+# PERFORMANCE MIDDLEWARE
+# =========================
+from middleware.profiling import ProfilingMiddleware
+from middleware.metrics_collector import MetricsMiddleware, get_metrics_response
+from middleware.cache import cache_response, api_cache
+
+# =========================
 # MODELS
 # =========================
 # (Already imported above)
@@ -85,6 +92,10 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Performance Middleware
+app.add_middleware(ProfilingMiddleware, enable_memory_tracking=False)
+app.add_middleware(MetricsMiddleware)
 
 # Register Routers
 app.include_router(model_metrics_router)
@@ -173,9 +184,20 @@ def get_real_traffic(db: Session = Depends(get_db)):
 # DASHBOARD STATS
 # =========================
 @app.get("/api/stats")
+@cache_response(ttl_seconds=15)
 def get_api_stats(db: Session = Depends(get_db)):
     service = StatsService(db)
     return service.calculate_stats()
+
+@app.get("/metrics")
+def prometheus_metrics():
+    """Prometheus-compatible metrics endpoint."""
+    return get_metrics_response()
+
+@app.get("/api/cache/stats")
+def cache_stats():
+    """Return API cache statistics."""
+    return api_cache.stats
 
 # =========================
 # EVENTS API
@@ -404,3 +426,145 @@ def block_ip_address(ip: str):
         raise HTTPException(status_code=500, detail=result["message"])
 
     return result
+
+# =========================
+# GeoIP & ATTACK MAP
+# =========================
+from services.geoip_service import geoip_service
+
+@app.get("/api/analytics/attack-map")
+def get_attack_map(limit: int = 200, db: Session = Depends(get_db)):
+    """
+    Returns geo-enriched attack data for map visualization.
+
+    Response includes:
+    - locations: aggregated attack counts per country/city with coordinates
+    - top_countries: top 10 attacking countries by event count
+    - recent_attacks: latest geo-enriched events for live map markers
+    - service_status: GeoIP service health info
+    """
+    # 1. Query recent attack events with geo data
+    logs = (
+        db.query(PacketLog)
+        .filter(PacketLog.src_ip.isnot(None))
+        .order_by(PacketLog.timestamp.desc())
+        .limit(limit)
+        .all()
+    )
+
+    # 2. Build geo-enriched location aggregations
+    location_map = {}  # key: "country|city" → {count, lat, lon, ...}
+    recent_attacks = []
+
+    for log in logs:
+        ip = log.src_ip
+
+        # Use stored geo data if available, otherwise look up
+        if log.country and log.latitude:
+            geo = {
+                "country": log.country,
+                "city": log.city or "Unknown",
+                "lat": log.latitude,
+                "lon": log.longitude,
+                "flag": geoip_service._get_flag_emoji(""),
+            }
+        else:
+            geo = geoip_service.lookup(ip)
+
+        country = geo.get("country", "Unknown")
+        city = geo.get("city", "Unknown")
+        lat = geo.get("lat", 0.0)
+        lon = geo.get("lon", 0.0)
+
+        # Skip internal/LAN IPs on the map
+        if country in ("Local Network", "Unknown") and lat == 0.0:
+            continue
+
+        # Aggregate by location
+        loc_key = f"{country}|{city}"
+        if loc_key not in location_map:
+            location_map[loc_key] = {
+                "country": country,
+                "city": city,
+                "lat": lat,
+                "lon": lon,
+                "flag": geo.get("flag", "🌐"),
+                "count": 0,
+                "protocols": set(),
+                "threat_scores": [],
+            }
+
+        location_map[loc_key]["count"] += 1
+        if log.protocol:
+            location_map[loc_key]["protocols"].add(log.protocol)
+        if log.threat_score:
+            location_map[loc_key]["threat_scores"].append(log.threat_score)
+
+        # Recent attacks (last 50 for live markers)
+        if len(recent_attacks) < 50:
+            recent_attacks.append({
+                "id": log.id,
+                "src_ip": ip,
+                "protocol": log.protocol,
+                "threat_score": log.threat_score or 0.0,
+                "threat_level": log.threat_level or "LOW",
+                "country": country,
+                "city": city,
+                "lat": lat,
+                "lon": lon,
+                "flag": geo.get("flag", "🌐"),
+                "timestamp": log.timestamp.isoformat() if log.timestamp else None,
+            })
+
+    # 3. Finalize locations
+    locations = []
+    for loc in location_map.values():
+        scores = loc["threat_scores"]
+        locations.append({
+            "country": loc["country"],
+            "city": loc["city"],
+            "lat": loc["lat"],
+            "lon": loc["lon"],
+            "flag": loc["flag"],
+            "count": loc["count"],
+            "protocols": list(loc["protocols"]),
+            "avg_threat_score": round(sum(scores) / len(scores), 2) if scores else 0.0,
+        })
+
+    # Sort by count descending
+    locations.sort(key=lambda x: x["count"], reverse=True)
+
+    # 4. Top attacking countries
+    country_counts = {}
+    for loc in locations:
+        c = loc["country"]
+        country_counts[c] = country_counts.get(c, 0) + loc["count"]
+
+    top_countries = sorted(
+        [{"country": k, "count": v} for k, v in country_counts.items()],
+        key=lambda x: x["count"],
+        reverse=True
+    )[:10]
+
+    return {
+        "status": "success",
+        "total_events": len(logs),
+        "total_locations": len(locations),
+        "locations": locations,
+        "top_countries": top_countries,
+        "recent_attacks": recent_attacks,
+        "service_status": geoip_service.stats,
+    }
+
+
+@app.get("/api/geoip/lookup/{ip}")
+def geoip_lookup(ip: str):
+    """Look up geolocation for a single IP address."""
+    result = geoip_service.lookup(ip)
+    return {"ip": ip, "geo": result}
+
+
+@app.get("/api/geoip/status")
+def geoip_status():
+    """Return GeoIP service health status."""
+    return geoip_service.stats
