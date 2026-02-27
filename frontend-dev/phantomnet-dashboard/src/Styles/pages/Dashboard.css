@@ -856,7 +856,7 @@ body[data-theme="light"] .header-title p {
 }
 
 .noc-row.status {
-  grid-template-columns: 1fr 1.1fr;
+  grid-template-columns: 1fr;
 }
 
 .noc-column {

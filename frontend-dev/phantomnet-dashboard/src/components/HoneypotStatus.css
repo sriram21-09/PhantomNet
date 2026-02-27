@@ -1,279 +1,336 @@
 /* ==========================================
-   HONEYPOT MONITOR - Health Grid
+   HONEYPOT STATUS - Split Panel Style
    ========================================== */
 
-.honeypot-monitor-container {
-    height: 100%;
-    display: flex;
-    flex-direction: column;
+/* ── Outer wrapper ── */
+.hps-wrapper {
+    display: grid;
+    grid-template-columns: 320px 1fr;
+    gap: 0;
+    border-radius: 20px;
+    overflow: hidden;
+    min-height: 340px;
+    background: rgba(10, 15, 30, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(16px);
 }
 
-.monitor-header {
+/* ── Shared panel header ── */
+.hps-panel-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 24px;
+    padding: 18px 20px 14px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
 }
 
-.monitor-title h3 {
-    font-size: 14px;
+.hps-panel-label {
+    font-size: 10px;
     font-weight: 800;
-    color: var(--text-primary);
-    margin: 0;
-    letter-spacing: 0.5px;
-}
-
-.monitor-title p {
-    font-size: 10px;
     color: #64748b;
-    font-weight: 700;
+    letter-spacing: 1.5px;
     text-transform: uppercase;
-    margin: 2px 0 0 0;
-    letter-spacing: 1px;
 }
 
-.status-summary {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 4px 12px;
-    background: rgba(34, 197, 94, 0.1);
-    border-radius: 20px;
-    color: #22c55e;
-    font-size: 10px;
+.hps-panel-accent {
+    color: #3b82f6;
+    margin-right: 6px;
     font-weight: 900;
 }
 
-.summary-dot {
-    width: 6px;
-    height: 6px;
-    background: #22c55e;
-    border-radius: 50%;
-    animation: glowPulse 2s infinite;
-}
-
-@keyframes glowPulse {
-    0% {
-        box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.4);
-    }
-
-    70% {
-        box-shadow: 0 0 0 8px rgba(34, 197, 94, 0);
-    }
-
-    100% {
-        box-shadow: 0 0 0 0 rgba(34, 197, 94, 0);
-    }
-}
-
-/* Status Scroller */
-.status-scroller {
+/* ── LEFT: Infrastructure Panel ── */
+.hps-infra-panel {
+    border-right: 1px solid rgba(255, 255, 255, 0.05);
     display: flex;
     flex-direction: column;
-    gap: 12px;
+}
+
+.hps-infra-list {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: 12px;
     flex: 1;
 }
 
-.status-row {
-    position: relative;
-    border-radius: 12px;
-    overflow: hidden;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    border: 1px solid rgba(255, 255, 255, 0.04);
-}
-
-body[data-theme="dark"] .status-row {
-    background: rgba(15, 23, 42, 0.4);
-}
-
-body[data-theme="light"] .status-row {
-    background: rgba(255, 255, 255, 0.6);
-    border: 1px solid rgba(0, 0, 0, 0.04);
-}
-
-.status-row:hover {
-    transform: translateX(4px);
-    background: rgba(59, 130, 246, 0.05);
-    border-color: rgba(59, 130, 246, 0.2);
-}
-
-.row-glass {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: linear-gradient(90deg, rgba(59, 130, 246, 0.03), transparent);
-    pointer-events: none;
-}
-
-.status-row-content {
-    position: relative;
-    z-index: 1;
-    padding: 16px;
+.hps-infra-card {
     display: flex;
     align-items: center;
-    gap: 16px;
-}
-
-.row-icon-side {
+    gap: 14px;
+    padding: 14px 16px;
+    border-radius: 14px;
+    background: rgba(15, 23, 42, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.04);
+    transition: all 0.3s ease;
     position: relative;
+    overflow: hidden;
 }
 
-.row-icon-box {
-    width: 42px;
-    height: 42px;
-    background: rgba(148, 163, 184, 0.1);
-    border-radius: 10px;
+.hps-infra-card::after {
+    content: '';
+    position: absolute;
+    bottom: 10px;
+    right: 12px;
+    width: 10px;
+    height: 10px;
+    border-bottom: 2px solid rgba(59, 130, 246, 0.4);
+    border-right: 2px solid rgba(59, 130, 246, 0.4);
+}
+
+.hps-infra-card:hover {
+    background: rgba(59, 130, 246, 0.06);
+    border-color: rgba(59, 130, 246, 0.15);
+    transform: translateX(3px);
+}
+
+.hps-infra-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+    background: rgba(148, 163, 184, 0.08);
     display: flex;
     align-items: center;
     justify-content: center;
     font-size: 18px;
-    color: #64748b;
-    transition: all 0.3s ease;
+    color: #475569;
+    flex-shrink: 0;
+    border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
-.status-row.active .row-icon-box {
-    background: rgba(34, 197, 94, 0.1);
-    color: #22c55e;
-}
-
-.status-row.inactive .row-icon-box {
-    background: rgba(239, 68, 68, 0.1);
-    color: #ef4444;
-}
-
-.health-ring {
-    position: absolute;
-    top: -2px;
-    left: -2px;
-    right: -2px;
-    bottom: -2px;
-    border: 2px solid transparent;
-    border-radius: 12px;
-    transition: all 0.3s ease;
-}
-
-.status-row.active:hover .health-ring {
-    border-color: rgba(34, 197, 94, 0.3);
-    transform: scale(1.05);
-}
-
-/* Info Side */
-.row-info-main {
+.hps-infra-info {
     flex: 1;
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    gap: 3px;
 }
 
-.row-top {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.hp-name {
+.hps-infra-name {
     font-size: 13px;
     font-weight: 800;
-    color: var(--text-primary);
+    color: #e2e8f0;
+    letter-spacing: 0.01em;
 }
 
-.status-badge-new {
+.hps-infra-sub {
+    font-size: 10px;
+    color: #475569;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+}
+
+.hps-infra-badge {
     font-size: 9px;
     font-weight: 900;
-    padding: 2px 8px;
-    border-radius: 4px;
+    padding: 3px 10px;
+    border-radius: 6px;
+    border: 1px solid;
+    background: transparent;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    opacity: 0.9;
+}
+
+/* ── RIGHT: Honeypot Grid Panel ── */
+.hps-honeypot-panel {
+    display: flex;
+    flex-direction: column;
+}
+
+.hps-scan-badge {
     display: flex;
     align-items: center;
     gap: 6px;
+    font-size: 9px;
+    font-weight: 900;
+    color: #22c55e;
+    letter-spacing: 1px;
+    background: rgba(34, 197, 94, 0.08);
+    padding: 4px 10px;
+    border-radius: 20px;
+    border: 1px solid rgba(34, 197, 94, 0.2);
+}
+
+.hps-scan-dot {
+    width: 6px;
+    height: 6px;
+    background: #22c55e;
+    border-radius: 50%;
+    animation: scanPulse 1.5s infinite;
+}
+
+@keyframes scanPulse {
+
+    0%,
+    100% {
+        box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.5);
+    }
+
+    50% {
+        box-shadow: 0 0 0 6px rgba(34, 197, 94, 0);
+    }
+}
+
+.hps-error {
+    padding: 16px 20px;
+    font-size: 12px;
+    color: #ef4444;
+    font-weight: 700;
+}
+
+/* 2×2 grid of honeypot cards */
+.hps-honeypot-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2px;
+    padding: 12px;
+    flex: 1;
+}
+
+/* Individual honeypot card */
+.hps-hp-card {
+    border-radius: 14px;
+    padding: 18px 20px 16px;
+    background: rgba(15, 23, 42, 0.55);
+    border: 1px solid rgba(255, 255, 255, 0.04);
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    transition: all 0.3s ease;
+}
+
+.hps-hp-card:hover {
+    background: rgba(59, 130, 246, 0.07);
+    border-color: rgba(59, 130, 246, 0.2);
+    transform: translateY(-2px);
+}
+
+.hps-hp-card.hp-inactive {
+    opacity: 0.55;
+}
+
+/* Card top row: icon + name/port */
+.hps-hp-top {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.hps-hp-icon {
+    width: 42px;
+    height: 42px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    flex-shrink: 0;
+    transition: all 0.3s ease;
+}
+
+.icon-on {
+    background: rgba(59, 130, 246, 0.12);
+    color: #3b82f6;
+    border: 1px solid rgba(59, 130, 246, 0.2);
+    box-shadow: 0 0 12px rgba(59, 130, 246, 0.15);
+}
+
+.icon-off {
+    background: rgba(100, 116, 139, 0.1);
+    color: #475569;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.hps-hp-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.hps-hp-name {
+    font-size: 16px;
+    font-weight: 800;
+    color: #f1f5f9;
+    letter-spacing: 0.02em;
+}
+
+.hps-hp-port {
+    font-size: 11px;
+    font-weight: 700;
+    color: #3b82f6;
+    font-family: 'JetBrains Mono', monospace;
     letter-spacing: 0.5px;
 }
 
-.status-badge-new.online {
-    background: rgba(34, 197, 94, 0.1);
-    color: #22c55e;
-}
-
-.status-badge-new.offline {
-    background: rgba(239, 68, 68, 0.1);
-    color: #ef4444;
-}
-
-.badge-pulse {
-    width: 4px;
-    height: 4px;
-    background: currentColor;
-    border-radius: 50%;
-    animation: miniPulse 1s infinite;
-}
-
-@keyframes miniPulse {
-    0% {
-        transform: scale(1);
-        opacity: 1;
-    }
-
-    50% {
-        transform: scale(1.5);
-        opacity: 0.5;
-    }
-
-    100% {
-        transform: scale(1);
-        opacity: 1;
-    }
-}
-
-.row-bottom {
+/* Activity mini-bars */
+.hps-hp-activity {
     display: flex;
-    align-items: center;
-    gap: 8px;
+    align-items: flex-end;
+    gap: 4px;
+    height: 20px;
 }
 
-.detail-item {
-    font-size: 10px;
-    font-weight: 700;
-    color: #64748b;
-    font-family: 'JetBrains Mono', monospace;
+.hps-bar {
+    width: 5px;
+    border-radius: 2px;
+    background: rgba(148, 163, 184, 0.15);
+    display: inline-block;
+    transition: background 0.3s ease;
 }
 
-.detail-separator {
-    color: rgba(148, 163, 184, 0.2);
-    font-size: 10px;
-}
-
-/* Action Side / Ping */
-.row-action-side {
-    padding-left: 10px;
-}
-
-.ping-pulse {
-    width: 6px;
-    height: 24px;
-    background: rgba(148, 163, 184, 0.2);
-    border-radius: 3px;
-}
-
-.ping-pulse.active {
+.hps-bar.bar-lit {
     background: #3b82f6;
-    box-shadow: 0 0 10px rgba(59, 130, 246, 0.4);
-    animation: pingBar 2s infinite ease-in-out;
+    box-shadow: 0 0 6px rgba(59, 130, 246, 0.5);
+    animation: barLive 2s infinite ease-in-out;
 }
 
-@keyframes pingBar {
-    0% {
-        height: 10px;
-        opacity: 0.4;
+@keyframes barLive {
+
+    0%,
+    100% {
+        opacity: 0.7;
     }
 
     50% {
-        height: 28px;
         opacity: 1;
     }
+}
 
-    100% {
-        height: 10px;
-        opacity: 0.4;
-    }
+/* Packet count bottom */
+.hps-hp-bottom {
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+}
+
+.hps-pkts-val {
+    font-size: 28px;
+    font-weight: 900;
+    color: #f1f5f9;
+    line-height: 1;
+    letter-spacing: -0.5px;
+}
+
+.hps-pkts-lbl {
+    font-size: 10px;
+    font-weight: 800;
+    color: #64748b;
+    letter-spacing: 1.5px;
+}
+
+/* Light theme */
+body[data-theme="light"] .hps-wrapper {
+    background: rgba(255, 255, 255, 0.7);
+    border-color: rgba(59, 130, 246, 0.1);
+}
+
+body[data-theme="light"] .hps-infra-card,
+body[data-theme="light"] .hps-hp-card {
+    background: rgba(248, 250, 252, 0.8);
+    border-color: rgba(0, 0, 0, 0.05);
+}
+
+body[data-theme="light"] .hps-infra-name,
+body[data-theme="light"] .hps-hp-name,
+body[data-theme="light"] .hps-pkts-val {
+    color: #0f172a;
 }

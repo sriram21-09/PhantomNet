@@ -172,9 +172,11 @@ const Dashboard = () => {
               <ProtocolChart />
             </div>
 
-            {/* Asset Status & Threat Manifest Row */}
+            {/* Honeypot Network Status — above Top Threat Vectors */}
+            <HoneypotStatus />
+
+            {/* Threat Manifest Row */}
             <div className="noc-row status">
-              <HoneypotStatus />
               <TopAttackers />
             </div>
           </div>
