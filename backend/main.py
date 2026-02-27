@@ -561,3 +561,62 @@ def geoip_lookup(ip: str):
 def geoip_status():
     """Return GeoIP service health status."""
     return geoip_service.stats
+
+# =========================
+# AUTOMATED RESPONSE
+# =========================
+from services.response_executor import response_executor
+
+@app.get("/api/response/history")
+def response_history(limit: int = 50):
+    """View response action audit log."""
+    return {
+        "status": "success",
+        "count": min(limit, len(response_executor.response_history)),
+        "history": response_executor.get_history(limit),
+    }
+
+
+@app.get("/api/response/blocked-ips")
+def blocked_ips():
+    """List currently blocked IPs."""
+    blocked = response_executor.get_blocked_ips()
+    return {
+        "status": "success",
+        "count": len(blocked),
+        "blocked_ips": blocked,
+    }
+
+
+@app.post("/api/response/unblock/{ip}")
+def unblock_ip(ip: str):
+    """Manually unblock an IP address."""
+    result = response_executor.unblock_ip(ip)
+    if result["status"] == "not_found":
+        raise HTTPException(status_code=404, detail=f"IP {ip} is not blocked")
+    return result
+
+
+@app.get("/api/response/policy")
+def get_response_policy():
+    """View current automated response policy."""
+    return {
+        "status": "success",
+        "policy": response_executor.get_policy(),
+    }
+
+
+@app.put("/api/response/policy")
+def update_response_policy(updates: dict):
+    """Update response policy thresholds."""
+    updated = response_executor.update_policy(updates)
+    return {
+        "status": "success",
+        "policy": updated,
+    }
+
+
+@app.get("/api/response/stats")
+def response_stats():
+    """Return automated response system statistics."""
+    return response_executor.stats
