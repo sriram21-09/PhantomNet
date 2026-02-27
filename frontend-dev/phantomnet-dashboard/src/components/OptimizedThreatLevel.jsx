@@ -1,6 +1,5 @@
-// frontend/src/components/OptimizedThreatLevel.jsx
 import React from "react";
-import MetricCard from "./MetricCard";
+import PremiumMetricCard from "./PremiumMetricCard";
 
 /**
  * OptimizedThreatLevel component uses React.memo to ensure it only
@@ -15,11 +14,20 @@ const OptimizedThreatLevel = React.memo(({ threatLevel }) => {
         return "red";
     };
 
+    const getStatus = (level) => {
+        if (level < 40) return "OPTIMAL";
+        if (level < 70) return "WARNING";
+        return "CRITICAL";
+    };
+
     return (
-        <MetricCard
+        <PremiumMetricCard
             title="Threat Level"
             value={`${threatLevel}%`}
             variant={getVariant(threatLevel)}
+            progress={threatLevel}
+            subtitle="REAL-TIME MONITOR"
+            status={getStatus(threatLevel)}
         />
     );
 });

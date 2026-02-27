@@ -1,4 +1,4 @@
-import "./styles/App.css";
+import "./Styles/App.css";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import ThemeProvider from "./context/ThemeProvider";
 import Navbar from "./components/Navbar";
@@ -9,6 +9,9 @@ import About from "./pages/About";
 import FeatureAnalysis from "./pages/FeatureAnalysis";
 import ThreatAnalysis from "./pages/ThreatAnalysis";
 import AnomalyDashboard from "./pages/AnomalyDashboard";
+import Topology from "./pages/Topology";
+import GeoDashboard from "./pages/GeoDashboard";
+import AdvancedAnalytics from "./pages/AdvancedAnalytics";
 
 
 function App() {
@@ -27,6 +30,9 @@ function App() {
               <Route path="/about" element={<About />} />
               <Route path="/threat-analysis" element={<ThreatAnalysis />} />
               <Route path="/anomalies" element={<AnomalyDashboard />} />
+              <Route path="/topology" element={<Topology />} />
+              <Route path="/geo-stats" element={<GeoDashboard />} />
+              <Route path="/analytics" element={<AdvancedAnalytics />} />
             </Routes>
           </div>
         </BrowserRouter>

@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Float, DateTime, ForeignKey, Boolean
+from sqlalchemy import Column, Integer, String, Float, DateTime, ForeignKey, Boolean, Text
 from sqlalchemy.orm import relationship, declarative_base
 from datetime import datetime
 
@@ -23,6 +23,19 @@ class PacketLog(Base):
     confidence = Column(Float, nullable=True)
     is_malicious = Column(Boolean, default=False)
     event = Column(String, nullable=True) # e.g., "login_attempt"
+
+class Alert(Base):
+    __tablename__ = "alerts"
+    __table_args__ = {'extend_existing': True}
+
+    id = Column(Integer, primary_key=True)
+    timestamp = Column(DateTime, default=datetime.utcnow, index=True)
+    level = Column(String, index=True) # INFO, WARNING, CRITICAL
+    type = Column(String, index=True) # CORRELATION, BASELINE, INTRUSION
+    source_ip = Column(String, index=True, nullable=True)
+    description = Column(String)
+    details = Column(Text, nullable=True) # JSON or detailed string
+    is_resolved = Column(Boolean, default=False)
     
     # GeoIP Enrichment
     country = Column(String, nullable=True)

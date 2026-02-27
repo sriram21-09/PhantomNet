@@ -1,7 +1,8 @@
 import React, { useContext } from "react";
 import { FaMoon, FaSun } from "react-icons/fa";
 import { ThemeContext } from "../context/ThemeContext";
-import "../styles/components/Navbar.css"; // Reuse existing styles for now
+import "../Styles/components/Navbar.css";
+// Reuse existing styles for now
 
 const ThemeToggle = () => {
   const { theme, toggleTheme } = useContext(ThemeContext);

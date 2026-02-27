@@ -11,6 +11,7 @@ from sqlalchemy import text, func
 from datetime import datetime
 from dotenv import load_dotenv
 
+from sqlalchemy.orm import Session
 from database.database import get_db, engine
 from database.models import Base, PacketLog, TrafficStats
 
@@ -38,6 +39,8 @@ from middleware.cache import cache_response, api_cache
 # API ROUTERS
 # =========================
 from api.model_metrics import router as model_metrics_router
+from api.threat_intel import router as threat_intel_router
+from api.topology import router as topology_router
 from api.management import router as management_router
 
 # =========================
@@ -96,6 +99,8 @@ app.add_middleware(MetricsMiddleware)
 
 # Register Routers
 app.include_router(model_metrics_router)
+app.include_router(threat_intel_router)
+app.include_router(topology_router)
 app.include_router(management_router)
 
 # =========================
@@ -104,10 +109,12 @@ app.include_router(management_router)
 from api.threat_scoring import router as threat_router
 from api.protocol_analytics import router as analytics_router
 from api.metrics import router as metrics_router
+from api.pattern_analytics import router as pattern_analytics_router
 
 app.include_router(threat_router)
 app.include_router(analytics_router)
 app.include_router(metrics_router)
+app.include_router(pattern_analytics_router)
 
 # =========================
 # CORE ENDPOINTS

@@ -1,6 +1,6 @@
 import React from "react";
 import { FaExclamationTriangle, FaRedo } from "react-icons/fa";
-import "../styles/components/ErrorBoundary.css";
+import "../Styles/components/ErrorBoundary.css";
 
 class ErrorBoundary extends React.Component {
     constructor(props) {

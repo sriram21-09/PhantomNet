@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import "../styles/components/ThreatIndicator.css";
+import "../Styles/components/ThreatIndicator.css";
 import { getEventFeatures } from "../api/mlClient";
 import { normalSSHEvent } from "../mocks/mlMockData";
 

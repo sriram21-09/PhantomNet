@@ -7,7 +7,7 @@ import {
 } from "../mocks/mlMockData";
 import { ThemeContext } from "../context/ThemeContext";
 import { FaBrain, FaCheck, FaExclamationTriangle } from "react-icons/fa";
-import "../styles/pages/FeatureAnalysis.css";
+import "../Styles/pages/FeatureAnalysis.css";
 
 const FeatureAnalysis = () => {
   const { theme } = useContext(ThemeContext);

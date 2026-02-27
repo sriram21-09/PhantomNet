@@ -5,7 +5,8 @@ import {
   FaShieldAlt,
   FaExclamationTriangle
 } from "react-icons/fa";
-import "../styles/components/MetricCard.css";
+import "../Styles/components/MetricCard.css";
+import "../Styles/Protocol_colors.css";
 
 const iconMap = {
   blue: FaChartLine,
@@ -19,7 +20,7 @@ const MetricCard = ({ title, value, variant = "blue" }) => {
   const Icon = iconMap[variant] || FaChartLine;
 
   return (
-    <div className={`metric-card variant-${variant}`} title={`Real-time telemetry for ${title}`}>
+    <div className={`metric-card pro-card variant-${variant} hud-font`} title={`Real-time telemetry for ${title}`}>
       <div className="metric-glow"></div>
       <div className="metric-content">
         <div className="metric-header">

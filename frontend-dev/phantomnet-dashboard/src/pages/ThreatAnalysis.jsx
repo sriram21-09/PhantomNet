@@ -8,7 +8,7 @@ import {
   FaWifi,
   FaUserSecret
 } from "react-icons/fa";
-import "../styles/pages/ThreatAnalysis.css";
+import "../Styles/pages/ThreatAnalysis.css";
 
 const ThreatAnalysis = () => {
   const summary = {
