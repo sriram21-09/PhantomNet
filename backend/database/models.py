@@ -60,6 +60,12 @@ class Event(Base):
     raw_data = Column(String)
     timestamp = Column(DateTime, default=datetime.utcnow)
 
+    # GeoIP Enrichment
+    country = Column(String, nullable=True)
+    city = Column(String, nullable=True)
+    latitude = Column(Float, nullable=True)
+    longitude = Column(Float, nullable=True)
+
 class HoneypotNode(Base):
     __tablename__ = "honeypot_nodes"
     __table_args__ = {'extend_existing': True}
