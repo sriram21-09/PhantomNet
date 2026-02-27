@@ -97,10 +97,12 @@ app.include_router(management_router)
 from api.threat_scoring import router as threat_router
 from api.protocol_analytics import router as analytics_router
 from api.metrics import router as metrics_router
+from api.pattern_analytics import router as pattern_analytics_router
 
 app.include_router(threat_router)
 app.include_router(analytics_router)
 app.include_router(metrics_router)
+app.include_router(pattern_analytics_router)
 
 # =========================
 # CORE ENDPOINTS
