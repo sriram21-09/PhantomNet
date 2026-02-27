@@ -11,6 +11,7 @@ import ThreatAnalysis from "./pages/ThreatAnalysis";
 import AnomalyDashboard from "./pages/AnomalyDashboard";
 import Topology from "./pages/Topology";
 import GeoDashboard from "./pages/GeoDashboard";
+import AdvancedAnalytics from "./pages/AdvancedAnalytics";
 
 
 function App() {
@@ -31,6 +32,7 @@ function App() {
               <Route path="/anomalies" element={<AnomalyDashboard />} />
               <Route path="/topology" element={<Topology />} />
               <Route path="/geo-stats" element={<GeoDashboard />} />
+              <Route path="/analytics" element={<AdvancedAnalytics />} />
             </Routes>
           </div>
         </BrowserRouter>

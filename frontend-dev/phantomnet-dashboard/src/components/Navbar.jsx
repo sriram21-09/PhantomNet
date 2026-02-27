@@ -8,7 +8,8 @@ import {
   FaListAlt,
   FaInfoCircle,
   FaNetworkWired,
-  FaGlobeAmericas
+  FaGlobeAmericas,
+  FaChartBar
 } from "react-icons/fa";
 import "../Styles/components/Navbar.css";
 
@@ -21,6 +22,7 @@ const Navbar = () => {
     { path: "/events", label: "Events", icon: FaListAlt },
     { path: "/topology", label: "Topology", icon: FaNetworkWired },
     { path: "/geo-stats", label: "Geo Stats", icon: FaGlobeAmericas },
+    { path: "/analytics", label: "Analytics", icon: FaChartBar },
     { path: "/about", label: "About", icon: FaInfoCircle },
   ];
 
