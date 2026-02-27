@@ -1,34 +1,123 @@
-# Fully Automated Threat Response System
+# PhantomNet — Automated Response System
+
+**Week 9 | Day 5 — Automated Threat Response**  
+**Last Updated:** February 27, 2026
+
+---
 
 ## Overview
-The PhantomNet Automated Response System provides a proactive defense mechanism that automatically reacts to detected threats based on their severity and type. By integrating directly with the threat pipeline, it can neutralize attackers in real-time.
+
+PhantomNet's automated response system executes defensive actions based on threat level thresholds. The response executor integrates directly with the threat scoring pipeline — when the analyzer scores a packet as HIGH or CRITICAL, it automatically triggers blocking, scaling, and alerting.
+
+```
+Threat Analyzer (background loop)
+       │ scores packet
+       ▼
+  ┌─────────────┐
+  │ Score HIGH?  │───No──→ Log only
+  │ or CRITICAL? │
+  └──────┬──────┘
+         │ Yes
+         ▼
+  ResponseExecutor.execute()
+         │
+    ┌────┼────┬──────────┐
+    ▼    ▼    ▼          ▼
+  Block  Rate  Scale    Notify
+  IP     Limit Honeypots Admin
+```
+
+---
 
 ## Response Actions Matrix
-The system follows a tiered response strategy:
 
-| Threat Level | Actions | Description |
-| :--- | :--- | :--- |
-| **INFO** | LOG | Record the event for future analysis. |
-| **WARNING** | LOG, ALERT | Notify security personnel via the Alert Manager. |
-| **HIGH** | LOG, ALERT, BLOCK_IP | Neutralize the specific attacker by blocking their source IP. |
-| **CRITICAL** | LOG, ALERT, BLOCK_IP, SCALE | Execute all actions plus deploy additional honeypot resources to absorb traffic. |
+| Threat Level | Score | Actions | Block Duration |
+|-------------|-------|---------|----------------|
+| **LOW** | 0–39 | Log | — |
+| **MEDIUM** | 40–69 | Log, Alert, Rate Limit | — |
+| **HIGH** | 70–89 | Log, Alert, IP Block, Scale Honeypots | 30 min (temp) |
+| **CRITICAL** | 90–100 | Log, Alert, IP Block, Scale, Admin Notify | Permanent |
 
-## Implementation Details
+---
 
-### IP Blocking
-- **Linux**: Uses `iptables` to drop all incoming traffic from the malicious IP.
-  - Command: `sudo iptables -A INPUT -s <IP> -j DROP`
-- **Windows**: Uses `netsh advfirewall` to create a block rule.
-  - Command: `netsh advfirewall firewall add rule name="PhantomNet_Block_<IP>" dir=in action=block remoteip=<IP>`
+## API Endpoints
 
-### Honeypot Scaling
-When a `CRITICAL` threat is detected (e.g., a massive brute-force or multi-protocol attack), the system triggers horizontal scaling of the target honeypots to increase the attack surface and gather more intelligence.
-- **Tool**: `docker-compose`
-- **Action**: Increases the instance count of the relevant service to 2 (or more as configured).
-- **Command**: `docker-compose up -d --scale <service>=2`
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `GET` | `/api/response/history` | View response audit log |
+| `GET` | `/api/response/blocked-ips` | List currently blocked IPs |
+| `POST` | `/api/response/unblock/{ip}` | Manual unblock |
+| `GET` | `/api/response/policy` | View current policy |
+| `PUT` | `/api/response/policy` | Update policy thresholds |
+| `GET` | `/api/response/stats` | Response system statistics |
 
-## Integration
-The response system is integrated into the `AlertManager`. Whenever an alert is saved to the database, the `ResponseExecutor` is invoked to evaluate if additional defensive actions are required based on the alert level.
+### Example: View Blocked IPs
 
-## Configuration
-Policies can be adjusted in `backend/services/response_executor.py` via the `response_matrix` dictionary. Future versions will support dynamic policy loading from the database.
+```json
+GET /api/response/blocked-ips
+
+{
+  "status": "success",
+  "count": 2,
+  "blocked_ips": [
+    {
+      "ip": "192.168.1.100",
+      "blocked_at": "2026-02-27T10:30:00",
+      "expires_at": "2026-02-27T11:00:00",
+      "reason": "Automated: HIGH threat",
+      "level": "HIGH"
+    }
+  ]
+}
+```
+
+### Example: Update Policy
+
+```json
+PUT /api/response/policy
+{
+  "HIGH": { "block_duration_minutes": 60 },
+  "CRITICAL": { "enabled": true }
+}
+```
+
+---
+
+## IP Blocking (Cross-Platform)
+
+| Platform | Command | Notes |
+|----------|---------|-------|
+| **Linux** | `sudo iptables -A INPUT -s {ip} -j DROP` | Requires sudo |
+| **Windows** | `netsh advfirewall firewall add rule name=... action=block` | Requires admin |
+
+**Auto-expiry:** Temporary blocks are automatically removed by a background cleanup thread that runs every 60 seconds.
+
+**Whitelist:** `127.0.0.1`, `::1`, `10.0.0.1`, `phantomnet_postgres` are never blocked.
+
+---
+
+## Threat Pipeline Integration
+
+The response executor is triggered automatically inside `threat_analyzer.py`:
+
+```python
+# In _process_unscored_logs(), after scoring:
+if result.threat_level in ["HIGH", "CRITICAL"]:
+    response_executor.execute(
+        ip=log.src_ip,
+        threat_score=result.score * 100,
+        threat_level=result.threat_level,
+        protocol=log.protocol,
+        details=f"Auto-detected: {result.decision}"
+    )
+```
+
+---
+
+## Files
+
+| File | Type | Purpose |
+|------|------|---------|
+| `backend/services/response_executor.py` | NEW | Automated response engine |
+| `backend/services/threat_analyzer.py` | MODIFIED | Response trigger integration |
+| `backend/main.py` | MODIFIED | 6 response management endpoints |

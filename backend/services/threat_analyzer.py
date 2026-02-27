@@ -14,6 +14,9 @@ from schemas.threat_schema import ThreatInput
 from ml_engine.pattern_detector import AdvancedPatternDetector
 from database.database import get_db
 
+# Automated Response
+from services.response_executor import response_executor
+
 # Configure logging
 logger = logging.getLogger("threat_analyzer")
 logger.setLevel(logging.INFO)
@@ -110,15 +113,12 @@ class ThreatAnalyzerService:
         db: Session = SessionLocal()
         try:
             # Fetch logs where threat_level is NULL
-            # This ensures we process all logs through the new ML pipeline
             logs = db.query(PacketLog).filter(
                 PacketLog.threat_level.is_(None)
             ).order_by(PacketLog.timestamp.desc()).limit(50).all()
 
             updated_count = 0
             for log in logs:
-                # 1. Check Cache
-                # ... (skipping cache logic for brevity in replace block if possible, but context requires full block)
                 cached = self._get_cached_score(log.src_ip)
                 if cached:
                     result = cached['result']
@@ -147,7 +147,7 @@ class ThreatAnalyzerService:
 
                     time.sleep(2)
 
-                # 3. Update DB Record
+                # Update DB Record
                 log.threat_score = result.score
                 log.threat_level = result.threat_level
                 log.confidence = result.confidence
@@ -169,9 +169,21 @@ class ThreatAnalyzerService:
 
                 updated_count += 1
 
+                # Trigger automated response for HIGH/CRITICAL threats
+                if result.threat_level in ["HIGH", "CRITICAL"]:
+                    try:
+                        response_executor.execute(
+                            ip=log.src_ip,
+                            threat_score=result.score * 100,
+                            threat_level=result.threat_level,
+                            protocol=log.protocol or "UNKNOWN",
+                            details=f"Auto-detected: {result.decision}"
+                        )
+                    except Exception as e:
+                        logger.error(f"Response execution failed for {log.src_ip}: {e}")
+
             if updated_count > 0:
                 db.commit()
-                # Change to DEBUG to avoid terminal spam
                 logger.debug(f"Analyzed and updated {updated_count} logs.")
 
         except Exception as e:
@@ -182,3 +194,4 @@ class ThreatAnalyzerService:
 
 # Singleton instance
 threat_analyzer = ThreatAnalyzerService()
+
