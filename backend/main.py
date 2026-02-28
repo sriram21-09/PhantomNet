@@ -24,6 +24,13 @@ from services.firewall import FirewallService
 from services.threat_analyzer import threat_analyzer
 
 # =========================
+# PERFORMANCE MIDDLEWARE
+# =========================
+from middleware.profiling import ProfilingMiddleware
+from middleware.metrics_collector import MetricsMiddleware, get_metrics_response
+from middleware.cache import cache_response, api_cache
+
+# =========================
 # MODELS
 # =========================
 # (Already imported above)
@@ -86,6 +93,10 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Performance Middleware
+app.add_middleware(ProfilingMiddleware, enable_memory_tracking=False)
+app.add_middleware(MetricsMiddleware)
+
 # Register Routers
 app.include_router(model_metrics_router)
 app.include_router(threat_intel_router)
@@ -98,10 +109,12 @@ app.include_router(management_router)
 from api.threat_scoring import router as threat_router
 from api.protocol_analytics import router as analytics_router
 from api.metrics import router as metrics_router
+from api.pattern_analytics import router as pattern_analytics_router
 
 app.include_router(threat_router)
 app.include_router(analytics_router)
 app.include_router(metrics_router)
+app.include_router(pattern_analytics_router)
 
 # =========================
 # CORE ENDPOINTS
@@ -171,9 +184,20 @@ def get_real_traffic(db: Session = Depends(get_db)):
 # DASHBOARD STATS
 # =========================
 @app.get("/api/stats")
+@cache_response(ttl_seconds=15)
 def get_api_stats(db: Session = Depends(get_db)):
     service = StatsService(db)
     return service.calculate_stats()
+
+@app.get("/metrics")
+def prometheus_metrics():
+    """Prometheus-compatible metrics endpoint."""
+    return get_metrics_response()
+
+@app.get("/api/cache/stats")
+def cache_stats():
+    """Return API cache statistics."""
+    return api_cache.stats
 
 # =========================
 # EVENTS API
@@ -402,3 +426,204 @@ def block_ip_address(ip: str):
         raise HTTPException(status_code=500, detail=result["message"])
 
     return result
+
+# =========================
+# GeoIP & ATTACK MAP
+# =========================
+from services.geoip_service import geoip_service
+
+@app.get("/api/analytics/attack-map")
+def get_attack_map(limit: int = 200, db: Session = Depends(get_db)):
+    """
+    Returns geo-enriched attack data for map visualization.
+
+    Response includes:
+    - locations: aggregated attack counts per country/city with coordinates
+    - top_countries: top 10 attacking countries by event count
+    - recent_attacks: latest geo-enriched events for live map markers
+    - service_status: GeoIP service health info
+    """
+    # 1. Query recent attack events with geo data
+    logs = (
+        db.query(PacketLog)
+        .filter(PacketLog.src_ip.isnot(None))
+        .order_by(PacketLog.timestamp.desc())
+        .limit(limit)
+        .all()
+    )
+
+    # 2. Build geo-enriched location aggregations
+    location_map = {}  # key: "country|city" → {count, lat, lon, ...}
+    recent_attacks = []
+
+    for log in logs:
+        ip = log.src_ip
+
+        # Use stored geo data if available, otherwise look up
+        if log.country and log.latitude:
+            geo = {
+                "country": log.country,
+                "city": log.city or "Unknown",
+                "lat": log.latitude,
+                "lon": log.longitude,
+                "flag": geoip_service._get_flag_emoji(""),
+            }
+        else:
+            geo = geoip_service.lookup(ip)
+
+        country = geo.get("country", "Unknown")
+        city = geo.get("city", "Unknown")
+        lat = geo.get("lat", 0.0)
+        lon = geo.get("lon", 0.0)
+
+        # Skip internal/LAN IPs on the map
+        if country in ("Local Network", "Unknown") and lat == 0.0:
+            continue
+
+        # Aggregate by location
+        loc_key = f"{country}|{city}"
+        if loc_key not in location_map:
+            location_map[loc_key] = {
+                "country": country,
+                "city": city,
+                "lat": lat,
+                "lon": lon,
+                "flag": geo.get("flag", "🌐"),
+                "count": 0,
+                "protocols": set(),
+                "threat_scores": [],
+            }
+
+        location_map[loc_key]["count"] += 1
+        if log.protocol:
+            location_map[loc_key]["protocols"].add(log.protocol)
+        if log.threat_score:
+            location_map[loc_key]["threat_scores"].append(log.threat_score)
+
+        # Recent attacks (last 50 for live markers)
+        if len(recent_attacks) < 50:
+            recent_attacks.append({
+                "id": log.id,
+                "src_ip": ip,
+                "protocol": log.protocol,
+                "threat_score": log.threat_score or 0.0,
+                "threat_level": log.threat_level or "LOW",
+                "country": country,
+                "city": city,
+                "lat": lat,
+                "lon": lon,
+                "flag": geo.get("flag", "🌐"),
+                "timestamp": log.timestamp.isoformat() if log.timestamp else None,
+            })
+
+    # 3. Finalize locations
+    locations = []
+    for loc in location_map.values():
+        scores = loc["threat_scores"]
+        locations.append({
+            "country": loc["country"],
+            "city": loc["city"],
+            "lat": loc["lat"],
+            "lon": loc["lon"],
+            "flag": loc["flag"],
+            "count": loc["count"],
+            "protocols": list(loc["protocols"]),
+            "avg_threat_score": round(sum(scores) / len(scores), 2) if scores else 0.0,
+        })
+
+    # Sort by count descending
+    locations.sort(key=lambda x: x["count"], reverse=True)
+
+    # 4. Top attacking countries
+    country_counts = {}
+    for loc in locations:
+        c = loc["country"]
+        country_counts[c] = country_counts.get(c, 0) + loc["count"]
+
+    top_countries = sorted(
+        [{"country": k, "count": v} for k, v in country_counts.items()],
+        key=lambda x: x["count"],
+        reverse=True
+    )[:10]
+
+    return {
+        "status": "success",
+        "total_events": len(logs),
+        "total_locations": len(locations),
+        "locations": locations,
+        "top_countries": top_countries,
+        "recent_attacks": recent_attacks,
+        "service_status": geoip_service.stats,
+    }
+
+
+@app.get("/api/geoip/lookup/{ip}")
+def geoip_lookup(ip: str):
+    """Look up geolocation for a single IP address."""
+    result = geoip_service.lookup(ip)
+    return {"ip": ip, "geo": result}
+
+
+@app.get("/api/geoip/status")
+def geoip_status():
+    """Return GeoIP service health status."""
+    return geoip_service.stats
+
+# =========================
+# AUTOMATED RESPONSE
+# =========================
+from services.response_executor import response_executor
+
+@app.get("/api/response/history")
+def response_history(limit: int = 50):
+    """View response action audit log."""
+    return {
+        "status": "success",
+        "count": min(limit, len(response_executor.response_history)),
+        "history": response_executor.get_history(limit),
+    }
+
+
+@app.get("/api/response/blocked-ips")
+def blocked_ips():
+    """List currently blocked IPs."""
+    blocked = response_executor.get_blocked_ips()
+    return {
+        "status": "success",
+        "count": len(blocked),
+        "blocked_ips": blocked,
+    }
+
+
+@app.post("/api/response/unblock/{ip}")
+def unblock_ip(ip: str):
+    """Manually unblock an IP address."""
+    result = response_executor.unblock_ip(ip)
+    if result["status"] == "not_found":
+        raise HTTPException(status_code=404, detail=f"IP {ip} is not blocked")
+    return result
+
+
+@app.get("/api/response/policy")
+def get_response_policy():
+    """View current automated response policy."""
+    return {
+        "status": "success",
+        "policy": response_executor.get_policy(),
+    }
+
+
+@app.put("/api/response/policy")
+def update_response_policy(updates: dict):
+    """Update response policy thresholds."""
+    updated = response_executor.update_policy(updates)
+    return {
+        "status": "success",
+        "policy": updated,
+    }
+
+
+@app.get("/api/response/stats")
+def response_stats():
+    """Return automated response system statistics."""
+    return response_executor.stats

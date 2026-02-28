@@ -11,6 +11,11 @@ from database.database import SessionLocal
 from database.models import PacketLog
 from ml.threat_scoring_service import score_threat
 from schemas.threat_schema import ThreatInput
+from ml_engine.pattern_detector import AdvancedPatternDetector
+from database.database import get_db
+
+# Automated Response
+from services.response_executor import response_executor
 
 # Configure logging
 logger = logging.getLogger("threat_analyzer")
@@ -23,6 +28,8 @@ class ThreatAnalyzerService:
         self._cache = {}  # Simple Dict Cache [IP -> {score, level, timestamp}]
         self._cache_ttl = 60  # Seconds
         self.running = False
+        self.last_pattern_scan = datetime.now()
+        self.pattern_scan_interval = 60 # Run advanced patterns every minute
 
     def start(self):
         """Starts the background analysis loop."""
@@ -46,6 +53,12 @@ class ThreatAnalyzerService:
         while not self._stop_event.is_set():
             try:
                 self._process_unscored_logs()
+                
+                # Check if it's time to run advanced patterns (Distributed Brute Force, Low & Slow)
+                if (datetime.now() - self.last_pattern_scan).total_seconds() >= self.pattern_scan_interval:
+                    self._process_advanced_patterns()
+                    self.last_pattern_scan = datetime.now()
+                    
             except Exception as e:
                 logger.error(f"Error in analysis loop: {e}")
             
@@ -68,19 +81,44 @@ class ThreatAnalyzerService:
             'result': result
         }
 
+    def _process_advanced_patterns(self):
+        db: Session = SessionLocal()
+        try:
+            detector = AdvancedPatternDetector(db)
+            report = detector.run_all_checks()
+            
+            threats_found = False
+            if report.get("distributed_brute_force_ssh"):
+                logger.warning(f"ADVANCED THREAT DETECTED: Distributed Brute Force: {len(report['distributed_brute_force_ssh'])} targets.")
+                threats_found = True
+            
+            if report.get("low_and_slow_scans"):
+                logger.warning(f"ADVANCED THREAT DETECTED: Low and Slow scans from {len(report['low_and_slow_scans'])} sources.")
+                threats_found = True
+                
+            if threats_found:
+                try:
+                    import asyncio
+                    from api.topology import push_topology_event
+                    asyncio.run(push_topology_event("ADVANCED_THREAT_DETECTED", report))
+                except Exception as ws_e:
+                    logger.debug(f"Topology advanced threat sync failed: {ws_e}")
+
+        except Exception as e:
+            logger.error(f"Error in _process_advanced_patterns: {e}")
+        finally:
+            db.close()
+
     def _process_unscored_logs(self):
         db: Session = SessionLocal()
         try:
             # Fetch logs where threat_level is NULL
-            # This ensures we process all logs through the new ML pipeline
             logs = db.query(PacketLog).filter(
                 PacketLog.threat_level.is_(None)
             ).order_by(PacketLog.timestamp.desc()).limit(50).all()
 
             updated_count = 0
             for log in logs:
-                # 1. Check Cache
-                # ... (skipping cache logic for brevity in replace block if possible, but context requires full block)
                 cached = self._get_cached_score(log.src_ip)
                 if cached:
                     result = cached['result']
@@ -109,7 +147,7 @@ class ThreatAnalyzerService:
 
                     time.sleep(2)
 
-                # 3. Update DB Record
+                # Update DB Record
                 log.threat_score = result.score
                 log.threat_level = result.threat_level
                 log.confidence = result.confidence
@@ -131,9 +169,21 @@ class ThreatAnalyzerService:
 
                 updated_count += 1
 
+                # Trigger automated response for HIGH/CRITICAL threats
+                if result.threat_level in ["HIGH", "CRITICAL"]:
+                    try:
+                        response_executor.execute(
+                            ip=log.src_ip,
+                            threat_score=result.score * 100,
+                            threat_level=result.threat_level,
+                            protocol=log.protocol or "UNKNOWN",
+                            details=f"Auto-detected: {result.decision}"
+                        )
+                    except Exception as e:
+                        logger.error(f"Response execution failed for {log.src_ip}: {e}")
+
             if updated_count > 0:
                 db.commit()
-                # Change to DEBUG to avoid terminal spam
                 logger.debug(f"Analyzed and updated {updated_count} logs.")
 
         except Exception as e:
@@ -144,3 +194,4 @@ class ThreatAnalyzerService:
 
 # Singleton instance
 threat_analyzer = ThreatAnalyzerService()
+
