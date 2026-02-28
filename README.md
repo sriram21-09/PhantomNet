@@ -11,6 +11,7 @@
 ![Docker](https://img.shields.io/badge/Docker-Enabled-2496ED?style=for-the-badge&logo=docker&logoColor=white)
 ![scikit-learn](https://img.shields.io/badge/scikit--learn-ML-F7931E?style=for-the-badge&logo=scikitlearn&logoColor=white)
 ![Phase](https://img.shields.io/badge/Phase_2-Complete-success?style=for-the-badge)
+![Status](https://img.shields.io/badge/Week_9-Polished-61DAFB?style=for-the-badge)
 
 **An intelligent, distributed honeypot system powered by AI/ML that detects, analyzes, and responds to cyber threats in real-time.**
 
@@ -401,6 +402,8 @@ locust -f tests/load_test_config.py --headless -u 50 -r 5 -t 1m --host http://12
 | [`docs/api_design.md`](docs/api_design.md) | API design specification |
 | [`docs/setup_guide.md`](docs/setup_guide.md) | Detailed installation guide |
 | [`docs/CONTRIBUTING.md`](docs/CONTRIBUTING.md) | Contribution guidelines |
+| [`docs/retrospective/WEEK9_RETRO.md`](docs/retrospective/WEEK9_RETRO.md) | Week 9 completion & retrospective |
+| [`docs/WEEK10_PLAN.md`](docs/WEEK10_PLAN.md) | Week 10 roadmap & objectives |
 | [`backend/api/openapi.yaml`](backend/api/openapi.yaml) | OpenAPI 3.0 specification |
 
 ### External References
@@ -535,7 +538,7 @@ git push origin feature/your-feature-name
 
 ---
 
-**Last Updated**: February 12, 2026  
-**Status**: 🟢 Phase 2 Complete
+**Last Updated**: February 28, 2026  
+**Status**: 🔵 Week 9 Polished (Phase 2 Wrap-up)
 
 </div>
