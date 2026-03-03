@@ -1,0 +1,481 @@
+{
+    "version": "8.x",
+    "objects": [
+        {
+            "id": "phantomnet-events-*",
+            "type": "index-pattern",
+            "attributes": {
+                "title": "phantomnet-events-*",
+                "timeFieldName": "@timestamp",
+                "fields": "[]"
+            }
+        },
+        {
+            "id": "vis-events-timeline",
+            "type": "visualization",
+            "attributes": {
+                "title": "Events Timeline",
+                "description": "Security events over time with threat level breakdown",
+                "visState": {
+                    "title": "Events Timeline",
+                    "type": "histogram",
+                    "aggs": [
+                        {
+                            "id": "1",
+                            "enabled": true,
+                            "type": "count",
+                            "schema": "metric",
+                            "params": {}
+                        },
+                        {
+                            "id": "2",
+                            "enabled": true,
+                            "type": "date_histogram",
+                            "schema": "segment",
+                            "params": {
+                                "field": "@timestamp",
+                                "interval": "auto",
+                                "min_doc_count": 1,
+                                "extended_bounds": {}
+                            }
+                        },
+                        {
+                            "id": "3",
+                            "enabled": true,
+                            "type": "terms",
+                            "schema": "group",
+                            "params": {
+                                "field": "threat_level.keyword",
+                                "size": 5,
+                                "order": "desc",
+                                "orderBy": "1"
+                            }
+                        }
+                    ],
+                    "params": {
+                        "type": "histogram",
+                        "grid": {
+                            "categoryLines": false
+                        },
+                        "categoryAxes": [
+                            {
+                                "id": "CategoryAxis-1",
+                                "type": "category",
+                                "position": "bottom",
+                                "title": {
+                                    "text": "Time"
+                                }
+                            }
+                        ],
+                        "valueAxes": [
+                            {
+                                "id": "ValueAxis-1",
+                                "type": "value",
+                                "position": "left",
+                                "title": {
+                                    "text": "Event Count"
+                                }
+                            }
+                        ],
+                        "seriesParams": [
+                            {
+                                "show": true,
+                                "type": "histogram",
+                                "mode": "stacked",
+                                "valueAxis": "ValueAxis-1"
+                            }
+                        ],
+                        "addTooltip": true,
+                        "addLegend": true,
+                        "legendPosition": "right"
+                    }
+                },
+                "kibanaSavedObjectMeta": {
+                    "searchSourceJSON": {
+                        "index": "phantomnet-events-*",
+                        "query": {
+                            "language": "kuery",
+                            "query": ""
+                        },
+                        "filter": []
+                    }
+                }
+            }
+        },
+        {
+            "id": "vis-threat-level-distribution",
+            "type": "visualization",
+            "attributes": {
+                "title": "Threat Level Distribution",
+                "description": "Breakdown of events by threat level (CRITICAL, HIGH, MEDIUM, LOW)",
+                "visState": {
+                    "title": "Threat Level Distribution",
+                    "type": "pie",
+                    "aggs": [
+                        {
+                            "id": "1",
+                            "enabled": true,
+                            "type": "count",
+                            "schema": "metric",
+                            "params": {}
+                        },
+                        {
+                            "id": "2",
+                            "enabled": true,
+                            "type": "terms",
+                            "schema": "segment",
+                            "params": {
+                                "field": "threat_level.keyword",
+                                "size": 10,
+                                "order": "desc",
+                                "orderBy": "1"
+                            }
+                        }
+                    ],
+                    "params": {
+                        "type": "pie",
+                        "addTooltip": true,
+                        "addLegend": true,
+                        "legendPosition": "right",
+                        "isDonut": true,
+                        "labels": {
+                            "show": true,
+                            "values": true,
+                            "last_level": true,
+                            "truncate": 100
+                        }
+                    }
+                },
+                "kibanaSavedObjectMeta": {
+                    "searchSourceJSON": {
+                        "index": "phantomnet-events-*",
+                        "query": {
+                            "language": "kuery",
+                            "query": ""
+                        },
+                        "filter": []
+                    }
+                }
+            }
+        },
+        {
+            "id": "vis-top-source-ips",
+            "type": "visualization",
+            "attributes": {
+                "title": "Top Source IPs",
+                "description": "Top 20 source IPs by event count",
+                "visState": {
+                    "title": "Top Source IPs",
+                    "type": "horizontal_bar",
+                    "aggs": [
+                        {
+                            "id": "1",
+                            "enabled": true,
+                            "type": "count",
+                            "schema": "metric",
+                            "params": {}
+                        },
+                        {
+                            "id": "2",
+                            "enabled": true,
+                            "type": "terms",
+                            "schema": "segment",
+                            "params": {
+                                "field": "src_ip.keyword",
+                                "size": 20,
+                                "order": "desc",
+                                "orderBy": "1"
+                            }
+                        }
+                    ],
+                    "params": {
+                        "type": "horizontal_bar",
+                        "addTooltip": true,
+                        "addLegend": false,
+                        "legendPosition": "right",
+                        "categoryAxes": [
+                            {
+                                "id": "CategoryAxis-1",
+                                "type": "category",
+                                "position": "left",
+                                "title": {
+                                    "text": "Source IP"
+                                }
+                            }
+                        ],
+                        "valueAxes": [
+                            {
+                                "id": "ValueAxis-1",
+                                "type": "value",
+                                "position": "bottom",
+                                "title": {
+                                    "text": "Event Count"
+                                }
+                            }
+                        ]
+                    }
+                },
+                "kibanaSavedObjectMeta": {
+                    "searchSourceJSON": {
+                        "index": "phantomnet-events-*",
+                        "query": {
+                            "language": "kuery",
+                            "query": ""
+                        },
+                        "filter": []
+                    }
+                }
+            }
+        },
+        {
+            "id": "vis-geographic-attack-map",
+            "type": "visualization",
+            "attributes": {
+                "title": "Geographic Attack Map",
+                "description": "World map showing attack origins using GeoIP data",
+                "visState": {
+                    "title": "Geographic Attack Map",
+                    "type": "tile_map",
+                    "aggs": [
+                        {
+                            "id": "1",
+                            "enabled": true,
+                            "type": "count",
+                            "schema": "metric",
+                            "params": {}
+                        },
+                        {
+                            "id": "2",
+                            "enabled": true,
+                            "type": "geohash_grid",
+                            "schema": "segment",
+                            "params": {
+                                "field": "geoip.location",
+                                "autoPrecision": true,
+                                "precision": 3
+                            }
+                        }
+                    ],
+                    "params": {
+                        "type": "tile_map",
+                        "mapType": "Shaded Circle Markers",
+                        "isDesaturated": false,
+                        "addTooltip": true,
+                        "heatClusterSize": 1.5,
+                        "legendPosition": "bottomright",
+                        "mapZoom": 2,
+                        "mapCenter": [
+                            20,
+                            0
+                        ],
+                        "wms": {
+                            "enabled": false,
+                            "options": {
+                                "format": "image/png",
+                                "transparent": true
+                            }
+                        }
+                    }
+                },
+                "kibanaSavedObjectMeta": {
+                    "searchSourceJSON": {
+                        "index": "phantomnet-events-*",
+                        "query": {
+                            "language": "kuery",
+                            "query": ""
+                        },
+                        "filter": []
+                    }
+                }
+            }
+        },
+        {
+            "id": "vis-protocol-distribution",
+            "type": "visualization",
+            "attributes": {
+                "title": "Protocol Distribution",
+                "description": "Breakdown of events by network protocol (SSH, HTTP, FTP, SMTP)",
+                "visState": {
+                    "title": "Protocol Distribution",
+                    "type": "pie",
+                    "aggs": [
+                        {
+                            "id": "1",
+                            "enabled": true,
+                            "type": "count",
+                            "schema": "metric",
+                            "params": {}
+                        },
+                        {
+                            "id": "2",
+                            "enabled": true,
+                            "type": "terms",
+                            "schema": "segment",
+                            "params": {
+                                "field": "protocol.keyword",
+                                "size": 10,
+                                "order": "desc",
+                                "orderBy": "1"
+                            }
+                        }
+                    ],
+                    "params": {
+                        "type": "pie",
+                        "addTooltip": true,
+                        "addLegend": true,
+                        "legendPosition": "right",
+                        "isDonut": false,
+                        "labels": {
+                            "show": true,
+                            "values": true,
+                            "last_level": true,
+                            "truncate": 100
+                        }
+                    }
+                },
+                "kibanaSavedObjectMeta": {
+                    "searchSourceJSON": {
+                        "index": "phantomnet-events-*",
+                        "query": {
+                            "language": "kuery",
+                            "query": ""
+                        },
+                        "filter": []
+                    }
+                }
+            }
+        },
+        {
+            "id": "dashboard-phantomnet-security-overview",
+            "type": "dashboard",
+            "attributes": {
+                "title": "PhantomNet Security Overview",
+                "description": "Centralized security monitoring dashboard for PhantomNet IDS/IPS events",
+                "hits": 0,
+                "kibanaSavedObjectMeta": {
+                    "searchSourceJSON": {
+                        "query": {
+                            "language": "kuery",
+                            "query": ""
+                        },
+                        "filter": []
+                    }
+                },
+                "optionsJSON": {
+                    "useMargins": true,
+                    "syncColors": true,
+                    "hidePanelTitles": false
+                },
+                "panelsJSON": [
+                    {
+                        "version": "8.x",
+                        "type": "visualization",
+                        "gridData": {
+                            "x": 0,
+                            "y": 0,
+                            "w": 48,
+                            "h": 12,
+                            "i": "panel-1"
+                        },
+                        "panelIndex": "panel-1",
+                        "embeddableConfig": {
+                            "title": "Events Timeline"
+                        },
+                        "panelRefName": "panel-events-timeline"
+                    },
+                    {
+                        "version": "8.x",
+                        "type": "visualization",
+                        "gridData": {
+                            "x": 0,
+                            "y": 12,
+                            "w": 24,
+                            "h": 12,
+                            "i": "panel-2"
+                        },
+                        "panelIndex": "panel-2",
+                        "embeddableConfig": {
+                            "title": "Threat Level Distribution"
+                        },
+                        "panelRefName": "panel-threat-level"
+                    },
+                    {
+                        "version": "8.x",
+                        "type": "visualization",
+                        "gridData": {
+                            "x": 24,
+                            "y": 12,
+                            "w": 24,
+                            "h": 12,
+                            "i": "panel-3"
+                        },
+                        "panelIndex": "panel-3",
+                        "embeddableConfig": {
+                            "title": "Top Source IPs"
+                        },
+                        "panelRefName": "panel-top-ips"
+                    },
+                    {
+                        "version": "8.x",
+                        "type": "visualization",
+                        "gridData": {
+                            "x": 0,
+                            "y": 24,
+                            "w": 28,
+                            "h": 16,
+                            "i": "panel-4"
+                        },
+                        "panelIndex": "panel-4",
+                        "embeddableConfig": {
+                            "title": "Geographic Attack Map"
+                        },
+                        "panelRefName": "panel-geo-map"
+                    },
+                    {
+                        "version": "8.x",
+                        "type": "visualization",
+                        "gridData": {
+                            "x": 28,
+                            "y": 24,
+                            "w": 20,
+                            "h": 16,
+                            "i": "panel-5"
+                        },
+                        "panelIndex": "panel-5",
+                        "embeddableConfig": {
+                            "title": "Protocol Distribution"
+                        },
+                        "panelRefName": "panel-protocol-dist"
+                    }
+                ],
+                "references": [
+                    {
+                        "name": "panel-events-timeline",
+                        "type": "visualization",
+                        "id": "vis-events-timeline"
+                    },
+                    {
+                        "name": "panel-threat-level",
+                        "type": "visualization",
+                        "id": "vis-threat-level-distribution"
+                    },
+                    {
+                        "name": "panel-top-ips",
+                        "type": "visualization",
+                        "id": "vis-top-source-ips"
+                    },
+                    {
+                        "name": "panel-geo-map",
+                        "type": "visualization",
+                        "id": "vis-geographic-attack-map"
+                    },
+                    {
+                        "name": "panel-protocol-dist",
+                        "type": "visualization",
+                        "id": "vis-protocol-distribution"
+                    }
+                ]
+            }
+        }
+    ]
+}
