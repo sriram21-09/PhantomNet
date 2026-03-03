@@ -1,0 +1,31 @@
+name: "Port Scan Response"
+description: "Triggered when more than 50 ports are scanned in 1 minute. Action: Capture packets, deploy honeypots, and alert."
+trigger:
+  type: "port_scan_threshold"
+  condition: "port_count > 50"
+  timeframe: "60s"
+
+actions:
+  - name: "capture_attacker_traffic"
+    type: "capture_packets"
+    params:
+      ip: "${source_ip}"
+      duration: "300s"
+
+  - name: "deploy_dynamic_honeypots"
+    type: "deploy_honeypot"
+    params:
+      type: "deception_mesh"
+      count: 3
+
+  - name: "activate_aggressive_deception"
+    type: "update_policy"
+    params:
+      target: "honeypots"
+      mode: "aggressive_deception"
+
+  - name: "alert_soc"
+    type: "send_alert"
+    params:
+      level: "HIGH"
+      message: "Port scan detected from ${source_ip}. Deploying honeypots and capturing traffic."

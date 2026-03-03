@@ -1,0 +1,36 @@
+name: "Distributed Attack Response"
+description: "Triggered when >5 IPs target the same honeypot. Action: Campaign identification, global blocking, and IOC sharing."
+trigger:
+  type: "distributed_attack_threshold"
+  condition: "distinct_ips > 5"
+  timeframe: "600s"
+
+actions:
+  - name: "identify_campaign"
+    type: "correlate_events"
+    params:
+      pattern: "${attack_pattern}"
+
+  - name: "block_campaign_ips"
+    type: "block_ip_list"
+    params:
+      ips: "${source_ips}"
+      duration: "86400"
+    rollback: "unblock_ip_list"
+
+  - name: "share_iocs"
+    type: "export_iocs"
+    params:
+      format: "STIX"
+      destination: "threat_intel_sharing"
+
+  - name: "escalate_defensive_posture"
+    type: "update_global_policy"
+    params:
+      security_level: "ENHANCED"
+
+  - name: "generate_campaign_report"
+    type: "create_report"
+    params:
+      template: "incident_campaign"
+      output: "reports/distributed_attack_${timestamp}.md"
