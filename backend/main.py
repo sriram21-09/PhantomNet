@@ -116,12 +116,16 @@ from api.protocol_analytics import router as analytics_router
 from api.metrics import router as metrics_router
 from api.pattern_analytics import router as pattern_analytics_router
 from api.reports import router as reports_router
+from api.hunting import router as hunting_router
+from api.cases import router as cases_router
 
 app.include_router(threat_router)
 app.include_router(analytics_router)
 app.include_router(metrics_router)
 app.include_router(pattern_analytics_router)
 app.include_router(reports_router)
+app.include_router(hunting_router)
+app.include_router(cases_router)
 
 # =========================
 # CORE ENDPOINTS

@@ -122,3 +122,56 @@ class ScheduledReport(Base):
     next_run = Column(DateTime, nullable=True)
     is_active = Column(Boolean, default=True)
     created_at = Column(DateTime, default=datetime.utcnow)
+
+class InvestigationCase(Base):
+    __tablename__ = "investigation_cases"
+    __table_args__ = {'extend_existing': True}
+
+    id = Column(Integer, primary_key=True, index=True)
+    title = Column(String, index=True)
+    description = Column(Text)
+    status = Column(String, default="Open") # Open, In Progress, Closed
+    priority = Column(String, default="Medium") # Low, Medium, High, Critical
+    assigned_to = Column(String, nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    closed_at = Column(DateTime, nullable=True)
+
+    evidence = relationship("CaseEvidence", back_populates="case", cascade="all, delete-orphan")
+
+class CaseEvidence(Base):
+    __tablename__ = "case_evidence"
+    __table_args__ = {'extend_existing': True}
+
+    id = Column(Integer, primary_key=True, index=True)
+    case_id = Column(Integer, ForeignKey("investigation_cases.id"))
+    event_id = Column(Integer, nullable=True) # ID from PacketLog or Event table
+    event_type = Column(String) # "packet_log" or "honeypot_event"
+    notes = Column(Text, nullable=True)
+    added_at = Column(DateTime, default=datetime.utcnow)
+
+    case = relationship("InvestigationCase", back_populates="evidence")
+
+class IOC(Base):
+    __tablename__ = "iocs"
+    __table_args__ = {'extend_existing': True}
+
+    id = Column(Integer, primary_key=True, index=True)
+    type = Column(String, index=True) # IP, Domain, MD5, SHA256, URL
+    value = Column(String, index=True)
+    description = Column(String, nullable=True)
+    threat_level = Column(String, default="Medium")
+    is_watchlist = Column(Boolean, default=False)
+    first_seen = Column(DateTime, default=datetime.utcnow)
+    last_seen = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+class SearchHistory(Base):
+    __tablename__ = "search_history"
+    __table_args__ = {'extend_existing': True}
+
+    id = Column(Integer, primary_key=True, index=True)
+    query_json = Column(Text) # JSON string of the query
+    result_count = Column(Integer)
+    executed_at = Column(DateTime, default=datetime.utcnow)
+    analyst_name = Column(String, nullable=True)
