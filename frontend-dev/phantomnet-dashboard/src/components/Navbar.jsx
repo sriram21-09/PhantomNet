@@ -25,6 +25,7 @@ const Navbar = () => {
     { path: "/topology", label: "Topology", icon: FaNetworkWired },
     { path: "/geo-stats", label: "Geo Stats", icon: FaGlobeAmericas },
     { path: "/analytics", label: "Analytics", icon: FaChartBar },
+    { path: "/advanced-dashboard", label: "Advanced NOC", icon: FaShieldAlt },
     { path: "/about", label: "About", icon: FaInfoCircle },
   ];
 

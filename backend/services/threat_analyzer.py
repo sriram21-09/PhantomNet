@@ -16,6 +16,8 @@ from database.database import get_db
 
 # Automated Response
 from services.response_executor import response_executor
+from api.realtime import push_realtime_event
+import asyncio
 
 # Configure logging
 logger = logging.getLogger("threat_analyzer")
@@ -166,6 +168,19 @@ class ThreatAnalyzerService:
                         }))
                     except Exception as ws_e:
                         logger.debug(f"Topology threat sync failed: {ws_e}")
+
+                    # 4.5️⃣ Notify Real-Time Event Stream
+                    try:
+                        asyncio.run(push_realtime_event("THREAT_ALERT", {
+                            "attacker_ip": log.src_ip,
+                            "target_service": log.dst_port,
+                            "threat_score": result.score,
+                            "threat_level": result.threat_level,
+                            "attack_type": result.decision,
+                            "timestamp": datetime.utcnow().isoformat()
+                        }))
+                    except Exception as ws_e:
+                        logger.debug(f"Real-time threat sync failed: {ws_e}")
 
                 updated_count += 1
 

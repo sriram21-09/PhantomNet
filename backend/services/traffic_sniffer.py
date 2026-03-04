@@ -4,6 +4,8 @@ from datetime import datetime
 
 from db_core import SessionLocal
 from database.models import PacketLog
+import asyncio
+from api.realtime import push_realtime_event
 
 # ✅ WEEK 6 ML PIPELINE
 from ml.threat_correlation import ThreatCorrelator
@@ -88,6 +90,34 @@ class RealTimeSniffer:
             db.add(new_log)
             db.commit()
             db.close()
+
+            # -----------------------------
+            # 3.5️⃣ PUSH TO REAL-TIME WS
+            # -----------------------------
+            try:
+                loop = asyncio.get_event_loop()
+                if loop.is_running():
+                    loop.create_task(push_realtime_event("EVENT_STREAM", {
+                        "src_ip": src_ip,
+                        "dst_ip": dst_ip,
+                        "protocol": protocol,
+                        "length": length,
+                        "threat_score": risk_score,
+                        "attack_type": attack_label,
+                        "timestamp": datetime.utcnow().isoformat()
+                    }))
+                else:
+                    asyncio.run(push_realtime_event("EVENT_STREAM", {
+                        "src_ip": src_ip,
+                        "dst_ip": dst_ip,
+                        "protocol": protocol,
+                        "length": length,
+                        "threat_score": risk_score,
+                        "attack_type": attack_label,
+                        "timestamp": datetime.utcnow().isoformat()
+                    }))
+            except Exception as e:
+                pass # Non-blocking for sniffer
 
             # -----------------------------
             # 4️⃣ CONSOLE OUTPUT
