@@ -1,0 +1,256 @@
+.report-builder {
+    padding: 2rem;
+    color: #fff;
+    font-family: 'Inter', sans-serif;
+}
+
+.builder-header h2 {
+    font-size: 2rem;
+    margin: 0 0 0.5rem 0;
+    background: linear-gradient(90deg, #00f3ff, #9d50bb);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.builder-header p {
+    color: #94a3b8;
+    margin-bottom: 2rem;
+}
+
+.builder-content {
+    display: grid;
+    grid-template-columns: 300px 1fr;
+    gap: 2rem;
+}
+
+.builder-controls {
+    background: rgba(15, 25, 40, 0.7);
+    border: 1px solid rgba(0, 243, 255, 0.1);
+    border-radius: 12px;
+    padding: 1.5rem;
+    height: fit-content;
+    position: sticky;
+    top: 2rem;
+}
+
+.control-group {
+    margin-bottom: 1.5rem;
+}
+
+.control-group label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+    color: #00f3ff;
+    margin-bottom: 0.5rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.control-group select,
+.control-group input,
+.builder-textarea {
+    width: 100%;
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(0, 243, 255, 0.2);
+    color: #fff;
+    padding: 0.75rem;
+    border-radius: 6px;
+    outline: none;
+    font-family: inherit;
+}
+
+.builder-textarea {
+    resize: vertical;
+    min-height: 80px;
+}
+
+.sections-checklist {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    padding: 0.5rem;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 6px;
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.checkbox-label {
+    display: flex !important;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: 0.85rem !important;
+    color: #94a3b8 !important;
+    cursor: pointer;
+    text-transform: none !important;
+    letter-spacing: 0 !important;
+    margin-bottom: 0 !important;
+}
+
+.checkbox-label input {
+    width: auto !important;
+    cursor: pointer;
+}
+
+.checkbox-label:hover {
+    color: #00f3ff !important;
+}
+
+.export-actions h4 {
+    font-size: 0.9rem;
+    color: #94a3b8;
+    margin-bottom: 1rem;
+    text-transform: uppercase;
+}
+
+.export-buttons {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+}
+
+.btn-export {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.75rem;
+    border-radius: 6px;
+    border: 1px solid transparent;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 0.85rem;
+    font-weight: 500;
+}
+
+.btn-export:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.pdf {
+    background: rgba(255, 75, 43, 0.1);
+    color: #ff4b2b;
+    border-color: rgba(255, 75, 43, 0.2);
+}
+
+.excel {
+    background: rgba(0, 184, 148, 0.1);
+    color: #00b894;
+    border-color: rgba(0, 184, 148, 0.2);
+}
+
+.csv {
+    background: rgba(0, 210, 255, 0.1);
+    color: #00d2ff;
+    border-color: rgba(0, 210, 255, 0.2);
+}
+
+.json {
+    background: rgba(157, 80, 187, 0.1);
+    color: #9d50bb;
+    border-color: rgba(157, 80, 187, 0.2);
+}
+
+.preview-container {
+    background: rgba(15, 25, 40, 0.5);
+    border: 1px solid rgba(0, 243, 255, 0.1);
+    border-radius: 12px;
+    min-height: 400px;
+    display: flex;
+    flex-direction: column;
+}
+
+.preview-header {
+    padding: 1.25rem 1.5rem;
+    border-bottom: 1px solid rgba(0, 243, 255, 0.1);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.preview-header h3 {
+    margin: 0;
+    font-size: 1rem;
+    color: #fff;
+}
+
+.btn-refresh {
+    background: none;
+    border: none;
+    color: #00f3ff;
+    cursor: pointer;
+    padding: 4px;
+}
+
+.preview-empty {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: #475569;
+}
+
+.preview-sheet {
+    padding: 2rem;
+    background: #0d1117;
+    margin: 1.5rem;
+    border-radius: 8px;
+    border: 1px solid #1f2937;
+}
+
+.sheet-header {
+    text-align: center;
+    margin-bottom: 2rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid #1f2937;
+}
+
+.sheet-title {
+    font-size: 1.5rem;
+    color: #00d2ff;
+    font-weight: 700;
+}
+
+.sheet-meta {
+    font-size: 0.8rem;
+    color: #4b5563;
+}
+
+.preview-section {
+    margin-bottom: 1.5rem;
+}
+
+.preview-section h5 {
+    color: #38bdf8;
+    margin-bottom: 0.75rem;
+    font-size: 0.9rem;
+    letter-spacing: 1px;
+}
+
+.preview-section pre {
+    background: #000;
+    padding: 1rem;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    color: #10b981;
+    overflow-x: auto;
+}
+
+.spin {
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}

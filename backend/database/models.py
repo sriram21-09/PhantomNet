@@ -106,3 +106,19 @@ class Policy(Base):
 
     nodes = relationship("HoneypotNode", back_populates="policy")
 
+class ScheduledReport(Base):
+    __tablename__ = "scheduled_reports"
+    __table_args__ = {'extend_existing': True}
+
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String, index=True)
+    template_type = Column(String) # Executive Summary, Technical Detail, etc.
+    frequency = Column(String) # Daily, Weekly, Monthly
+    schedule_time = Column(String) # "HH:MM" or more complex format
+    recipients = Column(String) # Comma-separated emails
+    filters = Column(Text) # JSON string of filters
+    day_of_week = Column(String, nullable=True) # mon, tue, etc.
+    last_run = Column(DateTime, nullable=True)
+    next_run = Column(DateTime, nullable=True)
+    is_active = Column(Boolean, default=True)
+    created_at = Column(DateTime, default=datetime.utcnow)

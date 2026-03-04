@@ -1,0 +1,227 @@
+.scheduled-reports {
+    margin-top: 3rem;
+    background: rgba(10, 15, 25, 0.5);
+    border-radius: 12px;
+    border: 1px solid rgba(0, 243, 255, 0.1);
+    padding: 1.5rem;
+}
+
+.sched-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 2rem;
+}
+
+.title-group h3 {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    color: #fff;
+    margin: 0 0 0.25rem 0;
+}
+
+.title-group p {
+    color: #64748b;
+    font-size: 0.85rem;
+    margin: 0;
+}
+
+.btn-add {
+    background: rgba(0, 243, 255, 0.1);
+    border: 1px solid rgba(0, 243, 255, 0.3);
+    color: #00f3ff;
+    padding: 0.6rem 1.2rem;
+    border-radius: 6px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.btn-add:hover {
+    background: rgba(0, 243, 255, 0.2);
+    transform: translateY(-2px);
+}
+
+.btn-add.active {
+    background: rgba(239, 68, 68, 0.1);
+    border-color: rgba(239, 68, 68, 0.3);
+    color: #ef4444;
+}
+
+.add-schedule-form {
+    background: rgba(15, 23, 42, 0.8);
+    border: 1px solid rgba(0, 243, 255, 0.2);
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.25rem;
+}
+
+.form-group.full-width {
+    grid-column: span 2;
+}
+
+.form-group label {
+    display: block;
+    font-size: 0.8rem;
+    color: #94a3b8;
+    margin-bottom: 0.4rem;
+}
+
+.form-group input,
+.form-group select {
+    width: 100%;
+    background: #020617;
+    border: 1px solid #1e293b;
+    color: #fff;
+    padding: 0.6rem;
+    border-radius: 4px;
+    outline: none;
+}
+
+.form-actions {
+    margin-top: 1.5rem;
+    display: flex;
+    justify-content: flex-end;
+}
+
+.btn-submit {
+    background: #00f3ff;
+    color: #020617;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 4px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.schedules-table {
+    width: 100%;
+}
+
+.table-header {
+    display: grid;
+    grid-template-columns: 2fr 1.5fr 1.5fr 1.5fr 1fr 0.5fr;
+    padding: 0.75rem 1rem;
+    background: rgba(15, 23, 42, 0.6);
+    border-radius: 6px;
+    font-size: 0.8rem;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.table-row {
+    display: grid;
+    grid-template-columns: 2fr 1.5fr 1.5fr 1.5fr 1fr 0.5fr;
+    padding: 1rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    align-items: center;
+    transition: background 0.2s ease;
+}
+
+.table-row:hover {
+    background: rgba(255, 255, 255, 0.02);
+}
+
+.row-name strong {
+    display: block;
+    color: #fff;
+    margin-bottom: 0.2rem;
+}
+
+.template-tag {
+    font-size: 0.7rem;
+    color: #38bdf8;
+    background: rgba(56, 189, 248, 0.1);
+    padding: 1px 6px;
+    border-radius: 10px;
+}
+
+.row-freq,
+.row-next,
+.row-recipients {
+    font-size: 0.85rem;
+    color: #94a3b8;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.status-active {
+    color: #10b981;
+    font-size: 0.8rem;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    background: rgba(16, 185, 129, 0.1);
+    padding: 2px 8px;
+    border-radius: 12px;
+    width: fit-content;
+}
+
+.btn-delete {
+    background: none;
+    border: none;
+    color: #475569;
+    cursor: pointer;
+    transition: color 0.2s;
+}
+
+.btn-delete:hover {
+    color: #ef4444;
+}
+
+.form-header-small {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: #00f3ff;
+    margin-bottom: 1rem;
+    opacity: 0.8;
+}
+
+.btn-edit {
+    background: none;
+    border: none;
+    color: #475569;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-edit:hover {
+    color: #00f3ff;
+    transform: scale(1.1);
+}
+
+.mr-2 {
+    margin-right: 0.5rem;
+}
+
+.list-empty {
+    text-align: center;
+    padding: 3rem;
+    color: #475569;
+}

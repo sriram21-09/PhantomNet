@@ -68,6 +68,11 @@ async def lifespan(app: FastAPI):
         
         # Start Threat Analyzer Background Service
         threat_analyzer.start()
+
+        # Initialize and load scheduled reports
+        from services.scheduler_service import scheduler_service
+        scheduler_service.load_schedules()
+        print("Scheduled Reports Loader Started")
     else:
         print("Sniffer disabled (CI/Test mode)")
 
@@ -110,11 +115,13 @@ from api.threat_scoring import router as threat_router
 from api.protocol_analytics import router as analytics_router
 from api.metrics import router as metrics_router
 from api.pattern_analytics import router as pattern_analytics_router
+from api.reports import router as reports_router
 
 app.include_router(threat_router)
 app.include_router(analytics_router)
 app.include_router(metrics_router)
 app.include_router(pattern_analytics_router)
+app.include_router(reports_router)
 
 # =========================
 # CORE ENDPOINTS
