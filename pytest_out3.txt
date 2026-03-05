@@ -1,0 +1,170 @@
+============================= test session starts =============================
+platform win32 -- Python 3.14.0, pytest-9.0.2, pluggy-1.6.0
+rootdir: C:\Users\shalo\PhantomNet
+plugins: anyio-4.12.0, locust-2.43.3
+collected 4 items
+
+tests\integration\test_week10_integration.py FFFF                        [100%]
+
+================================== FAILURES ===================================
+_______________ TestWeek10Integration.test_siem_export_batching _______________
+tests\integration\test_week10_integration.py:47: in test_siem_export_batching
+    success = exporter.export_events(test_events)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   TypeError: CEFExporter.export_events() missing 1 required positional argument: 'event_type'
+_____________ TestWeek10Integration.test_lstm_predictions_and_xai _____________
+tests\integration\test_week10_integration.py:85: in test_lstm_predictions_and_xai
+    assert "error" not in explanation
+E   AssertionError: assert 'error' not in {'error': 'Explainer not initialized'}
+---------------------------- Captured stdout call -----------------------------
+[MODEL_LOADER] Initializing ML scoring engine...
+------------------------------ Captured log call ------------------------------
+ERROR    explainability:explainability.py:34 Could not load Random Forest model for SHAP.
+_______________ TestWeek10Integration.test_distributed_topology _______________
+..\AppData\Local\Programs\Python\Python314\Lib\site-packages\sqlalchemy\engine\base.py:1967: in _exec_single_context
+    self.dialect.do_execute(
+..\AppData\Local\Programs\Python\Python314\Lib\site-packages\sqlalchemy\engine\default.py:951: in do_execute
+    cursor.execute(statement, parameters)
+E   sqlite3.OperationalError: no such table: honeypot_nodes
+
+The above exception was the direct cause of the following exception:
+tests\integration\test_week10_integration.py:98: in test_distributed_topology
+    db.query(HoneypotNode).delete()
+..\AppData\Local\Programs\Python\Python314\Lib\site-packages\sqlalchemy\orm\query.py:3210: in delete
+    self.session.execute(
+..\AppData\Local\Programs\Python\Python314\Lib\site-packages\sqlalchemy\orm\session.py:2351: in execute
+    return self._execute_internal(
+..\AppData\Local\Programs\Python\Python314\Lib\site-packages\sqlalchemy\orm\session.py:2249: in _execute_internal
+    result: Result[Any] = compile_state_cls.orm_execute_statement(
+..\AppData\Local\Programs\Python\Python314\Lib\site-packages\sqlalchemy\orm\bulk_persistence.py:2033: in orm_execute_statement
+    return super().orm_execute_statement(
+..\AppData\Local\Programs\Python\Python314\Lib\site-packages\sqlalchemy\orm\context.py:306: in orm_execute_statement
+    result = conn.execute(
+..\AppData\Local\Programs\Python\Python314\Lib\site-packages\sqlalchemy\engine\base.py:1419: in execute
+    return meth(
+..\AppData\Local\Programs\Python\Python314\Lib\site-packages\sqlalchemy\sql\elements.py:526: in _execute_on_connection
+    return connection._execute_clauseelement(
+..\AppData\Local\Programs\Python\Python314\Lib\site-packages\sqlalchemy\engine\base.py:1641: in _execute_clauseelement
+    ret = self._execute_context(
+..\AppData\Local\Programs\Python\Python314\Lib\site-packages\sqlalchemy\engine\base.py:1846: in _execute_context
+    return self._exec_single_context(
+..\AppData\Local\Programs\Python\Python314\Lib\site-packages\sqlalchemy\engine\base.py:1986: in _exec_single_context
+    self._handle_dbapi_exception(
+..\AppData\Local\Programs\Python\Python314\Lib\site-packages\sqlalchemy\engine\base.py:2355: in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+..\AppData\Local\Programs\Python\Python314\Lib\site-packages\sqlalchemy\engine\base.py:1967: in _exec_single_context
+    self.dialect.do_execute(
+..\AppData\Local\Programs\Python\Python314\Lib\site-packages\sqlalchemy\engine\default.py:951: in do_execute
+    cursor.execute(statement, parameters)
+E   sqlalchemy.exc.OperationalError: (sqlite3.OperationalError) no such table: honeypot_nodes
+E   [SQL: DELETE FROM honeypot_nodes]
+E   (Background on this error at: https://sqlalche.me/e/20/e3q8)
+________________ TestWeek10Integration.test_playbook_execution ________________
+tests\integration\test_week10_integration.py:124: in test_playbook_execution
+    result = response_executor.execute_action("block_ip", target_ip, "Integration Test Playbook")
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   AttributeError: 'ResponseExecutor' object has no attribute 'execute_action'
+============================== warnings summary ===============================
+backend\schemas\threat_schema.py:11
+  c:\Users\shalo\PhantomNet\backend\schemas\threat_schema.py:11: PydanticDeprecatedSince20: Using extra keyword arguments on `Field` is deprecated and will be removed. Use `json_schema_extra` instead. (Extra keys: 'example'). Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.12/migration/
+    src_ip: str = Field(..., description="Source IP address", example="192.168.1.105")
+
+backend\schemas\threat_schema.py:12
+  c:\Users\shalo\PhantomNet\backend\schemas\threat_schema.py:12: PydanticDeprecatedSince20: Using extra keyword arguments on `Field` is deprecated and will be removed. Use `json_schema_extra` instead. (Extra keys: 'example'). Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.12/migration/
+    dst_ip: str = Field(..., description="Destination IP address", example="10.0.0.5")
+
+backend\schemas\threat_schema.py:13
+  c:\Users\shalo\PhantomNet\backend\schemas\threat_schema.py:13: PydanticDeprecatedSince20: Using extra keyword arguments on `Field` is deprecated and will be removed. Use `json_schema_extra` instead. (Extra keys: 'example'). Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.12/migration/
+    dst_port: int = Field(..., description="Destination Port", example=80)
+
+backend\schemas\threat_schema.py:14
+  c:\Users\shalo\PhantomNet\backend\schemas\threat_schema.py:14: PydanticDeprecatedSince20: Using extra keyword arguments on `Field` is deprecated and will be removed. Use `json_schema_extra` instead. (Extra keys: 'example'). Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.12/migration/
+    protocol: str = Field(..., description="Protocol (TCP, UDP, ICMP)", example="TCP")
+
+backend\schemas\threat_schema.py:15
+  c:\Users\shalo\PhantomNet\backend\schemas\threat_schema.py:15: PydanticDeprecatedSince20: Using extra keyword arguments on `Field` is deprecated and will be removed. Use `json_schema_extra` instead. (Extra keys: 'example'). Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.12/migration/
+    length: int = Field(..., description="Packet Length in bytes", example=64)
+
+backend\schemas\threat_schema.py:18
+  c:\Users\shalo\PhantomNet\backend\schemas\threat_schema.py:18: PydanticDeprecatedSince20: Using extra keyword arguments on `Field` is deprecated and will be removed. Use `json_schema_extra` instead. (Extra keys: 'example'). Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.12/migration/
+    timestamp: Optional[str] = Field(None, description="ISO 8601 Timestamp. Defaults to now.", example="2026-02-11T12:00:00Z")
+
+backend\schemas\threat_schema.py:21
+  c:\Users\shalo\PhantomNet\backend\schemas\threat_schema.py:21: PydanticDeprecatedSince20: Using extra keyword arguments on `Field` is deprecated and will be removed. Use `json_schema_extra` instead. (Extra keys: 'example'). Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.12/migration/
+    threat_score: float = Field(0.0, description="Baseline threat score from firewall/rules", example=10.0)
+
+backend\schemas\threat_schema.py:22
+  c:\Users\shalo\PhantomNet\backend\schemas\threat_schema.py:22: PydanticDeprecatedSince20: Using extra keyword arguments on `Field` is deprecated and will be removed. Use `json_schema_extra` instead. (Extra keys: 'example'). Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.12/migration/
+    is_malicious: bool = Field(False, description="Known malicious flag (e.g. from blacklist)", example=False)
+
+backend\schemas\threat_schema.py:23
+  c:\Users\shalo\PhantomNet\backend\schemas\threat_schema.py:23: PydanticDeprecatedSince20: Using extra keyword arguments on `Field` is deprecated and will be removed. Use `json_schema_extra` instead. (Extra keys: 'example'). Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.12/migration/
+    attack_type: str = Field("UNKNOWN", description="Preliminary attack classification", example="UNKNOWN")
+
+backend\schemas\threat_schema.py:24
+  c:\Users\shalo\PhantomNet\backend\schemas\threat_schema.py:24: PydanticDeprecatedSince20: Using extra keyword arguments on `Field` is deprecated and will be removed. Use `json_schema_extra` instead. (Extra keys: 'example'). Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.12/migration/
+    honeypot_type: str = Field("NONE", description="Honeypot type interaction", example="HTTP")
+
+backend\schemas\threat_schema.py:11
+  C:\Users\shalo\PhantomNet\backend\schemas\threat_schema.py:11: PydanticDeprecatedSince20: Using extra keyword arguments on `Field` is deprecated and will be removed. Use `json_schema_extra` instead. (Extra keys: 'example'). Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.12/migration/
+    src_ip: str = Field(..., description="Source IP address", example="192.168.1.105")
+
+backend\schemas\threat_schema.py:12
+  C:\Users\shalo\PhantomNet\backend\schemas\threat_schema.py:12: PydanticDeprecatedSince20: Using extra keyword arguments on `Field` is deprecated and will be removed. Use `json_schema_extra` instead. (Extra keys: 'example'). Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.12/migration/
+    dst_ip: str = Field(..., description="Destination IP address", example="10.0.0.5")
+
+backend\schemas\threat_schema.py:13
+  C:\Users\shalo\PhantomNet\backend\schemas\threat_schema.py:13: PydanticDeprecatedSince20: Using extra keyword arguments on `Field` is deprecated and will be removed. Use `json_schema_extra` instead. (Extra keys: 'example'). Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.12/migration/
+    dst_port: int = Field(..., description="Destination Port", example=80)
+
+backend\schemas\threat_schema.py:14
+  C:\Users\shalo\PhantomNet\backend\schemas\threat_schema.py:14: PydanticDeprecatedSince20: Using extra keyword arguments on `Field` is deprecated and will be removed. Use `json_schema_extra` instead. (Extra keys: 'example'). Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.12/migration/
+    protocol: str = Field(..., description="Protocol (TCP, UDP, ICMP)", example="TCP")
+
+backend\schemas\threat_schema.py:15
+  C:\Users\shalo\PhantomNet\backend\schemas\threat_schema.py:15: PydanticDeprecatedSince20: Using extra keyword arguments on `Field` is deprecated and will be removed. Use `json_schema_extra` instead. (Extra keys: 'example'). Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.12/migration/
+    length: int = Field(..., description="Packet Length in bytes", example=64)
+
+backend\schemas\threat_schema.py:18
+  C:\Users\shalo\PhantomNet\backend\schemas\threat_schema.py:18: PydanticDeprecatedSince20: Using extra keyword arguments on `Field` is deprecated and will be removed. Use `json_schema_extra` instead. (Extra keys: 'example'). Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.12/migration/
+    timestamp: Optional[str] = Field(None, description="ISO 8601 Timestamp. Defaults to now.", example="2026-02-11T12:00:00Z")
+
+backend\schemas\threat_schema.py:21
+  C:\Users\shalo\PhantomNet\backend\schemas\threat_schema.py:21: PydanticDeprecatedSince20: Using extra keyword arguments on `Field` is deprecated and will be removed. Use `json_schema_extra` instead. (Extra keys: 'example'). Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.12/migration/
+    threat_score: float = Field(0.0, description="Baseline threat score from firewall/rules", example=10.0)
+
+backend\schemas\threat_schema.py:22
+  C:\Users\shalo\PhantomNet\backend\schemas\threat_schema.py:22: PydanticDeprecatedSince20: Using extra keyword arguments on `Field` is deprecated and will be removed. Use `json_schema_extra` instead. (Extra keys: 'example'). Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.12/migration/
+    is_malicious: bool = Field(False, description="Known malicious flag (e.g. from blacklist)", example=False)
+
+backend\schemas\threat_schema.py:23
+  C:\Users\shalo\PhantomNet\backend\schemas\threat_schema.py:23: PydanticDeprecatedSince20: Using extra keyword arguments on `Field` is deprecated and will be removed. Use `json_schema_extra` instead. (Extra keys: 'example'). Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.12/migration/
+    attack_type: str = Field("UNKNOWN", description="Preliminary attack classification", example="UNKNOWN")
+
+backend\schemas\threat_schema.py:24
+  C:\Users\shalo\PhantomNet\backend\schemas\threat_schema.py:24: PydanticDeprecatedSince20: Using extra keyword arguments on `Field` is deprecated and will be removed. Use `json_schema_extra` instead. (Extra keys: 'example'). Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.12/migration/
+    honeypot_type: str = Field("NONE", description="Honeypot type interaction", example="HTTP")
+
+backend\services\response_executor.py:402
+  C:\Users\shalo\PhantomNet\backend\services\response_executor.py:402: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    now = datetime.utcnow()
+
+tests/integration/test_week10_integration.py::TestWeek10Integration::test_lstm_predictions_and_xai
+  C:\Users\shalo\AppData\Local\Programs\Python\Python314\Lib\site-packages\mlflow\tracking\_tracking_service\utils.py:178: FutureWarning: The filesystem tracking backend (e.g., './mlruns') will be deprecated in February 2026. Consider transitioning to a database backend (e.g., 'sqlite:///mlflow.db') to take advantage of the latest MLflow features. See https://github.com/mlflow/mlflow/issues/18534 for more details and migration guidance. For migrating existing data, https://github.com/mlflow/mlflow-export-import can be used.
+    return FileStore(store_uri, store_uri)
+
+tests/integration/test_week10_integration.py::TestWeek10Integration::test_lstm_predictions_and_xai
+  c:\Users\shalo\PhantomNet\backend\ml\model_loader.py:31: FutureWarning: ``mlflow.tracking.client.MlflowClient.get_latest_versions`` is deprecated since 2.9.0. Model registry stages will be removed in a future major release. To learn more about the deprecation of model registry stages, see our migration guide here: https://mlflow.org/docs/latest/model-registry.html#migrating-from-stages
+    versions = client.get_latest_versions(MODEL_NAME, stages=["Production"])
+
+tests/integration/test_week10_integration.py::TestWeek10Integration::test_lstm_predictions_and_xai
+  C:\Users\shalo\AppData\Local\Programs\Python\Python314\Lib\site-packages\mlflow\tracking\_model_registry\utils.py:216: FutureWarning: The filesystem model registry backend (e.g., './mlruns') will be deprecated in February 2026. Consider transitioning to a database backend (e.g., 'sqlite:///mlflow.db') to take advantage of the latest MLflow features. See https://github.com/mlflow/mlflow/issues/18534 for more details and migration guidance. For migrating existing data, https://github.com/mlflow/mlflow-export-import can be used.
+    return FileStore(store_uri)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED tests/integration/test_week10_integration.py::TestWeek10Integration::test_siem_export_batching
+FAILED tests/integration/test_week10_integration.py::TestWeek10Integration::test_lstm_predictions_and_xai
+FAILED tests/integration/test_week10_integration.py::TestWeek10Integration::test_distributed_topology
+FAILED tests/integration/test_week10_integration.py::TestWeek10Integration::test_playbook_execution
+======================= 4 failed, 24 warnings in 29.60s =======================

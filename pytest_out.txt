@@ -1,0 +1,399 @@
+============================= test session starts =============================
+platform win32 -- Python 3.14.0, pytest-9.0.2, pluggy-1.6.0
+rootdir: C:\Users\shalo\PhantomNet
+plugins: anyio-4.12.0, locust-2.43.3
+collected 4 items
+
+tests\integration\test_week10_integration.py FFFF                        [100%]
+
+================================== FAILURES ===================================
+_______________ TestWeek10Integration.test_siem_export_batching _______________
+
+self = <test_week10_integration.TestWeek10Integration object at 0x00000242EBB92C10>
+
+    def test_siem_export_batching(self):
+        """Test 1: SIEM export capacity by sending 1000 events and verifying success format."""
+    
+        # We temporarily target 'CEF' since we dont have a live ELK/Splunk docker running in CI
+        os.environ["SIEM_TYPE"] = "cef"
+        os.environ["SIEM_HOST"] = "localhost"
+        exporter = get_siem_exporter()
+    
+        test_events = []
+        for i in range(100):
+            test_events.append({
+                "id": str(uuid.uuid4()),
+                "src_ip": f"192.168.1.{i%255}",
+                "threat_level": "HIGH",
+                "attack_type": "ssh_brute_force"
+            })
+    
+>       success = exporter.export_events(test_events)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       TypeError: CEFExporter.export_events() missing 1 required positional argument: 'event_type'
+
+tests\integration\test_week10_integration.py:47: TypeError
+_____________ TestWeek10Integration.test_lstm_predictions_and_xai _____________
+
+self = <test_week10_integration.TestWeek10Integration object at 0x00000242EBB93110>
+
+    def test_lstm_predictions_and_xai(self):
+        """Test 2: LSTM batch validation and XAI explanation bounds."""
+    
+        # Feed 100 malicious-looking sequences
+        inputs = []
+        for i in range(100):
+            inputs.append(ThreatInput(
+                src_ip="185.20.1.5",
+                dst_ip="10.0.0.1",
+                dst_port=22,
+                protocol="TCP",
+                length=1500 + i # Vary signature slightly
+            ))
+    
+        start_time = time.time()
+        results = score_threat_batch(inputs)
+        end_time = time.time()
+    
+        assert len(results) == 100
+        assert results[0] is not None
+    
+        latency = (end_time - start_time) * 1000 # ms
+        # In a real environment latency should be < 100ms. In CI, it might fluctuate but we check batched throughput
+        assert latency < 500 # Ensure reasonable bound for 100 events
+    
+        # Test SHAP Explainability API backend
+        event_dict = {
+            "src_ip": inputs[0].src_ip,
+            "dst_ip": inputs[0].dst_ip,
+            "dst_port": inputs[0].dst_port,
+            "protocol": inputs[0].protocol,
+            "length": inputs[0].length
+        }
+    
+        explanation = explainer_service.explain_prediction(event_dict)
+>       assert "error" not in explanation
+E       AssertionError: assert 'error' not in {'error': 'Explainer not initialized'}
+
+tests\integration\test_week10_integration.py:85: AssertionError
+---------------------------- Captured stdout call -----------------------------
+[MODEL_LOADER] Initializing ML scoring engine...
+------------------------------ Captured log call ------------------------------
+ERROR    explainability:explainability.py:34 Could not load Random Forest model for SHAP.
+_______________ TestWeek10Integration.test_distributed_topology _______________
+
+self = <sqlalchemy.engine.base.Connection object at 0x00000242EBE543E0>
+dialect = <sqlalchemy.dialects.sqlite.pysqlite.SQLiteDialect_pysqlite object at 0x00000242B0801450>
+context = <sqlalchemy.dialects.sqlite.base.SQLiteExecutionContext object at 0x00000242EBE58830>
+statement = <sqlalchemy.dialects.sqlite.base.SQLiteCompiler object at 0x00000242EBDDDA90>
+parameters = [()]
+
+    def _exec_single_context(
+        self,
+        dialect: Dialect,
+        context: ExecutionContext,
+        statement: Union[str, Compiled],
+        parameters: Optional[_AnyMultiExecuteParams],
+    ) -> CursorResult[Any]:
+        """continue the _execute_context() method for a single DBAPI
+        cursor.execute() or cursor.executemany() call.
+    
+        """
+        if dialect.bind_typing is BindTyping.SETINPUTSIZES:
+            generic_setinputsizes = context._prepare_set_input_sizes()
+    
+            if generic_setinputsizes:
+                try:
+                    dialect.do_set_input_sizes(
+                        context.cursor, generic_setinputsizes, context
+                    )
+                except BaseException as e:
+                    self._handle_dbapi_exception(
+                        e, str(statement), parameters, None, context
+                    )
+    
+        cursor, str_statement, parameters = (
+            context.cursor,
+            context.statement,
+            context.parameters,
+        )
+    
+        effective_parameters: Optional[_AnyExecuteParams]
+    
+        if not context.executemany:
+            effective_parameters = parameters[0]
+        else:
+            effective_parameters = parameters
+    
+        if self._has_events or self.engine._has_events:
+            for fn in self.dispatch.before_cursor_execute:
+                str_statement, effective_parameters = fn(
+                    self,
+                    cursor,
+                    str_statement,
+                    effective_parameters,
+                    context,
+                    context.executemany,
+                )
+    
+        if self._echo:
+            self._log_info(str_statement)
+    
+            stats = context._get_cache_stats()
+    
+            if not self.engine.hide_parameters:
+                self._log_info(
+                    "[%s] %r",
+                    stats,
+                    sql_util._repr_params(
+                        effective_parameters,
+                        batches=10,
+                        ismulti=context.executemany,
+                    ),
+                )
+            else:
+                self._log_info(
+                    "[%s] [SQL parameters hidden due to hide_parameters=True]",
+                    stats,
+                )
+    
+        evt_handled: bool = False
+        try:
+            if context.execute_style is ExecuteStyle.EXECUTEMANY:
+                effective_parameters = cast(
+                    "_CoreMultiExecuteParams", effective_parameters
+                )
+                if self.dialect._has_events:
+                    for fn in self.dialect.dispatch.do_executemany:
+                        if fn(
+                            cursor,
+                            str_statement,
+                            effective_parameters,
+                            context,
+                        ):
+                            evt_handled = True
+                            break
+                if not evt_handled:
+                    self.dialect.do_executemany(
+                        cursor,
+                        str_statement,
+                        effective_parameters,
+                        context,
+                    )
+            elif not effective_parameters and context.no_parameters:
+                if self.dialect._has_events:
+                    for fn in self.dialect.dispatch.do_execute_no_params:
+                        if fn(cursor, str_statement, context):
+                            evt_handled = True
+                            break
+                if not evt_handled:
+                    self.dialect.do_execute_no_params(
+                        cursor, str_statement, context
+                    )
+            else:
+                effective_parameters = cast(
+                    "_CoreSingleExecuteParams", effective_parameters
+                )
+                if self.dialect._has_events:
+                    for fn in self.dialect.dispatch.do_execute:
+                        if fn(
+                            cursor,
+                            str_statement,
+                            effective_parameters,
+                            context,
+                        ):
+                            evt_handled = True
+                            break
+                if not evt_handled:
+>                   self.dialect.do_execute(
+                        cursor, str_statement, effective_parameters, context
+                    )
+
+..\AppData\Local\Programs\Python\Python314\Lib\site-packages\sqlalchemy\engine\base.py:1967: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <sqlalchemy.dialects.sqlite.pysqlite.SQLiteDialect_pysqlite object at 0x00000242B0801450>
+cursor = <sqlite3.Cursor object at 0x00000242EBE47CC0>
+statement = 'DELETE FROM honeypot_nodes', parameters = ()
+context = <sqlalchemy.dialects.sqlite.base.SQLiteExecutionContext object at 0x00000242EBE58830>
+
+    def do_execute(self, cursor, statement, parameters, context=None):
+>       cursor.execute(statement, parameters)
+E       sqlite3.OperationalError: no such table: honeypot_nodes
+
+..\AppData\Local\Programs\Python\Python314\Lib\site-packages\sqlalchemy\engine\default.py:951: OperationalError
+
+The above exception was the direct cause of the following exception:
+
+self = <test_week10_integration.TestWeek10Integration object at 0x00000242EBBC2190>
+
+    def test_distributed_topology(self):
+        """Test 3: Verify distributed 11-node tracking."""
+        from backend.database.database import SessionLocal
+        from backend.database.models import HoneypotNode
+    
+        db = SessionLocal()
+        manager = NodeManager(db)
+    
+        # Clear existing
+>       db.query(HoneypotNode).delete()
+
+tests\integration\test_week10_integration.py:98: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+..\AppData\Local\Programs\Python\Python314\Lib\site-packages\sqlalchemy\orm\query.py:3210: in delete
+    self.session.execute(
+..\AppData\Local\Programs\Python\Python314\Lib\site-packages\sqlalchemy\orm\session.py:2351: in execute
+    return self._execute_internal(
+..\AppData\Local\Programs\Python\Python314\Lib\site-packages\sqlalchemy\orm\session.py:2249: in _execute_internal
+    result: Result[Any] = compile_state_cls.orm_execute_statement(
+..\AppData\Local\Programs\Python\Python314\Lib\site-packages\sqlalchemy\orm\bulk_persistence.py:2033: in orm_execute_statement
+    return super().orm_execute_statement(
+..\AppData\Local\Programs\Python\Python314\Lib\site-packages\sqlalchemy\orm\context.py:306: in orm_execute_statement
+    result = conn.execute(
+..\AppData\Local\Programs\Python\Python314\Lib\site-packages\sqlalchemy\engine\base.py:1419: in execute
+    return meth(
+..\AppData\Local\Programs\Python\Python314\Lib\site-packages\sqlalchemy\sql\elements.py:526: in _execute_on_connection
+    return connection._execute_clauseelement(
+..\AppData\Local\Programs\Python\Python314\Lib\site-packages\sqlalchemy\engine\base.py:1641: in _execute_clauseelement
+    ret = self._execute_context(
+..\AppData\Local\Programs\Python\Python314\Lib\site-packages\sqlalchemy\engine\base.py:1846: in _execute_context
+    return self._exec_single_context(
+..\AppData\Local\Programs\Python\Python314\Lib\site-packages\sqlalchemy\engine\base.py:1986: in _exec_single_context
+    self._handle_dbapi_exception(
+..\AppData\Local\Programs\Python\Python314\Lib\site-packages\sqlalchemy\engine\base.py:2355: in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+..\AppData\Local\Programs\Python\Python314\Lib\site-packages\sqlalchemy\engine\base.py:1967: in _exec_single_context
+    self.dialect.do_execute(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <sqlalchemy.dialects.sqlite.pysqlite.SQLiteDialect_pysqlite object at 0x00000242B0801450>
+cursor = <sqlite3.Cursor object at 0x00000242EBE47CC0>
+statement = 'DELETE FROM honeypot_nodes', parameters = ()
+context = <sqlalchemy.dialects.sqlite.base.SQLiteExecutionContext object at 0x00000242EBE58830>
+
+    def do_execute(self, cursor, statement, parameters, context=None):
+>       cursor.execute(statement, parameters)
+E       sqlalchemy.exc.OperationalError: (sqlite3.OperationalError) no such table: honeypot_nodes
+E       [SQL: DELETE FROM honeypot_nodes]
+E       (Background on this error at: https://sqlalche.me/e/20/e3q8)
+
+..\AppData\Local\Programs\Python\Python314\Lib\site-packages\sqlalchemy\engine\default.py:951: OperationalError
+________________ TestWeek10Integration.test_playbook_execution ________________
+
+self = <test_week10_integration.TestWeek10Integration object at 0x00000242EBBC23F0>
+
+    def test_playbook_execution(self):
+        """Test 4: Verify automated defense playbooks execute and block tracking works."""
+    
+        target_ip = "199.200.201.202"
+    
+        # Trigger block
+>       result = response_executor.execute_action("block_ip", target_ip, "Integration Test Playbook")
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: 'ResponseExecutor' object has no attribute 'execute_action'
+
+tests\integration\test_week10_integration.py:124: AttributeError
+============================== warnings summary ===============================
+backend\schemas\threat_schema.py:11
+  c:\Users\shalo\PhantomNet\backend\schemas\threat_schema.py:11: PydanticDeprecatedSince20: Using extra keyword arguments on `Field` is deprecated and will be removed. Use `json_schema_extra` instead. (Extra keys: 'example'). Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.12/migration/
+    src_ip: str = Field(..., description="Source IP address", example="192.168.1.105")
+
+backend\schemas\threat_schema.py:12
+  c:\Users\shalo\PhantomNet\backend\schemas\threat_schema.py:12: PydanticDeprecatedSince20: Using extra keyword arguments on `Field` is deprecated and will be removed. Use `json_schema_extra` instead. (Extra keys: 'example'). Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.12/migration/
+    dst_ip: str = Field(..., description="Destination IP address", example="10.0.0.5")
+
+backend\schemas\threat_schema.py:13
+  c:\Users\shalo\PhantomNet\backend\schemas\threat_schema.py:13: PydanticDeprecatedSince20: Using extra keyword arguments on `Field` is deprecated and will be removed. Use `json_schema_extra` instead. (Extra keys: 'example'). Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.12/migration/
+    dst_port: int = Field(..., description="Destination Port", example=80)
+
+backend\schemas\threat_schema.py:14
+  c:\Users\shalo\PhantomNet\backend\schemas\threat_schema.py:14: PydanticDeprecatedSince20: Using extra keyword arguments on `Field` is deprecated and will be removed. Use `json_schema_extra` instead. (Extra keys: 'example'). Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.12/migration/
+    protocol: str = Field(..., description="Protocol (TCP, UDP, ICMP)", example="TCP")
+
+backend\schemas\threat_schema.py:15
+  c:\Users\shalo\PhantomNet\backend\schemas\threat_schema.py:15: PydanticDeprecatedSince20: Using extra keyword arguments on `Field` is deprecated and will be removed. Use `json_schema_extra` instead. (Extra keys: 'example'). Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.12/migration/
+    length: int = Field(..., description="Packet Length in bytes", example=64)
+
+backend\schemas\threat_schema.py:18
+  c:\Users\shalo\PhantomNet\backend\schemas\threat_schema.py:18: PydanticDeprecatedSince20: Using extra keyword arguments on `Field` is deprecated and will be removed. Use `json_schema_extra` instead. (Extra keys: 'example'). Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.12/migration/
+    timestamp: Optional[str] = Field(None, description="ISO 8601 Timestamp. Defaults to now.", example="2026-02-11T12:00:00Z")
+
+backend\schemas\threat_schema.py:21
+  c:\Users\shalo\PhantomNet\backend\schemas\threat_schema.py:21: PydanticDeprecatedSince20: Using extra keyword arguments on `Field` is deprecated and will be removed. Use `json_schema_extra` instead. (Extra keys: 'example'). Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.12/migration/
+    threat_score: float = Field(0.0, description="Baseline threat score from firewall/rules", example=10.0)
+
+backend\schemas\threat_schema.py:22
+  c:\Users\shalo\PhantomNet\backend\schemas\threat_schema.py:22: PydanticDeprecatedSince20: Using extra keyword arguments on `Field` is deprecated and will be removed. Use `json_schema_extra` instead. (Extra keys: 'example'). Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.12/migration/
+    is_malicious: bool = Field(False, description="Known malicious flag (e.g. from blacklist)", example=False)
+
+backend\schemas\threat_schema.py:23
+  c:\Users\shalo\PhantomNet\backend\schemas\threat_schema.py:23: PydanticDeprecatedSince20: Using extra keyword arguments on `Field` is deprecated and will be removed. Use `json_schema_extra` instead. (Extra keys: 'example'). Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.12/migration/
+    attack_type: str = Field("UNKNOWN", description="Preliminary attack classification", example="UNKNOWN")
+
+backend\schemas\threat_schema.py:24
+  c:\Users\shalo\PhantomNet\backend\schemas\threat_schema.py:24: PydanticDeprecatedSince20: Using extra keyword arguments on `Field` is deprecated and will be removed. Use `json_schema_extra` instead. (Extra keys: 'example'). Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.12/migration/
+    honeypot_type: str = Field("NONE", description="Honeypot type interaction", example="HTTP")
+
+backend\schemas\threat_schema.py:11
+  C:\Users\shalo\PhantomNet\backend\schemas\threat_schema.py:11: PydanticDeprecatedSince20: Using extra keyword arguments on `Field` is deprecated and will be removed. Use `json_schema_extra` instead. (Extra keys: 'example'). Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.12/migration/
+    src_ip: str = Field(..., description="Source IP address", example="192.168.1.105")
+
+backend\schemas\threat_schema.py:12
+  C:\Users\shalo\PhantomNet\backend\schemas\threat_schema.py:12: PydanticDeprecatedSince20: Using extra keyword arguments on `Field` is deprecated and will be removed. Use `json_schema_extra` instead. (Extra keys: 'example'). Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.12/migration/
+    dst_ip: str = Field(..., description="Destination IP address", example="10.0.0.5")
+
+backend\schemas\threat_schema.py:13
+  C:\Users\shalo\PhantomNet\backend\schemas\threat_schema.py:13: PydanticDeprecatedSince20: Using extra keyword arguments on `Field` is deprecated and will be removed. Use `json_schema_extra` instead. (Extra keys: 'example'). Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.12/migration/
+    dst_port: int = Field(..., description="Destination Port", example=80)
+
+backend\schemas\threat_schema.py:14
+  C:\Users\shalo\PhantomNet\backend\schemas\threat_schema.py:14: PydanticDeprecatedSince20: Using extra keyword arguments on `Field` is deprecated and will be removed. Use `json_schema_extra` instead. (Extra keys: 'example'). Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.12/migration/
+    protocol: str = Field(..., description="Protocol (TCP, UDP, ICMP)", example="TCP")
+
+backend\schemas\threat_schema.py:15
+  C:\Users\shalo\PhantomNet\backend\schemas\threat_schema.py:15: PydanticDeprecatedSince20: Using extra keyword arguments on `Field` is deprecated and will be removed. Use `json_schema_extra` instead. (Extra keys: 'example'). Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.12/migration/
+    length: int = Field(..., description="Packet Length in bytes", example=64)
+
+backend\schemas\threat_schema.py:18
+  C:\Users\shalo\PhantomNet\backend\schemas\threat_schema.py:18: PydanticDeprecatedSince20: Using extra keyword arguments on `Field` is deprecated and will be removed. Use `json_schema_extra` instead. (Extra keys: 'example'). Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.12/migration/
+    timestamp: Optional[str] = Field(None, description="ISO 8601 Timestamp. Defaults to now.", example="2026-02-11T12:00:00Z")
+
+backend\schemas\threat_schema.py:21
+  C:\Users\shalo\PhantomNet\backend\schemas\threat_schema.py:21: PydanticDeprecatedSince20: Using extra keyword arguments on `Field` is deprecated and will be removed. Use `json_schema_extra` instead. (Extra keys: 'example'). Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.12/migration/
+    threat_score: float = Field(0.0, description="Baseline threat score from firewall/rules", example=10.0)
+
+backend\schemas\threat_schema.py:22
+  C:\Users\shalo\PhantomNet\backend\schemas\threat_schema.py:22: PydanticDeprecatedSince20: Using extra keyword arguments on `Field` is deprecated and will be removed. Use `json_schema_extra` instead. (Extra keys: 'example'). Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.12/migration/
+    is_malicious: bool = Field(False, description="Known malicious flag (e.g. from blacklist)", example=False)
+
+backend\schemas\threat_schema.py:23
+  C:\Users\shalo\PhantomNet\backend\schemas\threat_schema.py:23: PydanticDeprecatedSince20: Using extra keyword arguments on `Field` is deprecated and will be removed. Use `json_schema_extra` instead. (Extra keys: 'example'). Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.12/migration/
+    attack_type: str = Field("UNKNOWN", description="Preliminary attack classification", example="UNKNOWN")
+
+backend\schemas\threat_schema.py:24
+  C:\Users\shalo\PhantomNet\backend\schemas\threat_schema.py:24: PydanticDeprecatedSince20: Using extra keyword arguments on `Field` is deprecated and will be removed. Use `json_schema_extra` instead. (Extra keys: 'example'). Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.12/migration/
+    honeypot_type: str = Field("NONE", description="Honeypot type interaction", example="HTTP")
+
+backend\services\response_executor.py:402
+  C:\Users\shalo\PhantomNet\backend\services\response_executor.py:402: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    now = datetime.utcnow()
+
+tests/integration/test_week10_integration.py::TestWeek10Integration::test_lstm_predictions_and_xai
+  C:\Users\shalo\AppData\Local\Programs\Python\Python314\Lib\site-packages\mlflow\tracking\_tracking_service\utils.py:178: FutureWarning: The filesystem tracking backend (e.g., './mlruns') will be deprecated in February 2026. Consider transitioning to a database backend (e.g., 'sqlite:///mlflow.db') to take advantage of the latest MLflow features. See https://github.com/mlflow/mlflow/issues/18534 for more details and migration guidance. For migrating existing data, https://github.com/mlflow/mlflow-export-import can be used.
+    return FileStore(store_uri, store_uri)
+
+tests/integration/test_week10_integration.py::TestWeek10Integration::test_lstm_predictions_and_xai
+  c:\Users\shalo\PhantomNet\backend\ml\model_loader.py:31: FutureWarning: ``mlflow.tracking.client.MlflowClient.get_latest_versions`` is deprecated since 2.9.0. Model registry stages will be removed in a future major release. To learn more about the deprecation of model registry stages, see our migration guide here: https://mlflow.org/docs/latest/model-registry.html#migrating-from-stages
+    versions = client.get_latest_versions(MODEL_NAME, stages=["Production"])
+
+tests/integration/test_week10_integration.py::TestWeek10Integration::test_lstm_predictions_and_xai
+  C:\Users\shalo\AppData\Local\Programs\Python\Python314\Lib\site-packages\mlflow\tracking\_model_registry\utils.py:216: FutureWarning: The filesystem model registry backend (e.g., './mlruns') will be deprecated in February 2026. Consider transitioning to a database backend (e.g., 'sqlite:///mlflow.db') to take advantage of the latest MLflow features. See https://github.com/mlflow/mlflow/issues/18534 for more details and migration guidance. For migrating existing data, https://github.com/mlflow/mlflow-export-import can be used.
+    return FileStore(store_uri)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED tests/integration/test_week10_integration.py::TestWeek10Integration::test_siem_export_batching
+FAILED tests/integration/test_week10_integration.py::TestWeek10Integration::test_lstm_predictions_and_xai
+FAILED tests/integration/test_week10_integration.py::TestWeek10Integration::test_distributed_topology
+FAILED tests/integration/test_week10_integration.py::TestWeek10Integration::test_playbook_execution
+======================= 4 failed, 24 warnings in 36.16s =======================

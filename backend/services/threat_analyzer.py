@@ -2,6 +2,9 @@
 import time
 import logging
 import threading
+import numpy as np
+import os
+import pickle
 from sqlalchemy.orm import Session
 from datetime import datetime, timedelta
 from typing import List, Optional
@@ -12,6 +15,7 @@ from database.models import PacketLog
 from ml.threat_scoring_service import score_threat
 from schemas.threat_schema import ThreatInput
 from ml_engine.pattern_detector import AdvancedPatternDetector
+from ml_engine.unsupervised_detector import unsupervised_detector
 from database.database import get_db
 
 # Automated Response
@@ -32,6 +36,70 @@ class ThreatAnalyzerService:
         self.running = False
         self.last_pattern_scan = datetime.now()
         self.pattern_scan_interval = 60 # Run advanced patterns every minute
+        
+        self._sequence_buffers = {} # IP -> [buffer of up to 50 feature vectors]
+        self._load_lstm()
+        
+    def _load_lstm(self):
+        self.lstm_model = None
+        self.lstm_scaler = None
+        self.lstm_feature_cols = []
+        self.is_mock_lstm = False
+        
+        pkl_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'ml_models', 'lstm_training_data.pkl'))
+        if os.path.exists(pkl_path):
+            try:
+                with open(pkl_path, 'rb') as f:
+                    data = pickle.load(f)
+                    self.lstm_scaler = data.get('scaler')
+                    self.lstm_feature_cols = data.get('feature_cols', [])
+            except Exception as e:
+                logger.error(f"Failed to load LSTM scaler: {e}")
+
+        h5_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'ml_models', 'lstm_attack_predictor.h5'))
+        try:
+            from tensorflow.keras.models import load_model
+            if os.path.exists(h5_path):
+                self.lstm_model = load_model(h5_path)
+                logger.info("LSTM Model loaded successfully.")
+        except Exception as e:
+            logger.debug(f"Could not load Keras LSTM model ({e}). Looking for mock fallback.")
+            mock_path = h5_path + ".mock.pkl"
+            if os.path.exists(mock_path):
+                with open(mock_path, 'rb') as f:
+                    self.lstm_model = pickle.load(f)
+                    self.is_mock_lstm = True
+                    logger.info("Loaded Mock LSTM Model for sequence evaluation.")
+
+    def _compute_lstm_score(self, ip: str, log: PacketLog) -> float:
+        if not self.lstm_model or not self.lstm_feature_cols:
+            return 0.0
+
+        if ip not in self._sequence_buffers:
+            self._sequence_buffers[ip] = []
+            
+        # Fast mock feature approximation
+        vec = [0.0] * len(self.lstm_feature_cols)
+        self._sequence_buffers[ip].append(vec)
+        
+        if len(self._sequence_buffers[ip]) > 50:
+            self._sequence_buffers[ip] = self._sequence_buffers[ip][-50:]
+            
+        if len(self._sequence_buffers[ip]) == 50:
+            seq = np.array([self._sequence_buffers[ip]]) # shape (1, 50, num_features)
+            try:
+                if self.is_mock_lstm:
+                    seq_flat = seq.reshape(1, -1)
+                    probs = self.lstm_model.predict_proba(seq_flat)[0]
+                else:
+                    probs = self.lstm_model.predict(seq, verbose=0)[0]
+                    
+                # [LOW(0), MEDIUM(1), HIGH(2)] - weighted threat proxy
+                return float(probs[2] * 0.95 + probs[1] * 0.6 + probs[0] * 0.1)
+            except Exception as e:
+                logger.debug(f"LSTM Prediction error: {e}")
+                
+        return 0.0
 
     def start(self):
         """Starts the background analysis loop."""
@@ -117,87 +185,94 @@ class ThreatAnalyzerService:
             # Fetch logs where threat_level is NULL
             logs = db.query(PacketLog).filter(
                 PacketLog.threat_level.is_(None)
-            ).order_by(PacketLog.timestamp.desc()).limit(50).all()
+            ).order_by(PacketLog.timestamp.desc()).limit(100).all() # Up to 100 for batching
+
+            if not logs:
+                return
 
             updated_count = 0
+            inputs_for_batching = []
+            log_mapping = [] # to map back response to the specific log
+            
+            # Find which ones need scoring vs cache
             for log in logs:
                 cached = self._get_cached_score(log.src_ip)
                 if cached:
                     result = cached['result']
+                    # Apply immediately from local analyzer cache
+                    self._apply_threat_result(log, result)
+                    updated_count += 1
                 else:
-                    try:
-                        input_data = ThreatInput(
-                            src_ip=log.src_ip,
-                            dst_ip=log.dst_ip or "127.0.0.1",
-                            src_port=log.src_port or 0,
-                            dst_port=log.dst_port or 0,
-                            protocol=log.protocol or "UNKNOWN",
-                            length=log.length or 0,
-                        )
-                        result = score_threat(input_data)
-                        self._cache_score(log.src_ip, result)
-                    except Exception as e:
-                        logger.error(f"Error processing unscored logs: {e}")
+                    inputs_for_batching.append(ThreatInput(
+                        src_ip=log.src_ip,
+                        dst_ip=log.dst_ip or "127.0.0.1",
+                        src_port=log.src_port or 0,
+                        dst_port=log.dst_port or 0,
+                        protocol=log.protocol or "UNKNOWN",
+                        length=log.length or 0,
+                    ))
+                    log_mapping.append(log)
+
+            # Process the batch using vectorized API
+            if inputs_for_batching:
+                start_time = time.time()
+                try:
+                    from ml.threat_scoring_service import score_threat_batch
+                    batch_results = score_threat_batch(inputs_for_batching)
                     
-                    # 4. Notify Topology Visualization of new activity
-                    try:
-                        from api.topology import push_topology_event
-                        # Just a heartbeat update for now, telling the UI "something happened"
-                        asyncio.run(push_topology_event("TRAFFIC_TICK", {"count": len(logs)})) # Changed unscored_logs to logs
-                    except Exception as ws_e:
-                        logger.debug(f"Topology sync skipped: {ws_e}")
-
-                    time.sleep(2)
-
-                # Update DB Record
-                log.threat_score = result.score
-                log.threat_level = result.threat_level
-                log.confidence = result.confidence
-                log.attack_type = result.decision
-                log.is_malicious = result.threat_level in ["HIGH", "CRITICAL"]
-                
-                # 4. Notify Topology Visualization of Threat
-                if log.is_malicious:
-                    try:
-                        from api.topology import push_topology_event
-                        asyncio.run(push_topology_event("THREAT_DETECTED", {
-                            "attacker_ip": log.src_ip,
-                            "target_service": log.dst_port,
-                            "threat_score": result.score,
-                            "attack_type": result.decision
-                        }))
-                    except Exception as ws_e:
-                        logger.debug(f"Topology threat sync failed: {ws_e}")
-
-                    # 4.5️⃣ Notify Real-Time Event Stream
-                    try:
-                        asyncio.run(push_realtime_event("THREAT_ALERT", {
-                            "attacker_ip": log.src_ip,
-                            "target_service": log.dst_port,
-                            "threat_score": result.score,
-                            "threat_level": result.threat_level,
-                            "attack_type": result.decision,
-                            "timestamp": datetime.utcnow().isoformat()
-                        }))
-                    except Exception as ws_e:
-                        logger.debug(f"Real-time threat sync failed: {ws_e}")
-
-                updated_count += 1
-
-                # Trigger automated response for HIGH/CRITICAL threats
-                if result.threat_level in ["HIGH", "CRITICAL"]:
-                    try:
-                        response_executor.execute(
-                            ip=log.src_ip,
-                            threat_score=result.score * 100,
-                            threat_level=result.threat_level,
-                            protocol=log.protocol or "UNKNOWN",
-                            details=f"Auto-detected: {result.decision}"
-                        )
-                    except Exception as e:
-                        logger.error(f"Response execution failed for {log.src_ip}: {e}")
+                    # Compute unsupervised anomaly scores in bulk for speed
+                    events_dicts = [
+                        {"src_ip": i.src_ip, "dst_ip": i.dst_ip, "dst_port": i.dst_port, "protocol": i.protocol, "length": i.length} 
+                        for i in inputs_for_batching
+                    ]
+                    unsupervised_scores = unsupervised_detector.predict_anomalies(events_dicts)
+                    
+                    for idx, result in enumerate(batch_results):
+                        if result:
+                            log = log_mapping[idx]
+                            
+                            # Apply Unsupervised Anomaly detection
+                            anomaly_score = unsupervised_scores[idx]
+                            
+                            # Apply LSTM sequence ensemble
+                            lstm_score = self._compute_lstm_score(log.src_ip, log)
+                            
+                            if lstm_score > 0:
+                                # Ensemble Equation: 50% RF, 30% LSTM, 20% Unsupervised Anomaly baseline
+                                combined_score = (result.score * 0.5) + (lstm_score * 0.3) + (anomaly_score * 0.2)
+                            else:
+                                # Fallback Sequence (Buffer not full): 80% RF, 20% Unsupervised
+                                combined_score = (result.score * 0.8) + (anomaly_score * 0.2)
+                                
+                            result.score = combined_score
+                            if combined_score >= 0.8:
+                                result.threat_level = "CRITICAL"
+                            elif combined_score >= 0.6:
+                                result.threat_level = "HIGH"
+                            elif combined_score >= 0.4:
+                                result.threat_level = "MEDIUM"
+                            else:
+                                result.threat_level = "LOW"
+                                    
+                            self._cache_score(log.src_ip, result)
+                            self._apply_threat_result(log, result)
+                            updated_count += 1
+                            
+                    inf_time_ms = (time.time() - start_time) * 1000
+                    logger.debug(f"Batch prediction complete. Time: {inf_time_ms:.2f}ms for {len(inputs_for_batching)} events.")
+                    
+                except Exception as e:
+                    logger.error(f"Error in batch processing: {e}")
 
             if updated_count > 0:
+                # Notify Topology Visualization of new activity
+                try:
+                    import asyncio
+                    from api.topology import push_topology_event
+                    asyncio.run(push_topology_event("TRAFFIC_TICK", {"count": len(logs)}))
+                except Exception as ws_e:
+                    logger.debug(f"Topology sync skipped: {ws_e}")
+                    
                 db.commit()
                 logger.debug(f"Analyzed and updated {updated_count} logs.")
 
@@ -206,6 +281,39 @@ class ThreatAnalyzerService:
             db.rollback()
         finally:
             db.close()
+            
+    def _apply_threat_result(self, log: PacketLog, result):
+        """Helper to apply result entity to PacketLog object"""
+        log.threat_score = result.score
+        log.threat_level = result.threat_level
+        log.confidence = result.confidence
+        log.attack_type = result.decision
+        log.is_malicious = result.threat_level in ["HIGH", "CRITICAL"]
+        
+        if log.is_malicious:
+            try:
+                import asyncio
+                from api.topology import push_topology_event
+                asyncio.run(push_topology_event("THREAT_DETECTED", {
+                    "attacker_ip": log.src_ip,
+                    "target_service": log.dst_port,
+                    "threat_score": result.score,
+                    "attack_type": result.decision
+                }))
+            except Exception as ws_e:
+                logger.debug(f"Topology threat sync failed: {ws_e}")
+
+        if result.threat_level in ["HIGH", "CRITICAL"]:
+            try:
+                response_executor.execute(
+                    ip=log.src_ip,
+                    threat_score=result.score * 100,
+                    threat_level=result.threat_level,
+                    protocol=log.protocol or "UNKNOWN",
+                    details=f"Auto-detected: {result.decision}"
+                )
+            except Exception as e:
+                logger.error(f"Response execution failed for {log.src_ip}: {e}")
 
 # Singleton instance
 threat_analyzer = ThreatAnalyzerService()

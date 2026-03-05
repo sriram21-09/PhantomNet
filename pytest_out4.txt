@@ -1,0 +1,128 @@
+============================= test session starts =============================
+platform win32 -- Python 3.14.0, pytest-9.0.2, pluggy-1.6.0
+rootdir: C:\Users\shalo\PhantomNet
+plugins: anyio-4.12.0, locust-2.43.3
+collected 4 items
+
+tests\integration\test_week10_integration.py F...                        [100%]
+
+================================== FAILURES ===================================
+_______________ TestWeek10Integration.test_siem_export_batching _______________
+tests\integration\test_week10_integration.py:49: in test_siem_export_batching
+    assert success is True
+E   assert False is True
+------------------------------ Captured log call ------------------------------
+ERROR    universal_siem_exporter:universal_siem_exporter.py:167 \u274c CEF export failed: HTTPConnectionPool(host='localhost', port=5044): Max retries exceeded with url: / (Caused by NewConnectionError("HTTPConnection(host='localhost', port=5044): Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it"))
+============================== warnings summary ===============================
+backend\schemas\threat_schema.py:11
+  c:\Users\shalo\PhantomNet\backend\schemas\threat_schema.py:11: PydanticDeprecatedSince20: Using extra keyword arguments on `Field` is deprecated and will be removed. Use `json_schema_extra` instead. (Extra keys: 'example'). Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.12/migration/
+    src_ip: str = Field(..., description="Source IP address", example="192.168.1.105")
+
+backend\schemas\threat_schema.py:12
+  c:\Users\shalo\PhantomNet\backend\schemas\threat_schema.py:12: PydanticDeprecatedSince20: Using extra keyword arguments on `Field` is deprecated and will be removed. Use `json_schema_extra` instead. (Extra keys: 'example'). Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.12/migration/
+    dst_ip: str = Field(..., description="Destination IP address", example="10.0.0.5")
+
+backend\schemas\threat_schema.py:13
+  c:\Users\shalo\PhantomNet\backend\schemas\threat_schema.py:13: PydanticDeprecatedSince20: Using extra keyword arguments on `Field` is deprecated and will be removed. Use `json_schema_extra` instead. (Extra keys: 'example'). Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.12/migration/
+    dst_port: int = Field(..., description="Destination Port", example=80)
+
+backend\schemas\threat_schema.py:14
+  c:\Users\shalo\PhantomNet\backend\schemas\threat_schema.py:14: PydanticDeprecatedSince20: Using extra keyword arguments on `Field` is deprecated and will be removed. Use `json_schema_extra` instead. (Extra keys: 'example'). Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.12/migration/
+    protocol: str = Field(..., description="Protocol (TCP, UDP, ICMP)", example="TCP")
+
+backend\schemas\threat_schema.py:15
+  c:\Users\shalo\PhantomNet\backend\schemas\threat_schema.py:15: PydanticDeprecatedSince20: Using extra keyword arguments on `Field` is deprecated and will be removed. Use `json_schema_extra` instead. (Extra keys: 'example'). Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.12/migration/
+    length: int = Field(..., description="Packet Length in bytes", example=64)
+
+backend\schemas\threat_schema.py:18
+  c:\Users\shalo\PhantomNet\backend\schemas\threat_schema.py:18: PydanticDeprecatedSince20: Using extra keyword arguments on `Field` is deprecated and will be removed. Use `json_schema_extra` instead. (Extra keys: 'example'). Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.12/migration/
+    timestamp: Optional[str] = Field(None, description="ISO 8601 Timestamp. Defaults to now.", example="2026-02-11T12:00:00Z")
+
+backend\schemas\threat_schema.py:21
+  c:\Users\shalo\PhantomNet\backend\schemas\threat_schema.py:21: PydanticDeprecatedSince20: Using extra keyword arguments on `Field` is deprecated and will be removed. Use `json_schema_extra` instead. (Extra keys: 'example'). Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.12/migration/
+    threat_score: float = Field(0.0, description="Baseline threat score from firewall/rules", example=10.0)
+
+backend\schemas\threat_schema.py:22
+  c:\Users\shalo\PhantomNet\backend\schemas\threat_schema.py:22: PydanticDeprecatedSince20: Using extra keyword arguments on `Field` is deprecated and will be removed. Use `json_schema_extra` instead. (Extra keys: 'example'). Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.12/migration/
+    is_malicious: bool = Field(False, description="Known malicious flag (e.g. from blacklist)", example=False)
+
+backend\schemas\threat_schema.py:23
+  c:\Users\shalo\PhantomNet\backend\schemas\threat_schema.py:23: PydanticDeprecatedSince20: Using extra keyword arguments on `Field` is deprecated and will be removed. Use `json_schema_extra` instead. (Extra keys: 'example'). Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.12/migration/
+    attack_type: str = Field("UNKNOWN", description="Preliminary attack classification", example="UNKNOWN")
+
+backend\schemas\threat_schema.py:24
+  c:\Users\shalo\PhantomNet\backend\schemas\threat_schema.py:24: PydanticDeprecatedSince20: Using extra keyword arguments on `Field` is deprecated and will be removed. Use `json_schema_extra` instead. (Extra keys: 'example'). Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.12/migration/
+    honeypot_type: str = Field("NONE", description="Honeypot type interaction", example="HTTP")
+
+backend\schemas\threat_schema.py:11
+  C:\Users\shalo\PhantomNet\backend\schemas\threat_schema.py:11: PydanticDeprecatedSince20: Using extra keyword arguments on `Field` is deprecated and will be removed. Use `json_schema_extra` instead. (Extra keys: 'example'). Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.12/migration/
+    src_ip: str = Field(..., description="Source IP address", example="192.168.1.105")
+
+backend\schemas\threat_schema.py:12
+  C:\Users\shalo\PhantomNet\backend\schemas\threat_schema.py:12: PydanticDeprecatedSince20: Using extra keyword arguments on `Field` is deprecated and will be removed. Use `json_schema_extra` instead. (Extra keys: 'example'). Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.12/migration/
+    dst_ip: str = Field(..., description="Destination IP address", example="10.0.0.5")
+
+backend\schemas\threat_schema.py:13
+  C:\Users\shalo\PhantomNet\backend\schemas\threat_schema.py:13: PydanticDeprecatedSince20: Using extra keyword arguments on `Field` is deprecated and will be removed. Use `json_schema_extra` instead. (Extra keys: 'example'). Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.12/migration/
+    dst_port: int = Field(..., description="Destination Port", example=80)
+
+backend\schemas\threat_schema.py:14
+  C:\Users\shalo\PhantomNet\backend\schemas\threat_schema.py:14: PydanticDeprecatedSince20: Using extra keyword arguments on `Field` is deprecated and will be removed. Use `json_schema_extra` instead. (Extra keys: 'example'). Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.12/migration/
+    protocol: str = Field(..., description="Protocol (TCP, UDP, ICMP)", example="TCP")
+
+backend\schemas\threat_schema.py:15
+  C:\Users\shalo\PhantomNet\backend\schemas\threat_schema.py:15: PydanticDeprecatedSince20: Using extra keyword arguments on `Field` is deprecated and will be removed. Use `json_schema_extra` instead. (Extra keys: 'example'). Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.12/migration/
+    length: int = Field(..., description="Packet Length in bytes", example=64)
+
+backend\schemas\threat_schema.py:18
+  C:\Users\shalo\PhantomNet\backend\schemas\threat_schema.py:18: PydanticDeprecatedSince20: Using extra keyword arguments on `Field` is deprecated and will be removed. Use `json_schema_extra` instead. (Extra keys: 'example'). Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.12/migration/
+    timestamp: Optional[str] = Field(None, description="ISO 8601 Timestamp. Defaults to now.", example="2026-02-11T12:00:00Z")
+
+backend\schemas\threat_schema.py:21
+  C:\Users\shalo\PhantomNet\backend\schemas\threat_schema.py:21: PydanticDeprecatedSince20: Using extra keyword arguments on `Field` is deprecated and will be removed. Use `json_schema_extra` instead. (Extra keys: 'example'). Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.12/migration/
+    threat_score: float = Field(0.0, description="Baseline threat score from firewall/rules", example=10.0)
+
+backend\schemas\threat_schema.py:22
+  C:\Users\shalo\PhantomNet\backend\schemas\threat_schema.py:22: PydanticDeprecatedSince20: Using extra keyword arguments on `Field` is deprecated and will be removed. Use `json_schema_extra` instead. (Extra keys: 'example'). Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.12/migration/
+    is_malicious: bool = Field(False, description="Known malicious flag (e.g. from blacklist)", example=False)
+
+backend\schemas\threat_schema.py:23
+  C:\Users\shalo\PhantomNet\backend\schemas\threat_schema.py:23: PydanticDeprecatedSince20: Using extra keyword arguments on `Field` is deprecated and will be removed. Use `json_schema_extra` instead. (Extra keys: 'example'). Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.12/migration/
+    attack_type: str = Field("UNKNOWN", description="Preliminary attack classification", example="UNKNOWN")
+
+backend\schemas\threat_schema.py:24
+  C:\Users\shalo\PhantomNet\backend\schemas\threat_schema.py:24: PydanticDeprecatedSince20: Using extra keyword arguments on `Field` is deprecated and will be removed. Use `json_schema_extra` instead. (Extra keys: 'example'). Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.12/migration/
+    honeypot_type: str = Field("NONE", description="Honeypot type interaction", example="HTTP")
+
+backend\services\response_executor.py:402
+  C:\Users\shalo\PhantomNet\backend\services\response_executor.py:402: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    now = datetime.utcnow()
+
+tests/integration/test_week10_integration.py::TestWeek10Integration::test_lstm_predictions_and_xai
+  C:\Users\shalo\AppData\Local\Programs\Python\Python314\Lib\site-packages\mlflow\tracking\_tracking_service\utils.py:178: FutureWarning: The filesystem tracking backend (e.g., './mlruns') will be deprecated in February 2026. Consider transitioning to a database backend (e.g., 'sqlite:///mlflow.db') to take advantage of the latest MLflow features. See https://github.com/mlflow/mlflow/issues/18534 for more details and migration guidance. For migrating existing data, https://github.com/mlflow/mlflow-export-import can be used.
+    return FileStore(store_uri, store_uri)
+
+tests/integration/test_week10_integration.py::TestWeek10Integration::test_lstm_predictions_and_xai
+  c:\Users\shalo\PhantomNet\backend\ml\model_loader.py:31: FutureWarning: ``mlflow.tracking.client.MlflowClient.get_latest_versions`` is deprecated since 2.9.0. Model registry stages will be removed in a future major release. To learn more about the deprecation of model registry stages, see our migration guide here: https://mlflow.org/docs/latest/model-registry.html#migrating-from-stages
+    versions = client.get_latest_versions(MODEL_NAME, stages=["Production"])
+
+tests/integration/test_week10_integration.py::TestWeek10Integration::test_lstm_predictions_and_xai
+  C:\Users\shalo\AppData\Local\Programs\Python\Python314\Lib\site-packages\mlflow\tracking\_model_registry\utils.py:216: FutureWarning: The filesystem model registry backend (e.g., './mlruns') will be deprecated in February 2026. Consider transitioning to a database backend (e.g., 'sqlite:///mlflow.db') to take advantage of the latest MLflow features. See https://github.com/mlflow/mlflow/issues/18534 for more details and migration guidance. For migrating existing data, https://github.com/mlflow/mlflow-export-import can be used.
+    return FileStore(store_uri)
+
+tests/integration/test_week10_integration.py: 11 warnings
+  C:\Users\shalo\AppData\Local\Programs\Python\Python314\Lib\site-packages\sqlalchemy\sql\schema.py:3624: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    return util.wrap_callable(lambda ctx: fn(), fn)  # type: ignore
+
+tests/integration/test_week10_integration.py::TestWeek10Integration::test_playbook_execution
+  C:\Users\shalo\PhantomNet\backend\services\response_executor.py:243: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    expires_at = datetime.utcnow() + timedelta(minutes=duration_minutes)
+
+tests/integration/test_week10_integration.py::TestWeek10Integration::test_playbook_execution
+  C:\Users\shalo\PhantomNet\backend\services\response_executor.py:252: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    "blocked_at": datetime.utcnow().isoformat(),
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED tests/integration/test_week10_integration.py::TestWeek10Integration::test_siem_export_batching
+================== 1 failed, 3 passed, 37 warnings in 35.22s ==================
