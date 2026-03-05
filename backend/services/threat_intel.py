@@ -2,8 +2,10 @@ import os
 import httpx
 import logging
 import asyncio
+import json
 from datetime import datetime, timedelta
-from typing import Optional, Dict, Any
+from typing import Optional, Dict, Any, List
+from pymisp import PyMISP, MISPEvent
 
 # Setup Logger
 logger = logging.getLogger("threat_intel")
@@ -18,9 +20,19 @@ class ThreatIntelService:
     def __init__(self):
         self.abuse_ipdb_key = os.getenv("ABUSE_IPDB_KEY")
         self.alien_vault_key = os.getenv("ALIENVAULT_OTX_KEY")
+        self.misp_url = os.getenv("MISP_URL")
+        self.misp_key = os.getenv("MISP_KEY")
         self._cache = {}  # In-memory cache: {ip: {"data": data, "timestamp": ts}}
         self._cache_ttl = 3600  # 1 hour
         self.client = httpx.AsyncClient(timeout=10.0, limits=httpx.Limits(max_keepalive_connections=5, max_connections=10))
+        
+        # Initialize MISP client if configured
+        self.misp = None
+        if self.misp_url and self.misp_key:
+            try:
+                self.misp = PyMISP(self.misp_url, self.misp_key, ssl=False)
+            except Exception as e:
+                logger.error(f"Failed to connect to MISP: {e}")
 
     async def close(self):
         """Close the underlying HTTPX client."""
@@ -122,6 +134,67 @@ class ThreatIntelService:
         except Exception as e:
             logger.error(f"Error fetching from AlienVault OTX for {ip}: {e}")
             return {"status": "error", "message": "Connection error"}
+
+    async def push_to_misp(self, ioc_data: List[Dict[str, Any]]) -> Dict[str, Any]:
+        """Pushes IOCs to connected MISP instance."""
+        if not self.misp:
+            return {"status": "ignored", "message": "MISP not configured"}
+
+        try:
+            event = MISPEvent()
+            event.info = f"PhantomNet Automated Feed - {datetime.now().strftime('%Y-%m-%d')}"
+            event.published = True
+            
+            for ioc in ioc_data:
+                misp_type = "ip-dst" if ioc["type"] == "ips" else "domain" if ioc["type"] == "domains" else "url"
+                event.add_attribute(misp_type, ioc["value"], comment=f"PhantomNet: {ioc['threat_type']}")
+
+            result = self.misp.add_event(event)
+            return {"status": "success", "event_id": result.get("id")}
+        except Exception as e:
+            logger.error(f"MISP Push failed: {e}")
+            return {"status": "error", "message": str(e)}
+
+    async def push_to_otx(self, ioc_data: List[Dict[str, Any]]) -> Dict[str, Any]:
+        """Submits indicators to AlienVault OTX via API."""
+        if not self.alien_vault_key:
+            return {"status": "ignored", "message": "AlienVault OTX key missing"}
+
+        url = "https://otx.alienvault.com/api/v1/indicators/submit"
+        headers = {"X-OTX-API-KEY": self.alien_vault_key, "Content-Type": "application/json"}
+        
+        # OTX submission payload
+        payload = {
+            "description": f"Automated PhantomNet threat indicators for {datetime.now().isoformat()}",
+            "indicators": [
+                {"indicator": i["value"], "type": "IPv4" if i["type"] == "ips" else "domain"} 
+                for i in ioc_data
+            ]
+        }
+
+        try:
+            response = await self.client.post(url, headers=headers, json=payload)
+            if response.status_code in [200, 201]:
+                return {"status": "success", "response": response.json()}
+            return {"status": "error", "code": response.status_code}
+        except Exception as e:
+            logger.error(f"AlienVault OTX submission failed: {e}")
+            return {"status": "error", "message": str(e)}
+
+    def generate_daily_report(self, ioc_data: List[Dict[str, Any]], output_path: str = "reports/daily_threat_feed.json"):
+        """Generates a daily JSON report for public sharing."""
+        os.makedirs(os.path.dirname(output_path), exist_ok=True)
+        report = {
+            "metadata": {
+                "generated_at": datetime.now().isoformat(),
+                "source": "PhantomNet AI",
+                "version": "1.0"
+            },
+            "indicators": ioc_data
+        }
+        with open(output_path, "w") as f:
+            json.dump(report, f, indent=4)
+        return output_path
 
 # Singleton instance for general use
 threat_intel_service = ThreatIntelService()

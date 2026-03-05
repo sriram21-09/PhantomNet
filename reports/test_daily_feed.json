@@ -1,0 +1,49 @@
+{
+    "metadata": {
+        "generated_at": "2026-03-05T14:44:28.757961",
+        "source": "PhantomNet AI",
+        "version": "1.0"
+    },
+    "indicators": [
+        {
+            "value": "185.156.177.34",
+            "type": "ips",
+            "threat_type": "Brute Force Source",
+            "confidence": "LOW",
+            "first_seen": "2026-03-05T09:14:28.740533",
+            "context": "Inbound connection from 185.156.177.34. SSH login attempt with username 'root'. Downloading malicious file from http://malicious-site.com/payload.exe. MD5: 44d88612fea8a8f36de82e1278abb02f"
+        },
+        {
+            "value": "malicious-site.com",
+            "type": "domains",
+            "threat_type": "Brute Force Source",
+            "confidence": "LOW",
+            "first_seen": "2026-03-05T09:14:28.740550",
+            "context": "Inbound connection from 185.156.177.34. SSH login attempt with username 'root'. Downloading malicious file from http://malicious-site.com/payload.exe. MD5: 44d88612fea8a8f36de82e1278abb02f"
+        },
+        {
+            "value": "payload.exe",
+            "type": "domains",
+            "threat_type": "Brute Force Source",
+            "confidence": "LOW",
+            "first_seen": "2026-03-05T09:14:28.740555",
+            "context": "Inbound connection from 185.156.177.34. SSH login attempt with username 'root'. Downloading malicious file from http://malicious-site.com/payload.exe. MD5: 44d88612fea8a8f36de82e1278abb02f"
+        },
+        {
+            "value": "http://malicious-site.com/payload.exe.",
+            "type": "urls",
+            "threat_type": "Brute Force Source",
+            "confidence": "LOW",
+            "first_seen": "2026-03-05T09:14:28.740560",
+            "context": "Inbound connection from 185.156.177.34. SSH login attempt with username 'root'. Downloading malicious file from http://malicious-site.com/payload.exe. MD5: 44d88612fea8a8f36de82e1278abb02f"
+        },
+        {
+            "value": "44d88612fea8a8f36de82e1278abb02f",
+            "type": "md5",
+            "threat_type": "Brute Force Source",
+            "confidence": "LOW",
+            "first_seen": "2026-03-05T09:14:28.740564",
+            "context": "Inbound connection from 185.156.177.34. SSH login attempt with username 'root'. Downloading malicious file from http://malicious-site.com/payload.exe. MD5: 44d88612fea8a8f36de82e1278abb02f"
+        }
+    ]
+}

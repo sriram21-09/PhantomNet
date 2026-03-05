@@ -1,0 +1,126 @@
+{
+    "type": "bundle",
+    "id": "bundle--ad0d94c5-bd49-4f3e-9e83-009e56ae1a2e",
+    "objects": [
+        {
+            "type": "identity",
+            "spec_version": "2.1",
+            "id": "identity--6d0c62c3-4330-40d5-ad9d-5d4413ce1fca",
+            "created": "2026-03-05T09:14:27.783778Z",
+            "modified": "2026-03-05T09:14:27.783778Z",
+            "name": "PhantomNet AI",
+            "description": "Automated Honeypot & Deception Platform",
+            "identity_class": "organization"
+        },
+        {
+            "type": "indicator",
+            "spec_version": "2.1",
+            "id": "indicator--7c28bc4e-90c1-4d19-8a54-a7e1c9d417d0",
+            "created_by_ref": "identity--6d0c62c3-4330-40d5-ad9d-5d4413ce1fca",
+            "created": "2026-03-05T09:14:28.741104Z",
+            "modified": "2026-03-05T09:14:28.741104Z",
+            "name": "Brute Force Source",
+            "description": "Detected via PhantomNet Honeypots. Context: Inbound connection from 185.156.177.34. SSH login attempt with username 'root'. Downloading malicious file from http://malicious-site.com/payload.exe. MD5: 44d88612fea8a8f36de82e1278abb02f",
+            "pattern": "[ipv4-addr:value = '185.156.177.34']",
+            "pattern_type": "stix",
+            "pattern_version": "2.1",
+            "valid_from": "2026-03-05T14:44:28.741061Z",
+            "labels": [
+                "ips",
+                "Brute Force Source"
+            ],
+            "confidence": 20,
+            "object_marking_refs": [
+                "marking-definition--613f2e26-407d-48c7-9eca-b8e91df99dc9"
+            ]
+        },
+        {
+            "type": "indicator",
+            "spec_version": "2.1",
+            "id": "indicator--c7e846ad-99d3-445f-bf98-3ff67faac8e9",
+            "created_by_ref": "identity--6d0c62c3-4330-40d5-ad9d-5d4413ce1fca",
+            "created": "2026-03-05T09:14:28.748159Z",
+            "modified": "2026-03-05T09:14:28.748159Z",
+            "name": "Brute Force Source",
+            "description": "Detected via PhantomNet Honeypots. Context: Inbound connection from 185.156.177.34. SSH login attempt with username 'root'. Downloading malicious file from http://malicious-site.com/payload.exe. MD5: 44d88612fea8a8f36de82e1278abb02f",
+            "pattern": "[domain-name:value = 'malicious-site.com']",
+            "pattern_type": "stix",
+            "pattern_version": "2.1",
+            "valid_from": "2026-03-05T14:44:28.748145Z",
+            "labels": [
+                "domains",
+                "Brute Force Source"
+            ],
+            "confidence": 20,
+            "object_marking_refs": [
+                "marking-definition--613f2e26-407d-48c7-9eca-b8e91df99dc9"
+            ]
+        },
+        {
+            "type": "indicator",
+            "spec_version": "2.1",
+            "id": "indicator--187c90bb-a921-4ca1-b2f8-567af2e14e21",
+            "created_by_ref": "identity--6d0c62c3-4330-40d5-ad9d-5d4413ce1fca",
+            "created": "2026-03-05T09:14:28.749437Z",
+            "modified": "2026-03-05T09:14:28.749437Z",
+            "name": "Brute Force Source",
+            "description": "Detected via PhantomNet Honeypots. Context: Inbound connection from 185.156.177.34. SSH login attempt with username 'root'. Downloading malicious file from http://malicious-site.com/payload.exe. MD5: 44d88612fea8a8f36de82e1278abb02f",
+            "pattern": "[domain-name:value = 'payload.exe']",
+            "pattern_type": "stix",
+            "pattern_version": "2.1",
+            "valid_from": "2026-03-05T14:44:28.74943Z",
+            "labels": [
+                "domains",
+                "Brute Force Source"
+            ],
+            "confidence": 20,
+            "object_marking_refs": [
+                "marking-definition--613f2e26-407d-48c7-9eca-b8e91df99dc9"
+            ]
+        },
+        {
+            "type": "indicator",
+            "spec_version": "2.1",
+            "id": "indicator--ee272144-d36c-4b3c-90ec-c6ae40eea628",
+            "created_by_ref": "identity--6d0c62c3-4330-40d5-ad9d-5d4413ce1fca",
+            "created": "2026-03-05T09:14:28.750044Z",
+            "modified": "2026-03-05T09:14:28.750044Z",
+            "name": "Brute Force Source",
+            "description": "Detected via PhantomNet Honeypots. Context: Inbound connection from 185.156.177.34. SSH login attempt with username 'root'. Downloading malicious file from http://malicious-site.com/payload.exe. MD5: 44d88612fea8a8f36de82e1278abb02f",
+            "pattern": "[url:value = 'http://malicious-site.com/payload.exe.']",
+            "pattern_type": "stix",
+            "pattern_version": "2.1",
+            "valid_from": "2026-03-05T14:44:28.750038Z",
+            "labels": [
+                "urls",
+                "Brute Force Source"
+            ],
+            "confidence": 20,
+            "object_marking_refs": [
+                "marking-definition--613f2e26-407d-48c7-9eca-b8e91df99dc9"
+            ]
+        },
+        {
+            "type": "indicator",
+            "spec_version": "2.1",
+            "id": "indicator--60c5a44a-c33a-4ab1-a4c4-f9a3935a0e7b",
+            "created_by_ref": "identity--6d0c62c3-4330-40d5-ad9d-5d4413ce1fca",
+            "created": "2026-03-05T09:14:28.750793Z",
+            "modified": "2026-03-05T09:14:28.750793Z",
+            "name": "Brute Force Source",
+            "description": "Detected via PhantomNet Honeypots. Context: Inbound connection from 185.156.177.34. SSH login attempt with username 'root'. Downloading malicious file from http://malicious-site.com/payload.exe. MD5: 44d88612fea8a8f36de82e1278abb02f",
+            "pattern": "[file:hashes.MD5 = '44d88612fea8a8f36de82e1278abb02f']",
+            "pattern_type": "stix",
+            "pattern_version": "2.1",
+            "valid_from": "2026-03-05T14:44:28.750787Z",
+            "labels": [
+                "md5",
+                "Brute Force Source"
+            ],
+            "confidence": 20,
+            "object_marking_refs": [
+                "marking-definition--613f2e26-407d-48c7-9eca-b8e91df99dc9"
+            ]
+        }
+    ]
+}
