@@ -1,0 +1,38 @@
+name: "Brute Force Response"
+description: "Triggered when failed logins exceed 20 within 5 minutes. Action: Block IP, tarpit, alert, and threat intel."
+trigger:
+  type: "failed_login_threshold"
+  condition: "count > 20"
+  timeframe: "300s"
+
+actions:
+  - name: "block_attacker_ip"
+    type: "block_ip"
+    params:
+      ip: "${source_ip}"
+      duration: "3600"
+    rollback: "unblock_ip"
+
+  - name: "tarpit_connection"
+    type: "tarpit"
+    params:
+      ip: "${source_ip}"
+      delay_ms: 5000
+
+  - name: "alert_security_team"
+    type: "send_alert"
+    params:
+      level: "HIGH"
+      message: "Brute force attack detected from ${source_ip}. IP has been blocked."
+
+  - name: "query_threat_intel"
+    type: "query_threat_intel"
+    params:
+      ip: "${source_ip}"
+
+  - name: "create_incident_ticket"
+    type: "create_ticket"
+    params:
+      system: "jira"
+      summary: "Brute Force Attack: ${source_ip}"
+      description: "Automated response triggered for brute force attack from IP ${source_ip}."
