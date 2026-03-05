@@ -8,8 +8,8 @@ from datetime import datetime, timezone
 HOST = ""
 PORT = 2222
 
-VALID_USER = "PhantomNet"
-VALID_PASS = "1234"
+VALID_USER = os.getenv("HONEYPOT_SSH_USER", "admin")
+VALID_PASS = os.getenv("HONEYPOT_SSH_PASS", "1234")
 
 MAX_CONNECTIONS_PER_IP = 3
 SESSION_TIMEOUT = 120

@@ -21,16 +21,30 @@ BACKUP_COUNT = 5
 # ==================================================
 # JSON FORMATTER
 # ==================================================
+import hmac
+import hashlib
+
+# Get secret for log signing from env
+LOG_SIGNING_KEY = os.getenv("LOG_SIGNING_KEY", "default_insecure_key").encode()
+
 class JSONFormatter(logging.Formatter):
     def format(self, record):
-        return json.dumps({
+        log_data = {
             "timestamp": datetime.now(timezone.utc).isoformat(),
             "level": record.levelname,
             "honeypot_type": getattr(record, "honeypot_type", "unknown"),
             "source_ip": getattr(record, "source_ip", None),
             "event": getattr(record, "event", record.getMessage()),
             "data": getattr(record, "data", None),
-        })
+        }
+        
+        # Generate HMAC signature for integrity
+        message = f"{log_data['timestamp']}|{log_data['level']}|{log_data['event']}|{json.dumps(log_data['data'])}".encode()
+        signature = hmac.new(LOG_SIGNING_KEY, message, hashlib.sha256).hexdigest()
+        log_data["signature"] = signature
+        
+        return json.dumps(log_data)
+
 
 # ==================================================
 # ASYNC LOGGING QUEUE

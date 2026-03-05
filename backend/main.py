@@ -97,6 +97,11 @@ app.add_middleware(
 app.add_middleware(ProfilingMiddleware, enable_memory_tracking=False)
 app.add_middleware(MetricsMiddleware)
 
+# Security & Audit Logging
+from middleware.logging_middleware import SecurityLoggingMiddleware
+app.add_middleware(SecurityLoggingMiddleware)
+
+
 # Register Routers
 app.include_router(model_metrics_router)
 app.include_router(threat_intel_router)

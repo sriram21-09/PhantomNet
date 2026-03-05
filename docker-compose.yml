@@ -3,43 +3,68 @@ services:
     image: postgres:15-alpine
     container_name: phantomnet_postgres
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: phantomnet
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      POSTGRES_DB: ${POSTGRES_DB:-phantomnet}
     volumes:
       - postgres_data:/var/lib/postgresql/data
-    ports:
-      - "5432:5432"
+    networks:
+      - app_net
+      - honeypot_net
     healthcheck:
       test: [ "CMD-SHELL", "pg_isready -U postgres" ]
       interval: 5s
       timeout: 5s
       retries: 5
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
 
   ssh_honeypot:
     build: ./honeypots/ssh
     container_name: phantomnet_ssh
     ports:
-      - "2222:2222" # ✅ FIXED
+      - "2222:2222"
     environment:
-      DB_NAME: phantomnet
-      DB_USER: postgres
-      DB_PASSWORD: postgres
+      DB_NAME: ${POSTGRES_DB:-phantomnet}
+      DB_USER: ${POSTGRES_USER:-postgres}
+      DB_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
       DB_HOST: postgres
     volumes:
       - ./backend/logs:/logs
+    networks:
+      - honeypot_net
     depends_on:
       - postgres
+    deploy:
+      resources:
+        limits:
+          cpus: '0.2'
+          memory: 256M
 
   http_honeypot:
     build: ./honeypots/http
     container_name: phantomnet_http
     ports:
       - "8080:8080"
+    environment:
+      DB_NAME: ${POSTGRES_DB:-phantomnet}
+      DB_USER: ${POSTGRES_USER:-postgres}
+      DB_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      DB_HOST: postgres
     volumes:
       - ./backend/logs:/logs
+    networks:
+      - honeypot_net
     depends_on:
       - postgres
+    deploy:
+      resources:
+        limits:
+          cpus: '0.2'
+          memory: 256M
 
   ftp_honeypot:
     build: ./honeypots/ftp
@@ -47,10 +72,22 @@ services:
     ports:
       - "2121:2121"
       - "30000-30020:30000-30020"
+    environment:
+      DB_NAME: ${POSTGRES_DB:-phantomnet}
+      DB_USER: ${POSTGRES_USER:-postgres}
+      DB_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      DB_HOST: postgres
     volumes:
       - ./backend/logs:/logs
+    networks:
+      - honeypot_net
     depends_on:
       - postgres
+    deploy:
+      resources:
+        limits:
+          cpus: '0.2'
+          memory: 256M
 
   smtp-honeypot:
     build:
@@ -59,10 +96,22 @@ services:
     container_name: phantomnet_smtp
     ports:
       - "2525:2525"
+    environment:
+      DB_NAME: ${POSTGRES_DB:-phantomnet}
+      DB_USER: ${POSTGRES_USER:-postgres}
+      DB_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      DB_HOST: postgres
     volumes:
       - ./backend/logs:/logs
+    networks:
+      - honeypot_net
     depends_on:
       - postgres
+    deploy:
+      resources:
+        limits:
+          cpus: '0.2'
+          memory: 256M
 
   frontend:
     build:
@@ -71,8 +120,15 @@ services:
     container_name: phantomnet_frontend
     ports:
       - "3000:80"
+    networks:
+      - app_net
     depends_on:
       - api
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
 
   api:
     build:
@@ -83,18 +139,32 @@ services:
       - "8000:8000"
     environment:
       ENVIRONMENT: production
-      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/phantomnet
+      DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/${POSTGRES_DB:-phantomnet}
       DB_HOST: postgres
-      DB_USER: postgres
-      DB_PASSWORD: postgres
-      DB_NAME: phantomnet
+      DB_USER: ${POSTGRES_USER:-postgres}
+      DB_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      DB_NAME: ${POSTGRES_DB:-phantomnet}
       DB_PORT: 5432
+      JWT_SECRET: ${JWT_SECRET:-supersecret}
+      API_KEY: ${API_KEY:-default_key}
+    networks:
+      - app_net
+      - honeypot_net
     depends_on:
       - postgres
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 1G
 
 networks:
-  phantomnet:
+  app_net:
     driver: bridge
+  honeypot_net:
+    driver: bridge
+    internal: true
 
 volumes:
   postgres_data:
+
