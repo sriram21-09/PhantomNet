@@ -9,7 +9,8 @@ import {
   FaInfoCircle,
   FaNetworkWired,
   FaGlobeAmericas,
-  FaChartBar
+  FaChartBar,
+  FaSearch
 } from "react-icons/fa";
 import "../Styles/components/Navbar.css";
 
@@ -18,11 +19,13 @@ const Navbar = () => {
 
   const navLinks = [
     { path: "/dashboard", label: "Dashboard", icon: FaTachometerAlt },
+    { path: "/hunting", label: "Threat Hunting", icon: FaSearch },
     { path: "/threat-analysis", label: "Threat Analysis", icon: FaExclamationTriangle },
     { path: "/events", label: "Events", icon: FaListAlt },
     { path: "/topology", label: "Topology", icon: FaNetworkWired },
     { path: "/geo-stats", label: "Geo Stats", icon: FaGlobeAmericas },
     { path: "/analytics", label: "Analytics", icon: FaChartBar },
+    { path: "/advanced-dashboard", label: "Advanced NOC", icon: FaShieldAlt },
     { path: "/about", label: "About", icon: FaInfoCircle },
   ];
 

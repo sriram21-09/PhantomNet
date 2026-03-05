@@ -1,0 +1,262 @@
+.live-metrics-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    height: 100%;
+    color: #e0e0e0;
+}
+
+.metric-card-mini {
+    background: rgba(10, 10, 10, 0.8);
+    border: 1px solid rgba(0, 180, 216, 0.2);
+    border-radius: 8px;
+    padding: 0.8rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.metric-card-mini::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 2px;
+    height: 100%;
+    background: #4cc9f0;
+}
+
+.card-icon {
+    background: rgba(76, 201, 240, 0.1);
+    padding: 0.5rem;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.card-info label {
+    font-size: 0.65rem;
+    letter-spacing: 1px;
+    color: #888;
+    display: block;
+}
+
+.card-info .value {
+    font-size: 1.4rem;
+    font-weight: 700;
+    font-family: 'Inter', sans-serif;
+    color: #fff;
+}
+
+.sparkline {
+    flex: 1;
+    height: 40px;
+}
+
+.metrics-middle-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+
+.distribution-chart,
+.system-health {
+    background: rgba(10, 10, 10, 0.8);
+    border: 1px solid rgba(0, 180, 216, 0.1);
+    border-radius: 8px;
+    padding: 1rem;
+}
+
+.distribution-chart h4,
+.system-health h4 {
+    margin: 0 0 1rem 0;
+    font-size: 0.75rem;
+    letter-spacing: 1px;
+    color: #4cc9f0;
+    text-transform: uppercase;
+}
+
+.chart-container {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.chart-legend {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+}
+
+.legend-item {
+    font-size: 0.7rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.legend-item span {
+    width: 8px;
+    height: 8px;
+    border-radius: 2px;
+}
+
+.health-bars {
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+}
+
+.health-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+}
+
+.health-item .label {
+    font-size: 0.7rem;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    color: #aaa;
+}
+
+.bar-container {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    height: 8px;
+}
+
+.bar-container .bar {
+    height: 100%;
+    background: #4cc9f0;
+    border-radius: 4px;
+    transition: width 0.5s ease-out;
+    box-shadow: 0 0 10px rgba(76, 201, 240, 0.3);
+}
+
+.bar-container span {
+    font-size: 0.7rem;
+    min-width: 30px;
+    font-weight: 600;
+}
+
+.ml-status-bar {
+    background: rgba(76, 201, 240, 0.05);
+    border: 1px solid rgba(76, 201, 240, 0.2);
+    border-radius: 6px;
+    padding: 0.6rem;
+    display: flex;
+    justify-content: space-between;
+}
+
+.ml-stat {
+    font-size: 0.65rem;
+    display: flex;
+    gap: 0.5rem;
+}
+
+.ml-stat .label {
+    color: #888;
+}
+
+.ml-stat .value {
+    color: #4cc9f0;
+    font-weight: 600;
+}
+
+.status-online {
+    color: #00ff41 !important;
+    text-shadow: 0 0 5px rgba(0, 255, 65, 0.5);
+}
+
+.metrics-loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    font-family: 'Courier New', Courier, monospace;
+    color: #4cc9f0;
+    letter-spacing: 1px;
+}
+
+.metrics-bottom-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+
+.honeypot-status-summary,
+.ml-status-panel {
+    background: rgba(10, 10, 10, 0.8);
+    border: 1px solid rgba(0, 180, 216, 0.1);
+    border-radius: 8px;
+    padding: 1rem;
+}
+
+.honeypot-status-summary h4,
+.ml-status-panel h4 {
+    margin: 0 0 1rem 0;
+    font-size: 0.75rem;
+    letter-spacing: 1px;
+    color: #4cc9f0;
+    text-transform: uppercase;
+}
+
+.node-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.node-item {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    background: rgba(255, 255, 255, 0.05);
+    padding: 0.5rem;
+    border-radius: 4px;
+    font-size: 0.75rem;
+}
+
+.status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+}
+
+.status-dot.online {
+    background: #00ff41;
+    box-shadow: 0 0 5px #00ff41;
+}
+
+.status-dot.offline {
+    background: #ff0055;
+    box-shadow: 0 0 5px #ff0055;
+}
+
+.node-name {
+    flex: 1;
+    color: #e0e0e0;
+    font-weight: 600;
+}
+
+.node-port {
+    color: #888;
+    font-family: 'Courier New', monospace;
+}
+
+.ml-grid {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 1rem;
+    background: rgba(76, 201, 240, 0.05);
+    border: 1px solid rgba(76, 201, 240, 0.2);
+    border-radius: 6px;
+    padding: 1rem;
+}

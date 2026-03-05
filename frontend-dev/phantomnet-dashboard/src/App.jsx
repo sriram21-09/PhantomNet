@@ -12,6 +12,8 @@ import AnomalyDashboard from "./pages/AnomalyDashboard";
 import Topology from "./pages/Topology";
 import GeoDashboard from "./pages/GeoDashboard";
 import AdvancedAnalytics from "./pages/AdvancedAnalytics";
+import ThreatHunting from "./pages/ThreatHunting";
+import AdvancedDashboard from "./pages/AdvancedDashboard";
 
 
 function App() {
@@ -33,6 +35,8 @@ function App() {
               <Route path="/topology" element={<Topology />} />
               <Route path="/geo-stats" element={<GeoDashboard />} />
               <Route path="/analytics" element={<AdvancedAnalytics />} />
+              <Route path="/hunting" element={<ThreatHunting />} />
+              <Route path="/advanced-dashboard" element={<AdvancedDashboard />} />
             </Routes>
           </div>
         </BrowserRouter>

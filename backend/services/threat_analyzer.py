@@ -20,6 +20,8 @@ from database.database import get_db
 
 # Automated Response
 from services.response_executor import response_executor
+from api.realtime import push_realtime_event
+import asyncio
 
 # Configure logging
 logger = logging.getLogger("threat_analyzer")

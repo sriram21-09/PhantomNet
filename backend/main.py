@@ -7,6 +7,7 @@ import os
 import json
 import contextlib
 import socket
+import asyncio
 from sqlalchemy import text, func
 from datetime import datetime
 from dotenv import load_dotenv
@@ -44,6 +45,7 @@ from api.model_metrics import router as model_metrics_router
 from api.threat_intel import router as threat_intel_router
 from api.topology import router as topology_router
 from api.management import router as management_router
+from api.realtime import router as realtime_router, push_realtime_event
 
 # =========================
 # ENVIRONMENT SETUP
@@ -70,12 +72,60 @@ async def lifespan(app: FastAPI):
         
         # Start Threat Analyzer Background Service
         threat_analyzer.start()
+
+        # Initialize and load scheduled reports
+        from services.scheduler_service import scheduler_service
+        scheduler_service.load_schedules()
+        print("Scheduled Reports Loader Started")
+        
+        # Start Real-Time Metrics Broadcaster
+        asyncio.create_task(broadcast_live_metrics())
     else:
         print("Sniffer disabled (CI/Test mode)")
 
     yield
     print("PhantomNet Shutting Down")
     threat_analyzer.stop()
+
+async def broadcast_live_metrics():
+    """Background task to broadcast real-time metrics every 2 seconds."""
+    from database.database import SessionLocal
+    from services.stats_aggregator import StatsService
+    import psutil
+    
+    print("🚀 Real-Time Metrics Broadcaster Started")
+    while True:
+        try:
+            db = SessionLocal()
+            service = StatsService(db)
+            stats = service.calculate_stats()
+            
+            # Enrich with Honeypot Statuses
+            from api.honeypots import get_honeypot_status
+            stats["honeypots"] = get_honeypot_status()
+            
+            # Enrich with system health
+            stats["system_health"] = {
+                "cpu": psutil.cpu_percent(),
+                "memory": psutil.virtual_memory().percent,
+                "disk": psutil.disk_usage('/').percent
+            }
+            
+            # Enrich with ML Status (Mock/Placeholder for now as requested)
+            stats["ml_status"] = {
+                "inference_time": "12ms",
+                "queue_depth": 0,
+                "status": "online"
+            }
+            
+            await push_realtime_event("LIVE_METRICS", stats)
+        except Exception as e:
+            print(f"Error in metrics broadcast loop: {e}")
+        finally:
+            if 'db' in locals():
+                db.close()
+        
+        await asyncio.sleep(2)
 
 # =========================
 # APP INIT (ONLY ONE APP)
@@ -104,6 +154,7 @@ app.include_router(model_metrics_router)
 app.include_router(threat_intel_router)
 app.include_router(topology_router)
 app.include_router(management_router)
+app.include_router(realtime_router)
 
 # =========================
 # ROUTERS
@@ -112,11 +163,17 @@ from api.threat_scoring import router as threat_router
 from api.protocol_analytics import router as analytics_router
 from api.metrics import router as metrics_router
 from api.pattern_analytics import router as pattern_analytics_router
+from api.reports import router as reports_router
+from api.hunting import router as hunting_router
+from api.cases import router as cases_router
 
 app.include_router(threat_router)
 app.include_router(analytics_router)
 app.include_router(metrics_router)
 app.include_router(pattern_analytics_router)
+app.include_router(reports_router)
+app.include_router(hunting_router)
+app.include_router(cases_router)
 
 # =========================
 # CORE ENDPOINTS
