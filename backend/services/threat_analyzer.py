@@ -182,98 +182,79 @@ class ThreatAnalyzerService:
             # Fetch logs where threat_level is NULL
             logs = db.query(PacketLog).filter(
                 PacketLog.threat_level.is_(None)
-            ).order_by(PacketLog.timestamp.desc()).limit(50).all()
+            ).order_by(PacketLog.timestamp.desc()).limit(100).all() # Up to 100 for batching
+
+            if not logs:
+                return
 
             updated_count = 0
+            inputs_for_batching = []
+            log_mapping = [] # to map back response to the specific log
+            
+            # Find which ones need scoring vs cache
             for log in logs:
                 cached = self._get_cached_score(log.src_ip)
                 if cached:
                     result = cached['result']
+                    # Apply immediately from local analyzer cache
+                    self._apply_threat_result(log, result)
+                    updated_count += 1
                 else:
-                    try:
-                        start_time = time.time()
-                        input_data = ThreatInput(
-                            src_ip=log.src_ip,
-                            dst_ip=log.dst_ip or "127.0.0.1",
-                            src_port=log.src_port or 0,
-                            dst_port=log.dst_port or 0,
-                            protocol=log.protocol or "UNKNOWN",
-                            length=log.length or 0,
-                        )
-                        result = score_threat(input_data)
-                        
-                        # Apply LSTM sequence ensemble
-                        lstm_score = self._compute_lstm_score(log.src_ip, log)
-                        
-                        # Only apply ensemble if buffer is full (lstm_score > 0)
-                        if lstm_score > 0:
-                            # 60% RF, 40% LSTM
-                            combined_score = (result.score * 0.6) + (lstm_score * 0.4)
-                            result.score = combined_score
-                            
-                            if combined_score >= 0.8:
-                                result.threat_level = "CRITICAL"
-                            elif combined_score >= 0.6:
-                                result.threat_level = "HIGH"
-                            elif combined_score >= 0.4:
-                                result.threat_level = "MEDIUM"
-                            else:
-                                result.threat_level = "LOW"
-                                
-                        inf_time_ms = (time.time() - start_time) * 1000
-                        if inf_time_ms > 100:
-                            logger.warning(f"Inference time exceeded target! {inf_time_ms:.2f}ms")
-                            
-                        self._cache_score(log.src_ip, result)
-                    except Exception as e:
-                        logger.error(f"Error processing unscored logs: {e}")
+                    inputs_for_batching.append(ThreatInput(
+                        src_ip=log.src_ip,
+                        dst_ip=log.dst_ip or "127.0.0.1",
+                        src_port=log.src_port or 0,
+                        dst_port=log.dst_port or 0,
+                        protocol=log.protocol or "UNKNOWN",
+                        length=log.length or 0,
+                    ))
+                    log_mapping.append(log)
+
+            # Process the batch using vectorized API
+            if inputs_for_batching:
+                start_time = time.time()
+                try:
+                    from ml.threat_scoring_service import score_threat_batch
+                    batch_results = score_threat_batch(inputs_for_batching)
                     
-                    # 4. Notify Topology Visualization of new activity
-                    try:
-                        from api.topology import push_topology_event
-                        # Just a heartbeat update for now, telling the UI "something happened"
-                        asyncio.run(push_topology_event("TRAFFIC_TICK", {"count": len(logs)})) # Changed unscored_logs to logs
-                    except Exception as ws_e:
-                        logger.debug(f"Topology sync skipped: {ws_e}")
-
-                    time.sleep(2)
-
-                # Update DB Record
-                log.threat_score = result.score
-                log.threat_level = result.threat_level
-                log.confidence = result.confidence
-                log.attack_type = result.decision
-                log.is_malicious = result.threat_level in ["HIGH", "CRITICAL"]
-                
-                # 4. Notify Topology Visualization of Threat
-                if log.is_malicious:
-                    try:
-                        from api.topology import push_topology_event
-                        asyncio.run(push_topology_event("THREAT_DETECTED", {
-                            "attacker_ip": log.src_ip,
-                            "target_service": log.dst_port,
-                            "threat_score": result.score,
-                            "attack_type": result.decision
-                        }))
-                    except Exception as ws_e:
-                        logger.debug(f"Topology threat sync failed: {ws_e}")
-
-                updated_count += 1
-
-                # Trigger automated response for HIGH/CRITICAL threats
-                if result.threat_level in ["HIGH", "CRITICAL"]:
-                    try:
-                        response_executor.execute(
-                            ip=log.src_ip,
-                            threat_score=result.score * 100,
-                            threat_level=result.threat_level,
-                            protocol=log.protocol or "UNKNOWN",
-                            details=f"Auto-detected: {result.decision}"
-                        )
-                    except Exception as e:
-                        logger.error(f"Response execution failed for {log.src_ip}: {e}")
+                    for idx, result in enumerate(batch_results):
+                        if result:
+                            log = log_mapping[idx]
+                            
+                            # Apply LSTM sequence ensemble
+                            lstm_score = self._compute_lstm_score(log.src_ip, log)
+                            
+                            if lstm_score > 0:
+                                combined_score = (result.score * 0.6) + (lstm_score * 0.4)
+                                result.score = combined_score
+                                if combined_score >= 0.8:
+                                    result.threat_level = "CRITICAL"
+                                elif combined_score >= 0.6:
+                                    result.threat_level = "HIGH"
+                                elif combined_score >= 0.4:
+                                    result.threat_level = "MEDIUM"
+                                else:
+                                    result.threat_level = "LOW"
+                                    
+                            self._cache_score(log.src_ip, result)
+                            self._apply_threat_result(log, result)
+                            updated_count += 1
+                            
+                    inf_time_ms = (time.time() - start_time) * 1000
+                    logger.debug(f"Batch prediction complete. Time: {inf_time_ms:.2f}ms for {len(inputs_for_batching)} events.")
+                    
+                except Exception as e:
+                    logger.error(f"Error in batch processing: {e}")
 
             if updated_count > 0:
+                # Notify Topology Visualization of new activity
+                try:
+                    import asyncio
+                    from api.topology import push_topology_event
+                    asyncio.run(push_topology_event("TRAFFIC_TICK", {"count": len(logs)}))
+                except Exception as ws_e:
+                    logger.debug(f"Topology sync skipped: {ws_e}")
+                    
                 db.commit()
                 logger.debug(f"Analyzed and updated {updated_count} logs.")
 
@@ -282,6 +263,39 @@ class ThreatAnalyzerService:
             db.rollback()
         finally:
             db.close()
+            
+    def _apply_threat_result(self, log: PacketLog, result):
+        """Helper to apply result entity to PacketLog object"""
+        log.threat_score = result.score
+        log.threat_level = result.threat_level
+        log.confidence = result.confidence
+        log.attack_type = result.decision
+        log.is_malicious = result.threat_level in ["HIGH", "CRITICAL"]
+        
+        if log.is_malicious:
+            try:
+                import asyncio
+                from api.topology import push_topology_event
+                asyncio.run(push_topology_event("THREAT_DETECTED", {
+                    "attacker_ip": log.src_ip,
+                    "target_service": log.dst_port,
+                    "threat_score": result.score,
+                    "attack_type": result.decision
+                }))
+            except Exception as ws_e:
+                logger.debug(f"Topology threat sync failed: {ws_e}")
+
+        if result.threat_level in ["HIGH", "CRITICAL"]:
+            try:
+                response_executor.execute(
+                    ip=log.src_ip,
+                    threat_score=result.score * 100,
+                    threat_level=result.threat_level,
+                    protocol=log.protocol or "UNKNOWN",
+                    details=f"Auto-detected: {result.decision}"
+                )
+            except Exception as e:
+                logger.error(f"Response execution failed for {log.src_ip}: {e}")
 
 # Singleton instance
 threat_analyzer = ThreatAnalyzerService()

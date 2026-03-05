@@ -19,9 +19,12 @@ except ImportError:
     HAS_TF = False
 
 def train_model():
-    data_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', 'ml_models', 'lstm_training_data.pkl'))
-    model_dir = os.path.dirname(data_path)
-    model_path = os.path.join(model_dir, "lstm_attack_predictor.h5")
+    # Make models folder explicitly if we don't know where we're running from
+    models_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', 'ml_models'))
+    os.makedirs(models_dir, exist_ok=True)
+
+    data_path = os.path.join(models_dir, "lstm_training_data.pkl")
+    model_path = os.path.join(models_dir, "lstm_attack_predictor.h5")
     
     if not os.path.exists(data_path):
         print(f"Training data not found at {data_path}. Run data prep first.")
