@@ -69,8 +69,12 @@ def main():
 
         setup_mlflow()
 
+        # Optimized for speed (less depth, fewer trees)
         model = RandomForestClassifier(
-            n_estimators=200,
+            n_estimators=50,
+            max_depth=12,
+            min_samples_split=5,
+            n_jobs=-1, # use all cores
             random_state=42
         )
 
@@ -90,7 +94,9 @@ def main():
 
             log_params({
                 "model": "RandomForest",
-                "n_estimators": 200,
+                "n_estimators": 50,
+                "max_depth": 12,
+                "min_samples_split": 5,
             })
 
             log_metrics(metrics)

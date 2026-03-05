@@ -1,0 +1,409 @@
+﻿python : Redis not 
+available. Running 
+without prediction 
+cache.
+At line:1 char:60
++ ... ONPATH="."; 
+python ..\tests\integr
+ation\stress_test.py 
+> ..\stress_ou ...
++                 ~~~~
+~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~
+    + CategoryInfo    
+          : NotSpeci  
+  fied: (Redis not    
+ avail...ediction     
+cache.:String) []    
+, RemoteException
+    + FullyQualifiedE 
+   rrorId : NativeCo  
+  mmandError
+ 
+INFO:PhantomNet-DB:\U0
+001f50c Attempting 
+connection to 
+Database...
+INFO:PhantomNet-DB:\u2
+705 Database 
+Connection 
+ESTABLISHED.
+INFO:stress_test:Regis
+tering 11 dummy 
+honeypot nodes...
+INFO:stress_test:Start
+ing Stress Test: 20 
+Workers pumping 5000 
+vectors.
+C:\Users\shalo\AppData
+\Local\Programs\Python
+\Python314\Lib\site-pa
+ckages\mlflow\tracking
+\_tracking_service\uti
+ls.py:178: 
+FutureWarning: The 
+filesystem tracking 
+backend (e.g., 
+'./mlruns') will be 
+deprecated in 
+February 2026. 
+Consider 
+transitioning to a 
+database backend 
+(e.g., 'sqlite:///mlfl
+ow.db') to take 
+advantage of the 
+latest MLflow 
+features. See https://
+github.com/mlflow/mlfl
+ow/issues/18534 for 
+more details and 
+migration guidance. 
+For migrating 
+existing data, https:/
+/github.com/mlflow/mlf
+low-export-import can 
+be used.
+  return 
+FileStore(store_uri, 
+store_uri)
+C:\Users\shalo\Phantom
+Net\backend\ml\model_l
+oader.py:31: 
+FutureWarning: ``mlflo
+w.tracking.client.Mlfl
+owClient.get_latest_ve
+rsions`` is 
+deprecated since 
+2.9.0. Model registry 
+stages will be 
+removed in a future 
+major release. To 
+learn more about the 
+deprecation of model 
+registry stages, see 
+our migration guide 
+here: https://mlflow.o
+rg/docs/latest/model-r
+egistry.html#migrating
+-from-stages
+  versions = client.ge
+t_latest_versions(MODE
+L_NAME, 
+stages=["Production"])
+C:\Users\shalo\AppData
+\Local\Programs\Python
+\Python314\Lib\site-pa
+ckages\mlflow\tracking
+\_model_registry\utils
+.py:216: 
+FutureWarning: The 
+filesystem model 
+registry backend 
+(e.g., './mlruns') 
+will be deprecated in 
+February 2026. 
+Consider 
+transitioning to a 
+database backend 
+(e.g., 'sqlite:///mlfl
+ow.db') to take 
+advantage of the 
+latest MLflow 
+features. See https://
+github.com/mlflow/mlfl
+ow/issues/18534 for 
+more details and 
+migration guidance. 
+For migrating 
+existing data, https:/
+/github.com/mlflow/mlf
+low-export-import can 
+be used.
+  return 
+FileStore(store_uri)
+ERROR:stress_test:DB 
+Write failed: 
+'ThreatResponse' 
+object has no 
+attribute 'get'
+ERROR:stress_test:DB 
+Write failed: 
+'ThreatResponse' 
+object has no 
+attribute 'get'
+ERROR:stress_test:DB 
+Write failed: 
+'ThreatResponse' 
+object has no 
+attribute 'get'
+ERROR:stress_test:DB 
+Write failed: 
+'ThreatResponse' 
+object has no 
+attribute 'get'
+ERROR:stress_test:DB 
+Write failed: 
+'ThreatResponse' 
+object has no 
+attribute 'get'
+ERROR:stress_test:DB 
+Write failed: 
+'ThreatResponse' 
+object has no 
+attribute 'get'
+ERROR:stress_test:DB 
+Write failed: 
+'ThreatResponse' 
+object has no 
+attribute 'get'
+ERROR:stress_test:DB 
+Write failed: 
+'ThreatResponse' 
+object has no 
+attribute 'get'
+ERROR:stress_test:DB 
+Write failed: 
+'ThreatResponse' 
+object has no 
+attribute 'get'
+ERROR:stress_test:DB 
+Write failed: 
+'ThreatResponse' 
+object has no 
+attribute 'get'
+ERROR:stress_test:DB 
+Write failed: 
+'ThreatResponse' 
+object has no 
+attribute 'get'
+ERROR:stress_test:DB 
+Write failed: 
+'ThreatResponse' 
+object has no 
+attribute 'get'
+ERROR:stress_test:DB 
+Write failed: 
+'ThreatResponse' 
+object has no 
+attribute 'get'
+ERROR:stress_test:DB 
+Write failed: 
+'ThreatResponse' 
+object has no 
+attribute 'get'
+ERROR:stress_test:DB 
+Write failed: 
+'ThreatResponse' 
+object has no 
+attribute 'get'
+ERROR:stress_test:DB 
+Write failed: 
+'ThreatResponse' 
+object has no 
+attribute 'get'
+ERROR:stress_test:DB 
+Write failed: 
+'ThreatResponse' 
+object has no 
+attribute 'get'
+ERROR:stress_test:DB 
+Write failed: 
+'ThreatResponse' 
+object has no 
+attribute 'get'
+ERROR:stress_test:DB 
+Write failed: 
+'ThreatResponse' 
+object has no 
+attribute 'get'
+ERROR:stress_test:DB 
+Write failed: 
+'ThreatResponse' 
+object has no 
+attribute 'get'
+ERROR:stress_test:DB 
+Write failed: 
+'ThreatResponse' 
+object has no 
+attribute 'get'
+ERROR:stress_test:DB 
+Write failed: 
+'ThreatResponse' 
+object has no 
+attribute 'get'
+ERROR:stress_test:DB 
+Write failed: 
+'ThreatResponse' 
+object has no 
+attribute 'get'
+ERROR:stress_test:DB 
+Write failed: 
+'ThreatResponse' 
+object has no 
+attribute 'get'
+ERROR:stress_test:DB 
+Write failed: 
+'ThreatResponse' 
+object has no 
+attribute 'get'
+ERROR:stress_test:DB 
+Write failed: 
+'ThreatResponse' 
+object has no 
+attribute 'get'
+ERROR:stress_test:DB 
+Write failed: 
+'ThreatResponse' 
+object has no 
+attribute 'get'
+ERROR:stress_test:DB 
+Write failed: 
+'ThreatResponse' 
+object has no 
+attribute 'get'
+ERROR:stress_test:DB 
+Write failed: 
+'ThreatResponse' 
+object has no 
+attribute 'get'
+ERROR:stress_test:DB 
+Write failed: 
+'ThreatResponse' 
+object has no 
+attribute 'get'
+ERROR:stress_test:DB 
+Write failed: 
+'ThreatResponse' 
+object has no 
+attribute 'get'
+ERROR:stress_test:DB 
+Write failed: 
+'ThreatResponse' 
+object has no 
+attribute 'get'
+ERROR:stress_test:DB 
+Write failed: 
+'ThreatResponse' 
+object has no 
+attribute 'get'
+ERROR:stress_test:DB 
+Write failed: 
+'ThreatResponse' 
+object has no 
+attribute 'get'
+ERROR:stress_test:DB 
+Write failed: 
+'ThreatResponse' 
+object has no 
+attribute 'get'
+ERROR:stress_test:DB 
+Write failed: 
+'ThreatResponse' 
+object has no 
+attribute 'get'
+ERROR:stress_test:DB 
+Write failed: 
+'ThreatResponse' 
+object has no 
+attribute 'get'
+ERROR:stress_test:DB 
+Write failed: 
+'ThreatResponse' 
+object has no 
+attribute 'get'
+ERROR:stress_test:DB 
+Write failed: 
+'ThreatResponse' 
+object has no 
+attribute 'get'
+ERROR:stress_test:DB 
+Write failed: 
+'ThreatResponse' 
+object has no 
+attribute 'get'
+ERROR:stress_test:DB 
+Write failed: 
+'ThreatResponse' 
+object has no 
+attribute 'get'
+ERROR:stress_test:DB 
+Write failed: 
+'ThreatResponse' 
+object has no 
+attribute 'get'
+ERROR:stress_test:DB 
+Write failed: 
+'ThreatResponse' 
+object has no 
+attribute 'get'
+ERROR:stress_test:DB 
+Write failed: 
+'ThreatResponse' 
+object has no 
+attribute 'get'
+ERROR:stress_test:DB 
+Write failed: 
+'ThreatResponse' 
+object has no 
+attribute 'get'
+ERROR:stress_test:DB 
+Write failed: 
+'ThreatResponse' 
+object has no 
+attribute 'get'
+ERROR:stress_test:DB 
+Write failed: 
+'ThreatResponse' 
+object has no 
+attribute 'get'
+ERROR:stress_test:DB 
+Write failed: 
+'ThreatResponse' 
+object has no 
+attribute 'get'
+ERROR:stress_test:DB 
+Write failed: 
+'ThreatResponse' 
+object has no 
+attribute 'get'
+ERROR:stress_test:DB 
+Write failed: 
+'ThreatResponse' 
+object has no 
+attribute 'get'
+INFO:stress_test:=====
+======================
+=============
+INFO:stress_test: 
+STRESS TEST RESULTS 
+INFO:stress_test:=====
+======================
+=============
+INFO:stress_test:Targe
+t Events   : 5000
+INFO:stress_test:Total
+ Processed : 5000
+INFO:stress_test:Execu
+tion Time  : 0.34 
+seconds
+INFO:stress_test:Overa
+ll Rate    : 14681.88 
+events/sec
+INFO:stress_test:Avg 
+ML Latency  : 79.48 
+ms (per batch of 100)
+INFO:stress_test:Avg 
+DB Latency  : 4.39 ms 
+(per batch of 100)
+INFO:stress_test:CPU 
+Utilization : 17.2% 
+-> 23.5%
+INFO:stress_test:RAM 
+Utilization : 73.2% 
+-> 73.2%
+INFO:stress_test:=====
+======================
+=============
+[MODEL_LOADER] Initializing ML scoring engine...
