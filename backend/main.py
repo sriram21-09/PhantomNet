@@ -22,6 +22,8 @@ from services.traffic_sniffer import RealTimeSniffer
 from services.stats_aggregator import StatsService
 from services.firewall import FirewallService
 from services.threat_analyzer import threat_analyzer
+from ml_engine.campaign_clustering import campaign_clusterer
+from ml_engine.explainability import explainer_service
 
 # =========================
 # PERFORMANCE MIDDLEWARE
@@ -627,3 +629,44 @@ def update_response_policy(updates: dict):
 def response_stats():
     """Return automated response system statistics."""
     return response_executor.stats
+
+# =========================
+# ADVANCED ML ENDPOINTS
+# =========================
+@app.get("/api/v1/advanced/campaigns", tags=["Advanced ML"])
+def get_attack_campaigns(hours_back: int = 24, db: Session = Depends(get_db)):
+    """Analyze recent threats and cluster coordinated attack campaigns."""
+    result = campaign_clusterer.identify_campaigns(hours_back)
+    if "error" in result:
+        raise HTTPException(status_code=500, detail=result["error"])
+    return result
+
+@app.get("/api/v1/events/{event_id}/explanation", tags=["Advanced ML"])
+def explain_threat_score(event_id: int, db: Session = Depends(get_db)):
+    """Generate SHAP feature explanations for a specific scored event."""
+    log = db.query(PacketLog).filter(PacketLog.id == event_id).first()
+    if not log:
+        raise HTTPException(status_code=404, detail="Event not found")
+        
+    event_data = {
+        "src_ip": log.src_ip,
+        "dst_ip": log.dst_ip or "127.0.0.1",
+        "dst_port": log.dst_port or 0,
+        "protocol": log.protocol or "UNKNOWN",
+        "length": log.length or 0
+    }
+    
+    explanation = explainer_service.explain_prediction(event_data)
+    if "error" in explanation:
+        raise HTTPException(status_code=500, detail=explanation["error"])
+        
+    return {
+        "event_id": event_id,
+        "threat_level": log.threat_level,
+        "score": log.threat_score,
+        "explanation": explanation
+    }
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)

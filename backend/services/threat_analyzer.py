@@ -15,6 +15,7 @@ from database.models import PacketLog
 from ml.threat_scoring_service import score_threat
 from schemas.threat_schema import ThreatInput
 from ml_engine.pattern_detector import AdvancedPatternDetector
+from ml_engine.unsupervised_detector import unsupervised_detector
 from database.database import get_db
 
 # Automated Response
@@ -217,24 +218,39 @@ class ThreatAnalyzerService:
                     from ml.threat_scoring_service import score_threat_batch
                     batch_results = score_threat_batch(inputs_for_batching)
                     
+                    # Compute unsupervised anomaly scores in bulk for speed
+                    events_dicts = [
+                        {"src_ip": i.src_ip, "dst_ip": i.dst_ip, "dst_port": i.dst_port, "protocol": i.protocol, "length": i.length} 
+                        for i in inputs_for_batching
+                    ]
+                    unsupervised_scores = unsupervised_detector.predict_anomalies(events_dicts)
+                    
                     for idx, result in enumerate(batch_results):
                         if result:
                             log = log_mapping[idx]
+                            
+                            # Apply Unsupervised Anomaly detection
+                            anomaly_score = unsupervised_scores[idx]
                             
                             # Apply LSTM sequence ensemble
                             lstm_score = self._compute_lstm_score(log.src_ip, log)
                             
                             if lstm_score > 0:
-                                combined_score = (result.score * 0.6) + (lstm_score * 0.4)
-                                result.score = combined_score
-                                if combined_score >= 0.8:
-                                    result.threat_level = "CRITICAL"
-                                elif combined_score >= 0.6:
-                                    result.threat_level = "HIGH"
-                                elif combined_score >= 0.4:
-                                    result.threat_level = "MEDIUM"
-                                else:
-                                    result.threat_level = "LOW"
+                                # Ensemble Equation: 50% RF, 30% LSTM, 20% Unsupervised Anomaly baseline
+                                combined_score = (result.score * 0.5) + (lstm_score * 0.3) + (anomaly_score * 0.2)
+                            else:
+                                # Fallback Sequence (Buffer not full): 80% RF, 20% Unsupervised
+                                combined_score = (result.score * 0.8) + (anomaly_score * 0.2)
+                                
+                            result.score = combined_score
+                            if combined_score >= 0.8:
+                                result.threat_level = "CRITICAL"
+                            elif combined_score >= 0.6:
+                                result.threat_level = "HIGH"
+                            elif combined_score >= 0.4:
+                                result.threat_level = "MEDIUM"
+                            else:
+                                result.threat_level = "LOW"
                                     
                             self._cache_score(log.src_ip, result)
                             self._apply_threat_result(log, result)
