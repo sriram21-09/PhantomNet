@@ -46,6 +46,7 @@ from api.management import router as management_router
 from api.realtime import router as realtime_router, push_realtime_event
 from api.attack_attribution import router as attack_attribution_router
 from api.predictive import router as predictive_router
+from api.admin import router as admin_router
 
 # =========================
 # ENVIRONMENT SETUP
@@ -83,6 +84,13 @@ async def lifespan(app: FastAPI):
         
         # Start Event Stream Broadcaster
         asyncio.create_task(broadcast_event_stream())
+        
+        # Seed default admin
+        from middleware.auth import seed_default_admin
+        from database.database import SessionLocal
+        _db = SessionLocal()
+        seed_default_admin(_db)
+        _db.close()
     else:
         print("Sniffer disabled (CI/Test mode)")
 
@@ -208,6 +216,7 @@ app.include_router(management_router)
 app.include_router(realtime_router)
 app.include_router(attack_attribution_router)
 app.include_router(predictive_router)
+app.include_router(admin_router)
 
 # =========================
 # ROUTERS
