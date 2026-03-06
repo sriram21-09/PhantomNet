@@ -101,8 +101,9 @@ def start_ssh():
     print("[+] SSH Honeypot running on port 2222")
     log_text("SSH Honeypot started")
 
-    CORRECT_USER = "PhantomNet"
-    CORRECT_PASS = "1234"
+    CORRECT_USER = os.getenv("HONEYPOT_SSH_USER", "admin")
+    CORRECT_PASS = os.getenv("HONEYPOT_SSH_PASS", "1234")
+
 
     while True:
         try:

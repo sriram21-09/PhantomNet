@@ -1,0 +1,404 @@
+{
+    "type": "bundle",
+    "id": "bundle--f61fb19d-9876-4d58-9659-f95185b2e51d",
+    "objects": [
+        {
+            "type": "identity",
+            "spec_version": "2.1",
+            "id": "identity--9e36ee29-186e-426e-a560-cd73396ec513",
+            "created": "2026-03-05T10:09:50.503755Z",
+            "modified": "2026-03-05T10:09:50.503755Z",
+            "name": "PhantomNet AI",
+            "description": "Automated Honeypot & Deception Platform",
+            "identity_class": "organization"
+        },
+        {
+            "type": "threat-actor",
+            "spec_version": "2.1",
+            "id": "threat-actor--4232d0eb-23aa-45a3-911d-2acea3a95747",
+            "created": "2026-03-05T10:09:51.159377Z",
+            "modified": "2026-03-05T10:09:51.159377Z",
+            "name": "Unknown Adversary",
+            "description": "Automated scanning or targeted attack detected by PhantomNet.",
+            "threat_actor_types": [
+                "scanner",
+                "adversary"
+            ]
+        },
+        {
+            "type": "indicator",
+            "spec_version": "2.1",
+            "id": "indicator--f90d7534-e885-4267-a8ed-be55676e286f",
+            "created_by_ref": "identity--9e36ee29-186e-426e-a560-cd73396ec513",
+            "created": "2026-03-05T10:09:51.160007Z",
+            "modified": "2026-03-05T10:09:51.160007Z",
+            "name": "Brute Force Source",
+            "description": "Detected via PhantomNet Honeypots. Context: Inbound connection from 185.156.177.34. SSH login attempt with username 'root'. Downloading malicious file from http://malicious-site.com/payload.exe. MD5: 44d88612fea8a8f36de82e1278abb02f",
+            "pattern": "[ipv4-addr:value = '185.156.177.34']",
+            "pattern_type": "stix",
+            "pattern_version": "2.1",
+            "valid_from": "2026-03-05T15:39:51.159991Z",
+            "labels": [
+                "ips",
+                "Brute Force Source"
+            ],
+            "confidence": 50,
+            "object_marking_refs": [
+                "marking-definition--613f2e26-407d-48c7-9eca-b8e91df99dc9"
+            ]
+        },
+        {
+            "type": "observed-data",
+            "spec_version": "2.1",
+            "id": "observed-data--9a1ca131-a643-4bea-b07c-9abc49ca7dee",
+            "created": "2026-03-05T10:09:51.165547Z",
+            "modified": "2026-03-05T10:09:51.165547Z",
+            "first_observed": "2026-03-05T15:39:51.165535Z",
+            "last_observed": "2026-03-05T15:39:51.165536Z",
+            "number_observed": 1,
+            "objects": {
+                "0": {
+                    "type": "ipv4-addr",
+                    "spec_version": "2.1",
+                    "id": "ipv4-addr--25ed90ef-294d-582d-bfa5-2e414baf6c04",
+                    "value": "185.156.177.34"
+                }
+            }
+        },
+        {
+            "type": "attack-pattern",
+            "spec_version": "2.1",
+            "id": "attack-pattern--70ce57b1-98fe-494d-89b5-5b8f2e434ea0",
+            "created": "2026-03-05T10:09:51.167502Z",
+            "modified": "2026-03-05T10:09:51.167502Z",
+            "name": "Brute Force",
+            "description": "Adversary attempting to gain access by guessing credentials.",
+            "external_references": [
+                {
+                    "source_name": "capec",
+                    "external_id": "CAPEC-112"
+                }
+            ]
+        },
+        {
+            "type": "relationship",
+            "spec_version": "2.1",
+            "id": "relationship--89a611eb-c5eb-4c04-a8de-56452d7c9de0",
+            "created": "2026-03-05T10:09:51.167655Z",
+            "modified": "2026-03-05T10:09:51.167655Z",
+            "relationship_type": "indicates",
+            "source_ref": "indicator--f90d7534-e885-4267-a8ed-be55676e286f",
+            "target_ref": "attack-pattern--70ce57b1-98fe-494d-89b5-5b8f2e434ea0"
+        },
+        {
+            "type": "relationship",
+            "spec_version": "2.1",
+            "id": "relationship--2cd79323-a804-4103-8c2b-2d09ce8d1dff",
+            "created": "2026-03-05T10:09:51.167978Z",
+            "modified": "2026-03-05T10:09:51.167978Z",
+            "relationship_type": "uses",
+            "source_ref": "threat-actor--4232d0eb-23aa-45a3-911d-2acea3a95747",
+            "target_ref": "attack-pattern--70ce57b1-98fe-494d-89b5-5b8f2e434ea0"
+        },
+        {
+            "type": "indicator",
+            "spec_version": "2.1",
+            "id": "indicator--9fcf6dac-c88f-4d98-98e8-f89a83148d45",
+            "created_by_ref": "identity--9e36ee29-186e-426e-a560-cd73396ec513",
+            "created": "2026-03-05T10:09:51.168112Z",
+            "modified": "2026-03-05T10:09:51.168112Z",
+            "name": "Brute Force Source",
+            "description": "Detected via PhantomNet Honeypots. Context: Inbound connection from 185.156.177.34. SSH login attempt with username 'root'. Downloading malicious file from http://malicious-site.com/payload.exe. MD5: 44d88612fea8a8f36de82e1278abb02f",
+            "pattern": "[domain-name:value = 'malicious-site.com']",
+            "pattern_type": "stix",
+            "pattern_version": "2.1",
+            "valid_from": "2026-03-05T15:39:51.168104Z",
+            "labels": [
+                "domains",
+                "Brute Force Source"
+            ],
+            "confidence": 50,
+            "object_marking_refs": [
+                "marking-definition--613f2e26-407d-48c7-9eca-b8e91df99dc9"
+            ]
+        },
+        {
+            "type": "observed-data",
+            "spec_version": "2.1",
+            "id": "observed-data--c68df4d7-3829-4e41-b7a6-abfd236fd61d",
+            "created": "2026-03-05T10:09:51.169219Z",
+            "modified": "2026-03-05T10:09:51.169219Z",
+            "first_observed": "2026-03-05T15:39:51.169211Z",
+            "last_observed": "2026-03-05T15:39:51.169212Z",
+            "number_observed": 1,
+            "objects": {
+                "0": {
+                    "type": "domain-name",
+                    "spec_version": "2.1",
+                    "id": "domain-name--a422c8dd-c2b8-55ad-bd0b-365ca87ecf48",
+                    "value": "malicious-site.com"
+                }
+            }
+        },
+        {
+            "type": "attack-pattern",
+            "spec_version": "2.1",
+            "id": "attack-pattern--e9db00a9-2235-475a-aded-fc8141e6ad2f",
+            "created": "2026-03-05T10:09:51.169556Z",
+            "modified": "2026-03-05T10:09:51.169556Z",
+            "name": "Brute Force",
+            "description": "Adversary attempting to gain access by guessing credentials.",
+            "external_references": [
+                {
+                    "source_name": "capec",
+                    "external_id": "CAPEC-112"
+                }
+            ]
+        },
+        {
+            "type": "relationship",
+            "spec_version": "2.1",
+            "id": "relationship--fb9b3472-b795-4aee-82b5-e7250a1320c0",
+            "created": "2026-03-05T10:09:51.169661Z",
+            "modified": "2026-03-05T10:09:51.169661Z",
+            "relationship_type": "indicates",
+            "source_ref": "indicator--9fcf6dac-c88f-4d98-98e8-f89a83148d45",
+            "target_ref": "attack-pattern--e9db00a9-2235-475a-aded-fc8141e6ad2f"
+        },
+        {
+            "type": "relationship",
+            "spec_version": "2.1",
+            "id": "relationship--259ad82b-59d4-429e-bec2-3a8cf7c42d15",
+            "created": "2026-03-05T10:09:51.169782Z",
+            "modified": "2026-03-05T10:09:51.169782Z",
+            "relationship_type": "uses",
+            "source_ref": "threat-actor--4232d0eb-23aa-45a3-911d-2acea3a95747",
+            "target_ref": "attack-pattern--e9db00a9-2235-475a-aded-fc8141e6ad2f"
+        },
+        {
+            "type": "indicator",
+            "spec_version": "2.1",
+            "id": "indicator--c6bb57e3-8a8c-40ac-bdaa-d6137246ec4f",
+            "created_by_ref": "identity--9e36ee29-186e-426e-a560-cd73396ec513",
+            "created": "2026-03-05T10:09:51.169907Z",
+            "modified": "2026-03-05T10:09:51.169907Z",
+            "name": "Brute Force Source",
+            "description": "Detected via PhantomNet Honeypots. Context: Inbound connection from 185.156.177.34. SSH login attempt with username 'root'. Downloading malicious file from http://malicious-site.com/payload.exe. MD5: 44d88612fea8a8f36de82e1278abb02f",
+            "pattern": "[domain-name:value = 'payload.exe']",
+            "pattern_type": "stix",
+            "pattern_version": "2.1",
+            "valid_from": "2026-03-05T15:39:51.169901Z",
+            "labels": [
+                "domains",
+                "Brute Force Source"
+            ],
+            "confidence": 50,
+            "object_marking_refs": [
+                "marking-definition--613f2e26-407d-48c7-9eca-b8e91df99dc9"
+            ]
+        },
+        {
+            "type": "observed-data",
+            "spec_version": "2.1",
+            "id": "observed-data--d49627a8-a8cf-414e-8926-4e29f1fa542f",
+            "created": "2026-03-05T10:09:51.170461Z",
+            "modified": "2026-03-05T10:09:51.170461Z",
+            "first_observed": "2026-03-05T15:39:51.170455Z",
+            "last_observed": "2026-03-05T15:39:51.170455Z",
+            "number_observed": 1,
+            "objects": {
+                "0": {
+                    "type": "domain-name",
+                    "spec_version": "2.1",
+                    "id": "domain-name--ae0f8f25-28a5-5b53-a326-d3ee26f4f04a",
+                    "value": "payload.exe"
+                }
+            }
+        },
+        {
+            "type": "attack-pattern",
+            "spec_version": "2.1",
+            "id": "attack-pattern--f3d9b4ff-c0ab-47b7-b66e-580b83fa5a2b",
+            "created": "2026-03-05T10:09:51.170741Z",
+            "modified": "2026-03-05T10:09:51.170741Z",
+            "name": "Brute Force",
+            "description": "Adversary attempting to gain access by guessing credentials.",
+            "external_references": [
+                {
+                    "source_name": "capec",
+                    "external_id": "CAPEC-112"
+                }
+            ]
+        },
+        {
+            "type": "relationship",
+            "spec_version": "2.1",
+            "id": "relationship--f521bfa0-0b6e-476b-9490-8e79b526dd4d",
+            "created": "2026-03-05T10:09:51.170836Z",
+            "modified": "2026-03-05T10:09:51.170836Z",
+            "relationship_type": "indicates",
+            "source_ref": "indicator--c6bb57e3-8a8c-40ac-bdaa-d6137246ec4f",
+            "target_ref": "attack-pattern--f3d9b4ff-c0ab-47b7-b66e-580b83fa5a2b"
+        },
+        {
+            "type": "relationship",
+            "spec_version": "2.1",
+            "id": "relationship--cfcc606c-c8af-42bf-a030-c7377399637a",
+            "created": "2026-03-05T10:09:51.17095Z",
+            "modified": "2026-03-05T10:09:51.17095Z",
+            "relationship_type": "uses",
+            "source_ref": "threat-actor--4232d0eb-23aa-45a3-911d-2acea3a95747",
+            "target_ref": "attack-pattern--f3d9b4ff-c0ab-47b7-b66e-580b83fa5a2b"
+        },
+        {
+            "type": "indicator",
+            "spec_version": "2.1",
+            "id": "indicator--959c254a-8da1-48fe-ae9a-7f39e7ae024c",
+            "created_by_ref": "identity--9e36ee29-186e-426e-a560-cd73396ec513",
+            "created": "2026-03-05T10:09:51.171071Z",
+            "modified": "2026-03-05T10:09:51.171071Z",
+            "name": "Brute Force Source",
+            "description": "Detected via PhantomNet Honeypots. Context: Inbound connection from 185.156.177.34. SSH login attempt with username 'root'. Downloading malicious file from http://malicious-site.com/payload.exe. MD5: 44d88612fea8a8f36de82e1278abb02f",
+            "pattern": "[url:value = 'http://malicious-site.com/payload.exe.']",
+            "pattern_type": "stix",
+            "pattern_version": "2.1",
+            "valid_from": "2026-03-05T15:39:51.171064Z",
+            "labels": [
+                "urls",
+                "Brute Force Source"
+            ],
+            "confidence": 50,
+            "object_marking_refs": [
+                "marking-definition--613f2e26-407d-48c7-9eca-b8e91df99dc9"
+            ]
+        },
+        {
+            "type": "observed-data",
+            "spec_version": "2.1",
+            "id": "observed-data--da67e27c-3042-4e62-a184-4c281e5e1ff3",
+            "created": "2026-03-05T10:09:51.171808Z",
+            "modified": "2026-03-05T10:09:51.171808Z",
+            "first_observed": "2026-03-05T15:39:51.171801Z",
+            "last_observed": "2026-03-05T15:39:51.171802Z",
+            "number_observed": 1,
+            "objects": {
+                "0": {
+                    "type": "domain-name",
+                    "spec_version": "2.1",
+                    "id": "domain-name--a2105c4b-7647-568a-86cf-288c40e9712e",
+                    "value": "http://malicious-site.com/payload.exe."
+                }
+            }
+        },
+        {
+            "type": "attack-pattern",
+            "spec_version": "2.1",
+            "id": "attack-pattern--bd8679dd-e67e-44e4-890d-a0b51fe94584",
+            "created": "2026-03-05T10:09:51.172096Z",
+            "modified": "2026-03-05T10:09:51.172096Z",
+            "name": "Brute Force",
+            "description": "Adversary attempting to gain access by guessing credentials.",
+            "external_references": [
+                {
+                    "source_name": "capec",
+                    "external_id": "CAPEC-112"
+                }
+            ]
+        },
+        {
+            "type": "relationship",
+            "spec_version": "2.1",
+            "id": "relationship--639bd84e-7e27-4163-8fa2-21b59a7ac10f",
+            "created": "2026-03-05T10:09:51.172194Z",
+            "modified": "2026-03-05T10:09:51.172194Z",
+            "relationship_type": "indicates",
+            "source_ref": "indicator--959c254a-8da1-48fe-ae9a-7f39e7ae024c",
+            "target_ref": "attack-pattern--bd8679dd-e67e-44e4-890d-a0b51fe94584"
+        },
+        {
+            "type": "relationship",
+            "spec_version": "2.1",
+            "id": "relationship--4b396018-d109-4b91-b595-a19c9443e181",
+            "created": "2026-03-05T10:09:51.172313Z",
+            "modified": "2026-03-05T10:09:51.172313Z",
+            "relationship_type": "uses",
+            "source_ref": "threat-actor--4232d0eb-23aa-45a3-911d-2acea3a95747",
+            "target_ref": "attack-pattern--bd8679dd-e67e-44e4-890d-a0b51fe94584"
+        },
+        {
+            "type": "indicator",
+            "spec_version": "2.1",
+            "id": "indicator--5b08261f-fd9a-4d05-8741-3397cf69c17d",
+            "created_by_ref": "identity--9e36ee29-186e-426e-a560-cd73396ec513",
+            "created": "2026-03-05T10:09:51.17243Z",
+            "modified": "2026-03-05T10:09:51.17243Z",
+            "name": "Brute Force Source",
+            "description": "Detected via PhantomNet Honeypots. Context: Inbound connection from 185.156.177.34. SSH login attempt with username 'root'. Downloading malicious file from http://malicious-site.com/payload.exe. MD5: 44d88612fea8a8f36de82e1278abb02f",
+            "pattern": "[file:hashes.MD5 = '44d88612fea8a8f36de82e1278abb02f']",
+            "pattern_type": "stix",
+            "pattern_version": "2.1",
+            "valid_from": "2026-03-05T15:39:51.172424Z",
+            "labels": [
+                "md5",
+                "Brute Force Source"
+            ],
+            "confidence": 50,
+            "object_marking_refs": [
+                "marking-definition--613f2e26-407d-48c7-9eca-b8e91df99dc9"
+            ]
+        },
+        {
+            "type": "observed-data",
+            "spec_version": "2.1",
+            "id": "observed-data--ff0e9bb9-0769-45a2-a900-bdbbc8cd4c33",
+            "created": "2026-03-05T10:09:51.174166Z",
+            "modified": "2026-03-05T10:09:51.174166Z",
+            "first_observed": "2026-03-05T15:39:51.174158Z",
+            "last_observed": "2026-03-05T15:39:51.174159Z",
+            "number_observed": 1,
+            "objects": {
+                "0": {
+                    "type": "domain-name",
+                    "spec_version": "2.1",
+                    "id": "domain-name--3673f3d7-46a9-5744-9834-9b4dcb8bfdc2",
+                    "value": "44d88612fea8a8f36de82e1278abb02f"
+                }
+            }
+        },
+        {
+            "type": "attack-pattern",
+            "spec_version": "2.1",
+            "id": "attack-pattern--ec907604-d1a7-4282-95ae-d64a71d48531",
+            "created": "2026-03-05T10:09:51.174464Z",
+            "modified": "2026-03-05T10:09:51.174464Z",
+            "name": "Brute Force",
+            "description": "Adversary attempting to gain access by guessing credentials.",
+            "external_references": [
+                {
+                    "source_name": "capec",
+                    "external_id": "CAPEC-112"
+                }
+            ]
+        },
+        {
+            "type": "relationship",
+            "spec_version": "2.1",
+            "id": "relationship--fb3bdc14-81e9-4d75-a40e-3b202d8add96",
+            "created": "2026-03-05T10:09:51.174565Z",
+            "modified": "2026-03-05T10:09:51.174565Z",
+            "relationship_type": "indicates",
+            "source_ref": "indicator--5b08261f-fd9a-4d05-8741-3397cf69c17d",
+            "target_ref": "attack-pattern--ec907604-d1a7-4282-95ae-d64a71d48531"
+        },
+        {
+            "type": "relationship",
+            "spec_version": "2.1",
+            "id": "relationship--7943bf1b-20ba-48f4-a6ec-acdb62ca5278",
+            "created": "2026-03-05T10:09:51.174853Z",
+            "modified": "2026-03-05T10:09:51.174853Z",
+            "relationship_type": "uses",
+            "source_ref": "threat-actor--4232d0eb-23aa-45a3-911d-2acea3a95747",
+            "target_ref": "attack-pattern--ec907604-d1a7-4282-95ae-d64a71d48531"
+        }
+    ]
+}
