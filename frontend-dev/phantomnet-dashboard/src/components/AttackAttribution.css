@@ -1,70 +1,200 @@
+/* ==========================================
+   ATTACK ATTRIBUTION - Premium Design
+   ========================================== */
+
 .attribution-container {
     background: rgba(10, 10, 10, 0.85);
-    border: 1px solid var(--border-color, #0f3460);
-    border-radius: 8px;
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(0, 180, 216, 0.2);
+    border-radius: 12px;
     padding: 1rem;
     height: 100%;
     display: flex;
     flex-direction: column;
-    gap: 1rem;
-    box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+    gap: 0.8rem;
+    box-shadow: 0 0 30px rgba(0, 0, 0, 0.5);
     color: #e0e0e0;
+    position: relative;
+    overflow: hidden;
+}
+
+.attribution-container::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, #f77f00, transparent);
+    opacity: 0.4;
 }
 
 .attribution-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    border-bottom: 1px solid rgba(0, 180, 216, 0.3);
+    border-bottom: 1px solid rgba(0, 180, 216, 0.2);
     padding-bottom: 0.5rem;
 }
 
 .attribution-header h3 {
     margin: 0;
-    font-size: 0.9rem;
+    font-size: 0.85rem;
     letter-spacing: 2px;
     color: #4cc9f0;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-family: 'JetBrains Mono', monospace;
 }
 
-.confidence {
-    font-size: 0.65rem;
-    background: rgba(76, 201, 240, 0.1);
+/* Confidence Ring */
+.confidence-badge {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+}
+
+.confidence-badge label {
+    font-size: 0.5rem;
+    color: #666;
+    letter-spacing: 1px;
+}
+
+.confidence-ring {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: conic-gradient(#4cc9f0 var(--conf), rgba(255, 255, 255, 0.05) var(--conf));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+
+.confidence-ring::before {
+    content: '';
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: #0a0a0a;
+    position: absolute;
+}
+
+.confidence-ring span {
+    position: relative;
+    font-size: 0.6rem;
+    font-weight: 700;
     color: #4cc9f0;
-    padding: 2px 8px;
-    border-radius: 10px;
-    border: 1px solid rgba(76, 201, 240, 0.3);
+    font-family: 'JetBrains Mono', monospace;
 }
 
+/* Attacker Selector */
+.attacker-selector {
+    background: rgba(255, 255, 255, 0.02);
+    border-radius: 8px;
+    padding: 0.5rem;
+    border: 1px dashed rgba(255, 255, 255, 0.06);
+}
+
+.attacker-selector>label {
+    font-size: 0.6rem;
+    color: #666;
+    display: block;
+    margin-bottom: 0.4rem;
+    letter-spacing: 0.5px;
+}
+
+.attacker-chips {
+    display: flex;
+    gap: 0.4rem;
+    flex-wrap: wrap;
+}
+
+.attacker-chip {
+    font-size: 0.65rem;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 20px;
+    padding: 3px 10px;
+    color: #aaa;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    font-family: 'JetBrains Mono', monospace;
+}
+
+.attacker-chip:hover {
+    border-color: rgba(76, 201, 240, 0.4);
+    color: #4cc9f0;
+}
+
+.attacker-chip.selected {
+    background: rgba(76, 201, 240, 0.1);
+    border-color: rgba(76, 201, 240, 0.4);
+    color: #4cc9f0;
+    box-shadow: 0 0 10px rgba(76, 201, 240, 0.15);
+}
+
+.chip-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+}
+
+.chip-dot.critical {
+    background: #ff0055;
+    box-shadow: 0 0 4px #ff0055;
+}
+
+.chip-dot.high {
+    background: #f77f00;
+}
+
+.chip-dot.low {
+    background: #00ff41;
+}
+
+/* Profile Section */
 .profiler-grid {
     display: flex;
     flex-direction: column;
-    gap: 1rem;
+    gap: 0.8rem;
 }
 
 .profile-section {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 1rem;
+    gap: 0.8rem;
 }
 
 .profile-item label {
-    font-size: 0.6rem;
-    color: #888;
+    font-size: 0.58rem;
+    color: #666;
     display: flex;
     align-items: center;
     gap: 0.4rem;
     margin-bottom: 0.3rem;
     text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
 .profile-item .value {
-    font-size: 1rem;
+    font-size: 0.9rem;
     font-weight: 700;
-    font-family: 'Courier New', Courier, monospace;
+}
+
+.mono-text {
+    font-family: 'JetBrains Mono', monospace;
+    color: #fff;
 }
 
 .level-vhigh {
     color: #ff0055;
+    text-shadow: 0 0 8px rgba(255, 0, 85, 0.4);
 }
 
 .level-high {
@@ -75,117 +205,250 @@
     color: #00ff41;
 }
 
+/* Toolset Section */
 .toolset-section {
-    background: rgba(255, 255, 255, 0.03);
-    padding: 0.8rem;
-    border-radius: 6px;
-    border: 1px dashed rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.02);
+    padding: 0.7rem;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
 }
 
-.tool-tag {
-    font-size: 0.7rem;
+.tool-intent-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.8rem;
+}
+
+.intent-box,
+.protocols-box {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+}
+
+.intent-box label,
+.protocols-box label {
+    font-size: 0.55rem;
+    color: #666;
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    letter-spacing: 0.5px;
+}
+
+.intent-value {
+    font-size: 0.85rem;
     font-weight: 700;
+    color: #f77f00;
+}
+
+.proto-tags {
+    display: flex;
+    gap: 0.3rem;
+    flex-wrap: wrap;
+}
+
+.proto-tag {
+    font-size: 0.6rem;
+    background: rgba(76, 201, 240, 0.08);
     color: #4cc9f0;
-    margin-bottom: 0.5rem;
+    padding: 1px 6px;
+    border-radius: 3px;
+    font-weight: 600;
 }
 
 .tool-list label {
-    font-size: 0.65rem;
-    color: #666;
+    font-size: 0.58rem;
+    color: #555;
     display: block;
-    margin-bottom: 0.4rem;
+    margin-bottom: 0.3rem;
 }
 
 .tags {
     display: flex;
-    gap: 0.5rem;
+    gap: 0.4rem;
+    flex-wrap: wrap;
 }
 
 .tag {
     font-size: 0.65rem;
-    background: rgba(255, 255, 255, 0.05);
-    padding: 2px 6px;
+    background: rgba(255, 255, 255, 0.04);
+    padding: 3px 8px;
     border-radius: 4px;
-    color: #aaa;
+    color: #bbb;
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    transition: all 0.2s ease;
 }
 
+.tag:hover {
+    border-color: rgba(76, 201, 240, 0.3);
+    color: #4cc9f0;
+}
+
+/* Attack Timeline */
 .attack-timeline {
     margin-top: auto;
 }
 
 .attack-timeline h4 {
-    font-size: 0.7rem;
-    margin: 0 0 1rem 0;
-    color: #888;
+    font-size: 0.68rem;
+    margin: 0 0 0.6rem 0;
+    color: #777;
+    text-align: center;
+    letter-spacing: 1px;
+}
+
+.timeline-stats {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.8rem;
+    padding: 0.4rem 0.6rem;
+    background: rgba(255, 255, 255, 0.02);
+    border-radius: 6px;
+}
+
+.t-stat {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
     text-align: center;
 }
 
-.timeline-steps {
+.t-stat label {
+    font-size: 0.55rem;
+    color: #555;
     display: flex;
-    justify-content: space-between;
-    position: relative;
-    padding: 0 1rem;
+    align-items: center;
+    gap: 0.2rem;
+    justify-content: center;
 }
 
-.timeline-steps::before {
-    content: '';
-    position: absolute;
-    top: 6px;
-    left: 1.5rem;
-    right: 1.5rem;
-    height: 2px;
-    background: rgba(255, 255, 255, 0.1);
-    z-index: 1;
+.t-stat span {
+    font-size: 0.75rem;
+    color: #e0e0e0;
+    font-weight: 600;
+    font-family: 'JetBrains Mono', monospace;
+}
+
+.event-count-value {
+    color: #4cc9f0 !important;
+}
+
+/* Timeline Steps */
+.timeline-steps {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 0.5rem;
+    gap: 0;
 }
 
 .step {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 0.5rem;
+    gap: 0.4rem;
     z-index: 2;
 }
 
 .step-marker {
-    width: 14px;
-    height: 14px;
+    width: 16px;
+    height: 16px;
     background: #1a1a1a;
     border: 2px solid #333;
     border-radius: 50%;
     transition: all 0.3s ease;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .step.active .step-marker {
     background: #4cc9f0;
     border-color: #4cc9f0;
-    box-shadow: 0 0 10px #4cc9f0;
+    box-shadow: 0 0 12px rgba(76, 201, 240, 0.6);
+}
+
+.step-pulse {
+    width: 6px;
+    height: 6px;
+    background: #fff;
+    border-radius: 50%;
+    animation: stepPulse 1.5s infinite;
+}
+
+@keyframes stepPulse {
+
+    0%,
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+
+    50% {
+        opacity: 0.5;
+        transform: scale(0.7);
+    }
+}
+
+.step-connector {
+    width: 30px;
+    height: 2px;
+    background: rgba(255, 255, 255, 0.1);
+    margin: 0 2px;
+    margin-bottom: 1.2rem;
+    transition: all 0.3s ease;
+}
+
+.step-connector.active {
+    background: linear-gradient(90deg, #4cc9f0, #4cc9f0);
+    box-shadow: 0 0 6px rgba(76, 201, 240, 0.3);
 }
 
 .step-label {
-    font-size: 0.6rem;
-    font-weight: 600;
-    color: #555;
+    font-size: 0.55rem;
+    font-weight: 700;
+    color: #444;
+    letter-spacing: 0.5px;
 }
 
 .step.active .step-label {
     color: #4cc9f0;
 }
 
+/* Footer */
 .attribution-footer {
-    font-size: 0.65rem;
+    font-size: 0.62rem;
     color: #f77f00;
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    padding-top: 0.5rem;
-    border-top: 1px solid rgba(255, 255, 255, 0.05);
+    padding-top: 0.4rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.04);
 }
 
 .attribution-loading {
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
     height: 100%;
-    font-family: 'Courier New', Courier, monospace;
+    gap: 1rem;
+    font-family: 'JetBrains Mono', monospace;
     color: #f77f00;
+    font-size: 0.85rem;
+}
+
+.spin {
+    animation: spin 2s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
 }

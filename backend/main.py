@@ -44,6 +44,8 @@ from api.threat_intel import router as threat_intel_router
 from api.topology import router as topology_router
 from api.management import router as management_router
 from api.realtime import router as realtime_router, push_realtime_event
+from api.attack_attribution import router as attack_attribution_router
+from api.predictive import router as predictive_router
 
 # =========================
 # ENVIRONMENT SETUP
@@ -78,6 +80,9 @@ async def lifespan(app: FastAPI):
         
         # Start Real-Time Metrics Broadcaster
         asyncio.create_task(broadcast_live_metrics())
+        
+        # Start Event Stream Broadcaster
+        asyncio.create_task(broadcast_event_stream())
     else:
         print("Sniffer disabled (CI/Test mode)")
 
@@ -116,6 +121,14 @@ async def broadcast_live_metrics():
                 "status": "online"
             }
             
+            # Calculate events per minute (last 5 minutes)
+            from sqlalchemy import func as sqla_func
+            five_min_ago = datetime.utcnow() - __import__('datetime').timedelta(minutes=5)
+            epm_count = db.query(sqla_func.count(PacketLog.id)).filter(
+                PacketLog.timestamp >= five_min_ago
+            ).scalar() or 0
+            stats["events_per_minute"] = round(epm_count / 5, 1)
+            
             await push_realtime_event("LIVE_METRICS", stats)
         except Exception as e:
             print(f"Error in metrics broadcast loop: {e}")
@@ -124,6 +137,46 @@ async def broadcast_live_metrics():
                 db.close()
         
         await asyncio.sleep(2)
+
+
+async def broadcast_event_stream():
+    """Background task to broadcast new events to connected clients."""
+    from database.database import SessionLocal
+    
+    print("🚀 Event Stream Broadcaster Started")
+    last_id = 0
+    while True:
+        try:
+            db = SessionLocal()
+            query = db.query(PacketLog).order_by(PacketLog.id.desc()).limit(5)
+            if last_id > 0:
+                query = query.filter(PacketLog.id > last_id)
+            
+            new_events = query.all()
+            
+            for event in reversed(new_events):
+                payload = {
+                    "id": event.id,
+                    "src_ip": event.src_ip,
+                    "dst_ip": event.dst_ip,
+                    "protocol": event.protocol,
+                    "length": event.length,
+                    "threat_score": event.threat_score or 0,
+                    "threat_level": event.threat_level or "LOW",
+                    "attack_type": event.attack_type or "BENIGN",
+                    "timestamp": event.timestamp.isoformat() if event.timestamp else None,
+                    "src_port": getattr(event, 'src_port', None),
+                    "country": event.country or "Unknown",
+                }
+                await push_realtime_event("EVENT_STREAM", payload)
+                last_id = max(last_id, event.id)
+        except Exception as e:
+            print(f"Error in event stream broadcast: {e}")
+        finally:
+            if 'db' in locals():
+                db.close()
+        
+        await asyncio.sleep(3)
 
 # =========================
 # APP INIT (ONLY ONE APP)
@@ -153,6 +206,8 @@ app.include_router(threat_intel_router)
 app.include_router(topology_router)
 app.include_router(management_router)
 app.include_router(realtime_router)
+app.include_router(attack_attribution_router)
+app.include_router(predictive_router)
 
 # =========================
 # ROUTERS
