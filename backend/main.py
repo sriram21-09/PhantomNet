@@ -156,10 +156,10 @@ async def broadcast_event_stream():
     while True:
         try:
             db = SessionLocal()
-            query = db.query(PacketLog).order_by(PacketLog.id.desc()).limit(5)
+            query = db.query(PacketLog)
             if last_id > 0:
                 query = query.filter(PacketLog.id > last_id)
-            
+            query = query.order_by(PacketLog.id.desc()).limit(5)
             new_events = query.all()
             
             for event in reversed(new_events):
@@ -174,7 +174,7 @@ async def broadcast_event_stream():
                     "attack_type": event.attack_type or "BENIGN",
                     "timestamp": event.timestamp.isoformat() if event.timestamp else None,
                     "src_port": getattr(event, 'src_port', None),
-                    "country": event.country or "Unknown",
+                    "country": getattr(event, 'country', None) or "Unknown",
                 }
                 await push_realtime_event("EVENT_STREAM", payload)
                 last_id = max(last_id, event.id)
@@ -268,7 +268,7 @@ def get_real_traffic(db: Session = Depends(get_db)):
 
     for log in logs:
         # Use persistent field if available, else look up (for legacy logs)
-        location = log.country or "UNKNOWN"
+        location = getattr(log, 'country', None) or "UNKNOWN"
         if location == "UNKNOWN":
             try:
                 from services.geo import GeoService
@@ -284,9 +284,9 @@ def get_real_traffic(db: Session = Depends(get_db)):
                 "proto": log.protocol,
                 "length": log.length,
                 "location": location,
-                "city": log.city,
-                "lat": log.latitude,
-                "lon": log.longitude
+                "city": getattr(log, 'city', None),
+                "lat": getattr(log, 'latitude', None),
+                "lon": getattr(log, 'longitude', None)
             },
             "ai_analysis": {
                 "prediction": log.attack_type or "BENIGN",

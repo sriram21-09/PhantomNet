@@ -8,13 +8,13 @@ const ThemeToggle = () => {
   const { theme, toggleTheme } = useContext(ThemeContext);
 
   return (
-    <div className={`theme-toggle-pro ${theme}`} onClick={toggleTheme} title={`Switch to ${theme === 'light' ? 'dark' : 'dark'} mode`}>
+    <div className={`theme-toggle-pro ${theme}`} onClick={toggleTheme} title={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}>
       <div className="toggle-track">
         <div className="toggle-thumb">
           {theme === "light" ? <FaMoon className="icon-moon" /> : <FaSun className="icon-sun" />}
         </div>
       </div>
-      <span className="toggle-label">{theme === "light" ? "Dark Mode" : "Light Mode"}</span>
+      <span className="toggle-label">{theme === "dark" ? "Light Mode" : "Dark Mode"}</span>
     </div>
   );
 };
