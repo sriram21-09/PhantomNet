@@ -10,7 +10,8 @@ import {
   FaNetworkWired,
   FaGlobeAmericas,
   FaChartBar,
-  FaSearch
+  FaSearch,
+  FaDatabase
 } from "react-icons/fa";
 import "../Styles/components/Navbar.css";
 
@@ -26,6 +27,7 @@ const Navbar = () => {
     { path: "/geo-stats", label: "Geo Stats", icon: FaGlobeAmericas },
     { path: "/analytics", label: "Analytics", icon: FaChartBar },
     { path: "/advanced-dashboard", label: "Advanced NOC", icon: FaShieldAlt },
+    { path: "/packet-analysis", label: "PCAP Analysis", icon: FaDatabase },
     { path: "/about", label: "About", icon: FaInfoCircle },
   ];
 

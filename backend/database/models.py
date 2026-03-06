@@ -73,6 +73,9 @@ class Event(Base):
     raw_data = Column(String)
     timestamp = Column(DateTime, default=datetime.utcnow, index=True)
 
+    # PCAP Capture
+    pcap_path = Column(String, nullable=True)  # Path to associated PCAP file
+
     # GeoIP Enrichment
     country = Column(String, nullable=True)
     city = Column(String, nullable=True)
@@ -175,3 +178,19 @@ class SearchHistory(Base):
     result_count = Column(Integer)
     executed_at = Column(DateTime, default=datetime.utcnow)
     analyst_name = Column(String, nullable=True)
+
+class PcapCapture(Base):
+    __tablename__ = "pcap_captures"
+    __table_args__ = {'extend_existing': True}
+
+    id = Column(Integer, primary_key=True, index=True)
+    event_id = Column(Integer, ForeignKey("events.id"), nullable=True, index=True)
+    file_path = Column(String)
+    file_size = Column(Integer, default=0)  # bytes
+    packet_count = Column(Integer, default=0)
+    protocol_summary = Column(Text, nullable=True)  # JSON string
+    capture_duration = Column(Float, default=0.0)  # seconds
+    analysis_status = Column(String, default="pending")  # pending, analyzing, complete, error
+    threat_patterns = Column(Text, nullable=True)  # JSON string of detected patterns
+    created_at = Column(DateTime, default=datetime.utcnow)
+    expires_at = Column(DateTime, nullable=True)  # 30-day retention

@@ -46,6 +46,7 @@ from api.threat_intel import router as threat_intel_router
 from api.topology import router as topology_router
 from api.management import router as management_router
 from api.realtime import router as realtime_router, push_realtime_event
+from api.pcap import router as pcap_router
 
 # =========================
 # ENVIRONMENT SETUP
@@ -80,6 +81,10 @@ async def lifespan(app: FastAPI):
         
         # Start Real-Time Metrics Broadcaster
         asyncio.create_task(broadcast_live_metrics())
+
+        # Start PCAP Retention Cleanup (daily)
+        from services.pcap_analyzer import pcap_analyzer
+        asyncio.create_task(_pcap_cleanup_scheduler(pcap_analyzer))
     else:
         print("Sniffer disabled (CI/Test mode)")
 
@@ -87,13 +92,24 @@ async def lifespan(app: FastAPI):
     print("PhantomNet Shutting Down")
     threat_analyzer.stop()
 
+async def _pcap_cleanup_scheduler(analyzer):
+    """Run PCAP retention cleanup once per day."""
+    while True:
+        try:
+            result = analyzer.cleanup_old_pcaps(retention_days=30)
+            if result["removed_files"] > 0:
+                print(f"[Cleanup] PCAP Cleanup: Removed {result['removed_files']} expired files ({result['freed_bytes']} bytes freed)")
+        except Exception as e:
+            print(f"PCAP cleanup error: {e}")
+        await asyncio.sleep(86400)  # 24 hours
+
 async def broadcast_live_metrics():
     """Background task to broadcast real-time metrics every 2 seconds."""
     from database.database import SessionLocal
     from services.stats_aggregator import StatsService
     import psutil
     
-    print("🚀 Real-Time Metrics Broadcaster Started")
+    print("[+] Real-Time Metrics Broadcaster Started")
     while True:
         try:
             db = SessionLocal()
@@ -160,6 +176,7 @@ app.include_router(threat_intel_router)
 app.include_router(topology_router)
 app.include_router(management_router)
 app.include_router(realtime_router)
+app.include_router(pcap_router)
 
 # =========================
 # ROUTERS

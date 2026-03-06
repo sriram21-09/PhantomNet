@@ -136,7 +136,7 @@ class RealTimeSniffer:
             self.running = True
             t = threading.Thread(target=self._run_sniff, daemon=True)
             t.start()
-            print("✅ Background Sniffer Started (ML-Driven)")
+            print("[+] Background Sniffer Started (ML-Driven)")
 
     def _run_sniff(self):
         sniff(prn=self.packet_callback, store=0)

@@ -1,8 +1,17 @@
 import time
 import uuid
+import importlib
+import os
+import sys
 from fastapi import Request
 from starlette.middleware.base import BaseHTTPMiddleware
-from logging.logger import log_event
+
+# Load our local logging/logger.py without shadowing Python's built-in logging
+_logger_path = os.path.join(os.path.dirname(__file__), '..', 'logging', 'logger.py')
+_spec = importlib.util.spec_from_file_location("phantomnet_logger", os.path.abspath(_logger_path))
+_logger_mod = importlib.util.module_from_spec(_spec)
+_spec.loader.exec_module(_logger_mod)
+log_event = _logger_mod.log_event
 
 class SecurityLoggingMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next):
