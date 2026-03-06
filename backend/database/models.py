@@ -175,3 +175,26 @@ class SearchHistory(Base):
     result_count = Column(Integer)
     executed_at = Column(DateTime, default=datetime.utcnow)
     analyst_name = Column(String, nullable=True)
+
+class User(Base):
+    __tablename__ = "users"
+    __table_args__ = {'extend_existing': True}
+
+    id = Column(Integer, primary_key=True, index=True)
+    username = Column(String, unique=True, index=True)
+    email = Column(String, unique=True, index=True)
+    hashed_password = Column(String)
+    role = Column(String, default="Viewer")  # Admin, Analyst, Viewer
+    status = Column(String, default="active")  # active, disabled
+    last_login = Column(DateTime, nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+class SystemConfig(Base):
+    __tablename__ = "system_config"
+    __table_args__ = {'extend_existing': True}
+
+    id = Column(Integer, primary_key=True, index=True)
+    key = Column(String, unique=True, index=True)
+    value = Column(Text)
+    category = Column(String, index=True)  # threat_detection, honeypot, siem, performance
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)

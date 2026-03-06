@@ -48,6 +48,7 @@ from api.management import router as management_router
 from api.realtime import router as realtime_router, push_realtime_event
 from api.attack_attribution import router as attack_attribution_router
 from api.predictive import router as predictive_router
+from api.admin import router as admin_router
 
 # =========================
 # ENVIRONMENT SETUP
@@ -85,6 +86,13 @@ async def lifespan(app: FastAPI):
         
         # Start Event Stream Broadcaster
         asyncio.create_task(broadcast_event_stream())
+        
+        # Seed default admin
+        from middleware.auth import seed_default_admin
+        from database.database import SessionLocal
+        _db = SessionLocal()
+        seed_default_admin(_db)
+        _db.close()
     else:
         print("Sniffer disabled (CI/Test mode)")
 
@@ -150,10 +158,10 @@ async def broadcast_event_stream():
     while True:
         try:
             db = SessionLocal()
-            query = db.query(PacketLog).order_by(PacketLog.id.desc()).limit(5)
+            query = db.query(PacketLog)
             if last_id > 0:
                 query = query.filter(PacketLog.id > last_id)
-            
+            query = query.order_by(PacketLog.id.desc()).limit(5)
             new_events = query.all()
             
             for event in reversed(new_events):
@@ -168,7 +176,7 @@ async def broadcast_event_stream():
                     "attack_type": event.attack_type or "BENIGN",
                     "timestamp": event.timestamp.isoformat() if event.timestamp else None,
                     "src_port": getattr(event, 'src_port', None),
-                    "country": event.country or "Unknown",
+                    "country": getattr(event, 'country', None) or "Unknown",
                 }
                 await push_realtime_event("EVENT_STREAM", payload)
                 last_id = max(last_id, event.id)
@@ -215,6 +223,7 @@ app.include_router(management_router)
 app.include_router(realtime_router)
 app.include_router(attack_attribution_router)
 app.include_router(predictive_router)
+app.include_router(admin_router)
 
 # =========================
 # ROUTERS
@@ -266,7 +275,7 @@ def get_real_traffic(db: Session = Depends(get_db)):
 
     for log in logs:
         # Use persistent field if available, else look up (for legacy logs)
-        location = log.country or "UNKNOWN"
+        location = getattr(log, 'country', None) or "UNKNOWN"
         if location == "UNKNOWN":
             try:
                 from services.geo import GeoService
@@ -282,9 +291,9 @@ def get_real_traffic(db: Session = Depends(get_db)):
                 "proto": log.protocol,
                 "length": log.length,
                 "location": location,
-                "city": log.city,
-                "lat": log.latitude,
-                "lon": log.longitude
+                "city": getattr(log, 'city', None),
+                "lat": getattr(log, 'latitude', None),
+                "lon": getattr(log, 'longitude', None)
             },
             "ai_analysis": {
                 "prediction": log.attack_type or "BENIGN",
