@@ -1,3 +1,4 @@
+import { useState, useEffect, useCallback } from "react";
 import {
   FaExclamationTriangle,
   FaShieldAlt,
@@ -6,33 +7,101 @@ import {
   FaBolt,
   FaCrosshairs,
   FaWifi,
-  FaUserSecret
+  FaUserSecret,
+  FaSyncAlt
 } from "react-icons/fa";
 import "../Styles/pages/ThreatAnalysis.css";
 
-const ThreatAnalysis = () => {
-  const summary = {
-    active: 27,
-    high: 6,
-    medium: 14,
-    low: 7,
-  };
+const API = "http://localhost:8000";
 
-  const recentThreats = [
-    { time: "10:42 AM", ip: "192.168.1.23", type: "SSH Brute Force", score: 92, severity: "High" },
-    { time: "10:38 AM", ip: "45.33.21.9", type: "Port Scan", score: 68, severity: "Medium" },
-    { time: "10:30 AM", ip: "172.16.4.11", type: "Anomalous Traffic", score: 55, severity: "Medium" },
-    { time: "10:18 AM", ip: "10.0.0.8", type: "Suspicious Login", score: 34, severity: "Low" },
-    { time: "10:05 AM", ip: "203.45.12.89", type: "DDoS Attempt", score: 88, severity: "High" },
-    { time: "09:52 AM", ip: "91.203.145.2", type: "Malware Signature", score: 95, severity: "High" },
+const ThreatAnalysis = () => {
+  const [summary, setSummary] = useState({ active: 0, high: 0, medium: 0, low: 0 });
+  const [recentThreats, setRecentThreats] = useState([]);
+  const [liveAlerts, setLiveAlerts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [lastUpdated, setLastUpdated] = useState(null);
+
+  const alertIcons = { high: FaSkull, medium: FaCrosshairs, low: FaUserSecret };
+
+  const fetchThreatData = useCallback(async () => {
+    try {
+      // Fetch events/traffic for threat table
+      const [eventsRes, statsRes] = await Promise.all([
+        fetch(`${API}/api/events?limit=20`).then(r => r.ok ? r.json() : null).catch(() => null),
+        fetch(`${API}/api/stats`).then(r => r.ok ? r.json() : null).catch(() => null),
+      ]);
+
+      // Process events into threat table
+      if (eventsRes) {
+        const events = eventsRes.events || eventsRes.data || eventsRes || [];
+        const evArr = Array.isArray(events) ? events : [];
+
+        const threats = evArr
+          .filter(e => e.threat_score > 0 || e.threat_level)
+          .slice(0, 8)
+          .map(e => ({
+            time: e.timestamp ? new Date(e.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : "--:--",
+            ip: e.src_ip || "Unknown",
+            type: e.attack_type || e.protocol || "Unknown",
+            score: Math.round(e.threat_score || 0),
+            severity: e.threat_level === "HIGH" ? "High" : e.threat_level === "MEDIUM" ? "Medium" : "Low",
+          }));
+
+        if (threats.length > 0) setRecentThreats(threats);
+
+        // Build summary from events
+        let high = 0, medium = 0, low = 0;
+        evArr.forEach(e => {
+          const level = (e.threat_level || "").toUpperCase();
+          if (level === "HIGH") high++;
+          else if (level === "MEDIUM") medium++;
+          else low++;
+        });
+        setSummary({ active: evArr.length, high, medium, low });
+      }
+
+      // Build live alerts from high-threat events
+      if (eventsRes) {
+        const events = eventsRes.events || eventsRes.data || eventsRes || [];
+        const evArr = Array.isArray(events) ? events : [];
+
+        const alerts = evArr
+          .filter(e => e.threat_score >= 30)
+          .slice(0, 6)
+          .map(e => {
+            const level = (e.threat_level || "LOW").toUpperCase();
+            const severity = level === "HIGH" ? "high" : level === "MEDIUM" ? "medium" : "low";
+            return {
+              severity,
+              icon: alertIcons[severity] || FaWifi,
+              message: `${level}: ${e.attack_type || e.protocol || "Suspicious"} activity from ${e.src_ip || "unknown"} (score: ${Math.round(e.threat_score || 0)})`,
+            };
+          });
+
+        if (alerts.length > 0) setLiveAlerts(alerts);
+      }
+
+      setLastUpdated(new Date());
+      setLoading(false);
+    } catch (err) {
+      console.error("Threat fetch error:", err);
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchThreatData();
+    const interval = setInterval(fetchThreatData, 5000);
+    return () => clearInterval(interval);
+  }, [fetchThreatData]);
+
+  // Fallbacks if no live data yet
+  const displayThreats = recentThreats.length > 0 ? recentThreats : [
+    { time: "--:--", ip: "Awaiting data...", type: "No events", score: 0, severity: "Low" },
   ];
 
-  const liveAlerts = [
-    { severity: "high", icon: FaSkull, message: "Critical: SSH brute-force attack in progress from 192.168.1.23" },
-    { severity: "high", icon: FaBolt, message: "DDoS traffic spike detected on port 80" },
-    { severity: "medium", icon: FaCrosshairs, message: "Repeated port scans from external IP range" },
-    { severity: "medium", icon: FaWifi, message: "Unusual outbound traffic pattern detected" },
-    { severity: "low", icon: FaUserSecret, message: "Failed authentication attempts from internal host" },
+  const displayAlerts = liveAlerts.length > 0 ? liveAlerts : [
+    { severity: "low", icon: FaCheckCircle, message: "No active alerts — monitoring system healthy" },
   ];
 
   const getSeverityColor = (severity) => {
@@ -66,6 +135,11 @@ const ThreatAnalysis = () => {
         <div className="live-indicator">
           <span className="pulse"></span>
           Live Monitoring
+          {lastUpdated && (
+            <span style={{ fontSize: "0.65rem", opacity: 0.7, marginLeft: "0.5rem" }}>
+              {lastUpdated.toLocaleTimeString()}
+            </span>
+          )}
         </div>
       </div>
 
@@ -120,7 +194,16 @@ const ThreatAnalysis = () => {
       <div className="threat-grid">
         {/* Threat Table */}
         <div className="threat-table-card">
-          <h3>Recent Threat Indicators</h3>
+          <h3>
+            Recent Threat Indicators
+            <button
+              onClick={fetchThreatData}
+              style={{ background: "none", border: "none", color: "inherit", cursor: "pointer", marginLeft: "0.5rem", opacity: 0.6 }}
+              title="Refresh now"
+            >
+              <FaSyncAlt style={{ fontSize: "0.75rem" }} />
+            </button>
+          </h3>
           <table className="threat-table">
             <thead>
               <tr>
@@ -132,7 +215,7 @@ const ThreatAnalysis = () => {
               </tr>
             </thead>
             <tbody>
-              {recentThreats.map((threat, index) => (
+              {displayThreats.map((threat, index) => (
                 <tr key={index}>
                   <td className="time-cell">{threat.time}</td>
                   <td className="ip-cell">{threat.ip}</td>
@@ -156,7 +239,7 @@ const ThreatAnalysis = () => {
             Live Alert Feed
           </h3>
           <div className="alert-list">
-            {liveAlerts.map((alert, index) => {
+            {displayAlerts.map((alert, index) => {
               const Icon = alert.icon;
               return (
                 <div key={index} className={`alert-item ${alert.severity}`}>

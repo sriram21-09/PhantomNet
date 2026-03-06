@@ -11,7 +11,8 @@ import {
   FaGlobeAmericas,
   FaChartBar,
   FaSearch,
-  FaDatabase
+  FaDatabase,
+  FaLock
 } from "react-icons/fa";
 import "../Styles/components/Navbar.css";
 
@@ -28,6 +29,7 @@ const Navbar = () => {
     { path: "/analytics", label: "Analytics", icon: FaChartBar },
     { path: "/advanced-dashboard", label: "Advanced NOC", icon: FaShieldAlt },
     { path: "/packet-analysis", label: "PCAP Analysis", icon: FaDatabase },
+    { path: "/admin", label: "Admin", icon: FaLock },
     { path: "/about", label: "About", icon: FaInfoCircle },
   ];
 

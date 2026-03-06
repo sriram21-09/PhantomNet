@@ -1,64 +1,164 @@
+/* ==========================================
+   ADVANCED DASHBOARD - Premium Layout
+   ========================================== */
+
 .advanced-dashboard-container {
-    padding: 2rem;
+    padding: 1.5rem 2rem;
     background: #050505;
     min-height: calc(100vh - 80px);
     display: flex;
     flex-direction: column;
-    gap: 2rem;
+    gap: 1.2rem;
+    position: relative;
 }
 
-.advanced-dashboard-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    grid-template-rows: auto auto;
-    gap: 1.5rem;
-    flex: 1;
+/* Scanline overlay */
+.advanced-dashboard-container::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: repeating-linear-gradient(0deg,
+            transparent,
+            transparent 2px,
+            rgba(0, 0, 0, 0.03) 2px,
+            rgba(0, 0, 0, 0.03) 4px);
+    pointer-events: none;
+    z-index: 999;
 }
 
-.grid-col-1,
-.grid-col-2 {
-    display: flex;
-    flex-direction: column;
-    gap: 1.5rem;
-}
-
-@media (max-width: 1200px) {
-    .advanced-dashboard-grid {
-        grid-template-columns: 1fr;
-    }
-}
-
+/* Header */
 .dashboard-header-premium {
     border-left: 4px solid #4cc9f0;
     padding-left: 1.5rem;
-    margin-bottom: 1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+.header-content {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
 }
 
 .header-badge {
-    font-size: 0.7rem;
+    font-size: 0.65rem;
     color: #4cc9f0;
     letter-spacing: 3px;
-    margin-bottom: 0.5rem;
-    background: rgba(76, 201, 240, 0.1);
+    background: rgba(76, 201, 240, 0.08);
     width: fit-content;
-    padding: 2px 8px;
+    padding: 3px 10px;
     border-radius: 4px;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    border: 1px solid rgba(76, 201, 240, 0.15);
 }
 
-.glow-text {
-    font-size: 2.5rem;
+.dashboard-title.glow-text {
+    font-size: 2.2rem;
     margin: 0;
     color: #fff;
-    text-shadow: 0 0 20px rgba(76, 201, 240, 0.4);
+    text-shadow: 0 0 30px rgba(76, 201, 240, 0.3);
+    font-weight: 800;
+    letter-spacing: -0.5px;
 }
 
-.text-dim {
-    color: #666;
-    font-size: 0.8rem;
-    margin-top: 0.5rem;
+.dashboard-subtitle.text-dim {
+    color: #555;
+    font-size: 0.75rem;
+    margin: 0;
+    letter-spacing: 2px;
+    font-family: 'JetBrains Mono', monospace;
+}
+
+.header-timestamp {
+    font-size: 0.7rem;
+    color: #555;
     letter-spacing: 1px;
+    padding-top: 0.5rem;
 }
 
+/* Connection Banner */
+.connection-banner {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.4rem 1rem;
+    border-radius: 6px;
+    font-size: 0.65rem;
+    font-weight: 600;
+    letter-spacing: 1px;
+    font-family: 'JetBrains Mono', monospace;
+}
+
+.banner-connected {
+    background: rgba(0, 255, 65, 0.06);
+    border: 1px solid rgba(0, 255, 65, 0.15);
+    color: #00ff41;
+}
+
+.banner-disconnected {
+    background: rgba(255, 0, 85, 0.06);
+    border: 1px solid rgba(255, 0, 85, 0.2);
+    color: #ff0055;
+    animation: bannerPulse 1.5s infinite;
+}
+
+@keyframes bannerPulse {
+    50% {
+        opacity: 0.7;
+    }
+}
+
+/* Grid Layout */
+.advanced-dashboard-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 1.2rem;
+    flex: 1;
+    min-height: 0;
+}
+
+.grid-area-metrics,
+.grid-area-predictive,
+.grid-area-attribution,
+.grid-area-stream {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    overflow: hidden;
+}
+
+/* HUD Font */
 .hud-font {
-    font-family: 'Share Tech Mono', monospace;
+    font-family: 'JetBrains Mono', 'Share Tech Mono', monospace;
+}
+
+/* Responsive */
+@media (max-width: 1200px) {
+    .advanced-dashboard-grid {
+        grid-template-columns: 1fr;
+        grid-template-rows: auto;
+    }
+
+    .dashboard-title.glow-text {
+        font-size: 1.6rem;
+    }
+
+    .advanced-dashboard-container {
+        padding: 1rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .dashboard-header-premium {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .header-timestamp {
+        padding-top: 0;
+    }
 }

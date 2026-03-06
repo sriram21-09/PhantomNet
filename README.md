@@ -11,7 +11,7 @@
 ![Docker](https://img.shields.io/badge/Docker-Enabled-2496ED?style=for-the-badge&logo=docker&logoColor=white)
 ![scikit-learn](https://img.shields.io/badge/scikit--learn-ML-F7931E?style=for-the-badge&logo=scikitlearn&logoColor=white)
 ![Phase](https://img.shields.io/badge/Phase_2-Complete-success?style=for-the-badge)
-![Status](https://img.shields.io/badge/Week_9-Polished-61DAFB?style=for-the-badge)
+![Status](https://img.shields.io/badge/Week_10-Delivered-00ff41?style=for-the-badge)
 
 **An intelligent, distributed honeypot system powered by AI/ML that detects, analyzes, and responds to cyber threats in real-time.**
 
@@ -90,10 +90,19 @@ This project demonstrates:
 
 ### 🖥️ Real-Time Dashboard
 
-- **Cyberpunk UI**: Dark mode, matrix-style traffic log, auto-refresh every 2 seconds
-- **Threat Charts**: Interactive score distribution visualization
-- **Honeypot Status**: Live connectivity and last-seen monitoring
-- **Event Filtering**: Filter by threat level (LOW/MEDIUM/HIGH) and protocol
+- **Advanced NOC**: Live WebSocket event stream with auto-scroll (50-event buffer)
+- **Live Metrics**: Events/min sparkline, threat distribution pie chart, system health bars
+- **Predictive Analytics**: LSTM-V3 forecasting, risk scores, next-attack countdown
+- **Attack Attribution**: Multi-attacker profiling, tool detection, confidence ring gauge
+- **Threat Hunting**: Advanced search, case management, IOC extraction
+- **12+ Pages**: Dashboard, Events, Analytics, Topology, Geo Stats, Threat Hunting, Admin Panel, & more
+
+### 🔐 Admin Panel & RBAC
+
+- **JWT Authentication**: Secure login with role-based access control
+- **User Management**: CRUD operations with Admin/Analyst/Viewer roles
+- **System Configuration**: ML thresholds, honeypot settings, SIEM integration, performance tuning
+- **Maintenance Tools**: Database backup/restore, vacuum/optimize, data purging
 
 ### 🐳 Deployment & Scalability
 
@@ -313,33 +322,18 @@ npm run dev
 | `GET` | `/api/stats` | Dashboard aggregate statistics |
 | `GET` | `/api/honeypots/status` | Live honeypot connectivity & last seen |
 | `GET` | `/api/traffic` | Real-time traffic feed |
+| `WS` | `/api/v1/realtime/ws` | WebSocket live event stream |
 
 ### Threat Analysis
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
 | `POST` | `/api/v1/analyze/threat-score` | Score a packet → returns threat level, confidence, decision |
-
-**Request Body:**
-```json
-{
-  "src_ip": "192.168.1.100",
-  "dst_ip": "10.0.0.5",
-  "dst_port": 80,
-  "protocol": "TCP",
-  "length": 512
-}
-```
-
-**Response:**
-```json
-{
-  "score": 85.0,
-  "threat_level": "HIGH",
-  "confidence": 0.85,
-  "decision": "BLOCK"
-}
-```
+| `GET` | `/api/v1/attribution/profile/{ip}` | Full attacker profile with tool detection |
+| `GET` | `/api/v1/attribution/top-attackers` | Top attackers ranked by activity |
+| `GET` | `/api/v1/predictive/forecast` | 6-hour threat forecast |
+| `GET` | `/api/v1/predictive/risk-score` | Aggregate risk score |
+| `GET` | `/api/v1/predictive/next-attack` | Next attack prediction |
 
 ### Protocol Analytics
 
@@ -348,6 +342,18 @@ npm run dev
 | `GET` | `/api/v1/analytics/ssh` | SSH stats + brute-force suspects |
 | `GET` | `/api/v1/analytics/http` | HTTP stats + flood suspects |
 | `GET` | `/api/v1/analytics/trends?days=7` | Daily attack volume (time-series) |
+
+### Admin Panel
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `POST` | `/api/v1/admin/login` | JWT authentication |
+| `GET/POST/PUT/DELETE` | `/api/v1/admin/users` | User CRUD (Admin only) |
+| `GET/PUT` | `/api/v1/admin/config` | System configuration |
+| `GET` | `/api/v1/admin/system-overview` | Component status & resources |
+| `POST` | `/api/v1/admin/backup` | Database backup |
+| `POST` | `/api/v1/admin/vacuum` | Database optimization |
+| `DELETE` | `/api/v1/admin/events/old` | Purge old data |
 
 ### Active Defense
 
@@ -403,7 +409,9 @@ locust -f tests/load_test_config.py --headless -u 50 -r 5 -t 1m --host http://12
 | [`docs/setup_guide.md`](docs/setup_guide.md) | Detailed installation guide |
 | [`docs/CONTRIBUTING.md`](docs/CONTRIBUTING.md) | Contribution guidelines |
 | [`docs/retrospective/WEEK9_RETRO.md`](docs/retrospective/WEEK9_RETRO.md) | Week 9 completion & retrospective |
+| [`docs/retrospective/WEEK10_RETRO.md`](docs/retrospective/WEEK10_RETRO.md) | Week 10 completion & retrospective |
 | [`docs/WEEK10_PLAN.md`](docs/WEEK10_PLAN.md) | Week 10 roadmap & objectives |
+| [`demos/week10_demo/`](demos/week10_demo/) | Week 10 demo materials & slides |
 | [`backend/api/openapi.yaml`](backend/api/openapi.yaml) | OpenAPI 3.0 specification |
 
 ### External References
@@ -449,13 +457,27 @@ locust -f tests/load_test_config.py --headless -u 50 -r 5 -t 1m --host http://12
 - [x] Integration & load testing (50 concurrent users, 0% errors)
 - [x] Full documentation & OpenAPI spec
 
-### 🔮 Phase 3: Hardening & Scale (Planned)
-- [ ] SIEM integration (Splunk / Elastic)
-- [ ] Advanced active defense (automated firewall rules)
+### ✅ Phase 2.5: Advanced Dashboard & Admin (Weeks 9–10) — Complete
+- [x] Real-time WebSocket event stream with live metrics
+- [x] LSTM-V3 predictive analytics with attack forecasting
+- [x] Attack attribution system with confidence scoring
+- [x] Threat hunting interface with case management & IOC extraction
+- [x] Admin panel with JWT + RBAC (Admin/Analyst/Viewer)
+- [x] System configuration editor & database maintenance tools
+- [x] Advanced analytics with MTTD/MTTR & export (PDF/CSV)
+- [x] 12+ dashboard pages with premium cyberpunk UI
+
+### 🔮 Phase 3: Hardening & Scale (Week 11+)
+- [ ] Multi-tenancy support
+- [ ] Compliance reporting (GDPR/HIPAA)
+- [ ] LSTM with attention mechanism
+- [ ] Mobile-responsive dashboard
+- [ ] Firewall API integration (iptables/Windows Firewall)
+- [ ] Federated learning prototype
 - [ ] Kubernetes deployment
-- [ ] Deep learning models (LSTM for sequence-based detection)
-- [ ] Mobile monitoring app
-- [ ] Distributed multi-node deployment
+- [ ] API rate limiting
+- [ ] E2E testing suite (Playwright)
+- [ ] Security hardening audit
 
 ---
 
@@ -466,9 +488,10 @@ locust -f tests/load_test_config.py --headless -u 50 -r 5 -t 1m --host http://12
 | **Team Size** | 4 members |
 | **Project Duration** | 8 months (32 weeks) |
 | **Docker Services** | 7 (DB, 4 Honeypots, API, Frontend) |
-| **API Endpoints** | 15+ |
+| **API Endpoints** | 30+ |
+| **Dashboard Pages** | 12+ |
 | **ML Features Extracted** | 15 per packet |
-| **Documentation Files** | 65+ |
+| **Documentation Files** | 70+ |
 | **Test Pass Rate** | 100% |
 
 ---
@@ -538,7 +561,7 @@ git push origin feature/your-feature-name
 
 ---
 
-**Last Updated**: February 28, 2026  
-**Status**: 🔵 Week 9 Polished (Phase 2 Wrap-up)
+**Last Updated**: March 6, 2026  
+**Status**: 🟢 Week 10 Delivered (Phase 3 Ready)
 
 </div>
