@@ -125,7 +125,7 @@ api_cache = TTLCache(default_ttl=30, max_size=500)
 def _make_cache_key(path: str, query_params: dict) -> str:
     """Generate a unique cache key from request path and query params."""
     params_str = json.dumps(sorted(query_params.items()), default=str)
-    param_hash = hashlib.md5(params_str.encode()).hexdigest()[:8]
+    param_hash = hashlib.sha256(params_str.encode()).hexdigest()[:16]
     return f"{path}:{param_hash}"
 
 
