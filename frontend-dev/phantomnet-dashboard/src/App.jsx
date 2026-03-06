@@ -14,6 +14,7 @@ import GeoDashboard from "./pages/GeoDashboard";
 import AdvancedAnalytics from "./pages/AdvancedAnalytics";
 import ThreatHunting from "./pages/ThreatHunting";
 import AdvancedDashboard from "./pages/AdvancedDashboard";
+import PacketAnalysis from "./components/PacketAnalysis";
 import AdminPanel from "./pages/AdminPanel";
 
 
@@ -38,6 +39,7 @@ function App() {
               <Route path="/analytics" element={<AdvancedAnalytics />} />
               <Route path="/hunting" element={<ThreatHunting />} />
               <Route path="/advanced-dashboard" element={<AdvancedDashboard />} />
+              <Route path="/packet-analysis" element={<PacketAnalysis />} />
               <Route path="/admin" element={<AdminPanel />} />
             </Routes>
           </div>

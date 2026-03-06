@@ -1,0 +1,485 @@
+/* ==============================================
+   PhantomNet — Packet Analysis Dashboard
+   Cyber-dark theme matching CyberMeshMap & EventStream
+   ============================================== */
+
+.packet-analysis-page {
+  padding: 1.5rem;
+  min-height: 100vh;
+  background: var(--bg-primary, #0a0e17);
+  color: var(--text-primary, #e2e8f0);
+}
+
+/* ---- Page Header ---- */
+.pcap-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid rgba(59, 130, 246, 0.15);
+}
+
+.pcap-header h1 {
+  font-size: 1.6rem;
+  font-weight: 700;
+  background: linear-gradient(135deg, #3b82f6, #06b6d4);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.pcap-header h1 .header-icon {
+  font-size: 1.4rem;
+  -webkit-text-fill-color: #3b82f6;
+}
+
+.pcap-subtitle {
+  color: var(--text-secondary, #94a3b8);
+  font-size: 0.85rem;
+  margin-top: 0.25rem;
+}
+
+/* ---- Stats Row ---- */
+.pcap-stats-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.pcap-stat-card {
+  background: linear-gradient(135deg, rgba(15, 23, 42, 0.9), rgba(15, 23, 42, 0.7));
+  border: 1px solid rgba(59, 130, 246, 0.12);
+  border-radius: 12px;
+  padding: 1.25rem;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.pcap-stat-card:hover {
+  border-color: rgba(59, 130, 246, 0.35);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 20px rgba(59, 130, 246, 0.1);
+}
+
+.pcap-stat-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--accent-color, #3b82f6), transparent);
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.pcap-stat-card:hover::before {
+  opacity: 1;
+}
+
+.stat-icon {
+  font-size: 1.5rem;
+  margin-bottom: 0.5rem;
+  opacity: 0.8;
+}
+
+.stat-value {
+  font-size: 1.75rem;
+  font-weight: 700;
+  font-family: 'JetBrains Mono', 'Fira Code', monospace;
+  background: linear-gradient(135deg, #e2e8f0, #94a3b8);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.stat-label {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-secondary, #64748b);
+  margin-top: 0.25rem;
+}
+
+/* Accent colors per card */
+.pcap-stat-card.accent-blue { --accent-color: #3b82f6; }
+.pcap-stat-card.accent-cyan { --accent-color: #06b6d4; }
+.pcap-stat-card.accent-green { --accent-color: #10b981; }
+.pcap-stat-card.accent-amber { --accent-color: #f59e0b; }
+.pcap-stat-card.accent-red { --accent-color: #ef4444; }
+
+.pcap-stat-card.accent-blue .stat-icon { color: #3b82f6; }
+.pcap-stat-card.accent-cyan .stat-icon { color: #06b6d4; }
+.pcap-stat-card.accent-green .stat-icon { color: #10b981; }
+.pcap-stat-card.accent-amber .stat-icon { color: #f59e0b; }
+.pcap-stat-card.accent-red .stat-icon { color: #ef4444; }
+
+/* ---- Main Content Grid ---- */
+.pcap-main-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+/* ---- Panel Cards ---- */
+.pcap-panel {
+  background: linear-gradient(135deg, rgba(15, 23, 42, 0.95), rgba(15, 23, 42, 0.8));
+  border: 1px solid rgba(59, 130, 246, 0.12);
+  border-radius: 14px;
+  padding: 1.25rem;
+  position: relative;
+}
+
+.pcap-panel .panel-title {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #cbd5e1;
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.pcap-panel .panel-title .title-icon {
+  color: #3b82f6;
+}
+
+/* ---- Protocol Distribution Chart ---- */
+.protocol-chart-wrapper {
+  height: 280px;
+  position: relative;
+}
+
+/* ---- Top Talkers Table ---- */
+.top-talkers-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.top-talkers-table th {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #64748b;
+  padding: 0.5rem 0.75rem;
+  text-align: left;
+  border-bottom: 1px solid rgba(59, 130, 246, 0.1);
+}
+
+.top-talkers-table td {
+  padding: 0.6rem 0.75rem;
+  font-size: 0.85rem;
+  border-bottom: 1px solid rgba(30, 41, 59, 0.5);
+  font-family: 'JetBrains Mono', 'Fira Code', monospace;
+}
+
+.top-talkers-table tr {
+  transition: background 0.2s;
+}
+
+.top-talkers-table tr:hover {
+  background: rgba(59, 130, 246, 0.05);
+}
+
+.ip-cell {
+  color: #06b6d4;
+}
+
+.packet-count-cell {
+  color: #e2e8f0;
+  font-weight: 600;
+}
+
+.rank-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 6px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  background: rgba(59, 130, 246, 0.15);
+  color: #3b82f6;
+}
+
+.rank-badge.top-3 {
+  background: rgba(245, 158, 11, 0.15);
+  color: #f59e0b;
+}
+
+/* ---- Suspicious Packets ---- */
+.pcap-panel.full-width {
+  grid-column: 1 / -1;
+}
+
+.suspicious-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.suspicious-list::-webkit-scrollbar {
+  width: 4px;
+}
+
+.suspicious-list::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.suspicious-list::-webkit-scrollbar-thumb {
+  background: rgba(59, 130, 246, 0.3);
+  border-radius: 4px;
+}
+
+.suspicious-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  border-radius: 10px;
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px solid rgba(59, 130, 246, 0.08);
+  transition: all 0.2s;
+}
+
+.suspicious-item:hover {
+  border-color: rgba(59, 130, 246, 0.25);
+  background: rgba(15, 23, 42, 0.9);
+}
+
+.severity-badge {
+  padding: 0.25rem 0.6rem;
+  border-radius: 6px;
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.severity-badge.CRITICAL {
+  background: rgba(239, 68, 68, 0.15);
+  color: #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.25);
+}
+
+.severity-badge.HIGH {
+  background: rgba(245, 158, 11, 0.15);
+  color: #f59e0b;
+  border: 1px solid rgba(245, 158, 11, 0.25);
+}
+
+.severity-badge.MEDIUM {
+  background: rgba(59, 130, 246, 0.15);
+  color: #3b82f6;
+  border: 1px solid rgba(59, 130, 246, 0.25);
+}
+
+.suspicious-detail {
+  flex: 1;
+  font-size: 0.82rem;
+  color: #cbd5e1;
+  line-height: 1.4;
+}
+
+.suspicious-type {
+  font-weight: 600;
+  color: #e2e8f0;
+  margin-right: 0.5rem;
+}
+
+.suspicious-ips {
+  font-family: 'JetBrains Mono', 'Fira Code', monospace;
+  font-size: 0.75rem;
+  color: #06b6d4;
+  margin-top: 0.15rem;
+}
+
+/* ---- Malicious Patterns Panel ---- */
+.pattern-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.pattern-card {
+  padding: 0.9rem;
+  border-radius: 10px;
+  border: 1px solid rgba(239, 68, 68, 0.15);
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.05), transparent);
+  transition: all 0.2s;
+}
+
+.pattern-card:hover {
+  border-color: rgba(239, 68, 68, 0.3);
+}
+
+.pattern-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+}
+
+.pattern-type {
+  font-weight: 700;
+  font-size: 0.85rem;
+  color: #e2e8f0;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.pattern-detail {
+  font-size: 0.8rem;
+  color: #94a3b8;
+  line-height: 1.4;
+}
+
+.pattern-ip {
+  font-family: 'JetBrains Mono', 'Fira Code', monospace;
+  color: #06b6d4;
+}
+
+/* ---- Download Button ---- */
+.pcap-download-section {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.pcap-download-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.65rem 1.25rem;
+  border-radius: 10px;
+  border: 1px solid rgba(59, 130, 246, 0.3);
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.15), rgba(59, 130, 246, 0.05));
+  color: #3b82f6;
+  font-weight: 600;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.pcap-download-btn:hover {
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.25), rgba(59, 130, 246, 0.1));
+  border-color: rgba(59, 130, 246, 0.5);
+  box-shadow: 0 0 20px rgba(59, 130, 246, 0.15);
+  transform: translateY(-1px);
+}
+
+.pcap-download-btn .btn-icon {
+  font-size: 1rem;
+}
+
+/* ---- IOC Section ---- */
+.ioc-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.75rem;
+}
+
+.ioc-category {
+  background: rgba(15, 23, 42, 0.5);
+  border-radius: 8px;
+  padding: 0.75rem;
+}
+
+.ioc-category-label {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: #64748b;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+}
+
+.ioc-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.ioc-item {
+  font-family: 'JetBrains Mono', 'Fira Code', monospace;
+  font-size: 0.75rem;
+  color: #06b6d4;
+  padding: 0.2rem 0;
+  word-break: break-all;
+}
+
+/* ---- Empty State ---- */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem;
+  color: #64748b;
+  text-align: center;
+}
+
+.empty-state .empty-icon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+  opacity: 0.3;
+}
+
+.empty-state p {
+  font-size: 0.9rem;
+}
+
+/* ---- Loading spinner ---- */
+.pcap-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem;
+}
+
+.pcap-spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid rgba(59, 130, 246, 0.15);
+  border-top-color: #3b82f6;
+  border-radius: 50%;
+  animation: pcap-spin 0.8s linear infinite;
+}
+
+@keyframes pcap-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ---- Responsive ---- */
+@media (max-width: 1024px) {
+  .pcap-main-grid {
+    grid-template-columns: 1fr;
+  }
+  .pcap-panel.full-width {
+    grid-column: 1;
+  }
+  .ioc-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .pcap-stats-row {
+    grid-template-columns: 1fr 1fr;
+  }
+  .pcap-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+}

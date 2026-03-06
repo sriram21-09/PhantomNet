@@ -23,6 +23,9 @@ from services.response_executor import response_executor
 from api.realtime import push_realtime_event
 import asyncio
 
+# PCAP Capture Integration
+from services.pcap_analyzer import pcap_analyzer
+
 # Configure logging
 logger = logging.getLogger("threat_analyzer")
 logger.setLevel(logging.INFO)
@@ -314,6 +317,40 @@ class ThreatAnalyzerService:
                 )
             except Exception as e:
                 logger.error(f"Response execution failed for {log.src_ip}: {e}")
+
+            # PCAP Capture: trigger full capture for HIGH/CRITICAL threats
+            try:
+                capture_result = pcap_analyzer.start_capture(
+                    event_id=log.id,
+                    duration=60,
+                )
+                logger.info(f"[PCAP] Triggered capture for event {log.id}: {capture_result.get('status')}")
+            except Exception as pcap_e:
+                logger.error(f"[PCAP] Failed to trigger capture for {log.id}: {pcap_e}")
+
+            # Extract IOCs from the threat and store them
+            try:
+                from database.models import IOC
+                db = SessionLocal()
+                existing = db.query(IOC).filter(IOC.value == log.src_ip, IOC.type == "IP").first()
+                if not existing:
+                    new_ioc = IOC(
+                        type="IP",
+                        value=log.src_ip,
+                        description=f"Auto-extracted from {result.threat_level} threat: {result.decision}",
+                        threat_level=result.threat_level,
+                        is_watchlist=True,
+                    )
+                    db.add(new_ioc)
+                    db.commit()
+                    logger.info(f"[IOC] Stored new IOC: {log.src_ip}")
+                else:
+                    existing.last_seen = datetime.now()
+                    existing.threat_level = result.threat_level
+                    db.commit()
+                db.close()
+            except Exception as ioc_e:
+                logger.error(f"[IOC] Failed to store IOC for {log.src_ip}: {ioc_e}")
 
 # Singleton instance
 threat_analyzer = ThreatAnalyzerService()
