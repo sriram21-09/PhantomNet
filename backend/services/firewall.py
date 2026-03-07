@@ -1,5 +1,6 @@
 import subprocess
 import platform
+import re
 
 class FirewallService:
     @staticmethod
@@ -7,6 +8,11 @@ class FirewallService:
         """
         Executes a Windows 'netsh' command to block an IP via the Firewall.
         """
+        # Strict IP validation to prevent command injection
+        ip_pattern = r"^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$"
+        if not re.match(ip_pattern, ip_address):
+            return {"status": "error", "message": "Invalid IP address format."}
+
         system = platform.system()
         
         # Simple check to ensure we are on Windows
