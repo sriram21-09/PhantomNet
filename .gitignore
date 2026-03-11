@@ -54,3 +54,4 @@ backend/verify_output.txt
 # Automation Scripts (private to project lead)
 automation/
 .agent/
+item_edit_help.txt

@@ -1,0 +1,49 @@
+{
+    "models": {
+        "v1.0.0": {
+            "version": "v1.0.0",
+            "name": "DummyTest",
+            "training_date": "2026-03-11T10:16:36.560724",
+            "path": "ml_models/test_registry\\DummyTest_v1.0.0.pkl",
+            "status": "Staging",
+            "metrics": {
+                "accuracy": 0.85,
+                "precision": 0.82,
+                "recall": 0.88,
+                "f1_score": 0.85
+            },
+            "features": [],
+            "hyperparameters": {}
+        },
+        "v1.1.0": {
+            "version": "v1.1.0",
+            "name": "DummyTest",
+            "training_date": "2026-03-11T10:16:36.578508",
+            "path": "ml_models/test_registry\\DummyTest_v1.1.0.pkl",
+            "status": "Staging",
+            "metrics": {
+                "accuracy": 0.88,
+                "precision": 0.85,
+                "recall": 0.9,
+                "f1_score": 0.87
+            },
+            "features": [],
+            "hyperparameters": {}
+        },
+        "v1.1.1": {
+            "version": "v1.1.1",
+            "name": "DummyTest",
+            "training_date": "2026-03-11T10:16:36.599953",
+            "path": "ml_models/test_registry\\DummyTest_v1.1.1.pkl",
+            "status": "Staging",
+            "metrics": {
+                "accuracy": 0.91,
+                "precision": 0.89,
+                "recall": 0.93,
+                "f1_score": 0.91
+            },
+            "features": [],
+            "hyperparameters": {}
+        }
+    }
+}
