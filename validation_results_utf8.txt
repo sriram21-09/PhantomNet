@@ -1,0 +1,232 @@
+﻿≡ƒÜÇ Starting Model Validation...
+Γ£à Loaded 200 events from data/ground_truth.csv
+≡ƒö« Running predictions...
+[LATENCY] ML inference time: 16.31 ms
+[LATENCY] ML inference time: 16.91 ms
+[LATENCY] ML inference time: 16.75 ms
+[LATENCY] ML inference time: 16.73 ms
+[LATENCY] ML inference time: 16.19 ms
+[LATENCY] ML inference time: 16.15 ms
+[LATENCY] ML inference time: 15.81 ms
+[LATENCY] ML inference time: 15.98 ms
+[LATENCY] ML inference time: 16.02 ms
+[LATENCY] ML inference time: 15.58 ms
+[LATENCY] ML inference time: 15.62 ms
+[LATENCY] ML inference time: 15.57 ms
+[LATENCY] ML inference time: 15.45 ms
+[LATENCY] ML inference time: 15.46 ms
+[LATENCY] ML inference time: 16.79 ms
+[LATENCY] ML inference time: 16.20 ms
+[LATENCY] ML inference time: 15.65 ms
+[LATENCY] ML inference time: 15.82 ms
+[LATENCY] ML inference time: 15.88 ms
+[LATENCY] ML inference time: 15.53 ms
+[LATENCY] ML inference time: 15.46 ms
+[LATENCY] ML inference time: 16.80 ms
+[LATENCY] ML inference time: 17.35 ms
+[LATENCY] ML inference time: 17.11 ms
+[LATENCY] ML inference time: 15.71 ms
+[LATENCY] ML inference time: 15.84 ms
+[LATENCY] ML inference time: 15.46 ms
+[LATENCY] ML inference time: 15.74 ms
+[LATENCY] ML inference time: 15.40 ms
+[LATENCY] ML inference time: 26.38 ms
+[LATENCY] ML inference time: 24.07 ms
+[LATENCY] ML inference time: 19.58 ms
+[LATENCY] ML inference time: 17.62 ms
+[LATENCY] ML inference time: 15.58 ms
+[LATENCY] ML inference time: 16.19 ms
+[LATENCY] ML inference time: 15.00 ms
+[LATENCY] ML inference time: 17.64 ms
+[LATENCY] ML inference time: 15.64 ms
+[LATENCY] ML inference time: 19.14 ms
+[LATENCY] ML inference time: 16.15 ms
+[LATENCY] ML inference time: 15.24 ms
+[LATENCY] ML inference time: 15.99 ms
+[LATENCY] ML inference time: 15.23 ms
+[LATENCY] ML inference time: 15.33 ms
+[LATENCY] ML inference time: 15.22 ms
+[LATENCY] ML inference time: 15.02 ms
+[LATENCY] ML inference time: 15.18 ms
+[LATENCY] ML inference time: 15.59 ms
+[LATENCY] ML inference time: 15.92 ms
+[LATENCY] ML inference time: 15.26 ms
+[LATENCY] ML inference time: 15.18 ms
+[LATENCY] ML inference time: 15.81 ms
+[LATENCY] ML inference time: 15.26 ms
+[LATENCY] ML inference time: 15.10 ms
+[LATENCY] ML inference time: 15.64 ms
+[LATENCY] ML inference time: 16.63 ms
+[LATENCY] ML inference time: 16.14 ms
+[LATENCY] ML inference time: 16.10 ms
+[LATENCY] ML inference time: 17.36 ms
+[LATENCY] ML inference time: 15.83 ms
+[LATENCY] ML inference time: 15.92 ms
+[LATENCY] ML inference time: 15.10 ms
+[LATENCY] ML inference time: 15.38 ms
+[LATENCY] ML inference time: 15.28 ms
+[LATENCY] ML inference time: 15.37 ms
+[LATENCY] ML inference time: 15.39 ms
+[LATENCY] ML inference time: 15.01 ms
+[LATENCY] ML inference time: 15.17 ms
+[LATENCY] ML inference time: 15.00 ms
+[LATENCY] ML inference time: 16.52 ms
+[LATENCY] ML inference time: 15.11 ms
+[LATENCY] ML inference time: 15.04 ms
+[LATENCY] ML inference time: 15.42 ms
+[LATENCY] ML inference time: 15.28 ms
+[LATENCY] ML inference time: 16.16 ms
+[LATENCY] ML inference time: 16.31 ms
+[LATENCY] ML inference time: 16.15 ms
+[LATENCY] ML inference time: 16.07 ms
+[LATENCY] ML inference time: 16.16 ms
+[LATENCY] ML inference time: 15.82 ms
+[LATENCY] ML inference time: 15.77 ms
+[LATENCY] ML inference time: 16.42 ms
+[LATENCY] ML inference time: 16.49 ms
+[LATENCY] ML inference time: 15.95 ms
+[LATENCY] ML inference time: 15.32 ms
+[LATENCY] ML inference time: 15.76 ms
+[LATENCY] ML inference time: 15.47 ms
+[LATENCY] ML inference time: 15.27 ms
+[LATENCY] ML inference time: 15.33 ms
+[LATENCY] ML inference time: 15.45 ms
+[LATENCY] ML inference time: 15.43 ms
+[LATENCY] ML inference time: 16.36 ms
+[LATENCY] ML inference time: 15.34 ms
+[LATENCY] ML inference time: 15.02 ms
+[LATENCY] ML inference time: 15.26 ms
+[LATENCY] ML inference time: 15.59 ms
+[LATENCY] ML inference time: 15.85 ms
+[LATENCY] ML inference time: 15.94 ms
+[LATENCY] ML inference time: 16.39 ms
+[LATENCY] ML inference time: 16.32 ms
+[LATENCY] ML inference time: 16.99 ms
+[LATENCY] ML inference time: 16.90 ms
+[LATENCY] ML inference time: 17.33 ms
+[LATENCY] ML inference time: 16.73 ms
+[LATENCY] ML inference time: 16.59 ms
+[LATENCY] ML inference time: 16.38 ms
+[LATENCY] ML inference time: 16.22 ms
+[LATENCY] ML inference time: 16.85 ms
+[LATENCY] ML inference time: 16.04 ms
+[LATENCY] ML inference time: 15.86 ms
+[LATENCY] ML inference time: 16.05 ms
+[LATENCY] ML inference time: 16.09 ms
+[LATENCY] ML inference time: 16.49 ms
+[LATENCY] ML inference time: 16.46 ms
+[LATENCY] ML inference time: 17.31 ms
+[LATENCY] ML inference time: 16.64 ms
+[LATENCY] ML inference time: 16.56 ms
+[LATENCY] ML inference time: 16.50 ms
+[LATENCY] ML inference time: 16.26 ms
+[LATENCY] ML inference time: 16.43 ms
+[LATENCY] ML inference time: 16.35 ms
+[LATENCY] ML inference time: 16.42 ms
+[LATENCY] ML inference time: 18.00 ms
+[LATENCY] ML inference time: 16.44 ms
+[LATENCY] ML inference time: 17.61 ms
+[LATENCY] ML inference time: 16.99 ms
+[LATENCY] ML inference time: 19.96 ms
+[LATENCY] ML inference time: 16.87 ms
+[LATENCY] ML inference time: 17.17 ms
+[LATENCY] ML inference time: 16.23 ms
+[LATENCY] ML inference time: 16.34 ms
+[LATENCY] ML inference time: 16.67 ms
+[LATENCY] ML inference time: 17.62 ms
+[LATENCY] ML inference time: 16.60 ms
+[LATENCY] ML inference time: 16.44 ms
+[LATENCY] ML inference time: 16.34 ms
+[LATENCY] ML inference time: 15.56 ms
+[LATENCY] ML inference time: 16.54 ms
+[LATENCY] ML inference time: 16.24 ms
+[LATENCY] ML inference time: 15.83 ms
+[LATENCY] ML inference time: 16.12 ms
+[LATENCY] ML inference time: 16.61 ms
+[LATENCY] ML inference time: 16.35 ms
+[LATENCY] ML inference time: 15.85 ms
+[LATENCY] ML inference time: 15.73 ms
+[LATENCY] ML inference time: 16.12 ms
+[LATENCY] ML inference time: 18.44 ms
+[LATENCY] ML inference time: 17.12 ms
+[LATENCY] ML inference time: 15.52 ms
+[LATENCY] ML inference time: 16.04 ms
+[LATENCY] ML inference time: 16.26 ms
+[LATENCY] ML inference time: 15.30 ms
+[LATENCY] ML inference time: 15.08 ms
+[LATENCY] ML inference time: 15.41 ms
+[LATENCY] ML inference time: 15.25 ms
+[LATENCY] ML inference time: 15.25 ms
+[LATENCY] ML inference time: 16.61 ms
+[LATENCY] ML inference time: 15.45 ms
+[LATENCY] ML inference time: 15.26 ms
+[LATENCY] ML inference time: 17.23 ms
+[LATENCY] ML inference time: 19.29 ms
+[LATENCY] ML inference time: 16.32 ms
+[LATENCY] ML inference time: 19.19 ms
+[LATENCY] ML inference time: 16.03 ms
+[LATENCY] ML inference time: 16.81 ms
+[LATENCY] ML inference time: 17.80 ms
+[LATENCY] ML inference time: 17.15 ms
+[LATENCY] ML inference time: 17.67 ms
+[LATENCY] ML inference time: 19.26 ms
+[LATENCY] ML inference time: 18.01 ms
+[LATENCY] ML inference time: 18.62 ms
+[LATENCY] ML inference time: 16.94 ms
+[LATENCY] ML inference time: 15.88 ms
+[LATENCY] ML inference time: 16.37 ms
+[LATENCY] ML inference time: 15.52 ms
+[LATENCY] ML inference time: 16.45 ms
+[LATENCY] ML inference time: 21.76 ms
+[LATENCY] ML inference time: 22.54 ms
+[LATENCY] ML inference time: 17.73 ms
+[LATENCY] ML inference time: 19.53 ms
+[LATENCY] ML inference time: 18.09 ms
+[LATENCY] ML inference time: 18.12 ms
+[LATENCY] ML inference time: 16.57 ms
+[LATENCY] ML inference time: 16.79 ms
+[LATENCY] ML inference time: 20.56 ms
+[LATENCY] ML inference time: 20.21 ms
+[LATENCY] ML inference time: 18.75 ms
+[LATENCY] ML inference time: 16.79 ms
+[LATENCY] ML inference time: 16.85 ms
+[LATENCY] ML inference time: 17.03 ms
+[LATENCY] ML inference time: 16.90 ms
+[LATENCY] ML inference time: 16.88 ms
+[LATENCY] ML inference time: 16.23 ms
+[LATENCY] ML inference time: 16.18 ms
+[LATENCY] ML inference time: 17.45 ms
+[LATENCY] ML inference time: 16.04 ms
+[LATENCY] ML inference time: 18.39 ms
+[LATENCY] ML inference time: 17.22 ms
+[LATENCY] ML inference time: 19.15 ms
+[LATENCY] ML inference time: 17.28 ms
+≡ƒÆ╛ Predictions saved to data/predictions.csv
+
+========================================
+≡ƒôè VALIDATION RESULTS
+========================================
+
+Confusion Matrix:
+True Negatives (Benign correct): 131
+False Positives (Benign marked as Malicious): 0
+False Negatives (Malicious marked as Benign): 67
+True Positives (Malicious correct): 2
+
+False Positive Rate (FPR): 0.00%
+
+Classification Report:
+              precision    recall  f1-score   support
+
+      BENIGN       0.66      1.00      0.80       131
+   MALICIOUS       1.00      0.03      0.06        69
+
+    accuracy                           0.67       200
+   macro avg       0.83      0.51      0.43       200
+weighted avg       0.78      0.67      0.54       200
+
+Overall Accuracy: 66.50%
+
+Γ£à SUCCESS: False Positive Rate is below the 10% target!
+
+ΓÜá∩╕Å Missed Detections (FN) detected! Model may need lower contamination or better features.
