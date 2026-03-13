@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useRealTime } from '../context/RealTimeContext';
-import { BrainCircuit, TrendingUp, TrendingDown, AlertTriangle, Radio, Minus, Gauge } from 'lucide-react';
+import { BrainCircuit, TrendingUp, TrendingDown, TriangleAlert, Radio, Minus, Gauge } from 'lucide-react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import './PredictiveAnalytics.css';
 
@@ -87,8 +87,8 @@ const PredictiveAnalytics = () => {
         };
 
         const target = targetMap[topProto] || { name: `${topProto} SERVICE`, port: 0 };
-        const avgScore = events.reduce((s, e) => s + (e.threat_score || 0), 0) / events.length;
-        const confidence = Math.min(95, Math.max(35, Math.round(avgScore * 0.8 + sorted[0]?.[1] * 0.5)));
+        const avgScore = events.length > 0 ? events.reduce((s, e) => s + (e.threat_score || 0), 0) / events.length : 0;
+        const confidence = Math.min(95, Math.max(35, Math.round(avgScore * 0.8 + (sorted[0]?.[1] || 0) * 0.5)));
 
         return { ...target, confidence };
     }, [events]);
@@ -111,7 +111,7 @@ const PredictiveAnalytics = () => {
         return { label: 'LOW', class: 'risk-low' };
     };
 
-    const risk = getRiskLevel(metrics.avgThreatScore || 0);
+    const risk = getRiskLevel(metrics?.avgThreatScore || 0);
 
     // Trend direction
     const trendDirection = useMemo(() => {
@@ -224,7 +224,7 @@ const PredictiveAnalytics = () => {
             </div>
 
             <div className="predictive-footer">
-                <AlertTriangle size={12} />
+                <TriangleAlert size={12} />
                 {trendDirection === 'RISING'
                     ? '⚠ Expected surge in attack volume within the next 2 hours.'
                     : trendDirection === 'FALLING'

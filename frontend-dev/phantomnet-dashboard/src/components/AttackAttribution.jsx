@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { useRealTime } from '../context/RealTimeContext';
-import { Target, Zap, ShieldAlert, Clock, Info, ChevronDown, Crosshair, Fingerprint, AlertTriangle } from 'lucide-react';
+import { Target, Zap, ShieldAlert, Clock, Info, ChevronDown, Crosshair, Fingerprint, TriangleAlert } from 'lucide-react';
 import './AttackAttribution.css';
 
 const TOOL_ICONS = {
@@ -55,7 +55,7 @@ const AttackAttribution = () => {
     const attackerEvents = currentAttacker.events;
     const latestAttack = attackerEvents[0];
     const maxScore = currentAttacker.maxScore;
-    const avgScore = attackerEvents.reduce((sum, e) => sum + (e.threat_score || 0), 0) / attackerEvents.length;
+    const avgScore = attackerEvents.length > 0 ? attackerEvents.reduce((sum, e) => sum + (e.threat_score || 0), 0) / attackerEvents.length : 0;
 
     const getSophistication = (score, count) => {
         if (score > 90 && count > 10) return { level: 'Advanced (State-Actor)', class: 'level-vhigh', icon: '🔴' };
@@ -152,7 +152,7 @@ const AttackAttribution = () => {
                 <div className="toolset-section">
                     <div className="tool-intent-row">
                         <div className="intent-box">
-                            <label><AlertTriangle size={12} /> INTENT</label>
+                            <label><TriangleAlert size={12} /> INTENT</label>
                             <div className="intent-value">{intent}</div>
                         </div>
                         <div className="protocols-box">

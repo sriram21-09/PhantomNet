@@ -5,9 +5,7 @@
 /* Font Import - MUST BE FIRST */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
 
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
 
 /* Reset & Base */
 *,
@@ -38,6 +36,11 @@ body[data-theme="dark"] {
   /* HUD Colors */
   --color-cyan: #06b6d4;
   --color-red: #ef4444;
+
+  --threat-low: #3b82f6;
+  --threat-medium: #10b981;
+  --threat-high: #f59e0b;
+  --threat-critical: #ef4444;
 
   --bg-primary: #020617;
   --bg-hud: rgba(15, 23, 42, 0.7);
