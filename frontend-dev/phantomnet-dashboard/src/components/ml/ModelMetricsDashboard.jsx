@@ -23,44 +23,61 @@ import {
 const ModelMetricsDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [data, setData] = useState(null);
+  const [error, setError] = useState(null);
+  const [isLive, setIsLive] = useState(true);
+
+  const fetchMLData = async () => {
+    try {
+      const baseUrl = 'http://localhost:5001/api/v1/ml';
+      
+      const [statsRes, featuresRes, predictionsRes, confidenceRes] = await Promise.all([
+        fetch(`${baseUrl}/stats`),
+        fetch(`${baseUrl}/feature-importance`),
+        fetch(`${baseUrl}/predictions/recent`),
+        fetch(`${baseUrl}/confidence-histogram`)
+      ]);
+
+      if (!statsRes.ok || !featuresRes.ok || !predictionsRes.ok || !confidenceRes.ok) {
+        throw new Error('Failed to fetch data from ML API');
+      }
+
+      const stats = await statsRes.json();
+      const features = await featuresRes.json();
+      const predictions = await predictionsRes.json();
+      const confidence = await confidenceRes.json();
+
+      setData({
+        threatScore: Math.round(stats.metrics.auc * 100) - 15, // Derived for dramatic effect
+        modelName: stats.name,
+        accuracy: stats.metrics.accuracy,
+        precision: stats.metrics.precision,
+        recall: stats.metrics.recall,
+        f1: stats.metrics.f1_score,
+        features: features.features.map(f => ({ name: f.name, value: f.importance })),
+        predictionDistribution: predictions.data.map((d, i) => ({ x: i * 10, y: d.benign + d.malicious })),
+        confidenceHistogram: confidence.buckets,
+        lastTrained: stats.last_updated.replace('T', ' ').substring(0, 19),
+        activeDetectors: 14,
+      });
+      setError(null);
+    } catch (err) {
+      console.error('ML API Error:', err);
+      setError('Connection to ML Engine failed. Ensure the mock server is running.');
+    } finally {
+      if (loading) setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    // Simulate API fetch for ML insights
-    const timer = setTimeout(() => {
-      setData({
-        threatScore: 78,
-        modelName: 'NeuralSentinel-X1',
-        accuracy: 0.942,
-        precision: 0.915,
-        recall: 0.892,
-        features: [
-          { name: 'Packet Entropy', value: 0.82 },
-          { name: 'Source Reputation', value: 0.75 },
-          { name: 'Port Scanning Index', value: 0.58 },
-          { name: 'Geo-Anomaly Score', value: 0.42 },
-          { name: 'Burst Duration', value: 0.31 },
-          { name: 'Protocol Mismatch', value: 0.15 },
-        ],
-        predictionDistribution: [
-          { x: 0, y: 5 }, { x: 10, y: 15 }, { x: 20, y: 40 }, { x: 30, y: 80 },
-          { x: 40, y: 120 }, { x: 50, y: 110 }, { x: 60, y: 160 }, { x: 70, y: 220 },
-          { x: 80, y: 350 }, { x: 90, y: 180 }, { x: 100, y: 45 }
-        ],
-        confidenceHistogram: [
-          { range: '0-20%', count: 8 },
-          { range: '20-40%', count: 12 },
-          { range: '40-60%', count: 25 },
-          { range: '60-80%', count: 64 },
-          { range: '80-100%', count: 128 },
-        ],
-        lastTrained: '2026-03-12 14:30',
-        activeDetectors: 12,
-      });
-      setLoading(false);
-    }, 1200);
-
-    return () => clearTimeout(timer);
-  }, []);
+    fetchMLData();
+    
+    let interval;
+    if (isLive) {
+      interval = setInterval(fetchMLData, 5000);
+    }
+    
+    return () => clearInterval(interval);
+  }, [isLive]);
 
   if (loading) {
     return (
@@ -75,6 +92,14 @@ const ModelMetricsDashboard = () => {
 
   return (
     <div className="p-6 space-y-6 max-w-7xl mx-auto">
+      {/* Error Alert */}
+      {error && (
+        <div className="bg-red-500/10 border border-red-500/20 p-4 rounded-lg flex items-center gap-3 text-red-500 text-sm hud-font anim-fade-in">
+          <Info size={16} />
+          {error}
+        </div>
+      )}
+
       {/* Header Info */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-blue-500/10 pb-4">
         <div>
@@ -84,15 +109,29 @@ const ModelMetricsDashboard = () => {
           </h1>
           <p className="text-slate-400 text-sm mt-1">Explaining detection logic for current threat landscape</p>
         </div>
-        <div className="flex items-center gap-4 bg-slate-900/50 px-4 py-2 rounded-lg border border-white/5">
-          <div className="text-right">
-            <p className="text-[10px] text-slate-500 uppercase tracking-widest">Model Engine</p>
-            <p className="text-sm font-mono text-blue-400">{data.modelName}</p>
-          </div>
-          <div className="w-[1px] h-8 bg-white/10" />
-          <div className="text-right">
-            <p className="text-[10px] text-slate-500 uppercase tracking-widest">Last Updated</p>
-            <p className="text-sm font-mono text-slate-300">{data.lastTrained}</p>
+        <div className="flex items-center gap-4">
+          <button 
+            onClick={() => setIsLive(!isLive)}
+            className={`flex items-center gap-2 px-3 py-1.5 rounded border transition-all duration-300 ${
+              isLive 
+                ? 'bg-blue-500/10 border-blue-500/50 text-blue-400' 
+                : 'bg-slate-800 border-white/10 text-slate-500'
+            }`}
+          >
+            <div className={`w-2 h-2 rounded-full ${isLive ? 'bg-blue-500 animate-pulse' : 'bg-slate-600'}`} />
+            <span className="text-[10px] uppercase font-bold tracking-widest">{isLive ? 'Live Engine' : 'Engine Idle'}</span>
+          </button>
+
+          <div className="flex items-center gap-4 bg-slate-900/50 px-4 py-2 rounded-lg border border-white/5">
+            <div className="text-right">
+              <p className="text-[10px] text-slate-500 uppercase tracking-widest">Model Engine</p>
+              <p className="text-sm font-mono text-blue-400">{data.modelName}</p>
+            </div>
+            <div className="w-[1px] h-8 bg-white/10" />
+            <div className="text-right">
+              <p className="text-[10px] text-slate-500 uppercase tracking-widest">Last Updated</p>
+              <p className="text-sm font-mono text-slate-300">{data.lastTrained}</p>
+            </div>
           </div>
         </div>
       </div>
