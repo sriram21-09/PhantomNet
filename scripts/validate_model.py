@@ -92,13 +92,16 @@ def main():
     
     print("\nConfusion Matrix:")
     cm = confusion_matrix(y_true, y_pred)
-    # TN, FP, FN, TP
-    # But usually sklearn is [[TN, FP], [FN, TP]]
     tn, fp, fn, tp = cm.ravel()
     print(f"True Negatives (Benign correct): {tn}")
     print(f"False Positives (Benign marked as Malicious): {fp}")
     print(f"False Negatives (Malicious marked as Benign): {fn}")
     print(f"True Positives (Malicious correct): {tp}")
+
+    # Calculate False Positive Rate (FPR)
+    # FPR = FP / (FP + TN)
+    fpr = fp / (fp + tn) if (fp + tn) > 0 else 0
+    print(f"\nFalse Positive Rate (FPR): {fpr:.2%}")
 
     print("\nClassification Report:")
     print(classification_report(y_true, y_pred, target_names=["BENIGN", "MALICIOUS"]))
@@ -107,8 +110,11 @@ def main():
     accuracy = (tp + tn) / len(y_true)
     print(f"Overall Accuracy: {accuracy:.2%}")
     
-    if fp > 0:
-        print("\n⚠️ High False Positive Rate detected! Review benign traffic patterns.")
+    if fpr < 0.10:
+        print("\n✅ SUCCESS: False Positive Rate is below the 10% target!")
+    else:
+        print(f"\n❌ FAILURE: False Positive Rate ({fpr:.2%}) is above 10% target. Further mitigation required.")
+    
     if fn > 0:
         print("\n⚠️ Missed Detections (FN) detected! Model may need lower contamination or better features.")
 

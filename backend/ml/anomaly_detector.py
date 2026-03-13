@@ -12,6 +12,12 @@ except ImportError:
 # Path to save the trained model
 MODEL_PATH = os.path.join(os.path.dirname(__file__), "model.pkl")
 
+# Fix import for project root execution
+try:
+    from backend.ml.mitigation_engine import MitigationEngine
+except ImportError:
+    from ml.mitigation_engine import MitigationEngine
+
 
 class AnomalyDetector:
     def __init__(self):
@@ -23,6 +29,7 @@ class AnomalyDetector:
             random_state=42
         )
         self.extractor = FeatureExtractor()
+        self.mitigator = MitigationEngine()
         self.is_trained = False
 
     def train(self, logs):
@@ -81,7 +88,10 @@ class AnomalyDetector:
         print(f"[LATENCY] ML inference time: {latency_ms:.2f} ms")
         # --------------------------------------------------------
 
-        return pred, score
+        # NEW: Refine prediction using Mitigation Engine
+        refined_pred, _ = self.mitigator.refine_prediction(log_entry, pred, score)
+
+        return refined_pred, score
 
     def load(self):
         """Loads a saved model from disk."""

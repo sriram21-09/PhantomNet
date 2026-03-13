@@ -20,6 +20,11 @@ Usage:
 
 import os
 import logging
+import json
+try:
+    import redis
+except ImportError:
+    redis = None
 from typing import Optional
 from datetime import datetime
 
@@ -55,6 +60,7 @@ class GeoIPService:
 
     _instance = None
     _cache = {}
+    _redis = None
     _reader = None
     _maxmind_available = False
 
@@ -66,7 +72,15 @@ class GeoIPService:
         return cls._instance
 
     def _initialize(self):
-        """Load MaxMind database if available."""
+        """Load MaxMind database if available and initialize Redis."""
+        if redis:
+            try:
+                self._redis = redis.Redis(host='localhost', port=6379, db=0, decode_responses=True)
+                self._redis.ping()
+                logger.info("[GeoIP] Connected to Redis for caching.")
+            except Exception as e:
+                logger.warning(f"[GeoIP] Redis unavailable: {e}")
+                self._redis = None
         try:
             import geoip2.database
             if os.path.exists(GEOIP_DB_PATH):
@@ -95,6 +109,14 @@ class GeoIPService:
             return self._private_result(ip)
 
         # 2. Check cache
+        if self._redis:
+            try:
+                cached = self._redis.get(f"geoip:{ip}")
+                if cached:
+                    return json.loads(cached)
+            except Exception:
+                pass
+        
         if ip in self._cache:
             return self._cache[ip]
 
@@ -102,13 +124,22 @@ class GeoIPService:
         if self._maxmind_available:
             result = self._lookup_maxmind(ip)
             if result:
-                self._cache[ip] = result
+                self._cache_result(ip, result)
                 return result
 
         # 4. Fallback to ip-api.com (online, slow)
         result = self._lookup_ipapi(ip)
-        self._cache[ip] = result
+        self._cache_result(ip, result)
         return result
+
+    def _cache_result(self, ip: str, result: dict):
+        if self._redis:
+            try:
+                self._redis.setex(f"geoip:{ip}", 3600, json.dumps(result))
+            except Exception:
+                self._cache[ip] = result
+        else:
+            self._cache[ip] = result
 
     def _is_private_ip(self, ip: str) -> bool:
         """Check if IP is private, loopback, or reserved."""
