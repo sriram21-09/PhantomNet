@@ -3,15 +3,13 @@ import pandas as pd
 from pathlib import Path
 from config.mlflow_env import *
 
-
-
 # 🔒 Force consistent tracking store
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 MLRUNS_PATH = PROJECT_ROOT / "mlruns"
 mlflow.set_tracking_uri(f"file:///{MLRUNS_PATH}")
 
 MODEL_NAME = "PhantomNet_Attack_Detector"
-MODEL_STAGE = "Staging"   # or "Production" later
+MODEL_STAGE = "Staging"  # or "Production" later
 
 
 class DeploymentPipeline:
@@ -35,9 +33,7 @@ def main():
     pipeline = DeploymentPipeline()
 
     # 🔎 Minimal inference test
-    sample = pd.DataFrame([
-        {"payload_length": 120}
-    ])
+    sample = pd.DataFrame([{"payload_length": 120}])
 
     prediction = pipeline.predict(sample)
 

@@ -13,10 +13,7 @@ print("Test 1: Inserting Partial/Null Data...")
 try:
     # Trying to save a log without a Source IP (Should fail or be handled)
     bad_log = PacketLog(
-        src_ip=None, # ❌ MISSING
-        dst_ip="192.168.1.5",
-        protocol="TCP",
-        length=60
+        src_ip=None, dst_ip="192.168.1.5", protocol="TCP", length=60  # ❌ MISSING
     )
     db.add(bad_log)
     db.commit()
@@ -29,13 +26,13 @@ except Exception as e:
 # TEST 2: The "Massive Payload" (Task 4)
 # =========================================
 print("\nTest 2: Inserting Massive String (Buffer Overflow Sim)...")
-huge_string = "A" * 5000 # 5kb string
+huge_string = "A" * 5000  # 5kb string
 try:
     big_log = PacketLog(
         src_ip="1.1.1.1",
         dst_ip="2.2.2.2",
         protocol="TCP",
-        attack_type=huge_string # ❌ WAY TOO LONG
+        attack_type=huge_string,  # ❌ WAY TOO LONG
     )
     db.add(big_log)
     db.commit()
@@ -50,9 +47,7 @@ except Exception as e:
 print("\nTest 3: Negative Length (Boundary Check)...")
 try:
     neg_log = PacketLog(
-        src_ip="1.1.1.1",
-        dst_ip="2.2.2.2",
-        length=-500 # ❌ PHYSICS IMPOSSIBLE
+        src_ip="1.1.1.1", dst_ip="2.2.2.2", length=-500  # ❌ PHYSICS IMPOSSIBLE
     )
     db.add(neg_log)
     db.commit()

@@ -4,10 +4,12 @@ import time
 SMTP_HOST = "phantomnet_postgres"
 SMTP_PORT = 2525
 
+
 def send_cmd(sock, cmd):
     sock.sendall((cmd + "\r\n").encode())
     time.sleep(0.2)
     return sock.recv(4096).decode()
+
 
 def test_smtp_basic_flow():
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)

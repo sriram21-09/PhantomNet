@@ -25,10 +25,12 @@ def _generate_forecast(hourly_counts: list, hours_ahead: int = 6):
     for i in range(hours_ahead):
         predicted = max(0, smoothed + trend * (i + 1) + random.uniform(-2, 2))
         now = datetime.utcnow() + timedelta(hours=i + 1)
-        forecast.append({
-            "time": now.strftime("%H:%M"),
-            "predicted": round(predicted, 1),
-        })
+        forecast.append(
+            {
+                "time": now.strftime("%H:%M"),
+                "predicted": round(predicted, 1),
+            }
+        )
 
     return forecast
 
@@ -53,10 +55,12 @@ def get_forecast(db: Session = Depends(get_db)):
     historical = []
     for i, count in enumerate(hourly_counts):
         t = now - timedelta(hours=12 - i)
-        historical.append({
-            "time": t.strftime("%H:%M"),
-            "current": count,
-        })
+        historical.append(
+            {
+                "time": t.strftime("%H:%M"),
+                "current": count,
+            }
+        )
 
     forecast = _generate_forecast(hourly_counts, hours_ahead=6)
 
@@ -87,11 +91,15 @@ def get_risk_score(db: Session = Depends(get_db)):
     """Aggregate risk score across all honeypots."""
     since = datetime.utcnow() - timedelta(minutes=30)
 
-    result = db.query(
-        func.avg(PacketLog.threat_score).label("avg"),
-        func.max(PacketLog.threat_score).label("max"),
-        func.count(PacketLog.id).label("count"),
-    ).filter(PacketLog.timestamp >= since).first()
+    result = (
+        db.query(
+            func.avg(PacketLog.threat_score).label("avg"),
+            func.max(PacketLog.threat_score).label("max"),
+            func.count(PacketLog.id).label("count"),
+        )
+        .filter(PacketLog.timestamp >= since)
+        .first()
+    )
 
     avg_score = float(result.avg) if result.avg else 0
     max_score = float(result.max) if result.max else 0
@@ -150,8 +158,12 @@ def get_next_attack_prediction(db: Session = Depends(get_db)):
 
     if results:
         top = results[0]
-        target_info = target_map.get(top.protocol, {"name": f"{top.protocol} SERVICE", "port": 0})
-        confidence = min(95, max(45, int(float(top.avg_score or 50) * 0.8 + top.count * 0.5)))
+        target_info = target_map.get(
+            top.protocol, {"name": f"{top.protocol} SERVICE", "port": 0}
+        )
+        confidence = min(
+            95, max(45, int(float(top.avg_score or 50) * 0.8 + top.count * 0.5))
+        )
         est_minutes = max(3, int(30 - top.count * 0.5 + random.uniform(-2, 2)))
     else:
         target_info = {"name": "SSH HONEYPOT", "port": 2222}

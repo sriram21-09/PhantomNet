@@ -28,15 +28,34 @@ logger = logging.getLogger(__name__)
 # Path to MaxMind database file
 GEOIP_DB_PATH = os.getenv(
     "GEOIP_DB_PATH",
-    os.path.join(os.path.dirname(os.path.dirname(__file__)), "data", "GeoLite2-City.mmdb")
+    os.path.join(
+        os.path.dirname(os.path.dirname(__file__)), "data", "GeoLite2-City.mmdb"
+    ),
 )
 
 # Private/reserved IP prefixes
 PRIVATE_PREFIXES = (
-    "10.", "172.16.", "172.17.", "172.18.", "172.19.",
-    "172.20.", "172.21.", "172.22.", "172.23.", "172.24.",
-    "172.25.", "172.26.", "172.27.", "172.28.", "172.29.",
-    "172.30.", "172.31.", "192.168.", "127.", "0.", "169.254.",
+    "10.",
+    "172.16.",
+    "172.17.",
+    "172.18.",
+    "172.19.",
+    "172.20.",
+    "172.21.",
+    "172.22.",
+    "172.23.",
+    "172.24.",
+    "172.25.",
+    "172.26.",
+    "172.27.",
+    "172.28.",
+    "172.29.",
+    "172.30.",
+    "172.31.",
+    "192.168.",
+    "127.",
+    "0.",
+    "169.254.",
 )
 
 LOOPBACK_IPS = {"127.0.0.1", "::1", "localhost", "phantomnet_postgres"}
@@ -69,6 +88,7 @@ class GeoIPService:
         """Load MaxMind database if available."""
         try:
             import geoip2.database
+
             if os.path.exists(GEOIP_DB_PATH):
                 self._reader = geoip2.database.Reader(GEOIP_DB_PATH)
                 self._maxmind_available = True
@@ -79,7 +99,9 @@ class GeoIPService:
                     f"Falling back to ip-api.com"
                 )
         except ImportError:
-            logger.warning("[GeoIP] geoip2 package not installed. Using ip-api.com fallback")
+            logger.warning(
+                "[GeoIP] geoip2 package not installed. Using ip-api.com fallback"
+            )
         except Exception as e:
             logger.error(f"[GeoIP] Failed to load MaxMind database: {e}")
 
@@ -164,10 +186,10 @@ class GeoIPService:
         """Fallback: look up IP using ip-api.com REST API."""
         try:
             import requests
+
             fields = "status,message,country,countryCode,city,lat,lon"
             response = requests.get(
-                f"http://ip-api.com/json/{ip}?fields={fields}",
-                timeout=3
+                f"http://ip-api.com/json/{ip}?fields={fields}", timeout=3
             )
             if response.status_code == 200:
                 data = response.json()

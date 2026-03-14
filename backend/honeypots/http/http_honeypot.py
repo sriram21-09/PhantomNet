@@ -8,8 +8,10 @@ from urllib.parse import parse_qs
 # Database logger for accurate last_seen
 try:
     import sys
-    sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
+    sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
     from db_logger import log_http_activity
+
     DB_ENABLED = True
 except Exception as e:
     DB_ENABLED = False
@@ -32,6 +34,7 @@ os.makedirs(LOG_DIR, exist_ok=True)
 
 ip_connections = defaultdict(int)
 
+
 # ======================
 # LOGGING
 # ======================
@@ -39,7 +42,7 @@ def log(level, payload):
     payload["level"] = level
     with open(LOG_FILE, "a") as f:
         f.write(json.dumps(payload) + "\n")
-    
+
     # Also log to database for accurate last_seen
     if DB_ENABLED:
         try:
@@ -50,30 +53,24 @@ def log(level, payload):
         except Exception as e:
             print(f"[HTTP] DB logging failed: {e}")
 
+
 def log_error(msg, context):
     with open(ERROR_LOG, "a") as f:
-        f.write(
-            f"{datetime.now(timezone.utc).isoformat()} | {context} | {msg}\n"
-        )
+        f.write(f"{datetime.now(timezone.utc).isoformat()} | {context} | {msg}\n")
+
 
 # ======================
 # SQLi DETECTION
 # ======================
-SQLI_PATTERNS = [
-    "' or 1=1",
-    "\" or \"1\"=\"1",
-    "union select",
-    "--",
-    ";--",
-    "'--",
-    "\"--"
-]
+SQLI_PATTERNS = ["' or 1=1", '" or "1"="1', "union select", "--", ";--", "'--", '"--']
+
 
 def is_sqli(value):
     if not value:
         return False
     value = value.lower()
     return any(p in value for p in SQLI_PATTERNS)
+
 
 # ======================
 # HANDLER
@@ -93,17 +90,20 @@ class HoneypotHandler(BaseHTTPRequestHandler):
         self.request.settimeout(REQUEST_TIMEOUT)
 
     def _log_event(self, event, level, data=None):
-        log(level, {
-            "timestamp": datetime.now(timezone.utc).isoformat(),
-            "src_ip": self.client_address[0],
-            "honeypot_type": "http",
-            "port": PORT,
-            "event": event,
-            "method": self.command,
-            "path": self.path,
-            "user_agent": self.headers.get("User-Agent"),
-            "data": data or {}
-        })
+        log(
+            level,
+            {
+                "timestamp": datetime.now(timezone.utc).isoformat(),
+                "src_ip": self.client_address[0],
+                "honeypot_type": "http",
+                "port": PORT,
+                "event": event,
+                "method": self.command,
+                "path": self.path,
+                "user_agent": self.headers.get("User-Agent"),
+                "data": data or {},
+            },
+        )
 
     def _check_ip_limit(self):
         ip = self.client_address[0]
@@ -170,13 +170,15 @@ class HoneypotHandler(BaseHTTPRequestHandler):
 
             if is_sqli(username) or is_sqli(password):
                 self._log_event(
-                    "sqli_attempt", "ERROR",
-                    {"username": username, "password": password}
+                    "sqli_attempt",
+                    "ERROR",
+                    {"username": username, "password": password},
                 )
             else:
                 self._log_event(
-                    "login_attempt", "WARN",
-                    {"username": username, "password": password}
+                    "login_attempt",
+                    "WARN",
+                    {"username": username, "password": password},
                 )
 
             self.send_response(403)
@@ -186,10 +188,7 @@ class HoneypotHandler(BaseHTTPRequestHandler):
 
         elif self.path == "/forgot-password":
             email = params.get("email", [""])[0]
-            self._log_event(
-                "password_reset_request", "WARN",
-                {"email": email}
-            )
+            self._log_event("password_reset_request", "WARN", {"email": email})
             self.send_response(200)
             self.send_header("Content-Type", "text/plain")
             self.end_headers()
@@ -215,6 +214,7 @@ class HoneypotHandler(BaseHTTPRequestHandler):
 
     def log_message(self, format, *args):
         return
+
 
 # ======================
 # START SERVER

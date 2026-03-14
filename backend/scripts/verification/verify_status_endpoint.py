@@ -2,6 +2,7 @@ import urllib.request
 import json
 import time
 
+
 def test_status_endpoint():
     url = "http://127.0.0.1:8000/api/honeypots/status"
     print(f"Testing {url}...")
@@ -16,7 +17,9 @@ def test_status_endpoint():
                 print(f"{'Service':<10} | {'Port':<6} | {'Status':<10} | {'Last Seen'}")
                 print("-" * 60)
                 for service in data:
-                    print(f"{service.get('name', 'N/A'):<10} | {service.get('port', 0):<6} | {service.get('status', 'N/A'):<10} | {service.get('last_seen', 'N/A')}")
+                    print(
+                        f"{service.get('name', 'N/A'):<10} | {service.get('port', 0):<6} | {service.get('status', 'N/A'):<10} | {service.get('last_seen', 'N/A')}"
+                    )
                 print("-" * 60)
                 return True
             else:
@@ -32,8 +35,10 @@ def test_status_endpoint():
     except Exception as e:
         print(f"An error occurred: {e}")
         import traceback
+
         traceback.print_exc()
         return False
+
 
 if __name__ == "__main__":
     # Wait a bit for server to start if running via script

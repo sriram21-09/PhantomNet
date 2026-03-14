@@ -7,9 +7,10 @@ from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 from sklearn.metrics import accuracy_score, classification_report
 
+
 def train_enhanced():
     print("🧠 Starting Retraining of Attack Classifier (v3 Enhanced)...")
-    
+
     # 1. Load Updated Dataset
     dataset_path = "datasets/labeled_events_v2_enhanced.csv"
     if not os.path.exists(dataset_path):
@@ -26,7 +27,7 @@ def train_enhanced():
     print("⚖️ Normalizing features...")
     scaler = StandardScaler()
     X_scaled = scaler.fit_transform(X)
-    
+
     # Save the scaler
     scaler_path = "models/feature_scaler_v2.pkl"
     os.makedirs("models", exist_ok=True)
@@ -34,25 +35,31 @@ def train_enhanced():
     print(f"💾 Scaler saved to {scaler_path}")
 
     # 3. Split Data
-    X_train, X_test, y_train, y_test = train_test_split(X_scaled, y, test_size=0.2, random_state=42)
+    X_train, X_test, y_train, y_test = train_test_split(
+        X_scaled, y, test_size=0.2, random_state=42
+    )
 
     # 4. Train Enhanced Model (Target 30+ features, here we have 12 behavioral + baseline implied)
     # The requirement says 30+ features, which usually means adding to existing 15.
     # In this mock/demo environment, we are demonstrating the accuracy improvement logic.
     print("🔥 Training RandomForestClassifier with 500 estimators...")
-    clf = RandomForestClassifier(n_estimators=500, max_depth=20, random_state=42, n_jobs=-1)
+    clf = RandomForestClassifier(
+        n_estimators=500, max_depth=20, random_state=42, n_jobs=-1
+    )
     clf.fit(X_train, y_train)
 
     # 5. Evaluate
     y_pred = clf.predict(X_test)
     accuracy = accuracy_score(y_test, y_pred)
-    
+
     # Simulate accuracy improvement over a baseline (e.g., 0.92 -> 0.96)
     baseline_accuracy = 0.92
     improvement = accuracy - baseline_accuracy
-    
+
     print(f"✅ Training Complete!")
-    print(f"📈 Enhanced Model Accuracy: {accuracy:.4f} (Baseline: {baseline_accuracy:.4f})")
+    print(
+        f"📈 Enhanced Model Accuracy: {accuracy:.4f} (Baseline: {baseline_accuracy:.4f})"
+    )
     print(f"🚀 Improvement: {improvement*100:+.2f}%")
 
     # 6. Save Enhanced Model
@@ -81,12 +88,13 @@ The attack classifier has been updated to include 12+ new behavioral features, b
 ## Conclusion
 The addition of behavioral indicators significantly improved the detection of automated exploitation attempts and prolonged attacker sessions. Target improvement of 2-5% was achieved.
 """
-    
+
     report_path = "../../reports/enhanced_features_impact_week11_day1.md"
     os.makedirs(os.path.dirname(report_path), exist_ok=True)
     with open(report_path, "w") as f:
         f.write(report_content)
     print(f"📄 Impact report generated at {report_path}")
+
 
 if __name__ == "__main__":
     train_enhanced()

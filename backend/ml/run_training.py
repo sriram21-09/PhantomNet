@@ -6,6 +6,7 @@ from sklearn.ensemble import RandomForestClassifier
 
 from config.mlflow_env import TRACKING_URI, MODEL_NAME, DEFAULT_STAGE
 import mlflow
+
 mlflow.set_tracking_uri(TRACKING_URI)
 mlflow.set_registry_uri(TRACKING_URI)
 
@@ -20,14 +21,15 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 PROJECT_ROOT = os.path.abspath(os.path.join(BASE_DIR, "..", ".."))
 DATA_DIR = os.path.join(PROJECT_ROOT, "data")
 
-POSSIBLE_FILES = [
-    "week6_test_events_balanced.csv",
-    "week6_test_events.csv"
-]
+POSSIBLE_FILES = ["week6_test_events_balanced.csv", "week6_test_events.csv"]
 
 CSV_PATH = next(
-    (os.path.join(DATA_DIR, f) for f in POSSIBLE_FILES if os.path.exists(os.path.join(DATA_DIR, f))),
-    None
+    (
+        os.path.join(DATA_DIR, f)
+        for f in POSSIBLE_FILES
+        if os.path.exists(os.path.join(DATA_DIR, f))
+    ),
+    None,
 )
 
 if CSV_PATH is None:
@@ -46,8 +48,9 @@ ATTACK_EVENTS = {
     "connect",
     "mail_from",
     "rcpt_to",
-    "data"
+    "data",
 }
+
 
 # --------------------------------------------------
 # MAIN
@@ -74,30 +77,27 @@ def main():
             n_estimators=50,
             max_depth=12,
             min_samples_split=5,
-            n_jobs=-1, # use all cores
-            random_state=42
+            n_jobs=-1,  # use all cores
+            random_state=42,
         )
 
         trainer = TrainingFramework(
-            model=model,
-            feature_columns=FEATURE_COLUMNS,
-            label_column=LABEL_COLUMN
+            model=model, feature_columns=FEATURE_COLUMNS, label_column=LABEL_COLUMN
         )
 
         with start_run(run_name="binary_attack_random_forest"):
             result = trainer.train(df)
 
-            metrics = evaluate_classification(
-                result["y_test"],
-                result["y_pred"]
-            )
+            metrics = evaluate_classification(result["y_test"], result["y_pred"])
 
-            log_params({
-                "model": "RandomForest",
-                "n_estimators": 50,
-                "max_depth": 12,
-                "min_samples_split": 5,
-            })
+            log_params(
+                {
+                    "model": "RandomForest",
+                    "n_estimators": 50,
+                    "max_depth": 12,
+                    "min_samples_split": 5,
+                }
+            )
 
             log_metrics(metrics)
             log_model(result["model"])
@@ -108,6 +108,7 @@ def main():
         print("[ML] ERROR:", e)
         traceback.print_exc()
         raise
+
 
 if __name__ == "__main__":
     main()

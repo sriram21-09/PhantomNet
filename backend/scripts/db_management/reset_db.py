@@ -4,12 +4,12 @@ from sqlalchemy import create_engine, text
 from dotenv import load_dotenv
 
 # Add backend root to path
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../../')))
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../../")))
 
 from database.models import Base
 
 # Load .env
-load_dotenv(os.path.join(os.path.dirname(__file__), '../../.env'))
+load_dotenv(os.path.join(os.path.dirname(__file__), "../../.env"))
 
 DATABASE_URL = os.getenv("DATABASE_URL")
 if not DATABASE_URL:

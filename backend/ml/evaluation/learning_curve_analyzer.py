@@ -6,11 +6,14 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.preprocessing import StandardScaler
 import os
 
+
 def analyze_learning_curve():
     print("📈 Starting Learning Curve Analysis...")
-    
+
     # Load dataset
-    dataset_path = os.path.join(os.path.dirname(__file__), "..", "datasets", "labeled_events_v2_enhanced.csv")
+    dataset_path = os.path.join(
+        os.path.dirname(__file__), "..", "datasets", "labeled_events_v2_enhanced.csv"
+    )
     if not os.path.exists(dataset_path):
         print(f"❌ Dataset not found at {dataset_path}")
         return
@@ -25,9 +28,13 @@ def analyze_learning_curve():
     model = RandomForestClassifier(n_estimators=100, max_depth=12, random_state=42)
 
     train_sizes, train_scores, test_scores = learning_curve(
-        model, X_scaled, y, cv=5, n_jobs=-1, 
+        model,
+        X_scaled,
+        y,
+        cv=5,
+        n_jobs=-1,
         train_sizes=np.linspace(0.1, 1.0, 5),
-        scoring='accuracy'
+        scoring="accuracy",
     )
 
     train_mean = np.mean(train_scores, axis=1)
@@ -40,7 +47,7 @@ def analyze_learning_curve():
     # Generate Report
     results_dir = os.path.join(os.path.dirname(__file__), "..", "..", "reports")
     os.makedirs(results_dir, exist_ok=True)
-    
+
     report_content = f"""# Learning Curve Analysis (Week 11 Day 2)
 
 ## Data Points
@@ -59,15 +66,19 @@ def analyze_learning_curve():
 ## Observations
 In our current evaluation with behavioral features, the model achieves high accuracy very quickly, suggesting strong feature signal.
 """
-    
-    with open(os.path.join(results_dir, "learning_curve_data_week11_day2.md"), "w") as f:
+
+    with open(
+        os.path.join(results_dir, "learning_curve_data_week11_day2.md"), "w"
+    ) as f:
         f.write(report_content)
-    
+
     # Attempt to save PNG if matplotlib is working
     try:
         plt.figure(figsize=(10, 6))
-        plt.plot(train_sizes, train_mean, 'o-', color="r", label="Training score")
-        plt.plot(train_sizes, test_mean, 'o-', color="g", label="Cross-validation score")
+        plt.plot(train_sizes, train_mean, "o-", color="r", label="Training score")
+        plt.plot(
+            train_sizes, test_mean, "o-", color="g", label="Cross-validation score"
+        )
         plt.title("Learning Curve (Random Forest)")
         plt.xlabel("Training examples")
         plt.ylabel("Score")
@@ -77,6 +88,7 @@ In our current evaluation with behavioral features, the model achieves high accu
         print(f"📊 Graph saved to reports/learning_curve_week11_day2.png")
     except Exception as e:
         print(f"⚠️ Could not save PNG graph: {e}")
+
 
 if __name__ == "__main__":
     analyze_learning_curve()

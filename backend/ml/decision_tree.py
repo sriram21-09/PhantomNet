@@ -1,8 +1,9 @@
 from typing import Dict, Any
 
+
 class ResponseDecisionTree:
     """
-    A deterministic, stateless decision tree that converts ML signals into 
+    A deterministic, stateless decision tree that converts ML signals into
     system responses (LOG, THROTTLE, DECEIVE, BLOCK).
     """
 
@@ -12,22 +13,29 @@ class ResponseDecisionTree:
         "MEDIUM_CONFIDENCE": 0.6,
         "MEDIUM_THRESHOLD": 0.5,
         "HIGH_CONFIDENCE": 0.8,
-        "HIGH_THRESHOLD": 0.8
+        "HIGH_THRESHOLD": 0.8,
     }
 
     def __init__(self, thresholds: Dict[str, float] = None):
         """
         Initialize the decision tree with custom or default thresholds.
-        
+
         Args:
-            thresholds (dict, optional): Dictionary covering threshold keys. 
+            thresholds (dict, optional): Dictionary covering threshold keys.
                                          Defaults to DEFAULT_THRESHOLDS.
         """
         self.thresholds = self.DEFAULT_THRESHOLDS.copy()
         if thresholds:
             self.thresholds.update(thresholds)
 
-    def decide(self, *, prediction: int, confidence: float, anomaly_score: float, threat_score: float) -> str:
+    def decide(
+        self,
+        *,
+        prediction: int,
+        confidence: float,
+        anomaly_score: float,
+        threat_score: float
+    ) -> str:
         """
         Execute the decision logic based on input signals.
 
@@ -40,7 +48,7 @@ class ResponseDecisionTree:
         Returns:
             str: One of "LOG", "THROTTLE", "DECEIVE", "BLOCK".
         """
-        
+
         # Load thresholds for readability
         LOW_THRESHOLD = self.thresholds["LOW_THRESHOLD"]
         MEDIUM_CONFIDENCE = self.thresholds["MEDIUM_CONFIDENCE"]
@@ -52,7 +60,7 @@ class ResponseDecisionTree:
         if prediction == 0:
             if anomaly_score < LOW_THRESHOLD:
                 return "LOG"
-            # If prediction is 0 but anomaly is high, we default to LOG 
+            # If prediction is 0 but anomaly is high, we default to LOG
             # (or could escalate, but per spec we stick to LOG for benign-ish)
             return "LOG"
 
@@ -64,19 +72,20 @@ class ResponseDecisionTree:
 
             # High Confidence + High Anomaly + High Threat -> Block
             # (Check this first as it is the most specific/severe)
-            if (confidence >= HIGH_CONFIDENCE 
-                and anomaly_score >= HIGH_THRESHOLD 
-                and threat_score >= HIGH_THRESHOLD):
+            if (
+                confidence >= HIGH_CONFIDENCE
+                and anomaly_score >= HIGH_THRESHOLD
+                and threat_score >= HIGH_THRESHOLD
+            ):
                 return "BLOCK"
 
             # Medium Confidence + Medium Anomaly -> Deceive
-            if (confidence >= MEDIUM_CONFIDENCE 
-                and anomaly_score >= MEDIUM_THRESHOLD):
+            if confidence >= MEDIUM_CONFIDENCE and anomaly_score >= MEDIUM_THRESHOLD:
                 return "DECEIVE"
 
             # Fallback for Prediction=1 if no specific severe condition met
             # e.g. High confidence but very low anomaly score
             return "THROTTLE"
-        
+
         # Default safety fallback
         return "LOG"

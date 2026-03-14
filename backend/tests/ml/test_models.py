@@ -20,14 +20,10 @@ def test_model_load_and_inference():
     """
     Ensure model loads from registry and can run inference
     """
-    model = mlflow.pyfunc.load_model(
-        model_uri=f"models:/{MODEL_NAME}/{STAGE}"
-    )
+    model = mlflow.pyfunc.load_model(model_uri=f"models:/{MODEL_NAME}/{STAGE}")
 
     # Minimal valid input (same as deployment test)
-    sample_input = pd.DataFrame([
-        {"payload_length": 120}
-    ])
+    sample_input = pd.DataFrame([{"payload_length": 120}])
 
     preds = model.predict(sample_input)
 

@@ -90,7 +90,9 @@ def get_attacker_profile(ip: str, db: Session = Depends(get_db)):
     attack_types = list(set(e.attack_type for e in events if e.attack_type))
 
     soph = _sophistication(max_score, len(events))
-    tools = _detect_tools(latest.protocol or "TCP", latest.attack_type or "BENIGN", max_score)
+    tools = _detect_tools(
+        latest.protocol or "TCP", latest.attack_type or "BENIGN", max_score
+    )
     intent = _infer_intent(latest.attack_type or "BENIGN", len(events), max_score)
     progression = _attack_progression(events)
 
@@ -144,13 +146,15 @@ def get_top_attackers(limit: int = 10, db: Session = Depends(get_db)):
         avg = float(row.avg_score) if row.avg_score else 0
         mx = float(row.max_score) if row.max_score else 0
         soph = _sophistication(mx, row.event_count)
-        attackers.append({
-            "ip": row.src_ip,
-            "event_count": row.event_count,
-            "avg_threat_score": round(avg, 1),
-            "max_threat_score": round(mx, 1),
-            "last_seen": row.last_seen.isoformat() if row.last_seen else None,
-            "sophistication": soph,
-        })
+        attackers.append(
+            {
+                "ip": row.src_ip,
+                "event_count": row.event_count,
+                "avg_threat_score": round(avg, 1),
+                "max_threat_score": round(mx, 1),
+                "last_seen": row.last_seen.isoformat() if row.last_seen else None,
+                "sophistication": soph,
+            }
+        )
 
     return {"status": "success", "count": len(attackers), "attackers": attackers}

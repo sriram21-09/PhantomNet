@@ -1,6 +1,7 @@
 import json
 from datetime import datetime
 
+
 def normalize_log(payload: dict):
     """
     Takes raw JSON from various honeypots (Cowrie, Dionaea)
@@ -11,7 +12,7 @@ def normalize_log(payload: dict):
         "src_port": 0,
         "protocol": "unknown",
         "details": "",
-        "timestamp": datetime.utcnow()
+        "timestamp": datetime.utcnow(),
     }
 
     # 1. Handle Cowrie (SSH Honeypot) format
@@ -20,10 +21,12 @@ def normalize_log(payload: dict):
         normalized["src_port"] = payload.get("src_port", 22)
         normalized["protocol"] = "ssh"
         normalized["details"] = payload.get("message", "SSH Event")
-    
+
     # 2. Handle Dionaea (Malware/SMB) format
     elif payload.get("connection", {}).get("type") == "accept":
-        normalized["source_ip"] = payload.get("connection", {}).get("remote_host", "0.0.0.0")
+        normalized["source_ip"] = payload.get("connection", {}).get(
+            "remote_host", "0.0.0.0"
+        )
         normalized["src_port"] = payload.get("connection", {}).get("remote_port", 0)
         normalized["protocol"] = payload.get("connection", {}).get("protocol", "smb")
         normalized["details"] = "Dionaea Connection Accepted"

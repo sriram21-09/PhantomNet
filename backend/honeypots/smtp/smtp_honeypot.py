@@ -6,8 +6,9 @@ from datetime import datetime, timezone
 
 # Database logger for accurate last_seen
 try:
-    sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+    sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
     from db_logger import log_smtp_activity
+
     DB_ENABLED = True
 except ImportError:
     DB_ENABLED = False
@@ -26,13 +27,14 @@ LOG_FILE = os.path.join(LOG_DIR, "smtp_logs.jsonl")
 os.makedirs(LOG_DIR, exist_ok=True)
 open(LOG_FILE, "a").close()
 
+
 # ======================
 # LOGGING
 # ======================
 def log_event(data):
     with open(LOG_FILE, "a") as f:
         f.write(json.dumps(data) + "\n")
-    
+
     # Also log to database for accurate last_seen
     if DB_ENABLED:
         try:
@@ -44,23 +46,29 @@ def log_event(data):
         except Exception as e:
             print(f"[SMTP] DB logging failed: {e}")
 
-async def send_response(writer, source_ip, mail_from, rcpt_to, code, message, event, level="INFO"):
+
+async def send_response(
+    writer, source_ip, mail_from, rcpt_to, code, message, event, level="INFO"
+):
     response = f"{code} {message}\r\n"
     writer.write(response.encode())
     await writer.drain()
 
-    log_event({
-        "timestamp": datetime.now(timezone.utc).isoformat(),
-        "source_ip": source_ip,
-        "honeypot_type": "smtp",
-        "event": event,
-        "data": {
-            "mail_from": mail_from,
-            "rcpt_to": rcpt_to,
-            "smtp_response": f"{code} {message}"
-        },
-        "level": level
-    })
+    log_event(
+        {
+            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "source_ip": source_ip,
+            "honeypot_type": "smtp",
+            "event": event,
+            "data": {
+                "mail_from": mail_from,
+                "rcpt_to": rcpt_to,
+                "smtp_response": f"{code} {message}",
+            },
+            "level": level,
+        }
+    )
+
 
 # ======================
 # SMTP CLIENT HANDLER
@@ -76,13 +84,15 @@ async def handle_smtp_client(reader, writer):
     writer.write(b"220 phantomnet SMTP Service Ready\r\n")
     await writer.drain()
 
-    log_event({
-        "timestamp": datetime.now(timezone.utc).isoformat(),
-        "source_ip": source_ip,
-        "honeypot_type": "smtp",
-        "event": "connection_opened",
-        "level": "INFO"
-    })
+    log_event(
+        {
+            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "source_ip": source_ip,
+            "honeypot_type": "smtp",
+            "event": "connection_opened",
+            "level": "INFO",
+        }
+    )
 
     try:
         while True:
@@ -97,33 +107,38 @@ async def handle_smtp_client(reader, writer):
             if upper_cmd.startswith("HELO"):
                 hostname = command[5:].strip()
 
-                log_event({
-                    "timestamp": datetime.now(timezone.utc).isoformat(),
-                    "source_ip": source_ip,
-                    "honeypot_type": "smtp",
-                    "event": "helo",
-                    "data": {"hostname": hostname},
-                    "level": "INFO"
-                })
+                log_event(
+                    {
+                        "timestamp": datetime.now(timezone.utc).isoformat(),
+                        "source_ip": source_ip,
+                        "honeypot_type": "smtp",
+                        "event": "helo",
+                        "data": {"hostname": hostname},
+                        "level": "INFO",
+                    }
+                )
 
-                await send_response(writer, source_ip, mail_from, rcpt_to, 250, "Hello", "helo_response")
+                await send_response(
+                    writer, source_ip, mail_from, rcpt_to, 250, "Hello", "helo_response"
+                )
 
             # EHLO
             elif upper_cmd.startswith("EHLO"):
                 hostname = command[5:].strip()
 
-                log_event({
-                    "timestamp": datetime.now(timezone.utc).isoformat(),
-                    "source_ip": source_ip,
-                    "honeypot_type": "smtp",
-                    "event": "ehlo",
-                    "data": {"hostname": hostname},
-                    "level": "INFO"
-                })
+                log_event(
+                    {
+                        "timestamp": datetime.now(timezone.utc).isoformat(),
+                        "source_ip": source_ip,
+                        "honeypot_type": "smtp",
+                        "event": "ehlo",
+                        "data": {"hostname": hostname},
+                        "level": "INFO",
+                    }
+                )
 
                 writer.write(
-                    b"250-phantomnet SMTP Service\r\n"
-                    b"250 SIZE 35882577\r\n"
+                    b"250-phantomnet SMTP Service\r\n" b"250 SIZE 35882577\r\n"
                 )
                 await writer.drain()
 
@@ -132,8 +147,14 @@ async def handle_smtp_client(reader, writer):
                 mail_from = command[10:].strip("<> ")
 
                 await send_response(
-                    writer, source_ip, mail_from, rcpt_to,
-                    250, "OK", "mail_from", "WARN"
+                    writer,
+                    source_ip,
+                    mail_from,
+                    rcpt_to,
+                    250,
+                    "OK",
+                    "mail_from",
+                    "WARN",
                 )
 
             # RCPT TO
@@ -142,8 +163,7 @@ async def handle_smtp_client(reader, writer):
                 rcpt_to.append(recipient)
 
                 await send_response(
-                    writer, source_ip, mail_from, rcpt_to,
-                    250, "OK", "rcpt_to", "WARN"
+                    writer, source_ip, mail_from, rcpt_to, 250, "OK", "rcpt_to", "WARN"
                 )
 
             # DATA
@@ -165,27 +185,37 @@ async def handle_smtp_client(reader, writer):
 
                 full_message = "\n".join(email_data)
 
-                log_event({
-                    "timestamp": datetime.now(timezone.utc).isoformat(),
-                    "source_ip": source_ip,
-                    "honeypot_type": "smtp",
-                    "event": "data",
-                    "data": {
-                        "mail_from": mail_from,
-                        "rcpt_to": rcpt_to,
-                        "message": full_message
-                    },
-                    "level": "ERROR"
-                })
+                log_event(
+                    {
+                        "timestamp": datetime.now(timezone.utc).isoformat(),
+                        "source_ip": source_ip,
+                        "honeypot_type": "smtp",
+                        "event": "data",
+                        "data": {
+                            "mail_from": mail_from,
+                            "rcpt_to": rcpt_to,
+                            "message": full_message,
+                        },
+                        "level": "ERROR",
+                    }
+                )
 
                 await send_response(
-                    writer, source_ip, mail_from, rcpt_to,
-                    250, "Message accepted for delivery", "data_response", "ERROR"
+                    writer,
+                    source_ip,
+                    mail_from,
+                    rcpt_to,
+                    250,
+                    "Message accepted for delivery",
+                    "data_response",
+                    "ERROR",
                 )
 
             # NOOP
             elif upper_cmd == "NOOP":
-                await send_response(writer, source_ip, mail_from, rcpt_to, 250, "OK", "noop")
+                await send_response(
+                    writer, source_ip, mail_from, rcpt_to, 250, "OK", "noop"
+                )
 
             # RSET
             elif upper_cmd == "RSET":
@@ -193,38 +223,49 @@ async def handle_smtp_client(reader, writer):
                 rcpt_to.clear()
                 email_data.clear()
 
-                await send_response(writer, source_ip, mail_from, rcpt_to, 250, "OK", "rset")
+                await send_response(
+                    writer, source_ip, mail_from, rcpt_to, 250, "OK", "rset"
+                )
 
             # QUIT
             elif upper_cmd == "QUIT":
-                await send_response(writer, source_ip, mail_from, rcpt_to, 221, "Bye", "quit")
+                await send_response(
+                    writer, source_ip, mail_from, rcpt_to, 221, "Bye", "quit"
+                )
                 break
 
             # DEFAULT
             else:
-                await send_response(writer, source_ip, mail_from, rcpt_to, 250, "OK", "unknown")
+                await send_response(
+                    writer, source_ip, mail_from, rcpt_to, 250, "OK", "unknown"
+                )
 
     except Exception as e:
-        log_event({
-            "timestamp": datetime.now(timezone.utc).isoformat(),
-            "source_ip": source_ip,
-            "honeypot_type": "smtp",
-            "event": "error",
-            "data": {"error": str(e)},
-            "level": "ERROR"
-        })
+        log_event(
+            {
+                "timestamp": datetime.now(timezone.utc).isoformat(),
+                "source_ip": source_ip,
+                "honeypot_type": "smtp",
+                "event": "error",
+                "data": {"error": str(e)},
+                "level": "ERROR",
+            }
+        )
 
     finally:
         writer.close()
         await writer.wait_closed()
 
-        log_event({
-            "timestamp": datetime.now(timezone.utc).isoformat(),
-            "source_ip": source_ip,
-            "honeypot_type": "smtp",
-            "event": "connection_closed",
-            "level": "INFO"
-        })
+        log_event(
+            {
+                "timestamp": datetime.now(timezone.utc).isoformat(),
+                "source_ip": source_ip,
+                "honeypot_type": "smtp",
+                "event": "connection_closed",
+                "level": "INFO",
+            }
+        )
+
 
 # ======================
 # SERVER START
@@ -234,6 +275,7 @@ async def start_server():
     print(f"[+] SMTP Honeypot listening on port {PORT}")
     async with server:
         await server.serve_forever()
+
 
 if __name__ == "__main__":
     asyncio.run(start_server())

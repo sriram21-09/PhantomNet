@@ -16,7 +16,9 @@ from services.pcap_analyzer import pcap_analyzer
 
 router = APIRouter(prefix="/api/v1", tags=["PCAP Analysis"])
 
-PCAP_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), "..", "data", "pcaps")
+PCAP_DIR = os.path.join(
+    os.path.dirname(os.path.dirname(__file__)), "..", "data", "pcaps"
+)
 
 
 # ------------------------------------------------------------------
@@ -35,7 +37,9 @@ def download_pcap(event_id: int, db: Session = Depends(get_db)):
     if event.pcap_path and os.path.exists(event.pcap_path):
         pcap_path = event.pcap_path
     elif not os.path.exists(pcap_path):
-        raise HTTPException(status_code=404, detail="PCAP file not found for this event")
+        raise HTTPException(
+            status_code=404, detail="PCAP file not found for this event"
+        )
 
     return FileResponse(
         path=pcap_path,

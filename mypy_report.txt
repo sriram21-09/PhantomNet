@@ -1,0 +1,15 @@
+backend\app_models.py:8: error: Variable "backend.app_models.Base" is not valid as a type  [valid-type]
+backend\app_models.py:8: note: See https://mypy.readthedocs.io/en/stable/common_issues.html#variables-vs-type-aliases
+backend\app_models.py:8: error: Invalid base class "Base"  [misc]
+backend\app_models.py:64: error: Variable "backend.app_models.Base" is not valid as a type  [valid-type]
+backend\app_models.py:64: note: See https://mypy.readthedocs.io/en/stable/common_issues.html#variables-vs-type-aliases
+backend\app_models.py:64: error: Invalid base class "Base"  [misc]
+backend\main.py:521: error: Need type annotation for "packet_counts" (hint: "packet_counts: dict[<type>, <type>] = ...")  [var-annotated]
+backend\main.py:651: error: Argument 1 to "check_service_status" has incompatible type "object"; expected "str"  [arg-type]
+backend\main.py:651: error: Argument 2 to "check_service_status" has incompatible type "object"; expected "int"  [arg-type]
+backend\main.py:651: error: Argument 3 to "check_service_status" has incompatible type "object"; expected "str"  [arg-type]
+backend\main.py:654: error: Argument 1 to "get_last_seen" has incompatible type "object"; expected "str"  [arg-type]
+backend\main.py:657: error: Argument 1 to "get_packet_count" has incompatible type "object"; expected "str"  [arg-type]
+backend\main.py:733: error: Need type annotation for "recent_attacks" (hint: "recent_attacks: list[<type>] = ...")  [var-annotated]
+backend\main.py:820: error: Need type annotation for "country_counts" (hint: "country_counts: dict[<type>, <type>] = ...")  [var-annotated]
+Found 12 errors in 2 files (checked 5 source files)

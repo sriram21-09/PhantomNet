@@ -20,7 +20,13 @@ engine = create_engine(DATABASE_URL, connect_args=connect_args)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
 
+
 def get_db():
+    """
+    Dependency to provide a database session to FastAPI endpoints.
+    Yields:
+        Session: A SQLAlchemy database session.
+    """
     db = SessionLocal()
     try:
         yield db

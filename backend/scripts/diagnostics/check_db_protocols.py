@@ -6,7 +6,7 @@ from dotenv import load_dotenv
 
 # Add current directory to path
 # Add backend root to path
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../../')))
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../../")))
 
 # Import Models
 from database.models import PacketLog
@@ -29,8 +29,14 @@ db = SessionLocal()
 
 try:
     print("Checking Database Protocols...")
-    results = db.query(PacketLog.protocol, func.count(PacketLog.id), func.max(PacketLog.timestamp)).group_by(PacketLog.protocol).all()
-    
+    results = (
+        db.query(
+            PacketLog.protocol, func.count(PacketLog.id), func.max(PacketLog.timestamp)
+        )
+        .group_by(PacketLog.protocol)
+        .all()
+    )
+
     print(f"{'Protocol':<10} | {'Count':<10} | {'Last Seen'}")
     print("-" * 50)
     for proto, cnt, last in results:

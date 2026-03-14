@@ -1,12 +1,4 @@
-from sqlalchemy import (
-    Column,
-    Integer,
-    String,
-    Float,
-    Boolean,
-    DateTime,
-    Text
-)
+from sqlalchemy import Column, Integer, String, Float, Boolean, DateTime, Text
 from sqlalchemy.ext.declarative import declarative_base
 from datetime import datetime
 
@@ -46,7 +38,13 @@ class PacketLog(Base):
     email_subject = Column(String(512), nullable=True)
     body_len = Column(Integer, nullable=True)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
+        """
+        Returns a string representation of the PacketLog instance.
+
+        Returns:
+            str: Representation including ID, source IP, protocol, and threat score.
+        """
         return (
             f"<PacketLog id={self.id} "
             f"src_ip={self.src_ip} "
@@ -61,7 +59,6 @@ class PacketLog(Base):
     city = Column(String(128), nullable=True)
     latitude = Column(Float, nullable=True)
     longitude = Column(Float, nullable=True)
-
 
 
 class TrafficStats(Base):

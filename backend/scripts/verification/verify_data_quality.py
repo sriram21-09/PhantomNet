@@ -19,7 +19,9 @@ print("🕵️  STARTING DATA QUALITY AUDIT...\n")
 # TASK 1: Query Database for Recent Attack Events
 # ==================================================
 print("[TASK 1] Querying Recent Events...")
-recent_events = db.query(PacketLog).order_by(PacketLog.timestamp.desc()).limit(100).all()
+recent_events = (
+    db.query(PacketLog).order_by(PacketLog.timestamp.desc()).limit(100).all()
+)
 count = db.query(PacketLog).count()
 print(f"   ✅ Total Logs in DB: {count}")
 print(f"   ✅ Retrieved last {len(recent_events)} events for analysis.")
@@ -28,7 +30,7 @@ print(f"   ✅ Retrieved last {len(recent_events)} events for analysis.")
 # TASK 2: Verify No NULL Values in Required Fields
 # ==================================================
 print("\n[TASK 2] Checking for NULL values...")
-required_fields = ['src_ip', 'dst_ip', 'timestamp', 'attack_type']
+required_fields = ["src_ip", "dst_ip", "timestamp", "attack_type"]
 errors_found = 0
 
 for field in required_fields:
@@ -50,13 +52,13 @@ print("\n[TASK 3] Validating Time Travel...")
 if recent_events:
     newest = recent_events[0].timestamp
     oldest = recent_events[-1].timestamp
-    
+
     # Check if newest is in the future (Time Travel Bug)
     if newest > datetime.now():
-         print(f"   ❌ ALARM: Found timestamp in the future! ({newest})")
+        print(f"   ❌ ALARM: Found timestamp in the future! ({newest})")
     else:
-         print(f"   ✅ Latest Timestamp: {newest} (Valid)")
-         
+        print(f"   ✅ Latest Timestamp: {newest} (Valid)")
+
     # Check ordering
     if newest >= oldest:
         print("   ✅ Sort Order: Correct (Descending)")
@@ -70,8 +72,11 @@ else:
 # ==================================================
 print("\n[TASK 4] Analyzing Attack Distributions...")
 # Group by attack_type to see if categorization is working
-distribution = db.query(PacketLog.attack_type, func.count(PacketLog.attack_type))\
-    .group_by(PacketLog.attack_type).all()
+distribution = (
+    db.query(PacketLog.attack_type, func.count(PacketLog.attack_type))
+    .group_by(PacketLog.attack_type)
+    .all()
+)
 
 print(f"   📊 Attack Types Found:")
 if not distribution:
@@ -88,23 +93,35 @@ print("\n[TASK 5] Generating Sample Report...")
 filename = "sample_events.csv"
 
 try:
-    with open(filename, 'w', newline='', encoding='utf-8') as f:
+    with open(filename, "w", newline="", encoding="utf-8") as f:
         writer = csv.writer(f)
         # Header
-        writer.writerow(["ID", "Timestamp", "Source IP", "Destination IP", "Attack Type", "Threat Score", "Malicious"])
-        
+        writer.writerow(
+            [
+                "ID",
+                "Timestamp",
+                "Source IP",
+                "Destination IP",
+                "Attack Type",
+                "Threat Score",
+                "Malicious",
+            ]
+        )
+
         # Data
         for row in recent_events:
-            writer.writerow([
-                row.id, 
-                row.timestamp, 
-                row.src_ip, 
-                row.dst_ip, 
-                row.attack_type, 
-                row.threat_score, 
-                row.is_malicious
-            ])
-            
+            writer.writerow(
+                [
+                    row.id,
+                    row.timestamp,
+                    row.src_ip,
+                    row.dst_ip,
+                    row.attack_type,
+                    row.threat_score,
+                    row.is_malicious,
+                ]
+            )
+
     print(f"   📄 Exported {len(recent_events)} events to '{filename}'")
     print(f"   ✅ location: {os.path.abspath(filename)}")
 

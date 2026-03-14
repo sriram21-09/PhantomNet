@@ -8,8 +8,9 @@ from pyftpdlib.servers import FTPServer
 
 # Database logger for accurate last_seen
 try:
-    sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+    sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
     from db_logger import log_ftp_activity
+
     DB_ENABLED = True
 except ImportError:
     DB_ENABLED = False
@@ -36,11 +37,7 @@ IP_SESSIONS = {}
 # ======================
 # FAKE FILE METADATA
 # ======================
-FAKE_FILE_SIZES = {
-    "readme.txt": 128,
-    "db_backup.sql": 20480,
-    "config.tar.gz": 102400
-}
+FAKE_FILE_SIZES = {"readme.txt": 128, "db_backup.sql": 20480, "config.tar.gz": 102400}
 
 # ======================
 # LOGGING
@@ -52,17 +49,22 @@ from logging.handlers import RotatingFileHandler
 ftp_logger = logging.getLogger("phantom_ftp")
 ftp_logger.setLevel(logging.INFO)
 # Use RotatingFileHandler to prevent huge files (10MB limit, 5 backups)
-handler = RotatingFileHandler(LOG_FILE, maxBytes=10*1024*1024, backupCount=5, encoding='utf-8')
+handler = RotatingFileHandler(
+    LOG_FILE, maxBytes=10 * 1024 * 1024, backupCount=5, encoding="utf-8"
+)
 # Raw message formatter - no prefixes, just JSON
-handler.setFormatter(logging.Formatter('%(message)s'))
+handler.setFormatter(logging.Formatter("%(message)s"))
 ftp_logger.addHandler(handler)
 
 # Configure Error Logger
 error_logger = logging.getLogger("phantom_ftp_error")
 error_logger.setLevel(logging.ERROR)
-err_handler = RotatingFileHandler(ERROR_LOG, maxBytes=10*1024*1024, backupCount=3, encoding='utf-8')
-err_handler.setFormatter(logging.Formatter('%(asctime)s | %(message)s'))
+err_handler = RotatingFileHandler(
+    ERROR_LOG, maxBytes=10 * 1024 * 1024, backupCount=3, encoding="utf-8"
+)
+err_handler.setFormatter(logging.Formatter("%(asctime)s | %(message)s"))
 error_logger.addHandler(err_handler)
+
 
 def log_event(ip, event, data=None, level="INFO"):
     entry = {
@@ -71,14 +73,14 @@ def log_event(ip, event, data=None, level="INFO"):
         "honeypot_type": "ftp",
         "event": event,
         "data": data,
-        "level": level
+        "level": level,
     }
     # Clean JSON dump + threading/process safety via logging module
     try:
         ftp_logger.info(json.dumps(entry))
     except (TypeError, ValueError) as e:
         error_logger.error(f"JSON serialization failed for {ip}: {e}")
-    
+
     # Also log to database for accurate last_seen
     if DB_ENABLED:
         try:
@@ -87,8 +89,10 @@ def log_event(ip, event, data=None, level="INFO"):
         except Exception as e:
             print(f"[FTP] DB logging failed: {e}")
 
+
 def log_error(msg, ip):
     error_logger.error(f"{ip} | {msg}")
+
 
 # ======================
 # HANDLER
@@ -116,7 +120,7 @@ class HoneypotFTPHandler(FTPHandler):
             self.remote_ip,
             "login_failed",
             {"username": username, "password": password},
-            "WARN"
+            "WARN",
         )
 
     # ======================
@@ -142,11 +146,7 @@ class HoneypotFTPHandler(FTPHandler):
         Allow LIST so pytest passes.
         No sensitive data exposed.
         """
-        log_event(
-            self.remote_ip,
-            "command",
-            {"command": "LIST", "path": path}
-        )
+        log_event(self.remote_ip, "command", {"command": "LIST", "path": path})
         return super().ftp_LIST(path)
 
     def ftp_RETR(self, file):
@@ -156,27 +156,19 @@ class HoneypotFTPHandler(FTPHandler):
         - Block transfer
         - Raise proper FTP error (pytest expects this)
         """
-        log_event(
-            self.remote_ip,
-            "command",
-            {"command": "RETR", "file": file},
-            "WARN"
-        )
+        log_event(self.remote_ip, "command", {"command": "RETR", "file": file}, "WARN")
         self.respond("550 Permission denied.")
         return
 
     def pre_process_command(self, line, cmd, arg):
-        log_event(
-            self.remote_ip,
-            "command",
-            {"command": cmd, "arg": arg}
-        )
+        log_event(self.remote_ip, "command", {"command": cmd, "arg": arg})
         return super().pre_process_command(line, cmd, arg)
 
     def on_disconnect(self):
         ip = self.remote_ip
         IP_SESSIONS[ip] = max(0, IP_SESSIONS.get(ip, 1) - 1)
         log_event(ip, "disconnect")
+
 
 # ======================
 # SERVER SETUP

@@ -11,12 +11,14 @@ from pymisp import PyMISP, MISPEvent
 logger = logging.getLogger("threat_intel")
 logger.setLevel(logging.INFO)
 
+
 class ThreatIntelService:
     """
     Professional Service for enriching IP traffic with external threat intelligence.
     Uses asynchronous I/O with httpx for high performance and non-blocking calls.
     Supports AbuseIPDB and AlienVault OTX.
     """
+
     def __init__(self):
         self.abuse_ipdb_key = os.getenv("ABUSE_IPDB_KEY")
         self.alien_vault_key = os.getenv("ALIENVAULT_OTX_KEY")
@@ -24,8 +26,11 @@ class ThreatIntelService:
         self.misp_key = os.getenv("MISP_KEY")
         self._cache = {}  # In-memory cache: {ip: {"data": data, "timestamp": ts}}
         self._cache_ttl = 3600  # 1 hour
-        self.client = httpx.AsyncClient(timeout=10.0, limits=httpx.Limits(max_keepalive_connections=5, max_connections=10))
-        
+        self.client = httpx.AsyncClient(
+            timeout=10.0,
+            limits=httpx.Limits(max_keepalive_connections=5, max_connections=10),
+        )
+
         # Initialize MISP client if configured
         self.misp = None
         if self.misp_url and self.misp_key:
@@ -48,18 +53,21 @@ class ThreatIntelService:
         return None
 
     def _set_cached(self, ip: str, data: Dict[str, Any]):
-        self._cache[ip] = {
-            "data": data,
-            "timestamp": datetime.now()
-        }
+        self._cache[ip] = {"data": data, "timestamp": datetime.now()}
 
     async def enrich_ip(self, ip: str) -> Dict[str, Any]:
         """
         Main entry point for enriching a single IP asynchronously.
         """
         # Exclude private/local IPs
-        if ip in ["127.0.0.1", "phantomnet_postgres", "::1"] or ip.startswith(("192.168.", "10.", "172.")):
-            return {"source": "local", "status": "trusted", "message": "Internal/Local IP"}
+        if ip in ["127.0.0.1", "phantomnet_postgres", "::1"] or ip.startswith(
+            ("192.168.", "10.", "172.")
+        ):
+            return {
+                "source": "local",
+                "status": "trusted",
+                "message": "Internal/Local IP",
+            }
 
         cached_data = self._get_cached(ip)
         if cached_data:
@@ -68,14 +76,14 @@ class ThreatIntelService:
         # Fetch from both providers concurrently
         abuse_task = self._fetch_abuse_ipdb(ip)
         otx_task = self._fetch_alienvault_otx(ip)
-        
+
         abuse_res, otx_res = await asyncio.gather(abuse_task, otx_task)
 
         enrichment = {
             "ip": ip,
             "abuse_ipdb": abuse_res,
             "alienvault_otx": otx_res,
-            "timestamp": datetime.now().isoformat()
+            "timestamp": datetime.now().isoformat(),
         }
 
         self._set_cached(ip, enrichment)
@@ -100,10 +108,12 @@ class ThreatIntelService:
                     "last_reported_at": data.get("lastReportedAt"),
                     "domain": data.get("domain"),
                     "usage_type": data.get("usageType"),
-                    "is_whitelist": data.get("isWhitelisted", False)
+                    "is_whitelist": data.get("isWhitelisted", False),
                 }
             else:
-                logger.warning(f"AbuseIPDB request failed for {ip}: {response.status_code}")
+                logger.warning(
+                    f"AbuseIPDB request failed for {ip}: {response.status_code}"
+                )
                 return {"status": "error", "code": response.status_code}
         except Exception as e:
             logger.error(f"Error fetching from AbuseIPDB for {ip}: {e}")
@@ -126,10 +136,12 @@ class ThreatIntelService:
                     "pulse_count": pulse_info.get("count", 0),
                     "reputation": data.get("reputation", 0),
                     "last_seen": data.get("last_seen"),
-                    "tags": data.get("tags", [])
+                    "tags": data.get("tags", []),
                 }
             else:
-                logger.warning(f"AlienVault OTX request failed for {ip}: {response.status_code}")
+                logger.warning(
+                    f"AlienVault OTX request failed for {ip}: {response.status_code}"
+                )
                 return {"status": "error", "code": response.status_code}
         except Exception as e:
             logger.error(f"Error fetching from AlienVault OTX for {ip}: {e}")
@@ -142,12 +154,20 @@ class ThreatIntelService:
 
         try:
             event = MISPEvent()
-            event.info = f"PhantomNet Automated Feed - {datetime.now().strftime('%Y-%m-%d')}"
+            event.info = (
+                f"PhantomNet Automated Feed - {datetime.now().strftime('%Y-%m-%d')}"
+            )
             event.published = True
-            
+
             for ioc in ioc_data:
-                misp_type = "ip-dst" if ioc["type"] == "ips" else "domain" if ioc["type"] == "domains" else "url"
-                event.add_attribute(misp_type, ioc["value"], comment=f"PhantomNet: {ioc['threat_type']}")
+                misp_type = (
+                    "ip-dst"
+                    if ioc["type"] == "ips"
+                    else "domain" if ioc["type"] == "domains" else "url"
+                )
+                event.add_attribute(
+                    misp_type, ioc["value"], comment=f"PhantomNet: {ioc['threat_type']}"
+                )
 
             result = self.misp.add_event(event)
             return {"status": "success", "event_id": result.get("id")}
@@ -161,15 +181,21 @@ class ThreatIntelService:
             return {"status": "ignored", "message": "AlienVault OTX key missing"}
 
         url = "https://otx.alienvault.com/api/v1/indicators/submit"
-        headers = {"X-OTX-API-KEY": self.alien_vault_key, "Content-Type": "application/json"}
-        
+        headers = {
+            "X-OTX-API-KEY": self.alien_vault_key,
+            "Content-Type": "application/json",
+        }
+
         # OTX submission payload
         payload = {
             "description": f"Automated PhantomNet threat indicators for {datetime.now().isoformat()}",
             "indicators": [
-                {"indicator": i["value"], "type": "IPv4" if i["type"] == "ips" else "domain"} 
+                {
+                    "indicator": i["value"],
+                    "type": "IPv4" if i["type"] == "ips" else "domain",
+                }
                 for i in ioc_data
-            ]
+            ],
         }
 
         try:
@@ -181,20 +207,25 @@ class ThreatIntelService:
             logger.error(f"AlienVault OTX submission failed: {e}")
             return {"status": "error", "message": str(e)}
 
-    def generate_daily_report(self, ioc_data: List[Dict[str, Any]], output_path: str = "reports/daily_threat_feed.json"):
+    def generate_daily_report(
+        self,
+        ioc_data: List[Dict[str, Any]],
+        output_path: str = "reports/daily_threat_feed.json",
+    ):
         """Generates a daily JSON report for public sharing."""
         os.makedirs(os.path.dirname(output_path), exist_ok=True)
         report = {
             "metadata": {
                 "generated_at": datetime.now().isoformat(),
                 "source": "PhantomNet AI",
-                "version": "1.0"
+                "version": "1.0",
             },
-            "indicators": ioc_data
+            "indicators": ioc_data,
         }
         with open(output_path, "w") as f:
             json.dump(report, f, indent=4)
         return output_path
+
 
 # Singleton instance for general use
 threat_intel_service = ThreatIntelService()
