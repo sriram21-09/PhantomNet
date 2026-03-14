@@ -18,9 +18,20 @@ from collections import Counter, defaultdict
 
 try:
     from scapy.all import (
-        sniff, rdpcap, wrpcap, IP, TCP, UDP, ICMP,
-        DNS, DNSQR, DNSRR, Raw, Ether
+        sniff,
+        rdpcap,
+        wrpcap,
+        IP,
+        TCP,
+        UDP,
+        ICMP,
+        DNS,
+        DNSQR,
+        DNSRR,
+        Raw,
+        Ether,
     )
+
     SCAPY_AVAILABLE = True
 except ImportError:
     SCAPY_AVAILABLE = False
@@ -31,14 +42,16 @@ logger.setLevel(logging.INFO)
 # ---------------------------------------------------------------------------
 # Constants
 # ---------------------------------------------------------------------------
-PCAP_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), "..", "data", "pcaps")
+PCAP_DIR = os.path.join(
+    os.path.dirname(os.path.dirname(__file__)), "..", "data", "pcaps"
+)
 DEFAULT_RETENTION_DAYS = 30
-MAX_CAPTURE_DURATION = 300        # 5 minutes max per capture
-SYN_FLOOD_THRESHOLD = 100        # SYNs from same IP in window
-NULL_SCAN_THRESHOLD = 10          # NULL packets in window
+MAX_CAPTURE_DURATION = 300  # 5 minutes max per capture
+SYN_FLOOD_THRESHOLD = 100  # SYNs from same IP in window
+NULL_SCAN_THRESHOLD = 10  # NULL packets in window
 BEACONING_INTERVAL_TOLERANCE = 2  # seconds tolerance for periodic beaconing
 EXFIL_SIZE_THRESHOLD = 1_000_000  # 1 MB outbound threshold
-BUFFER_OVERFLOW_SIZE = 2000       # payload size suggesting buffer overflow attempt
+BUFFER_OVERFLOW_SIZE = 2000  # payload size suggesting buffer overflow attempt
 
 
 class PcapAnalyzer:
@@ -81,7 +94,9 @@ class PcapAnalyzer:
 
         def _do_capture():
             try:
-                logger.info(f"[PCAP] Starting capture for event {event_id} on {interface} ({duration}s)")
+                logger.info(
+                    f"[PCAP] Starting capture for event {event_id} on {interface} ({duration}s)"
+                )
                 packets = sniff(
                     iface=interface if interface != "any" else None,
                     timeout=duration,
@@ -99,7 +114,9 @@ class PcapAnalyzer:
                         "analysis": analysis,
                         "completed_at": datetime.utcnow().isoformat(),
                     }
-                logger.info(f"[PCAP] Capture for event {event_id} complete — {len(packets)} packets")
+                logger.info(
+                    f"[PCAP] Capture for event {event_id} complete — {len(packets)} packets"
+                )
             except Exception as exc:
                 logger.error(f"[PCAP] Capture error for event {event_id}: {exc}")
                 with self._lock:
@@ -208,7 +225,11 @@ class PcapAnalyzer:
         # Protocol distribution
         total_proto = sum(protocol_counts.values()) or 1
         protocol_distribution = [
-            {"protocol": proto, "count": cnt, "percentage": round(cnt / total_proto * 100, 1)}
+            {
+                "protocol": proto,
+                "count": cnt,
+                "percentage": round(cnt / total_proto * 100, 1),
+            }
             for proto, cnt in protocol_counts.most_common(10)
         ]
 
@@ -224,7 +245,11 @@ class PcapAnalyzer:
         return {
             "total_packets": len(packets),
             "total_bytes": total_bytes,
-            "duration_seconds": round(max(timestamps) - min(timestamps), 2) if len(timestamps) >= 2 else 0,
+            "duration_seconds": (
+                round(max(timestamps) - min(timestamps), 2)
+                if len(timestamps) >= 2
+                else 0
+            ),
             "protocol_distribution": protocol_distribution,
             "top_talkers": top_talkers,
             "top_destination_ports": [
@@ -271,14 +296,16 @@ class PcapAnalyzer:
                 # --- NULL scan detection ---
                 if tcp.flags == 0:
                     null_by_src[ip.src] += 1
-                    suspicious.append({
-                        "index": idx,
-                        "type": "NULL_SCAN",
-                        "severity": "HIGH",
-                        "src_ip": ip.src,
-                        "dst_ip": ip.dst,
-                        "detail": f"NULL scan packet (no TCP flags) → {ip.dst}:{tcp.dport}",
-                    })
+                    suspicious.append(
+                        {
+                            "index": idx,
+                            "type": "NULL_SCAN",
+                            "severity": "HIGH",
+                            "src_ip": ip.src,
+                            "dst_ip": ip.dst,
+                            "detail": f"NULL scan packet (no TCP flags) → {ip.dst}:{tcp.dport}",
+                        }
+                    )
 
             # --- C2 beaconing ---
             connection_times[ip.src].append(ts)
@@ -290,79 +317,97 @@ class PcapAnalyzer:
             if pkt.haslayer(Raw):
                 payload_len = len(pkt[Raw].load)
                 if payload_len > BUFFER_OVERFLOW_SIZE:
-                    suspicious.append({
-                        "index": idx,
-                        "type": "BUFFER_OVERFLOW_ATTEMPT",
-                        "severity": "CRITICAL",
-                        "src_ip": ip.src,
-                        "dst_ip": ip.dst,
-                        "detail": f"Oversized payload ({payload_len} bytes) — possible buffer overflow",
-                    })
+                    suspicious.append(
+                        {
+                            "index": idx,
+                            "type": "BUFFER_OVERFLOW_ATTEMPT",
+                            "severity": "CRITICAL",
+                            "src_ip": ip.src,
+                            "dst_ip": ip.dst,
+                            "detail": f"Oversized payload ({payload_len} bytes) — possible buffer overflow",
+                        }
+                    )
 
         # Finalise SYN flood
         for src, count in syn_by_src.items():
             if count >= SYN_FLOOD_THRESHOLD:
-                patterns.append({
-                    "type": "SYN_FLOOD",
-                    "severity": "CRITICAL",
-                    "source_ip": src,
-                    "syn_count": count,
-                    "unique_ports": len(ports_per_src.get(src, set())),
-                    "detail": f"{count} SYN packets from {src}",
-                })
+                patterns.append(
+                    {
+                        "type": "SYN_FLOOD",
+                        "severity": "CRITICAL",
+                        "source_ip": src,
+                        "syn_count": count,
+                        "unique_ports": len(ports_per_src.get(src, set())),
+                        "detail": f"{count} SYN packets from {src}",
+                    }
+                )
 
         # Finalise NULL scan
         for src, count in null_by_src.items():
             if count >= NULL_SCAN_THRESHOLD:
-                patterns.append({
-                    "type": "NULL_SCAN",
-                    "severity": "HIGH",
-                    "source_ip": src,
-                    "null_count": count,
-                    "detail": f"{count} NULL scan packets from {src}",
-                })
+                patterns.append(
+                    {
+                        "type": "NULL_SCAN",
+                        "severity": "HIGH",
+                        "source_ip": src,
+                        "null_count": count,
+                        "detail": f"{count} NULL scan packets from {src}",
+                    }
+                )
 
         # Port scan detection (many unique ports from same source)
         for src, ports in ports_per_src.items():
             if len(ports) >= 20:
-                patterns.append({
-                    "type": "PORT_SCAN",
-                    "severity": "HIGH",
-                    "source_ip": src,
-                    "ports_scanned": len(ports),
-                    "detail": f"{src} probed {len(ports)} unique ports",
-                })
+                patterns.append(
+                    {
+                        "type": "PORT_SCAN",
+                        "severity": "HIGH",
+                        "source_ip": src,
+                        "ports_scanned": len(ports),
+                        "detail": f"{src} probed {len(ports)} unique ports",
+                    }
+                )
 
         # C2 beaconing detection (regular intervals)
         for src, times in connection_times.items():
             if len(times) >= 10:
                 times_sorted = sorted(times)
-                intervals = [times_sorted[i + 1] - times_sorted[i] for i in range(len(times_sorted) - 1)]
+                intervals = [
+                    times_sorted[i + 1] - times_sorted[i]
+                    for i in range(len(times_sorted) - 1)
+                ]
                 if intervals:
                     avg_interval = sum(intervals) / len(intervals)
                     if avg_interval > 0:
                         deviations = [abs(i - avg_interval) for i in intervals]
                         avg_deviation = sum(deviations) / len(deviations)
-                        if avg_deviation < BEACONING_INTERVAL_TOLERANCE and avg_interval < 120:
-                            patterns.append({
-                                "type": "C2_BEACONING",
-                                "severity": "CRITICAL",
-                                "source_ip": src,
-                                "avg_interval_sec": round(avg_interval, 2),
-                                "connection_count": len(times),
-                                "detail": f"Periodic connections every ~{avg_interval:.1f}s from {src}",
-                            })
+                        if (
+                            avg_deviation < BEACONING_INTERVAL_TOLERANCE
+                            and avg_interval < 120
+                        ):
+                            patterns.append(
+                                {
+                                    "type": "C2_BEACONING",
+                                    "severity": "CRITICAL",
+                                    "source_ip": src,
+                                    "avg_interval_sec": round(avg_interval, 2),
+                                    "connection_count": len(times),
+                                    "detail": f"Periodic connections every ~{avg_interval:.1f}s from {src}",
+                                }
+                            )
 
         # Data exfiltration
         for src, total in outbound_bytes.items():
             if total >= EXFIL_SIZE_THRESHOLD:
-                patterns.append({
-                    "type": "DATA_EXFILTRATION",
-                    "severity": "HIGH",
-                    "source_ip": src,
-                    "total_bytes": total,
-                    "detail": f"{total / 1_000_000:.2f} MB transferred from {src}",
-                })
+                patterns.append(
+                    {
+                        "type": "DATA_EXFILTRATION",
+                        "severity": "HIGH",
+                        "source_ip": src,
+                        "total_bytes": total,
+                        "detail": f"{total / 1_000_000:.2f} MB transferred from {src}",
+                    }
+                )
 
         return {"patterns": patterns, "suspicious_packets": suspicious}
 
@@ -387,7 +432,9 @@ class PcapAnalyzer:
 
             if pkt.haslayer(DNS) and pkt.haslayer(DNSQR):
                 try:
-                    qname = pkt[DNSQR].qname.decode("utf-8", errors="ignore").rstrip(".")
+                    qname = (
+                        pkt[DNSQR].qname.decode("utf-8", errors="ignore").rstrip(".")
+                    )
                     if qname and "." in qname:
                         iocs["domains"].add(qname)
                 except Exception:
@@ -431,11 +478,16 @@ class PcapAnalyzer:
             except Exception:
                 payload = ""
 
-            if any(payload.startswith(m) for m in ("GET ", "POST ", "PUT ", "HEAD ", "HTTP/")):
+            if any(
+                payload.startswith(m)
+                for m in ("GET ", "POST ", "PUT ", "HEAD ", "HTTP/")
+            ):
                 lines = payload.split("\r\n")
                 result["protocol"] = "HTTP"
                 result["method"] = lines[0].split(" ")[0] if lines else "UNKNOWN"
-                result["path"] = lines[0].split(" ")[1] if len(lines[0].split(" ")) > 1 else "/"
+                result["path"] = (
+                    lines[0].split(" ")[1] if len(lines[0].split(" ")) > 1 else "/"
+                )
                 headers = {}
                 for line in lines[1:]:
                     if ": " in line:
@@ -448,10 +500,16 @@ class PcapAnalyzer:
         if packet.haslayer(DNS):
             result["protocol"] = "DNS"
             if packet.haslayer(DNSQR):
-                result["query"] = packet[DNSQR].qname.decode("utf-8", errors="ignore").rstrip(".")
+                result["query"] = (
+                    packet[DNSQR].qname.decode("utf-8", errors="ignore").rstrip(".")
+                )
                 result["query_type"] = str(packet[DNSQR].qtype)
             if packet.haslayer(DNSRR):
-                result["answer"] = packet[DNSRR].rdata if isinstance(packet[DNSRR].rdata, str) else str(packet[DNSRR].rdata)
+                result["answer"] = (
+                    packet[DNSRR].rdata
+                    if isinstance(packet[DNSRR].rdata, str)
+                    else str(packet[DNSRR].rdata)
+                )
             return result
 
         # SSH DPI
@@ -480,7 +538,9 @@ class PcapAnalyzer:
             severity = "MEDIUM"
 
         return {
-            "report_id": hashlib.md5(json.dumps(analysis, default=str).encode()).hexdigest()[:12],
+            "report_id": hashlib.md5(
+                json.dumps(analysis, default=str).encode()
+            ).hexdigest()[:12],
             "generated_at": datetime.utcnow().isoformat(),
             "overall_severity": severity,
             "summary": {
@@ -497,7 +557,9 @@ class PcapAnalyzer:
     # ------------------------------------------------------------------
     # PCAP retention / cleanup
     # ------------------------------------------------------------------
-    def cleanup_old_pcaps(self, retention_days: int = DEFAULT_RETENTION_DAYS) -> Dict[str, Any]:
+    def cleanup_old_pcaps(
+        self, retention_days: int = DEFAULT_RETENTION_DAYS
+    ) -> Dict[str, Any]:
         """Delete PCAP files older than retention_days."""
         cutoff = time.time() - (retention_days * 86400)
         removed = 0

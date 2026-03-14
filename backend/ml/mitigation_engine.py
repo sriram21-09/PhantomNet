@@ -1,12 +1,15 @@
 import ipaddress
 
+
 class MitigationEngine:
     """
     Refines anomaly detection predictions to reduce False Positives.
     Implements whitelisting and threshold-based filtering.
     """
-    
-    def __init__(self, internal_subnet: str = "192.168.1.0/24", anomaly_threshold: float = -0.1):
+
+    def __init__(
+        self, internal_subnet: str = "192.168.1.0/24", anomaly_threshold: float = -0.1
+    ):
         self.internal_subnet = ipaddress.ip_network(internal_subnet)
         self.anomaly_threshold = anomaly_threshold
         # Known safe internal ports
@@ -20,7 +23,7 @@ class MitigationEngine:
         """
         src_ip = event.get("src_ip", "0.0.0.0")
         dst_port = int(event.get("dst_port", 0))
-        
+
         # 1. Internal Whitelisting Logic
         try:
             ip_obj = ipaddress.ip_address(src_ip)

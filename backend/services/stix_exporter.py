@@ -3,14 +3,22 @@ import uuid
 from datetime import datetime
 from typing import List, Dict, Any, Optional
 from stix2 import (
-    Bundle, Indicator, Identity, Relationship, 
-    MarkingDefinition, TLP_WHITE, ExternalReference,
-    ObservedData, ThreatActor, AttackPattern
+    Bundle,
+    Indicator,
+    Identity,
+    Relationship,
+    MarkingDefinition,
+    TLP_WHITE,
+    ExternalReference,
+    ObservedData,
+    ThreatActor,
+    AttackPattern,
 )
 
 # Setup Logger
 logger = logging.getLogger("stix_exporter")
 logger.setLevel(logging.INFO)
+
 
 class STIXExporter:
     """
@@ -18,7 +26,11 @@ class STIXExporter:
     Supports Indicator, Identity, ObservedData, ThreatActor, AttackPattern, and Relationship objects.
     """
 
-    def __init__(self, author_name: str = "PhantomNet AI", author_identity_id: Optional[str] = None):
+    def __init__(
+        self,
+        author_name: str = "PhantomNet AI",
+        author_identity_id: Optional[str] = None,
+    ):
         # Create or use the author identity
         if author_identity_id:
             self.author = author_identity_id
@@ -27,7 +39,7 @@ class STIXExporter:
             self.identity = Identity(
                 name=author_name,
                 identity_class="organization",
-                description="Automated Honeypot & Deception Platform"
+                description="Automated Honeypot & Deception Platform",
             )
             self.author = self.identity.id
 
@@ -41,7 +53,7 @@ class STIXExporter:
             "md5": f"[file:hashes.MD5 = '{ioc_value}']",
             "sha1": f"[file:hashes.SHA-1 = '{ioc_value}']",
             "sha256": f"[file:hashes.SHA-256 = '{ioc_value}']",
-            "emails": f"[email-addr:value = '{ioc_value}']"
+            "emails": f"[email-addr:value = '{ioc_value}']",
         }
         return patterns.get(ioc_type, f"[file:name = '{ioc_value}']")
 
@@ -50,14 +62,14 @@ class STIXExporter:
         return ThreatActor(
             name="Unknown Adversary",
             description="Automated scanning or targeted attack detected by PhantomNet.",
-            threat_actor_types=["scanner", "adversary"]
+            threat_actor_types=["scanner", "adversary"],
         )
 
     def create_attack_pattern(self, threat_type: str) -> AttackPattern:
         """Maps threat types to MITRE ATT&CK patterns."""
         name = "Gather Victim Network Information"
         description = "Adversary gathering IP addresses or scanning ports."
-        
+
         if "Brute Force" in threat_type:
             name = "Brute Force"
             description = "Adversary attempting to gain access by guessing credentials."
@@ -70,7 +82,7 @@ class STIXExporter:
             description=description,
             external_references=[
                 ExternalReference(source_name="capec", external_id="CAPEC-112")
-            ]
+            ],
         )
 
     def generate_bundle(self, iocs: List[Dict[str, Any]]) -> str:
@@ -84,7 +96,7 @@ class STIXExporter:
         objects = []
         if self.identity:
             objects.append(self.identity)
-            
+
         actor = self.create_threat_actor()
         objects.append(actor)
 
@@ -99,7 +111,7 @@ class STIXExporter:
                 labels=[ioc["type"], ioc["threat_type"]],
                 created_by_ref=self.author,
                 confidence=80 if ioc["confidence"] == "HIGH" else 50,
-                object_marking_refs=[TLP_WHITE.id]
+                object_marking_refs=[TLP_WHITE.id],
             )
             objects.append(indicator)
 
@@ -109,8 +121,12 @@ class STIXExporter:
                 last_observed=datetime.now(),
                 number_observed=1,
                 objects={
-                    "0": {"type": "ipv4-addr", "value": ioc["value"]} if ioc["type"] == "ips" else {"type": "domain-name", "value": ioc["value"]}
-                }
+                    "0": (
+                        {"type": "ipv4-addr", "value": ioc["value"]}
+                        if ioc["type"] == "ips"
+                        else {"type": "domain-name", "value": ioc["value"]}
+                    )
+                },
             )
             objects.append(observed)
 
@@ -124,6 +140,7 @@ class STIXExporter:
 
         bundle = Bundle(objects=objects)
         return bundle.serialize(pretty=True)
+
 
 # Singleton instance
 stix_exporter = STIXExporter()

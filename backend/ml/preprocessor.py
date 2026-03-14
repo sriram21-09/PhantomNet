@@ -3,6 +3,7 @@ import pickle
 import os
 from sklearn.preprocessing import StandardScaler, MinMaxScaler
 
+
 class LogPreprocessor:
     """
     Scales and normalizes feature vectors so they are ready for the AI model.
@@ -12,16 +13,16 @@ class LogPreprocessor:
         # StandardScaler for unbounded features (Time delta, Entropy)
         # Centers data around 0 with a standard deviation of 1
         self.standard_scaler = StandardScaler()
-        
+
         # MinMaxScaler for bounded features (Hour, Day, Counts)
         # Squishes data between 0 and 1
         self.min_max_scaler = MinMaxScaler()
-        
+
         # We need to know which columns go to which scaler
         # Indices based on FeatureExtractor order:
         # [0:Hour, 1:Day, 2:Delta, 3:IP_Int, 4:Port, 5:Private, 6:UserLen, 7:PassLen, 8:Entropy, 9:Admin, 10:Special]
-        self.standard_cols = [2, 3, 4, 6, 7, 8, 10] # Delta, IP, Port, Lengths, Entropy
-        self.min_max_cols = [0, 1, 5, 9]            # Hour, Day, Boolean flags
+        self.standard_cols = [2, 3, 4, 6, 7, 8, 10]  # Delta, IP, Port, Lengths, Entropy
+        self.min_max_cols = [0, 1, 5, 9]  # Hour, Day, Boolean flags
 
     def fit(self, X):
         """

@@ -6,6 +6,7 @@ import asyncio
 
 logger = logging.getLogger("realtime_ws")
 
+
 class RealTimeManager:
     def __init__(self):
         self.active_connections: List[WebSocket] = []
@@ -15,23 +16,29 @@ class RealTimeManager:
         await websocket.accept()
         async with self.lock:
             self.active_connections.append(websocket)
-        logger.info(f"New real-time client connected. Total: {len(self.active_connections)}")
+        logger.info(
+            f"New real-time client connected. Total: {len(self.active_connections)}"
+        )
 
     async def disconnect(self, websocket: WebSocket):
         async with self.lock:
             if websocket in self.active_connections:
                 self.active_connections.remove(websocket)
-        logger.info(f"Real-time client disconnected. Total: {len(self.active_connections)}")
+        logger.info(
+            f"Real-time client disconnected. Total: {len(self.active_connections)}"
+        )
 
     async def broadcast(self, message_type: str, payload: Any):
         if not self.active_connections:
             return
 
-        message = json.dumps({
-            "type": message_type,
-            "payload": payload,
-            "timestamp": asyncio.get_event_loop().time()
-        })
+        message = json.dumps(
+            {
+                "type": message_type,
+                "payload": payload,
+                "timestamp": asyncio.get_event_loop().time(),
+            }
+        )
 
         disconnected = []
         async with self.lock:
@@ -41,13 +48,15 @@ class RealTimeManager:
                 except Exception as e:
                     logger.error(f"Error broadcasting to client: {e}")
                     disconnected.append(connection)
-            
+
             for conn in disconnected:
                 if conn in self.active_connections:
                     self.active_connections.remove(conn)
 
+
 realtime_manager = RealTimeManager()
 router = APIRouter(prefix="/api/v1/realtime", tags=["RealTime"])
+
 
 @router.websocket("/ws")
 async def realtime_ws_endpoint(websocket: WebSocket):
@@ -62,6 +71,7 @@ async def realtime_ws_endpoint(websocket: WebSocket):
     except Exception as e:
         logger.error(f"Real-time WS unexpected error: {e}")
         await realtime_manager.disconnect(websocket)
+
 
 # Helper function for other services to push data
 async def push_realtime_event(event_type: str, data: Any):

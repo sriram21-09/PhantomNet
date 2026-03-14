@@ -16,16 +16,12 @@ def test_pipeline_quality_and_latency():
     - Validate inference sanity
     """
 
-    model = mlflow.pyfunc.load_model(
-        model_uri=f"models:/{MODEL_NAME}/{STAGE}"
-    )
+    model = mlflow.pyfunc.load_model(model_uri=f"models:/{MODEL_NAME}/{STAGE}")
 
     # Synthetic batch (deployment sanity only)
-    X = pd.DataFrame([
-        {"payload_length": 50},
-        {"payload_length": 120},
-        {"payload_length": 300}
-    ])
+    X = pd.DataFrame(
+        [{"payload_length": 50}, {"payload_length": 120}, {"payload_length": 300}]
+    )
 
     start = time.time()
     y_pred = model.predict(X)

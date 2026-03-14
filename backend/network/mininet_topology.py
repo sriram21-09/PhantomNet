@@ -31,33 +31,58 @@ from mininet.log import setLogLevel, info, error
 from mininet.link import TCLink
 from mininet.topo import Topo
 
-
 # ──────────────────────────────────────────────
 # Topology Definition
 # ──────────────────────────────────────────────
+
 
 class PhantomTopo(Topo):
     """PhantomNet 5-Node Star Topology with Honeypot Integration"""
 
     def build(self):
         # 1. Create the Central Switch
-        info('*** Adding Switch\n')
-        switch = self.addSwitch('s1')
+        info("*** Adding Switch\n")
+        switch = self.addSwitch("s1")
 
         # 2. Define Node Specifications
         # H1 = Coordinator (Database + Dashboard)
         # H2-H4 = Honeypots (Traps)
         # H5 = Attacker (Kali Simulator)
         hosts_config = [
-            {"name": "h1", "ip": "10.0.0.1", "mac": "00:00:00:00:00:01", "desc": "Coordinator"},
-            {"name": "h2", "ip": "10.0.0.2", "mac": "00:00:00:00:00:02", "desc": "SSH-Honeypot"},
-            {"name": "h3", "ip": "10.0.0.3", "mac": "00:00:00:00:00:03", "desc": "HTTP-Honeypot"},
-            {"name": "h4", "ip": "10.0.0.4", "mac": "00:00:00:00:00:04", "desc": "FTP-Honeypot"},
-            {"name": "h5", "ip": "10.0.0.5", "mac": "00:00:00:00:00:05", "desc": "Attacker"},
+            {
+                "name": "h1",
+                "ip": "10.0.0.1",
+                "mac": "00:00:00:00:00:01",
+                "desc": "Coordinator",
+            },
+            {
+                "name": "h2",
+                "ip": "10.0.0.2",
+                "mac": "00:00:00:00:00:02",
+                "desc": "SSH-Honeypot",
+            },
+            {
+                "name": "h3",
+                "ip": "10.0.0.3",
+                "mac": "00:00:00:00:00:03",
+                "desc": "HTTP-Honeypot",
+            },
+            {
+                "name": "h4",
+                "ip": "10.0.0.4",
+                "mac": "00:00:00:00:00:04",
+                "desc": "FTP-Honeypot",
+            },
+            {
+                "name": "h5",
+                "ip": "10.0.0.5",
+                "mac": "00:00:00:00:00:05",
+                "desc": "Attacker",
+            },
         ]
 
         # 3. Create Hosts and Links
-        info('*** Adding Hosts & Links\n')
+        info("*** Adding Hosts & Links\n")
         for host_conf in hosts_config:
             node = self.addHost(
                 host_conf["name"],
@@ -66,7 +91,7 @@ class PhantomTopo(Topo):
             )
             # Link with constraints (100Mbps, 10ms latency)
             # Simulates a real corporate LAN environment
-            self.addLink(node, switch, cls=TCLink, bw=100, delay='10ms')
+            self.addLink(node, switch, cls=TCLink, bw=100, delay="10ms")
 
 
 # ──────────────────────────────────────────────
@@ -74,7 +99,9 @@ class PhantomTopo(Topo):
 # ──────────────────────────────────────────────
 
 # Path to honeypot scripts (relative to project root)
-PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+PROJECT_ROOT = os.path.dirname(
+    os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+)
 
 HONEYPOT_SERVICES = [
     {
@@ -103,14 +130,14 @@ def deploy_honeypots(net):
     Start honeypot services on their respective Mininet hosts
     using host.cmd() to run each honeypot as a background process.
     """
-    info('\n*** Deploying Honeypot Services\n')
+    info("\n*** Deploying Honeypot Services\n")
 
     for svc in HONEYPOT_SERVICES:
         host = net.get(svc["host"])
         script = svc["script"]
 
         if not os.path.exists(script):
-            error(f'  ❌ Script not found: {script}\n')
+            error(f"  ❌ Script not found: {script}\n")
             continue
 
         # Start honeypot as background process
@@ -119,7 +146,7 @@ def deploy_honeypots(net):
         info(f'  ✅ {svc["name"]} started on {svc["host"]} (port {svc["port"]})\n')
 
     # Allow services to initialize
-    info('*** Waiting for services to start...\n')
+    info("*** Waiting for services to start...\n")
     time.sleep(2)
 
 
@@ -128,7 +155,7 @@ def verify_honeypots(net):
     Verify that all honeypot services are listening on their expected ports.
     Returns True if all services are verified.
     """
-    info('\n*** Verifying Honeypot Services\n')
+    info("\n*** Verifying Honeypot Services\n")
     all_ok = True
 
     for svc in HONEYPOT_SERVICES:
@@ -136,16 +163,18 @@ def verify_honeypots(net):
         port = svc["port"]
 
         # Check if the port is listening
-        result = host.cmd(f'ss -tlnp | grep :{port}')
+        result = host.cmd(f"ss -tlnp | grep :{port}")
 
         if str(port) in result:
             info(f'  ✅ {svc["name"]} ({svc["host"]}:{port}) — LISTENING\n')
         else:
             error(f'  ❌ {svc["name"]} ({svc["host"]}:{port}) — NOT LISTENING\n')
             # Show log for debugging
-            log_output = host.cmd(f'cat /tmp/{svc["host"]}_honeypot.log 2>/dev/null | tail -5')
+            log_output = host.cmd(
+                f'cat /tmp/{svc["host"]}_honeypot.log 2>/dev/null | tail -5'
+            )
             if log_output.strip():
-                error(f'     Log: {log_output.strip()}\n')
+                error(f"     Log: {log_output.strip()}\n")
             all_ok = False
 
     return all_ok
@@ -176,6 +205,7 @@ def print_banner(net):
 # Main Simulation Runner
 # ──────────────────────────────────────────────
 
+
 def run_simulation():
     """Boot up the PhantomNet SDN Network with integrated honeypots."""
 
@@ -183,29 +213,29 @@ def run_simulation():
 
     # Initialize with remote POX controller
     # Falls back to default controller if POX is not running
-    info('*** Connecting to POX controller on 127.0.0.1:6633\n')
+    info("*** Connecting to POX controller on 127.0.0.1:6633\n")
     net = Mininet(
         topo=topo,
         link=TCLink,
         switch=OVSSwitch,
-        controller=lambda name: RemoteController(name, ip='127.0.0.1', port=6633),
+        controller=lambda name: RemoteController(name, ip="127.0.0.1", port=6633),
     )
 
-    info('*** Starting Network\n')
+    info("*** Starting Network\n")
     net.start()
 
     # Deploy honeypot services on Mininet hosts
     deploy_honeypots(net)
 
     # Verify connectivity
-    info('\n*** Verifying Connectivity (Ping All)\n')
+    info("\n*** Verifying Connectivity (Ping All)\n")
     net.pingAll()
 
     # Verify honeypot services
     services_ok = verify_honeypots(net)
 
     if not services_ok:
-        info('\n⚠️  Some honeypot services failed to start. Check logs above.\n')
+        info("\n⚠️  Some honeypot services failed to start. Check logs above.\n")
 
     # Print deployment banner
     print_banner(net)
@@ -214,12 +244,12 @@ def run_simulation():
     CLI(net)
 
     # Cleanup on exit
-    info('*** Stopping Network\n')
+    info("*** Stopping Network\n")
     net.stop()
 
 
-if __name__ == '__main__':
-    setLogLevel('info')
+if __name__ == "__main__":
+    setLogLevel("info")
 
     # Check for root privileges (Mininet needs root)
     if os.geteuid() != 0:

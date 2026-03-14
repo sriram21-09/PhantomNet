@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import {
     Search, Shield, Activity, Briefcase, Database, Download,
-    AlertTriangle, RefreshCw, Target, Crosshair, Layers
+    TriangleAlert, RefreshCw, Target, Crosshair, Layers
 } from 'lucide-react';
 import QueryBuilder from '../components/hunting/QueryBuilder';
 import EventTimeline from '../components/hunting/EventTimeline';
@@ -190,7 +190,7 @@ const ThreatHunting = () => {
             {results.length > 0 && (
                 <div className="hunt-stats-strip">
                     <div className="hss-item critical">
-                        <AlertTriangle className="w-3.5 h-3.5" />
+                        <TriangleAlert className="w-3.5 h-3.5" />
                         <span>{criticalCount} CRITICAL</span>
                     </div>
                     <div className="hss-item high">

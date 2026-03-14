@@ -2,6 +2,7 @@ import requests
 
 BASE_URL = "http://phantomnet_postgres:8080"
 
+
 def test_get_admin():
     """Admin page should load"""
     r = requests.get(f"{BASE_URL}/admin")
@@ -12,8 +13,7 @@ def test_get_admin():
 def test_post_admin():
     """Login attempt should fail but be accepted"""
     r = requests.post(
-        f"{BASE_URL}/admin",
-        data={"username": "admin", "password": "1234"}
+        f"{BASE_URL}/admin", data={"username": "admin", "password": "1234"}
     )
     assert r.status_code == 403
     assert "Invalid credentials" in r.text

@@ -19,6 +19,7 @@ sys.path.append(current_dir)
 print("🔍 Importing Database Models...")
 try:
     from database.models import Base, Event, Session
+
     print("✅ Imports Successful!")
 except ImportError as e:
     print(f"❌ Import Failed: {e}")
@@ -43,13 +44,13 @@ print("⚡ Generating 50 fake attacks...")
 for i in range(50):
     ts = datetime.now() - timedelta(minutes=random.randint(1, 1440))
     ip = random.choice(ips)
-    
+
     event = Event(
         timestamp=ts,
         source_ip=ip,
         honeypot_type=random.choice(types),
         port=random.randint(22, 9000),
-        raw_data=f"{{'simulated_id': {i}, 'risk': 'medium'}}"
+        raw_data=f"{{'simulated_id': {i}, 'risk': 'medium'}}",
     )
     events.append(event)
 
@@ -59,7 +60,7 @@ for i in range(50):
             start_time=ts,
             end_time=ts + timedelta(minutes=5),
             ip_address=ip,
-            event_count=random.randint(1, 10)
+            event_count=random.randint(1, 10),
         )
         sessions.append(sess)
 

@@ -10,6 +10,7 @@ from .alert_manager import alert_manager
 
 logger = logging.getLogger("correlation_engine")
 
+
 class CorrelationEngine:
     def __init__(self, check_interval: int = 10, window_minutes: int = 5):
         self.check_interval = check_interval
@@ -29,7 +30,7 @@ class CorrelationEngine:
     def stop(self):
         self.running = False
         self._stop_event.set()
-        if hasattr(self, 'thread'):
+        if hasattr(self, "thread"):
             self.thread.join(timeout=2)
         logger.info("Correlation Engine stopped.")
 
@@ -39,7 +40,7 @@ class CorrelationEngine:
                 self._correlate_events()
             except Exception as e:
                 logger.error(f"Error in correlation loop: {e}")
-            
+
             time.sleep(self.check_interval)
 
     def _correlate_events(self):
@@ -49,16 +50,16 @@ class CorrelationEngine:
 
             # 1. Detect Multi-Protocol Attacks (Vertical Scanning)
             # Find IPs that have accessed > 2 different protocols in the last window
-            multi_protocol_ips = db.query(
-                PacketLog.src_ip,
-                func.count(func.distinct(PacketLog.protocol)).label("proto_count")
-            ).filter(
-                PacketLog.timestamp >= time_threshold
-            ).group_by(
-                PacketLog.src_ip
-            ).having(
-                func.count(func.distinct(PacketLog.protocol)) > 2
-            ).all()
+            multi_protocol_ips = (
+                db.query(
+                    PacketLog.src_ip,
+                    func.count(func.distinct(PacketLog.protocol)).label("proto_count"),
+                )
+                .filter(PacketLog.timestamp >= time_threshold)
+                .group_by(PacketLog.src_ip)
+                .having(func.count(func.distinct(PacketLog.protocol)) > 2)
+                .all()
+            )
 
             for ip, count in multi_protocol_ips:
                 alert_manager.create_alert(
@@ -66,21 +67,23 @@ class CorrelationEngine:
                     alert_type="CORRELATION",
                     source_ip=ip,
                     description=f"Multi-protocol attack detected: {count} distinct protocols from same IP.",
-                    details={"protocols_count": count, "window_minutes": self.window_minutes}
+                    details={
+                        "protocols_count": count,
+                        "window_minutes": self.window_minutes,
+                    },
                 )
 
             # 2. Detect High-Frequency Attacks
             # Find IPs with more than 50 events in the last window
-            high_freq_ips = db.query(
-                PacketLog.src_ip,
-                func.count(PacketLog.id).label("event_count")
-            ).filter(
-                PacketLog.timestamp >= time_threshold
-            ).group_by(
-                PacketLog.src_ip
-            ).having(
-                func.count(PacketLog.id) > 50
-            ).all()
+            high_freq_ips = (
+                db.query(
+                    PacketLog.src_ip, func.count(PacketLog.id).label("event_count")
+                )
+                .filter(PacketLog.timestamp >= time_threshold)
+                .group_by(PacketLog.src_ip)
+                .having(func.count(PacketLog.id) > 50)
+                .all()
+            )
 
             for ip, count in high_freq_ips:
                 alert_manager.create_alert(
@@ -88,13 +91,17 @@ class CorrelationEngine:
                     alert_type="CORRELATION",
                     source_ip=ip,
                     description=f"High frequency activity: {count} events in {self.window_minutes} minutes.",
-                    details={"event_count": count, "window_minutes": self.window_minutes}
+                    details={
+                        "event_count": count,
+                        "window_minutes": self.window_minutes,
+                    },
                 )
 
         except Exception as e:
             logger.error(f"Database error in CorrelationEngine: {e}")
         finally:
             db.close()
+
 
 # Singleton instance
 correlation_engine = CorrelationEngine()

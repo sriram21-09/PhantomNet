@@ -3,6 +3,7 @@ import joblib
 import os
 import time
 from sklearn.ensemble import IsolationForest
+
 # Fix import for project root execution
 try:
     from backend.ml.feature_extractor import FeatureExtractor
@@ -24,9 +25,7 @@ class AnomalyDetector:
         # The Brain: Isolation Forest
         # contamination=0.1 means we expect ~10% of traffic to be attacks
         self.model = IsolationForest(
-            n_estimators=100,
-            contamination=0.1,
-            random_state=42
+            n_estimators=100, contamination=0.1, random_state=42
         )
         self.extractor = FeatureExtractor()
         self.mitigator = MitigationEngine()
@@ -71,10 +70,7 @@ class AnomalyDetector:
 
         # Extract features
         feature_dict = self.extractor.extract_features(log_entry)
-        vector = np.array(
-            list(feature_dict.values()),
-            dtype=float
-        ).reshape(1, -1)
+        vector = np.array(list(feature_dict.values()), dtype=float).reshape(1, -1)
 
         # -------- LATENCY MEASUREMENT (ML INFERENCE ONLY) --------
         start_time = time.perf_counter()

@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from 'react';
-import { Database, Download, Upload, Zap, Trash2, CheckCircle, XCircle, Clock, HardDrive, AlertTriangle } from 'lucide-react';
+import { Database, Download, Upload, Zap, Trash2, CheckCircle, XCircle, Clock, HardDrive, TriangleAlert } from 'lucide-react';
 
 const API_BASE = 'http://localhost:8000/api/v1/admin';
 
@@ -148,7 +148,7 @@ const Maintenance = () => {
                         <span className="dz-hint">or select from backup history</span>
                     </div>
                     <div className="restore-warning">
-                        <AlertTriangle size={12} />
+                        <TriangleAlert size={12} />
                         Restore will overwrite the current database. Create a backup first.
                     </div>
                 </div>

@@ -5,9 +5,8 @@ import subprocess
 import sys
 from config.mlflow_env import *
 
-
-
 PROJECT_ROOT = os.path.abspath(os.path.join(__file__, "../../../.."))
+
 
 def test_training_pipeline_runs():
     """
@@ -17,7 +16,7 @@ def test_training_pipeline_runs():
         [sys.executable, "run_training.py"],
         cwd=os.path.join(PROJECT_ROOT, "backend", "ml"),
         capture_output=True,
-        text=True
+        text=True,
     )
 
     assert result.returncode == 0, "Training script failed"

@@ -6,9 +6,11 @@ from datetime import datetime, timezone
 # Database logger for accurate last_seen
 try:
     import sys
-    sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
+    sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
     from db_logger import log_ssh_activity
     from fake_filesystem import FakeFilesystem
+
     DB_ENABLED = True
 except ImportError:
     DB_ENABLED = False
@@ -26,6 +28,7 @@ ERROR_LOG = os.path.join(LOG_DIR, "ssh_error.log")
 
 os.makedirs(LOG_DIR, exist_ok=True)
 
+
 # --------------------------
 # Logging Helpers
 # --------------------------
@@ -41,11 +44,11 @@ def log_json(ip, event, data=None):
         "honeypot_type": "ssh",
         "port": 2222,
         "event": event,
-        "data": data
+        "data": data,
     }
     with open(JSON_LOG, "a") as f:
         f.write(json.dumps(entry) + "\n")
-    
+
     # Also log to database for accurate last_seen
     if DB_ENABLED:
         try:
@@ -57,9 +60,8 @@ def log_json(ip, event, data=None):
 
 def log_error(exc, context=""):
     with open(ERROR_LOG, "a") as f:
-        f.write(
-            f"{datetime.now(timezone.utc).isoformat()} - {context} - {repr(exc)}\n"
-        )
+        f.write(f"{datetime.now(timezone.utc).isoformat()} - {context} - {repr(exc)}\n")
+
 
 # --------------------------
 # Utilities
@@ -89,6 +91,7 @@ def receive_line(client):
             break
     return buf.decode(errors="ignore").strip()
 
+
 # --------------------------
 # SSH Honeypot
 # --------------------------
@@ -103,7 +106,6 @@ def start_ssh():
 
     CORRECT_USER = os.getenv("HONEYPOT_SSH_USER", "admin")
     CORRECT_PASS = os.getenv("HONEYPOT_SSH_PASS", "1234")
-
 
     while True:
         try:
@@ -125,10 +127,9 @@ def start_ssh():
                 client.send(b"Password: ")
                 password = clean(receive_line(client))
 
-                log_json(ip, "login_attempt", {
-                    "username": username,
-                    "password": password
-                })
+                log_json(
+                    ip, "login_attempt", {"username": username, "password": password}
+                )
 
                 if username == CORRECT_USER and password == CORRECT_PASS:
                     log_json(ip, "login_success", {"username": username})
@@ -147,7 +148,9 @@ def start_ssh():
 
             # Fake shell
             fs = FakeFilesystem(username)
-            client.send(b"\nWelcome to Ubuntu 20.04.1 LTS (GNU/Linux 5.4.0-42-generic x86_64)\n\n")
+            client.send(
+                b"\nWelcome to Ubuntu 20.04.1 LTS (GNU/Linux 5.4.0-42-generic x86_64)\n\n"
+            )
             cwd = f"/home/{username}"
 
             while True:
@@ -172,8 +175,12 @@ def start_ssh():
                         if items:
                             client.send(("  ".join(items) + "\n").encode())
                         else:
-                            client.send(b"ls: cannot access '" + target.encode() + b"': No such file or directory\n")
-                    
+                            client.send(
+                                b"ls: cannot access '"
+                                + target.encode()
+                                + b"': No such file or directory\n"
+                            )
+
                     elif cmd == "cat":
                         if not args:
                             continue
@@ -201,11 +208,15 @@ def start_ssh():
                             new_cwd = os.path.join(cwd, target)
                         else:
                             new_cwd = target
-                        
+
                         if fs.is_dir(new_cwd):
                             cwd = new_cwd
                         else:
-                            client.send(b"cd: " + target.encode() + b": No such file or directory\n")
+                            client.send(
+                                b"cd: "
+                                + target.encode()
+                                + b": No such file or directory\n"
+                            )
 
                     elif cmd in ("exit", "logout"):
                         log_json(ip, "session_end")
@@ -223,6 +234,7 @@ def start_ssh():
 
         except Exception as e:
             log_error(e, "server error")
+
 
 # --------------------------
 # Entry Point

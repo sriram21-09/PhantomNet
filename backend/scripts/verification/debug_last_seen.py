@@ -20,10 +20,11 @@ try:
 
     # 2. Replicate main.py Logic
     last_seen_map = {}
-    results = db.query(
-        PacketLog.protocol, 
-        func.max(PacketLog.timestamp)
-    ).group_by(PacketLog.protocol).all()
+    results = (
+        db.query(PacketLog.protocol, func.max(PacketLog.timestamp))
+        .group_by(PacketLog.protocol)
+        .all()
+    )
 
     print("\nQuery Results (from main.py logic):")
     for protocol, last_time in results:

@@ -3,7 +3,7 @@ import datetime
 import threading
 
 # CONFIGURATION
-BIND_IP = '0.0.0.0'
+BIND_IP = "0.0.0.0"
 BIND_PORT = 5000
 
 # The Fake Response (Standard HTTP 200 OK with HTML)
@@ -34,46 +34,49 @@ Content-Type: text/html
 </html>
 """
 
+
 def handle_client(client_socket, addr):
     try:
         # 1. Receive the Request
-        request = client_socket.recv(1024).decode('utf-8', errors='ignore')
-        
+        request = client_socket.recv(1024).decode("utf-8", errors="ignore")
+
         # 2. Check if it's a POST (Login Attempt)
         if "POST" in request:
             # Simple parsing to grab the credentials from the raw body
             # Body usually looks like: username=admin&password=123
-            body = request.split('\r\n\r\n')[-1]
-            
+            body = request.split("\r\n\r\n")[-1]
+
             print(f"\n🚨 WEB ATTACK DETECTED!")
             print(f"   📅 Time: {datetime.datetime.now()}")
             print(f"   📍 IP:   {addr[0]}")
             print(f"   📦 Data: {body}")
-            
+
             # Send a "Forbidden" error to frustrate them
             response = "HTTP/1.1 403 Forbidden\r\n\r\nAccount Locked."
             client_socket.send(response.encode())
-        
+
         else:
             # 3. If it's just a GET (Viewing the page), show the login form
             client_socket.send(HTML_PAGE.encode())
-            
+
     except Exception as e:
         print(f"⚠️ Error: {e}")
     finally:
         client_socket.close()
 
+
 def start_server():
     server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     server.bind((BIND_IP, BIND_PORT))
     server.listen(5)
-    
+
     print(f"🪤 HTTP Honeypot Active on Port {BIND_PORT}")
     print("   (Go to http://phantomnet_postgres:5000 to test)")
 
     while True:
         client, addr = server.accept()
         threading.Thread(target=handle_client, args=(client, addr)).start()
+
 
 if __name__ == "__main__":
     start_server()

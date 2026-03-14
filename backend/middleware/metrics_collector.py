@@ -31,8 +31,8 @@ class MetricsCollector:
 
     def __init__(self):
         # Counters: {label_key: count}
-        self.request_count = defaultdict(int)     # (method, path, status) → count
-        self.error_count = defaultdict(int)        # (method, path) → count
+        self.request_count = defaultdict(int)  # (method, path, status) → count
+        self.error_count = defaultdict(int)  # (method, path) → count
 
         # Histogram buckets for response time (ms)
         self.duration_buckets = [5, 10, 25, 50, 100, 250, 500, 1000, 2500, 5000]
@@ -98,7 +98,9 @@ class MetricsCollector:
 
         # Duration histogram
         lines.append("")
-        lines.append("# HELP phantomnet_request_duration_ms Request duration in milliseconds")
+        lines.append(
+            "# HELP phantomnet_request_duration_ms Request duration in milliseconds"
+        )
         lines.append("# TYPE phantomnet_request_duration_ms histogram")
         for (method, path), counts in sorted(self.duration_counts.items()):
             cumulative = 0

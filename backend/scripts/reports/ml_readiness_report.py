@@ -11,6 +11,7 @@ engine = create_engine(DATABASE_URL)
 
 print("🧠 STARTING ML READINESS AUDIT...\n")
 
+
 def generate_report():
     # Load data into Pandas for analysis
     try:
@@ -25,29 +26,33 @@ def generate_report():
     # TASK 1 & 2: Analytics & Distributions
     # ==========================================
     print("\n[PART 1] Data Distributions")
-    
+
     # Class Balance (Malicious vs Normal)
-    if 'is_malicious' in df.columns:
-        counts = df['is_malicious'].value_counts()
+    if "is_malicious" in df.columns:
+        counts = df["is_malicious"].value_counts()
         print("   • Class Balance:")
         print(counts.to_string())
-        
+
         if len(counts) < 2:
-            print("     ⚠️ WARNING: Dataset is skewed (Only one class present). AI cannot learn.")
+            print(
+                "     ⚠️ WARNING: Dataset is skewed (Only one class present). AI cannot learn."
+            )
         else:
             print("     ✅ Dataset contains both Normal and Malicious examples.")
-    
+
     # Attack Types
-    if 'attack_type' in df.columns:
+    if "attack_type" in df.columns:
         print("\n   • Attack Type Distribution:")
-        print(df['attack_type'].value_counts().head(5).to_string())
+        print(df["attack_type"].value_counts().head(5).to_string())
 
     # ==========================================
     # TASK 3: Current ML Architecture
     # ==========================================
     print("\n[PART 2] ML Architecture Status")
     print("   • Model: Random Forest Classifier (Scikit-Learn)")
-    print("   • Features Used: [Source Port, Destination Port, Protocol ID, Packet Length]")
+    print(
+        "   • Features Used: [Source Port, Destination Port, Protocol ID, Packet Length]"
+    )
     print("   • Current State: Transient (Trains on startup, not saved to disk)")
     print("   • Assumptions: High packet frequency from single IP = Attack.")
 
@@ -74,6 +79,7 @@ def generate_report():
     """
     print("\n[PART 4] Month 2 Plan")
     print(month_2_tasks)
+
 
 if __name__ == "__main__":
     generate_report()

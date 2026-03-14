@@ -1,0 +1,52 @@
+{
+    "models": {
+        "v1.0.0": {
+            "version": "v1.0.0",
+            "name": "AttackClassifier_Enhanced",
+            "training_date": "2026-03-13T13:03:33.420460",
+            "path": "ml_models/registry\\AttackClassifier_Enhanced_v1.0.0.pkl",
+            "status": "Staging",
+            "metrics": {
+                "accuracy": 0.6976,
+                "precision": 0.0,
+                "recall": 0.0,
+                "f1_score": 0.0,
+                "timestamp": "2026-03-13T13:07:14.338906",
+                "model_version": "v1.0.0",
+                "auc": 0.6988350648936944
+            },
+            "features": [],
+            "hyperparameters": {}
+        },
+        "v1.0.1": {
+            "version": "v1.0.1",
+            "name": "Dummy_Old",
+            "training_date": "2026-03-13T13:07:42.340993",
+            "path": "ml_models/registry\\Dummy_Old_v1.0.1.pkl",
+            "status": "Staging",
+            "metrics": {
+                "accuracy": 0.82,
+                "precision": 0.8,
+                "recall": 0.84,
+                "f1_score": 0.82
+            },
+            "features": [],
+            "hyperparameters": {}
+        },
+        "v1.1.0": {
+            "version": "v1.1.0",
+            "name": "Dummy_Mid",
+            "training_date": "2026-03-13T13:07:42.373037",
+            "path": "ml_models/registry\\Dummy_Mid_v1.1.0.pkl",
+            "status": "Staging",
+            "metrics": {
+                "accuracy": 0.85,
+                "precision": 0.83,
+                "recall": 0.87,
+                "f1_score": 0.85
+            },
+            "features": [],
+            "hyperparameters": {}
+        }
+    }
+}

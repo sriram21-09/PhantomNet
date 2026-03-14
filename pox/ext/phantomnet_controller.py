@@ -46,38 +46,98 @@ PROTOCOL_POOLS = {
     "SSH": {
         "port": 2222,
         "nodes": [
-            {"ip": "10.0.0.1",  "mac": "00:00:00:00:00:01", "host": "h1",  "switch_dpid": 1},
-            {"ip": "10.0.0.7",  "mac": "00:00:00:00:00:07", "host": "h7",  "switch_dpid": 2},
-            {"ip": "10.0.0.10", "mac": "00:00:00:00:00:0a", "host": "h10", "switch_dpid": 2},
+            {
+                "ip": "10.0.0.1",
+                "mac": "00:00:00:00:00:01",
+                "host": "h1",
+                "switch_dpid": 1,
+            },
+            {
+                "ip": "10.0.0.7",
+                "mac": "00:00:00:00:00:07",
+                "host": "h7",
+                "switch_dpid": 2,
+            },
+            {
+                "ip": "10.0.0.10",
+                "mac": "00:00:00:00:00:0a",
+                "host": "h10",
+                "switch_dpid": 2,
+            },
         ],
     },
     "HTTP": {
         "port": 8080,
         "nodes": [
-            {"ip": "10.0.0.2",  "mac": "00:00:00:00:00:02", "host": "h2",  "switch_dpid": 1},
-            {"ip": "10.0.0.8",  "mac": "00:00:00:00:00:08", "host": "h8",  "switch_dpid": 2},
-            {"ip": "10.0.0.11", "mac": "00:00:00:00:00:0b", "host": "h11", "switch_dpid": 2},
+            {
+                "ip": "10.0.0.2",
+                "mac": "00:00:00:00:00:02",
+                "host": "h2",
+                "switch_dpid": 1,
+            },
+            {
+                "ip": "10.0.0.8",
+                "mac": "00:00:00:00:00:08",
+                "host": "h8",
+                "switch_dpid": 2,
+            },
+            {
+                "ip": "10.0.0.11",
+                "mac": "00:00:00:00:00:0b",
+                "host": "h11",
+                "switch_dpid": 2,
+            },
         ],
     },
     "SMTP": {
         "port": 2525,
         "nodes": [
-            {"ip": "10.0.0.3",  "mac": "00:00:00:00:00:03", "host": "h3",  "switch_dpid": 1},
-            {"ip": "10.0.0.9",  "mac": "00:00:00:00:00:09", "host": "h9",  "switch_dpid": 2},
-            {"ip": "10.0.0.12", "mac": "00:00:00:00:00:0c", "host": "h12", "switch_dpid": 2},
+            {
+                "ip": "10.0.0.3",
+                "mac": "00:00:00:00:00:03",
+                "host": "h3",
+                "switch_dpid": 1,
+            },
+            {
+                "ip": "10.0.0.9",
+                "mac": "00:00:00:00:00:09",
+                "host": "h9",
+                "switch_dpid": 2,
+            },
+            {
+                "ip": "10.0.0.12",
+                "mac": "00:00:00:00:00:0c",
+                "host": "h12",
+                "switch_dpid": 2,
+            },
         ],
     },
     "FTP": {
         "port": 2121,
         "nodes": [
-            {"ip": "10.0.0.4",  "mac": "00:00:00:00:00:04", "host": "h4",  "switch_dpid": 1},
-            {"ip": "10.0.0.13", "mac": "00:00:00:00:00:0d", "host": "h13", "switch_dpid": 2},
+            {
+                "ip": "10.0.0.4",
+                "mac": "00:00:00:00:00:04",
+                "host": "h4",
+                "switch_dpid": 1,
+            },
+            {
+                "ip": "10.0.0.13",
+                "mac": "00:00:00:00:00:0d",
+                "host": "h13",
+                "switch_dpid": 2,
+            },
         ],
     },
     "TELNET": {
         "port": 2323,
         "nodes": [
-            {"ip": "10.0.0.14", "mac": "00:00:00:00:00:0e", "host": "h14", "switch_dpid": 2},
+            {
+                "ip": "10.0.0.14",
+                "mac": "00:00:00:00:00:0e",
+                "host": "h14",
+                "switch_dpid": 2,
+            },
         ],
     },
 }
@@ -89,8 +149,8 @@ PRIORITY_NORMAL = 50
 PRIORITY_DEFAULT = 10
 
 # Health check settings
-HEALTH_CHECK_INTERVAL = 30   # seconds
-MAX_MISSED_CHECKS = 3        # mark unhealthy after 3 misses
+HEALTH_CHECK_INTERVAL = 30  # seconds
+MAX_MISSED_CHECKS = 3  # mark unhealthy after 3 misses
 
 # Resource limits per honeypot (for monitoring / alerting)
 RESOURCE_LIMITS = {
@@ -102,6 +162,7 @@ RESOURCE_LIMITS = {
 # ══════════════════════════════════════════════════════════════════════════
 # Honeypot Pool — Load Balancer State
 # ══════════════════════════════════════════════════════════════════════════
+
 
 class HoneypotPool:
     """
@@ -117,9 +178,9 @@ class HoneypotPool:
 
         # Per-node state
         self.connection_counts = defaultdict(int)  # ip -> active connections
-        self.health_status = {}       # ip -> True/False
-        self.missed_checks = {}       # ip -> count of consecutive misses
-        self.resource_usage = {}      # ip -> {"cpu": %, "mem_mb": int}
+        self.health_status = {}  # ip -> True/False
+        self.missed_checks = {}  # ip -> count of consecutive misses
+        self.resource_usage = {}  # ip -> {"cpu": %, "mem_mb": int}
 
         for node in nodes:
             ip = node["ip"]
@@ -182,13 +243,15 @@ class HoneypotPool:
         # Alert on resource exhaustion
         if cpu > 90.0:
             log.warning(
-                "[RESOURCE] %s node %s CPU exhaustion: %.1f%%",
-                self.protocol, ip, cpu
+                "[RESOURCE] %s node %s CPU exhaustion: %.1f%%", self.protocol, ip, cpu
             )
         if mem_mb > RESOURCE_LIMITS["memory_mb"] * 0.9:
             log.warning(
                 "[RESOURCE] %s node %s memory exhaustion: %d/%d MB",
-                self.protocol, ip, mem_mb, RESOURCE_LIMITS["memory_mb"]
+                self.protocol,
+                ip,
+                mem_mb,
+                RESOURCE_LIMITS["memory_mb"],
             )
 
     def status(self):
@@ -210,6 +273,7 @@ class HoneypotPool:
 # Main Controller
 # ══════════════════════════════════════════════════════════════════════════
 
+
 class PhantomNetController(EventMixin):
     """
     Distributed PhantomNet SDN Controller with load balancing.
@@ -226,8 +290,8 @@ class PhantomNetController(EventMixin):
     def __init__(self, connection):
         self.connection = connection
         self.dpid = connection.dpid
-        self.mac_table = {}     # MAC -> port mapping (per-switch)
-        self.attack_log = []    # in-memory attack event log
+        self.mac_table = {}  # MAC -> port mapping (per-switch)
+        self.attack_log = []  # in-memory attack event log
 
         # Listen for OpenFlow events
         connection.addListeners(self)
@@ -309,8 +373,9 @@ class PhantomNetController(EventMixin):
         """Log security-relevant traffic."""
         arp_pkt = packet.find("arp")
         if arp_pkt:
-            log.debug("[ARP] %s -> %s (port %d)",
-                      arp_pkt.protosrc, arp_pkt.protodst, in_port)
+            log.debug(
+                "[ARP] %s -> %s (port %d)", arp_pkt.protosrc, arp_pkt.protodst, in_port
+            )
             return
 
         ip_pkt = packet.find("ipv4")
@@ -318,18 +383,23 @@ class PhantomNetController(EventMixin):
             tcp_pkt = packet.find("tcp")
             if tcp_pkt and tcp_pkt.dstport in HONEYPOT_PORTS:
                 timestamp = datetime.datetime.now().isoformat()
-                self.attack_log.append({
-                    "timestamp": timestamp,
-                    "src_ip": str(ip_pkt.srcip),
-                    "dst_ip": str(ip_pkt.dstip),
-                    "dst_port": tcp_pkt.dstport,
-                    "in_port": in_port,
-                    "switch": dpid_to_str(self.dpid),
-                })
+                self.attack_log.append(
+                    {
+                        "timestamp": timestamp,
+                        "src_ip": str(ip_pkt.srcip),
+                        "dst_ip": str(ip_pkt.dstip),
+                        "dst_port": tcp_pkt.dstport,
+                        "in_port": in_port,
+                        "switch": dpid_to_str(self.dpid),
+                    }
+                )
                 log.warning(
                     "[HONEYPOT] %s -> %s:%d (switch %s, port %d)",
-                    ip_pkt.srcip, ip_pkt.dstip, tcp_pkt.dstport,
-                    dpid_to_str(self.dpid), in_port,
+                    ip_pkt.srcip,
+                    ip_pkt.dstip,
+                    tcp_pkt.dstport,
+                    dpid_to_str(self.dpid),
+                    in_port,
                 )
 
     def _handle_FlowStatsReceived(self, event):
@@ -337,14 +407,17 @@ class PhantomNetController(EventMixin):
         for stat in event.stats:
             log.debug(
                 "[STATS] Switch %s | Match: %s | Pkts: %d | Bytes: %d",
-                dpid_to_str(self.dpid), stat.match,
-                stat.packet_count, stat.byte_count,
+                dpid_to_str(self.dpid),
+                stat.match,
+                stat.packet_count,
+                stat.byte_count,
             )
 
 
 # ══════════════════════════════════════════════════════════════════════════
 # Launcher — Global Load Balancer & Health Manager
 # ══════════════════════════════════════════════════════════════════════════
+
 
 class PhantomNetLauncher(EventMixin):
     """
@@ -356,7 +429,7 @@ class PhantomNetLauncher(EventMixin):
         core.openflow.addListeners(self)
 
         # Per-switch controller instances
-        self.switch_controllers = {}   # dpid -> PhantomNetController
+        self.switch_controllers = {}  # dpid -> PhantomNetController
 
         # Protocol pools
         self.pools = {}
@@ -375,9 +448,12 @@ class PhantomNetLauncher(EventMixin):
         self._health_timer = None
 
         log.info("[LAUNCHER] PhantomNet Distributed Controller loaded")
-        log.info("[LAUNCHER] Protocol pools: %s",
-                 ", ".join("%s(%d nodes)" % (p, len(c["nodes"]))
-                           for p, c in PROTOCOL_POOLS.items()))
+        log.info(
+            "[LAUNCHER] Protocol pools: %s",
+            ", ".join(
+                "%s(%d nodes)" % (p, len(c["nodes"])) for p, c in PROTOCOL_POOLS.items()
+            ),
+        )
         log.info("[LAUNCHER] Waiting for switch connections...")
 
     # ── Switch Lifecycle ─────────────────────────────────────────────────
@@ -396,8 +472,10 @@ class PhantomNetLauncher(EventMixin):
                 self._run_health_checks,
                 recurring=True,
             )
-            log.info("[HEALTH] Health check timer started (%ds interval)",
-                     HEALTH_CHECK_INTERVAL)
+            log.info(
+                "[HEALTH] Health check timer started (%ds interval)",
+                HEALTH_CHECK_INTERVAL,
+            )
 
     def _handle_ConnectionDown(self, event):
         """Called when a switch disconnects."""
@@ -434,7 +512,9 @@ class PhantomNetLauncher(EventMixin):
                 # Previous assignment is unhealthy — reassign
                 log.warning(
                     "[LB] Session %s:%s -> %s is unhealthy, reassigning",
-                    src_ip, protocol, assigned["ip"]
+                    src_ip,
+                    protocol,
+                    assigned["ip"],
                 )
                 target = pool.select_node(src_ip)
                 if target:
@@ -451,15 +531,16 @@ class PhantomNetLauncher(EventMixin):
 
         log.info(
             "[LB] %s -> %s:%d routed to %s (%s) [conns: %d]",
-            src_ip, protocol, dst_port,
-            target["host"], target["ip"],
+            src_ip,
+            protocol,
+            dst_port,
+            target["host"],
+            target["ip"],
             pool.connection_counts[target["ip"]],
         )
 
         # Install flow rule to route this traffic
-        self._install_lb_flow(
-            controller, event, ip_pkt, tcp_pkt, target
-        )
+        self._install_lb_flow(controller, event, ip_pkt, tcp_pkt, target)
 
     def _install_lb_flow(self, controller, event, ip_pkt, tcp_pkt, target):
         """
@@ -498,7 +579,11 @@ class PhantomNetLauncher(EventMixin):
 
         log.info(
             "[FLOW] LB rule installed: %s:%d -> %s (%s) via port %d",
-            ip_pkt.srcip, tcp_pkt.dstport, target["host"], target["ip"], out_port,
+            ip_pkt.srcip,
+            tcp_pkt.dstport,
+            target["host"],
+            target["ip"],
+            out_port,
         )
 
     # ── Health Checks ────────────────────────────────────────────────────
@@ -520,7 +605,9 @@ class PhantomNetLauncher(EventMixin):
                     pool.record_missed_check(ip)
                     log.warning(
                         "[HEALTH] Switch %d offline — %s node %s unreachable",
-                        dpid, proto, ip,
+                        dpid,
+                        proto,
+                        ip,
                     )
                     continue
 
@@ -536,7 +623,9 @@ class PhantomNetLauncher(EventMixin):
             if healthy < total:
                 log.warning(
                     "[HEALTH] %s pool: %d/%d healthy",
-                    proto, healthy, total,
+                    proto,
+                    healthy,
+                    total,
                 )
 
     # ── Status Reporting ─────────────────────────────────────────────────
@@ -553,6 +642,7 @@ class PhantomNetLauncher(EventMixin):
 # ══════════════════════════════════════════════════════════════════════════
 # POX Entry Point
 # ══════════════════════════════════════════════════════════════════════════
+
 
 def launch():
     """

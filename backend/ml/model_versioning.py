@@ -3,7 +3,6 @@ import mlflow
 from mlflow.tracking import MlflowClient
 from config.mlflow_env import *
 
-
 # ======================
 # CONFIG
 # ======================
@@ -35,24 +34,18 @@ def main():
         name=MODEL_NAME,
         version=latest_version,
         stage="Staging",
-        archive_existing_versions=False
+        archive_existing_versions=False,
     )
 
     # ----------------------
     # Add metadata tags (modern replacement for Dev stage)
     # ----------------------
     client.set_model_version_tag(
-        name=MODEL_NAME,
-        version=latest_version,
-        key="lifecycle",
-        value="pre-production"
+        name=MODEL_NAME, version=latest_version, key="lifecycle", value="pre-production"
     )
 
     client.set_model_version_tag(
-        name=MODEL_NAME,
-        version=latest_version,
-        key="validated",
-        value="true"
+        name=MODEL_NAME, version=latest_version, key="validated", value="true"
     )
 
     print("\n--- Versioning Complete ---")

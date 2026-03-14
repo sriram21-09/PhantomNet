@@ -26,6 +26,7 @@ open(LOG_FILE, "a").close()
 
 IP_CONNECTIONS = {}
 
+
 # ---------------- LOG HELPERS ----------------
 def log_event(data):
     try:
@@ -34,9 +35,11 @@ def log_event(data):
     except Exception as e:
         log_error(str(e), "log_event")
 
+
 def log_error(msg, context=""):
     with open(ERROR_LOG, "a") as f:
         f.write(f"{datetime.now(timezone.utc).isoformat()} | {context} | {msg}\n")
+
 
 # ---------------- FAKE FILESYSTEM ----------------
 BASE_FS = {
@@ -45,9 +48,8 @@ BASE_FS = {
     "/home/ubuntu": ["notes.txt"],
 }
 
-FILE_CONTENTS = {
-    "/home/ubuntu/notes.txt": "remember to backup server configs\n"
-}
+FILE_CONTENTS = {"/home/ubuntu/notes.txt": "remember to backup server configs\n"}
+
 
 # ---------------- SESSION ----------------
 class HoneypotSession(asyncssh.SSHServerSession):
@@ -75,15 +77,17 @@ class HoneypotSession(asyncssh.SSHServerSession):
                 self._prompt()
                 return
 
-            log_event({
-                "timestamp": datetime.now(timezone.utc).isoformat(),
-                "source_ip": self.ip,
-                "honeypot_type": "ssh",
-                "port": PORT,
-                "event": "command",
-                "data": {"cmd": cmd},
-                "level": "INFO"
-            })
+            log_event(
+                {
+                    "timestamp": datetime.now(timezone.utc).isoformat(),
+                    "source_ip": self.ip,
+                    "honeypot_type": "ssh",
+                    "port": PORT,
+                    "event": "command",
+                    "data": {"cmd": cmd},
+                    "level": "INFO",
+                }
+            )
 
             if cmd in ("exit", "logout"):
                 self.chan.write("logout\n")
@@ -148,6 +152,7 @@ class HoneypotSession(asyncssh.SSHServerSession):
 
         return f"bash: {cmd}: command not found\n"
 
+
 # ---------------- SERVER ----------------
 class SSHHoneypot(asyncssh.SSHServer):
 
@@ -164,8 +169,7 @@ class SSHHoneypot(asyncssh.SSHServer):
             log_error("Connection limit exceeded", self.ip)
             IP_CONNECTIONS[self.ip] -= 1
             raise asyncssh.DisconnectError(
-                asyncssh.DisconnectReason.BY_APPLICATION,
-                "Too many connections"
+                asyncssh.DisconnectReason.BY_APPLICATION, "Too many connections"
             )
 
     def connection_lost(self, exc):
@@ -176,60 +180,59 @@ class SSHHoneypot(asyncssh.SSHServer):
         return True
 
     def validate_password(self, username, password):
-        log_event({
-            "timestamp": datetime.now(timezone.utc).isoformat(),
-            "source_ip": self.ip,
-            "honeypot_type": "ssh",
-            "port": PORT,
-            "event": "login_attempt",
-            "data": {"username": username, "password": password},
-            "level": "WARN"
-        })
-
-        if username == VALID_USER and password == VALID_PASS:
-            log_event({
+        log_event(
+            {
                 "timestamp": datetime.now(timezone.utc).isoformat(),
                 "source_ip": self.ip,
                 "honeypot_type": "ssh",
                 "port": PORT,
-                "event": "login_success",
-                "data": {"username": username},
-                "level": "INFO"
-            })
+                "event": "login_attempt",
+                "data": {"username": username, "password": password},
+                "level": "WARN",
+            }
+        )
+
+        if username == VALID_USER and password == VALID_PASS:
+            log_event(
+                {
+                    "timestamp": datetime.now(timezone.utc).isoformat(),
+                    "source_ip": self.ip,
+                    "honeypot_type": "ssh",
+                    "port": PORT,
+                    "event": "login_success",
+                    "data": {"username": username},
+                    "level": "INFO",
+                }
+            )
             return True
 
-        log_event({
-            "timestamp": datetime.now(timezone.utc).isoformat(),
-            "source_ip": self.ip,
-            "honeypot_type": "ssh",
-            "port": PORT,
-            "event": "login_failed",
-            "data": {"username": username},
-            "level": "ERROR"
-        })
+        log_event(
+            {
+                "timestamp": datetime.now(timezone.utc).isoformat(),
+                "source_ip": self.ip,
+                "honeypot_type": "ssh",
+                "port": PORT,
+                "event": "login_failed",
+                "data": {"username": username},
+                "level": "ERROR",
+            }
+        )
 
         raise asyncssh.DisconnectError(
-            asyncssh.DisconnectReason.AUTH_FAILED,
-            "Invalid credentials"
+            asyncssh.DisconnectReason.AUTH_FAILED, "Invalid credentials"
         )
 
     def session_requested(self):
-        asyncio.get_event_loop().call_later(
-            SESSION_TIMEOUT,
-            self.conn.close
-        )
+        asyncio.get_event_loop().call_later(SESSION_TIMEOUT, self.conn.close)
         return HoneypotSession(self.ip, self.conn.get_extra_info("username"))
+
 
 # ---------------- START ----------------
 async def start_server():
-    await asyncssh.create_server(
-        SSHHoneypot,
-        HOST,
-        PORT,
-        server_host_keys=[HOST_KEY]
-    )
+    await asyncssh.create_server(SSHHoneypot, HOST, PORT, server_host_keys=[HOST_KEY])
     print(f"[+] AsyncSSH Honeypot running on port {PORT}")
     await asyncio.Future()
+
 
 if __name__ == "__main__":
     asyncio.run(start_server())

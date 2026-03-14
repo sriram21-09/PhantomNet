@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import {
     Clock, Shield, Globe, Zap, ChevronDown, ChevronUp,
-    AlertTriangle, Terminal, Activity, Target
+    TriangleAlert, Terminal, Activity, Target
 } from 'lucide-react';
 import './EventTimeline.css';
 

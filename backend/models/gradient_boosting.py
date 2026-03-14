@@ -18,8 +18,8 @@ def build_gradient_boosting_model(random_state: int = 42) -> GradientBoostingCla
         n_estimators=150,
         learning_rate=0.05,
         max_depth=3,
-        subsample=1.0,          # IMPORTANT: avoid class trimming
-        random_state=random_state
+        subsample=1.0,  # IMPORTANT: avoid class trimming
+        random_state=random_state,
     )
 
     return model
