@@ -1,0 +1,61 @@
+﻿============================= test session starts =============================
+platform win32 -- Python 3.14.0, pytest-9.0.2, pluggy-1.6.0
+rootdir: c:\Users\shalo\PhantomNet\backend\tests
+configfile: pytest.ini
+plugins: anyio-4.12.0, locust-2.43.3
+collected 15 items / 4 errors
+
+=================================== ERRORS ====================================
+____________________ ERROR collecting test_correlation.py _____________________
+ImportError while importing test module 'c:\Users\shalo\PhantomNet\backend\tests\test_correlation.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+..\AppData\Local\Programs\Python\Python314\Lib\importlib\__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+backend\tests\test_correlation.py:2: in <module>
+    from backend.ml.threat_correlation import ThreatCorrelator
+backend\ml\threat_correlation.py:1: in <module>
+    from ml.anomaly_detector import AnomalyDetector
+E   ModuleNotFoundError: No module named 'ml.anomaly_detector'
+______________________ ERROR collecting test_output.txt _______________________
+..\AppData\Local\Programs\Python\Python314\Lib\pathlib\__init__.py:793: in read_text
+    return f.read()
+           ^^^^^^^^
+<frozen codecs>:325: in decode
+    ???
+E   UnicodeDecodeError: 'utf-8' codec can't decode byte 0xff in position 0: invalid start byte
+________________ ERROR collecting test_security_monitoring.py _________________
+backend\tests\test_security_monitoring.py:10: in <module>
+    from database.database import SessionLocal, engine
+backend\database\__init__.py:2: in <module>
+    from .database import *
+backend\database\database.py:49: in <module>
+    engine = get_db_engine()
+             ^^^^^^^^^^^^^^^
+backend\database\database.py:46: in get_db_engine
+    raise Exception("Database Connection Failure")
+E   Exception: Database Connection Failure
+____________________ ERROR collecting test_threat_intel.py ____________________
+ImportError while importing test module 'c:\Users\shalo\PhantomNet\backend\tests\test_threat_intel.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+..\AppData\Local\Programs\Python\Python314\Lib\importlib\__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+backend\tests\test_threat_intel.py:2: in <module>
+    import pytest_asyncio
+E   ModuleNotFoundError: No module named 'pytest_asyncio'
+============================== warnings summary ===============================
+backend\services\response_executor.py:402
+  c:\Users\shalo\PhantomNet\backend\services\response_executor.py:402: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    now = datetime.utcnow()
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+ERROR backend\tests\test_correlation.py
+ERROR backend\tests\test_output.txt - UnicodeDecodeError: 'utf-8' codec can't...
+ERROR backend\tests\test_security_monitoring.py - Exception: Database Connect...
+ERROR backend\tests\test_threat_intel.py
+!!!!!!!!!!!!!!!!!!! Interrupted: 4 errors during collection !!!!!!!!!!!!!!!!!!!
+======================== 1 warning, 4 errors in 18.97s ========================

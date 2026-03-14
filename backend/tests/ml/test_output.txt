@@ -1,0 +1,58 @@
+﻿============================= test session starts =============================
+platform win32 -- Python 3.14.0, pytest-9.0.2, pluggy-1.6.0
+rootdir: c:\Users\shalo\PhantomNet\backend\tests
+configfile: pytest.ini
+plugins: anyio-4.12.0, locust-2.43.3, cov-7.0.0
+collected 8 items
+
+backend\tests\ml\test_ml_pipeline.py ........
+WARNING: Failed to generate report: No data to report.
+
+                                                                         [100%]
+
+============================== warnings summary ===============================
+backend\schemas\threat_schema.py:11
+  c:\Users\shalo\PhantomNet\backend\schemas\threat_schema.py:11: PydanticDeprecatedSince20: Using extra keyword arguments on `Field` is deprecated and will be removed. Use `json_schema_extra` instead. (Extra keys: 'example'). Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.12/migration/
+    src_ip: str = Field(..., description="Source IP address", example="192.168.1.105")
+
+backend\schemas\threat_schema.py:12
+  c:\Users\shalo\PhantomNet\backend\schemas\threat_schema.py:12: PydanticDeprecatedSince20: Using extra keyword arguments on `Field` is deprecated and will be removed. Use `json_schema_extra` instead. (Extra keys: 'example'). Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.12/migration/
+    dst_ip: str = Field(..., description="Destination IP address", example="10.0.0.5")
+
+backend\schemas\threat_schema.py:13
+  c:\Users\shalo\PhantomNet\backend\schemas\threat_schema.py:13: PydanticDeprecatedSince20: Using extra keyword arguments on `Field` is deprecated and will be removed. Use `json_schema_extra` instead. (Extra keys: 'example'). Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.12/migration/
+    dst_port: int = Field(..., description="Destination Port", example=80)
+
+backend\schemas\threat_schema.py:14
+  c:\Users\shalo\PhantomNet\backend\schemas\threat_schema.py:14: PydanticDeprecatedSince20: Using extra keyword arguments on `Field` is deprecated and will be removed. Use `json_schema_extra` instead. (Extra keys: 'example'). Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.12/migration/
+    protocol: str = Field(..., description="Protocol (TCP, UDP, ICMP)", example="TCP")
+
+backend\schemas\threat_schema.py:15
+  c:\Users\shalo\PhantomNet\backend\schemas\threat_schema.py:15: PydanticDeprecatedSince20: Using extra keyword arguments on `Field` is deprecated and will be removed. Use `json_schema_extra` instead. (Extra keys: 'example'). Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.12/migration/
+    length: int = Field(..., description="Packet Length in bytes", example=64)
+
+backend\schemas\threat_schema.py:18
+  c:\Users\shalo\PhantomNet\backend\schemas\threat_schema.py:18: PydanticDeprecatedSince20: Using extra keyword arguments on `Field` is deprecated and will be removed. Use `json_schema_extra` instead. (Extra keys: 'example'). Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.12/migration/
+    timestamp: Optional[str] = Field(None, description="ISO 8601 Timestamp. Defaults to now.", example="2026-02-11T12:00:00Z")
+
+backend\schemas\threat_schema.py:21
+  c:\Users\shalo\PhantomNet\backend\schemas\threat_schema.py:21: PydanticDeprecatedSince20: Using extra keyword arguments on `Field` is deprecated and will be removed. Use `json_schema_extra` instead. (Extra keys: 'example'). Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.12/migration/
+    threat_score: float = Field(0.0, description="Baseline threat score from firewall/rules", example=10.0)
+
+backend\schemas\threat_schema.py:22
+  c:\Users\shalo\PhantomNet\backend\schemas\threat_schema.py:22: PydanticDeprecatedSince20: Using extra keyword arguments on `Field` is deprecated and will be removed. Use `json_schema_extra` instead. (Extra keys: 'example'). Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.12/migration/
+    is_malicious: bool = Field(False, description="Known malicious flag (e.g. from blacklist)", example=False)
+
+backend\schemas\threat_schema.py:23
+  c:\Users\shalo\PhantomNet\backend\schemas\threat_schema.py:23: PydanticDeprecatedSince20: Using extra keyword arguments on `Field` is deprecated and will be removed. Use `json_schema_extra` instead. (Extra keys: 'example'). Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.12/migration/
+    attack_type: str = Field("UNKNOWN", description="Preliminary attack classification", example="UNKNOWN")
+
+backend\schemas\threat_schema.py:24
+  c:\Users\shalo\PhantomNet\backend\schemas\threat_schema.py:24: PydanticDeprecatedSince20: Using extra keyword arguments on `Field` is deprecated and will be removed. Use `json_schema_extra` instead. (Extra keys: 'example'). Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.12/migration/
+    honeypot_type: str = Field("NONE", description="Honeypot type interaction", example="HTTP")
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=============================== tests coverage ================================
+_______________ coverage: platform win32, python 3.14.0-final-0 _______________
+
+======================= 8 passed, 10 warnings in 20.83s =======================

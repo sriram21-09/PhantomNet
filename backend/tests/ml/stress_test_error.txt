@@ -1,0 +1,21 @@
+﻿Redis not available. Running without prediction cache.
+C:\Users\shalo\AppData\Local\Programs\Python\Python314\Lib\site-packages\mlflow\tracking\_tracking_service\utils.py:178: FutureWarning: The filesystem tracking backend (e.g., './mlruns') will be deprecated in February 2026. Consider transitioning to a database backend (e.g., 'sqlite:///mlflow.db') to take advantage of the latest MLflow features. See https://github.com/mlflow/mlflow/issues/18534 for more details and migration guidance. For migrating existing data, https://github.com/mlflow/mlflow-export-import can be used.
+  return FileStore(store_uri, store_uri)
+c:\Users\shalo\PhantomNet\backend\ml\model_loader.py:31: FutureWarning: ``mlflow.tracking.client.MlflowClient.get_latest_versions`` is deprecated since 2.9.0. Model registry stages will be removed in a future major release. To learn more about the deprecation of model registry stages, see our migration guide here: https://mlflow.org/docs/latest/model-registry.html#migrating-from-stages
+  versions = client.get_latest_versions(MODEL_NAME, stages=["Production"])
+C:\Users\shalo\AppData\Local\Programs\Python\Python314\Lib\site-packages\mlflow\tracking\_model_registry\utils.py:216: FutureWarning: The filesystem model registry backend (e.g., './mlruns') will be deprecated in February 2026. Consider transitioning to a database backend (e.g., 'sqlite:///mlflow.db') to take advantage of the latest MLflow features. See https://github.com/mlflow/mlflow/issues/18534 for more details and migration guidance. For migrating existing data, https://github.com/mlflow/mlflow-export-import can be used.
+  return FileStore(store_uri)
+=== ML Pipeline Stress Testing (20s) ===
+Starting 5 threads to hammer the ML scoring batch service...
+[MODEL_LOADER] Initializing ML scoring engine...
+
+[Memory Profiling - Top 5 allocators]
+<frozen importlib._bootstrap_external>:514: size=259 KiB (+259 KiB), count=2108 (+2108), average=126 B
+C:\Users\shalo\AppData\Local\Programs\Python\Python314\Lib\linecache.py:189: size=46.7 KiB (+46.7 KiB), count=497 (+497), average=96 B
+C:\Users\shalo\AppData\Local\Programs\Python\Python314\Lib\site-packages\mlflow\store\tracking\file_store.py:187: size=8600 B (+8600 B), count=9 (+9), average=956 B
+C:\Users\shalo\AppData\Local\Programs\Python\Python314\Lib\site-packages\mlflow\utils\annotations.py:186: size=8520 B (+8520 B), count=71 (+71), average=120 B
+C:\Users\shalo\AppData\Local\Programs\Python\Python314\Lib\site-packages\pydantic\main.py:464: size=4992 B (+4992 B), count=78 (+78), average=64 B
+
+Total Memory Growth over 20s: 0.43 MB
+SUCCESS: Memory stability verified.
+SUCCESS: No crashes or exceptions under load.
