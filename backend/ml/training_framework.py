@@ -1,20 +1,11 @@
 # backend/ml/training_framework.py
 
-from sklearn.model_selection import (
-    train_test_split,
-    StratifiedKFold,
-    cross_val_score
-)
+from sklearn.model_selection import train_test_split, StratifiedKFold, cross_val_score
 
 
 class TrainingFramework:
     def __init__(
-        self,
-        model,
-        feature_columns,
-        label_column,
-        test_size=0.2,
-        random_state=42
+        self, model, feature_columns, label_column, test_size=0.2, random_state=42
     ):
         """
         Generic training framework for PhantomNet ML models
@@ -34,19 +25,25 @@ class TrainingFramework:
 
         if len(df) < 2:
             # CI edge case: Single sample can't be split
-            print("[ML] WARNING: Dataset too small (n<2). Using same sample for train/test.")
+            print(
+                "[ML] WARNING: Dataset too small (n<2). Using same sample for train/test."
+            )
             X = df[self.feature_columns]
             y = df[self.label_column]
             return X, X, y, y
 
-        stratify = y if len(df) >= 10 else None # Avoid stratification for tiny datasets
-        
+        stratify = (
+            y if len(df) >= 10 else None
+        )  # Avoid stratification for tiny datasets
+
         return train_test_split(
             X,
             y,
-            test_size=self.test_size if len(df) > 5 else 0.5, # Ensure at least 1 sample in each
+            test_size=(
+                self.test_size if len(df) > 5 else 0.5
+            ),  # Ensure at least 1 sample in each
             random_state=self.random_state,
-            stratify=stratify
+            stratify=stratify,
         )
 
     def train(self, df):
@@ -63,7 +60,7 @@ class TrainingFramework:
             "model": self.model,
             "X_test": X_test,
             "y_test": y_test,
-            "y_pred": y_pred
+            "y_pred": y_pred,
         }
 
     def cross_validate(self, df, cv_folds=5, scoring="f1"):
@@ -74,21 +71,13 @@ class TrainingFramework:
         y = df[self.label_column]
 
         skf = StratifiedKFold(
-            n_splits=cv_folds,
-            shuffle=True,
-            random_state=self.random_state
+            n_splits=cv_folds, shuffle=True, random_state=self.random_state
         )
 
-        scores = cross_val_score(
-            self.model,
-            X,
-            y,
-            cv=skf,
-            scoring=scoring
-        )
+        scores = cross_val_score(self.model, X, y, cv=skf, scoring=scoring)
 
         return {
             "cv_scores": scores,
             "mean_score": scores.mean(),
-            "std_score": scores.std()
+            "std_score": scores.std(),
         }

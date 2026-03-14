@@ -14,7 +14,7 @@ class ThreatCorrelator:
         self.threat_feed_ips = {
             "192.168.1.100": "KNOWN_BOTNET",
             "10.0.0.50": "TOR_EXIT_NODE",
-            "172.16.0.5": "MALICIOUS_SCANNER"
+            "172.16.0.5": "MALICIOUS_SCANNER",
         }
 
     # 🔹 PRIMARY ANALYSIS METHOD
@@ -42,11 +42,7 @@ class ThreatCorrelator:
 
         # 4. Correlation Logic
         # AI (20%) + Rules (30%) + Intel (50%)
-        total_risk_score = (
-            (ai_risk * 0.2) +
-            (rule_risk * 0.3) +
-            (feed_risk * 0.5)
-        )
+        total_risk_score = (ai_risk * 0.2) + (rule_risk * 0.3) + (feed_risk * 0.5)
 
         # 5. Verdict
         if total_risk_score > 80:
@@ -65,8 +61,8 @@ class ThreatCorrelator:
                 "ai_anomaly": ai_pred == -1,
                 "ai_score": round(ai_score, 4),
                 "signatures_triggered": signatures,
-                "threat_intel_match": feed_match
-            }
+                "threat_intel_match": feed_match,
+            },
         }
 
     # 🔹 COMPATIBILITY ALIAS (DO NOT REMOVE)

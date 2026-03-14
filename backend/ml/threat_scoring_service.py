@@ -17,13 +17,14 @@ logger = logging.getLogger(__name__)
 _FEATURE_EXTRACTOR = FeatureExtractor()
 
 try:
-    redis_client = redis.Redis(host='localhost', port=6379, db=0, decode_responses=True)
+    redis_client = redis.Redis(host="localhost", port=6379, db=0, decode_responses=True)
     redis_client.ping()
     REDIS_AVAILABLE = True
     logger.info("Connected to Redis for prediction caching.")
 except redis.ConnectionError:
     REDIS_AVAILABLE = False
     logger.warning("Redis not available. Running without prediction cache.")
+
 
 def map_score_to_level(score: float) -> str:
     """
@@ -36,6 +37,7 @@ def map_score_to_level(score: float) -> str:
     else:
         return "LOW"
 
+
 def map_score_to_decision(score: float) -> str:
     """
     Maps a threat score to a decision action.
@@ -47,16 +49,18 @@ def map_score_to_decision(score: float) -> str:
     else:
         return "ALLOW"
 
+
 def score_threat(input_data: ThreatInput) -> ThreatResponse:
-    """
-    """
-    
+    """ """
+
     # Check Prediction Cache first
     if REDIS_AVAILABLE:
         # Generate a deterministic hash for the raw event
-        event_str = json.dumps(input_data.model_dump(exclude={"timestamp"}), sort_keys=True)
+        event_str = json.dumps(
+            input_data.model_dump(exclude={"timestamp"}), sort_keys=True
+        )
         event_hash = "pred_cache:" + hashlib.md5(event_str.encode()).hexdigest()
-        
+
         cached_result = redis_client.get(event_hash)
         if cached_result:
             try:
@@ -66,29 +70,28 @@ def score_threat(input_data: ThreatInput) -> ThreatResponse:
                 logger.debug(f"Cache parse error: {e}")
 
     model = model_loader.load_model()
-    
+
     if not model:
         # Reduced to debug to avoid terminal flood as requested
         logger.debug("Model not available for scoring. Using fallback values.")
         # Fallback response if model is missing
         return ThreatResponse(
-            score=0.0,
-            threat_level="LOW",
-            confidence=0.0,
-            decision="ALLOW"
+            score=0.0, threat_level="LOW", confidence=0.0, decision="ALLOW"
         )
-        
+
     # 1. Convert Input to Dict (Raw Event)
     event = input_data.model_dump()
-    
+
     # 2. Extract Features
     # This updates internal state of _FEATURE_EXTRACTOR
     features_dict = _FEATURE_EXTRACTOR.extract_features(event)
-    
+
     # Ensure correct column order matching FeatureExtractor.FEATURE_NAMES
     # Convert to DataFrame (sklearn models usually expect 2D array or DF)
-    feature_vector = pd.DataFrame([features_dict], columns=FeatureExtractor.FEATURE_NAMES)
-    
+    feature_vector = pd.DataFrame(
+        [features_dict], columns=FeatureExtractor.FEATURE_NAMES
+    )
+
     # 3. Predict
     # predict_proba returns [prob_benign, prob_malicious]
     try:
@@ -98,7 +101,7 @@ def score_threat(input_data: ThreatInput) -> ThreatResponse:
             malicious_prob = probabilities[0][1]
             score = malicious_prob * 100.0
             confidence = max(probabilities[0])
-            
+
         # Check for Isolation Forest / One-Class SVM (predict returns -1 for anomaly)
         elif hasattr(model, "predict"):
             # Use .values to strip feature names and avoid sklearn warning
@@ -106,43 +109,37 @@ def score_threat(input_data: ThreatInput) -> ThreatResponse:
             # IsolationForest: -1 = Anomaly, 1 = Normal
             if pred == -1:
                 score = 85.0  # High threat (generic for anomaly)
-                confidence = 0.85 # Estimated confidence
+                confidence = 0.85  # Estimated confidence
             else:
                 score = 10.0  # Low threat
                 confidence = 0.90
         else:
             raise AttributeError("Model has neither predict_proba nor predict")
-        
+
     except Exception as e:
         logger.error(f"Prediction failed: {e}")
         # Valid model but prediction failed? Return Safe default
         return ThreatResponse(
-            score=0.0,
-            threat_level="LOW",
-            confidence=0.0,
-            decision="ERROR"
+            score=0.0, threat_level="LOW", confidence=0.0, decision="ERROR"
         )
 
     # 4. Construct Response
     response = ThreatResponse(
         score=round(score, 2),
         threat_level=map_score_to_level(score),
-        confidence=round(confidence, 2), 
-        decision=map_score_to_decision(score)
+        confidence=round(confidence, 2),
+        decision=map_score_to_decision(score),
     )
-    
+
     # 5. Populate Cache (1 hour TTL)
     if REDIS_AVAILABLE:
         try:
-            redis_client.setex(
-                event_hash,
-                3600, # 1h TTL
-                response.model_dump_json()
-            )
+            redis_client.setex(event_hash, 3600, response.model_dump_json())  # 1h TTL
         except Exception as e:
             logger.debug(f"Failed to cache prediction: {e}")
-            
+
     return response
+
 
 def score_threat_batch(inputs: List[ThreatInput]) -> List[ThreatResponse]:
     """
@@ -151,18 +148,20 @@ def score_threat_batch(inputs: List[ThreatInput]) -> List[ThreatResponse]:
     """
     if not inputs:
         return []
-        
+
     responses = [None] * len(inputs)
     uncached_indices = []
     uncached_events = []
-    
+
     # 1. Check Cache
     hashes = []
     if REDIS_AVAILABLE:
         for i, inp in enumerate(inputs):
-            event_str = json.dumps(inp.model_dump(exclude={"timestamp"}), sort_keys=True)
+            event_str = json.dumps(
+                inp.model_dump(exclude={"timestamp"}), sort_keys=True
+            )
             hashes.append("pred_cache:" + hashlib.md5(event_str.encode()).hexdigest())
-            
+
         try:
             cached_results = redis_client.mget(hashes)
             for i, result in enumerate(cached_results):
@@ -185,14 +184,16 @@ def score_threat_batch(inputs: List[ThreatInput]) -> List[ThreatResponse]:
     # 2. Extract Features (Batch)
     model = model_loader.load_model()
     if not model:
-        default_resp = ThreatResponse(score=0.0, threat_level="LOW", confidence=0.0, decision="ALLOW")
+        default_resp = ThreatResponse(
+            score=0.0, threat_level="LOW", confidence=0.0, decision="ALLOW"
+        )
         for i in uncached_indices:
             responses[i] = default_resp
         return responses
 
     features_list = [_FEATURE_EXTRACTOR.extract_features(ev) for ev in uncached_events]
     feature_matrix = pd.DataFrame(features_list, columns=FeatureExtractor.FEATURE_NAMES)
-    
+
     # 3. Predict Batch
     try:
         if hasattr(model, "predict_proba"):
@@ -200,17 +201,19 @@ def score_threat_batch(inputs: List[ThreatInput]) -> List[ThreatResponse]:
             malicious_probs = [p[1] for p in probabilities]
             confidences = [max(p) for p in probabilities]
             scores = [p * 100.0 for p in malicious_probs]
-            
+
         elif hasattr(model, "predict"):
             preds = model.predict(feature_matrix.values)
             scores = [85.0 if p == -1 else 10.0 for p in preds]
             confidences = [0.85 if p == -1 else 0.90 for p in preds]
         else:
             raise AttributeError("Model has neither predict_proba nor predict")
-            
+
     except Exception as e:
         logger.error(f"Batch prediction failed: {e}")
-        default_resp = ThreatResponse(score=0.0, threat_level="LOW", confidence=0.0, decision="ERROR")
+        default_resp = ThreatResponse(
+            score=0.0, threat_level="LOW", confidence=0.0, decision="ERROR"
+        )
         for i in uncached_indices:
             responses[i] = default_resp
         return responses
@@ -223,7 +226,7 @@ def score_threat_batch(inputs: List[ThreatInput]) -> List[ThreatResponse]:
             score=round(score, 2),
             threat_level=map_score_to_level(score),
             confidence=round(confidences[idx], 2),
-            decision=map_score_to_decision(score)
+            decision=map_score_to_decision(score),
         )
         responses[i] = resp
         if REDIS_AVAILABLE:

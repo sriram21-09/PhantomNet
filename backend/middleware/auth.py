@@ -1,6 +1,7 @@
 """
 JWT Authentication & RBAC middleware for PhantomNet Admin Panel.
 """
+
 from datetime import datetime, timedelta
 from typing import Optional
 from fastapi import Depends, HTTPException, status
@@ -23,6 +24,7 @@ security = HTTPBearer(auto_error=False)
 
 # ---- Password Hashing (simple SHA256 + salt, no extra deps) ----
 
+
 def hash_password(password: str) -> str:
     salt = os.urandom(16).hex()
     hashed = hashlib.sha256(f"{salt}{password}".encode()).hexdigest()
@@ -39,6 +41,7 @@ def verify_password(password: str, hashed: str) -> bool:
 
 # ---- JWT Token (minimal, no extra deps) ----
 
+
 def _b64_encode(data: bytes) -> str:
     return base64.urlsafe_b64encode(data).rstrip(b"=").decode()
 
@@ -50,12 +53,16 @@ def _b64_decode(s: str) -> bytes:
 
 def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -> str:
     to_encode = data.copy()
-    expire = datetime.utcnow() + (expires_delta or timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES))
+    expire = datetime.utcnow() + (
+        expires_delta or timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    )
     to_encode["exp"] = expire.timestamp()
 
     header = _b64_encode(json.dumps({"alg": ALGORITHM, "typ": "JWT"}).encode())
     payload = _b64_encode(json.dumps(to_encode, default=str).encode())
-    signature = hmac.new(SECRET_KEY.encode(), f"{header}.{payload}".encode(), hashlib.sha256).hexdigest()
+    signature = hmac.new(
+        SECRET_KEY.encode(), f"{header}.{payload}".encode(), hashlib.sha256
+    ).hexdigest()
     return f"{header}.{payload}.{signature}"
 
 
@@ -65,7 +72,9 @@ def decode_token(token: str) -> Optional[dict]:
         if len(parts) != 3:
             return None
         header, payload, signature = parts
-        expected_sig = hmac.new(SECRET_KEY.encode(), f"{header}.{payload}".encode(), hashlib.sha256).hexdigest()
+        expected_sig = hmac.new(
+            SECRET_KEY.encode(), f"{header}.{payload}".encode(), hashlib.sha256
+        ).hexdigest()
         if not hmac.compare_digest(expected_sig, signature):
             return None
         data = json.loads(_b64_decode(payload))
@@ -78,35 +87,50 @@ def decode_token(token: str) -> Optional[dict]:
 
 # ---- FastAPI Dependencies ----
 
+
 async def get_current_user(
     credentials: HTTPAuthorizationCredentials = Depends(security),
     db: Session = Depends(get_db),
 ) -> User:
     if not credentials:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authenticated")
-    
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authenticated"
+        )
+
     token_data = decode_token(credentials.credentials)
     if not token_data:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid or expired token")
-    
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid or expired token"
+        )
+
     user = db.query(User).filter(User.username == token_data.get("sub")).first()
     if not user:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="User not found")
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED, detail="User not found"
+        )
     if user.status != "active":
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Account disabled")
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN, detail="Account disabled"
+        )
     return user
 
 
 def require_role(*roles):
     """Dependency factory: require user has one of the given roles."""
+
     async def _check(user: User = Depends(get_current_user)):
         if user.role not in roles:
-            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=f"Requires role: {', '.join(roles)}")
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail=f"Requires role: {', '.join(roles)}",
+            )
         return user
+
     return _check
 
 
 # ---- Seed Default Admin ----
+
 
 def seed_default_admin(db: Session):
     """Create default admin user if none exists."""

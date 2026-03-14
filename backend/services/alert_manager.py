@@ -8,21 +8,24 @@ from database.models import Alert
 
 logger = logging.getLogger("alert_manager")
 
+
 class AlertManager:
     def __init__(self, deduplication_window: int = 300):
         """
         :param deduplication_window: Time in seconds to ignore duplicate alerts (default 5 mins)
         """
         self.deduplication_window = deduplication_window
-        self._last_alerts: Dict[str, datetime] = {} # Key: "type:source_ip", Value: last_timestamp
+        self._last_alerts: Dict[str, datetime] = (
+            {}
+        )  # Key: "type:source_ip", Value: last_timestamp
 
     def create_alert(
-        self, 
-        level: str, 
-        alert_type: str, 
-        description: str, 
-        source_ip: Optional[str] = None, 
-        details: Optional[Any] = None
+        self,
+        level: str,
+        alert_type: str,
+        description: str,
+        source_ip: Optional[str] = None,
+        details: Optional[Any] = None,
     ):
         """
         Creates and saves a security alert with deduplication logic.
@@ -45,21 +48,26 @@ class AlertManager:
                 description=description,
                 details=details_str,
                 timestamp=datetime.utcnow(),
-                is_resolved=False
+                is_resolved=False,
             )
             db.add(new_alert)
             db.commit()
             db.refresh(new_alert)
-            
+
             # Update last alert cache
             self._update_cache(alert_type, source_ip)
-            
-            logger.info(f"🚨 ALERT [{level}] {alert_type}: {description} (IP: {source_ip})")
+
+            logger.info(
+                f"🚨 ALERT [{level}] {alert_type}: {description} (IP: {source_ip})"
+            )
 
             # TRIGGER AUTOMATED RESPONSE
             try:
                 from .response_executor import response_executor
-                response_executor.execute_response(level, source_ip=source_ip, attack_type=alert_type)
+
+                response_executor.execute_response(
+                    level, source_ip=source_ip, attack_type=alert_type
+                )
             except Exception as e:
                 logger.error(f"Failed to execute automated response: {e}")
 
@@ -77,11 +85,13 @@ class AlertManager:
         """
         if not source_ip:
             return False
-            
+
         key = f"{alert_type}:{source_ip}"
         if key in self._last_alerts:
             last_time = self._last_alerts[key]
-            if datetime.utcnow() - last_time < timedelta(seconds=self.deduplication_window):
+            if datetime.utcnow() - last_time < timedelta(
+                seconds=self.deduplication_window
+            ):
                 return True
         return False
 
@@ -92,6 +102,7 @@ class AlertManager:
         if source_ip:
             key = f"{alert_type}:{source_ip}"
             self._last_alerts[key] = datetime.utcnow()
+
 
 # Singleton instance
 alert_manager = AlertManager()

@@ -6,7 +6,7 @@ from dotenv import load_dotenv
 
 # Setup path
 current_dir = os.path.dirname(os.path.abspath(__file__))
-env_path = os.path.join(current_dir, '.env')
+env_path = os.path.join(current_dir, ".env")
 load_dotenv(env_path)
 
 DATABASE_URL = os.getenv("DATABASE_URL")
@@ -31,9 +31,11 @@ LOG_DIR = os.path.join(current_dir, "logs")
 if os.path.exists(LOG_DIR):
     for filename in os.listdir(LOG_DIR):
         file_path = os.path.join(LOG_DIR, filename)
-        if os.path.isfile(file_path) and (filename.endswith(".jsonl") or filename.endswith(".log")):
+        if os.path.isfile(file_path) and (
+            filename.endswith(".jsonl") or filename.endswith(".log")
+        ):
             try:
-                with open(file_path, 'w') as f:
+                with open(file_path, "w") as f:
                     f.truncate(0)
                 print(f"   - Cleared {filename}")
             except Exception as e:

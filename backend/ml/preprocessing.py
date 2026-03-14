@@ -7,12 +7,13 @@ from backend.ml.feature_extractor import FeatureExtractor
 
 MODEL_DIR = "backend/ml/"
 
+
 class DataPreprocessor:
     def __init__(self):
         self.extractor = FeatureExtractor()
         self.scaler = StandardScaler()
         self.is_fitted = False
-        
+
     def process_and_label(self, raw_logs, labels=None):
         """
         Converts raw logs -> Feature Vectors -> Scaled Matrix.
@@ -22,7 +23,7 @@ class DataPreprocessor:
         # 1. Extract Features (Raw Vectors)
         vectors = []
         valid_labels = []
-        
+
         for i, log in enumerate(raw_logs):
             try:
                 vec = self.extractor.extract_features(log)

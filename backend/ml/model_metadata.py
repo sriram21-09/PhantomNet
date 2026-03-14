@@ -36,16 +36,12 @@ def main():
     # ----------------------
     metadata = {
         "dataset": "week6_test_events.csv",
-        "features": [
-            "payload_length",
-            "honeypot_type",
-            "event_type"
-        ],
+        "features": ["payload_length", "honeypot_type", "event_type"],
         "label": "is_attack",
         "training_week": "Week 7",
         "training_day": "Day 1",
         "framework": "scikit-learn",
-        "model_type": "RandomForestClassifier"
+        "model_type": "RandomForestClassifier",
     }
 
     # ----------------------
@@ -56,7 +52,7 @@ def main():
             name=MODEL_NAME,
             version=latest_version,
             key=key,
-            value=json.dumps(value) if isinstance(value, list) else str(value)
+            value=json.dumps(value) if isinstance(value, list) else str(value),
         )
 
     print("\n--- Metadata & Lineage Recorded ---")

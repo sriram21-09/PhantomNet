@@ -1,12 +1,14 @@
 from locust import HttpUser, task, between
 import random
 
+
 class PhantomNetUser(HttpUser):
     """
     Simulates a PhantomNet SOC Analyst utilizing the dashboard.
     This generates a mix of traffic to various reporting endpoints.
     """
-    # Wait between 0.1 and 1 seconds between tasks, 
+
+    # Wait between 0.1 and 1 seconds between tasks,
     # ensuring high aggressive throughput when 500+ users are spawned.
     wait_time = between(0.1, 1.0)
 
@@ -17,11 +19,14 @@ class PhantomNetUser(HttpUser):
         """
         threat_levels = ["ALL", "MALICIOUS", "SUSPICIOUS", "BENIGN"]
         protocols = ["ALL", "SSH", "HTTP", "SMTP", "FTP"]
-        
+
         threat = random.choice(threat_levels)
         protocol = random.choice(protocols)
-        
-        self.client.get(f"/api/events?threat={threat}&protocol={protocol}&limit=50", name="/api/events")
+
+        self.client.get(
+            f"/api/events?threat={threat}&protocol={protocol}&limit=50",
+            name="/api/events",
+        )
 
     @task(2)
     def fetch_stats(self):
@@ -65,4 +70,6 @@ class PhantomNetUser(HttpUser):
     @task(1)
     def fetch_trends(self):
         days = random.randint(1, 30)
-        self.client.get(f"/api/v1/analytics/trends?days={days}", name="/api/v1/analytics/trends")
+        self.client.get(
+            f"/api/v1/analytics/trends?days={days}", name="/api/v1/analytics/trends"
+        )

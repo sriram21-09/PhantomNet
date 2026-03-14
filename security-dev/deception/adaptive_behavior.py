@@ -1,6 +1,7 @@
 import time
 import random
 
+
 class AdaptiveEngine:
     def __init__(self, profile="Vulnerable"):
         self.profile = profile
@@ -9,20 +10,20 @@ class AdaptiveEngine:
                 "min_delay": 0.05,
                 "max_delay": 0.2,
                 "banner_randomization": True,
-                "response_type": "standard_error"
+                "response_type": "standard_error",
             },
             "Hardened": {
                 "min_delay": 0.5,
                 "max_delay": 2.0,
                 "banner_randomization": False,
-                "response_type": "obfuscated"
+                "response_type": "obfuscated",
             },
             "Interactive": {
                 "min_delay": 0.2,
                 "max_delay": 0.5,
                 "banner_randomization": True,
-                "response_type": "detailed_feedback"
-            }
+                "response_type": "detailed_feedback",
+            },
         }
 
     def set_profile(self, profile):
@@ -47,9 +48,17 @@ class AdaptiveEngine:
 
     def get_spoofed_banner(self, service_type):
         if service_type == "SSH":
-            banners = ["OpenSSH_8.2p1 Ubuntu-4ubuntu0.5", "OpenSSH_7.4", "OpenSSH_8.9p1 Ubuntu-3ubuntu1"]
+            banners = [
+                "OpenSSH_8.2p1 Ubuntu-4ubuntu0.5",
+                "OpenSSH_7.4",
+                "OpenSSH_8.9p1 Ubuntu-3ubuntu1",
+            ]
         elif service_type == "HTTP":
-            banners = ["Apache/2.4.41 (Ubuntu)", "nginx/1.18.0 (Ubuntu)", "Microsoft-IIS/10.0"]
+            banners = [
+                "Apache/2.4.41 (Ubuntu)",
+                "nginx/1.18.0 (Ubuntu)",
+                "Microsoft-IIS/10.0",
+            ]
         elif service_type == "SMTP":
             banners = ["Postfix (Ubuntu)", "Exim 4.93", "Sendmail 8.15.2"]
         else:
@@ -58,6 +67,7 @@ class AdaptiveEngine:
         if self.profiles[self.profile]["banner_randomization"]:
             return random.choice(banners)
         return banners[0]
+
 
 if __name__ == "__main__":
     engine = AdaptiveEngine(profile="Hardened")

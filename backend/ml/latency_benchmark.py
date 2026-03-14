@@ -6,8 +6,6 @@ import mlflow
 import mlflow.sklearn
 from config.mlflow_env import *
 
-
-
 # ======================
 # PATH & MLFLOW SETUP
 # ======================
@@ -26,6 +24,7 @@ FEATURE_COLUMNS = ["payload_length"]
 # ======================
 # MAIN
 # ======================
+
 
 def main():
     print("[LATENCY] Loading dataset...")
@@ -49,7 +48,7 @@ def main():
     runs = client.search_runs(
         experiment_ids=experiment_ids,
         order_by=["attributes.start_time DESC"],
-        max_results=1
+        max_results=1,
     )
 
     if not runs:

@@ -5,23 +5,27 @@ import psycopg2
 # --- CONFIG ---
 # We use the socket path because Mininet isolates the network
 DB_CONFIG = {
-    "dbname": "phantomnet", 
-    "user": "phantom", 
-    "password": "securepass", 
-    "host": "/var/run/postgresql"
+    "dbname": "phantomnet",
+    "user": "phantom",
+    "password": "securepass",
+    "host": "/var/run/postgresql",
 }
+
 
 def log_attack(ip, user, password):
     try:
         conn = psycopg2.connect(**DB_CONFIG)
         cur = conn.cursor()
-        cur.execute("INSERT INTO attack_logs (attacker_ip, target_node, service_type, username, password) VALUES (%s, %s, %s, %s, %s)",
-                    (ip, "h3", "HTTP", user, password))
+        cur.execute(
+            "INSERT INTO attack_logs (attacker_ip, target_node, service_type, username, password) VALUES (%s, %s, %s, %s, %s)",
+            (ip, "h3", "HTTP", user, password),
+        )
         conn.commit()
         conn.close()
         print(f"✅ LOGGED: {user}/{password}")
     except Exception as e:
         print(f"❌ DB ERROR: {e}")
+
 
 class PhishingHandler(BaseHTTPRequestHandler):
     def do_GET(self):
@@ -44,19 +48,20 @@ class PhishingHandler(BaseHTTPRequestHandler):
 
     def do_POST(self):
         # Capture the credentials
-        content_length = int(self.headers['Content-Length'])
-        post_data = self.rfile.read(content_length).decode('utf-8')
+        content_length = int(self.headers["Content-Length"])
+        post_data = self.rfile.read(content_length).decode("utf-8")
         data = urllib.parse.parse_qs(post_data)
-        
-        username = data.get('username', [''])[0]
-        password = data.get('password', [''])[0]
-        
+
+        username = data.get("username", [""])[0]
+        password = data.get("password", [""])[0]
+
         log_attack(self.client_address[0], username, password)
-        
+
         self.send_response(403)
         self.end_headers()
         self.wfile.write(b"ACCESS DENIED. INCIDENT LOGGED.")
 
+
 if __name__ == "__main__":
     print("🕸️ HTTP Trap Active on Port 80...")
-    HTTPServer(('0.0.0.0', 80), PhishingHandler).serve_forever()
+    HTTPServer(("0.0.0.0", 80), PhishingHandler).serve_forever()

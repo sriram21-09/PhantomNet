@@ -27,6 +27,7 @@ SEVERITY_MAP = {
     None: 0,
 }
 
+
 def item_to_json(item: Any, event_type: str) -> Dict[str, Any]:
     if isinstance(item, PacketLog):
         return {
@@ -66,6 +67,7 @@ def item_to_json(item: Any, event_type: str) -> Dict[str, Any]:
         }
     return {}
 
+
 def item_to_cef(item: Any, event_type: str) -> str:
     if isinstance(item, PacketLog):
         severity = SEVERITY_MAP.get(item.threat_level, 0)
@@ -83,7 +85,7 @@ def item_to_cef(item: Any, event_type: str) -> str:
             f"msg={item.event or ''}"
         )
         return f"CEF:0|{CEF_VENDOR}|{CEF_PRODUCT}|{CEF_VERSION}|{sig_id}|{name}|{severity}|{extensions}"
-    
+
     elif isinstance(item, Alert):
         sev_map = {"CRITICAL": 10, "WARNING": 7, "INFO": 3}
         severity = sev_map.get(item.level, 0)
@@ -106,7 +108,7 @@ class SIEMExporter(ABC):
     """
     Abstract base class for all SIEM exporters.
     """
-    
+
     @abstractmethod
     def export_events(self, items: List[Any], event_type: str) -> bool:
         """
@@ -115,6 +117,7 @@ class SIEMExporter(ABC):
         """
         pass
 
+
 # =======================================================================
 # ELK (Logstash HTTP) Exporter
 # =======================================================================
@@ -122,6 +125,7 @@ class ELKExporter(SIEMExporter):
     """
     Ships JSON events to Logstash via HTTP.
     """
+
     def __init__(self, logstash_url: str):
         self.url = logstash_url
         self.headers = {"Content-Type": "application/json"}
@@ -129,10 +133,12 @@ class ELKExporter(SIEMExporter):
     def export_events(self, items: List[Any], event_type: str) -> bool:
         if not items:
             return True
-            
+
         payload = [item_to_json(item, event_type) for item in items]
         try:
-            resp = requests.post(self.url, json=payload, headers=self.headers, timeout=10)
+            resp = requests.post(
+                self.url, json=payload, headers=self.headers, timeout=10
+            )
             if resp.status_code in (200, 201, 202):
                 logger.info(f"✅ Shipped {len(payload)} events to Logstash")
                 return True
@@ -141,6 +147,7 @@ class ELKExporter(SIEMExporter):
             logger.error(f"❌ ELK export failed: {e}")
         return False
 
+
 # =======================================================================
 # CEF Exporter (HTTP via Logstash or similar)
 # =======================================================================
@@ -148,6 +155,7 @@ class CEFExporter(SIEMExporter):
     """
     Ships CEF string events wrapped in JSON to Logstash or an HTTP endpoint.
     """
+
     def __init__(self, target_url: str):
         self.url = target_url
         self.headers = {"Content-Type": "application/json"}
@@ -155,10 +163,12 @@ class CEFExporter(SIEMExporter):
     def export_events(self, items: List[Any], event_type: str) -> bool:
         if not items:
             return True
-            
+
         payload = [{"message": item_to_cef(item, event_type)} for item in items]
         try:
-            resp = requests.post(self.url, json=payload, headers=self.headers, timeout=10)
+            resp = requests.post(
+                self.url, json=payload, headers=self.headers, timeout=10
+            )
             if resp.status_code in (200, 201, 202):
                 logger.info(f"✅ Shipped {len(payload)} CEF events")
                 return True
@@ -167,6 +177,7 @@ class CEFExporter(SIEMExporter):
             logger.error(f"❌ CEF export failed: {e}")
         return False
 
+
 # =======================================================================
 # Syslog Exporter (UDP/TCP)
 # =======================================================================
@@ -174,6 +185,7 @@ class SyslogExporter(SIEMExporter):
     """
     Ships CEF strings over UDP or TCP directly to a Syslog server.
     """
+
     def __init__(self, host: str, port: int, protocol: str = "UDP"):
         self.host = host
         self.port = port
@@ -182,27 +194,30 @@ class SyslogExporter(SIEMExporter):
     def export_events(self, items: List[Any], event_type: str) -> bool:
         if not items:
             return True
-            
+
         try:
-            sock_type = socket.SOCK_DGRAM if self.protocol == "UDP" else socket.SOCK_STREAM
+            sock_type = (
+                socket.SOCK_DGRAM if self.protocol == "UDP" else socket.SOCK_STREAM
+            )
             with socket.socket(socket.AF_INET, sock_type) as sock:
                 # If TCP, connect first
                 if self.protocol == "TCP":
                     sock.settimeout(5.0)
                     sock.connect((self.host, self.port))
-                
+
                 for item in items:
                     cef_str = item_to_cef(item, event_type) + "\n"
                     if self.protocol == "UDP":
                         sock.sendto(cef_str.encode("utf-8"), (self.host, self.port))
                     else:
                         sock.sendall(cef_str.encode("utf-8"))
-            
+
             logger.info(f"✅ Shipped {len(items)} events to Syslog ({self.protocol})")
             return True
         except Exception as e:
             logger.error(f"❌ Syslog export failed: {e}")
             return False
+
 
 # =======================================================================
 # Export Factory
@@ -212,34 +227,39 @@ def get_siem_exporter() -> SIEMExporter:
     Factory method to initialize and return the appropriate SIEMExporter based on env.
     """
     siem_type = os.getenv("SIEM_TYPE", "elk").lower()
-    
+
     if siem_type == "elk" or siem_type == "json":
         logstash_url = os.getenv("LOGSTASH_URL", "http://localhost:5044")
         return ELKExporter(logstash_url)
-        
+
     elif siem_type == "cef":
         # Assumes Logstash or HTTP endpoint accepting {"message": "... CEF string ..."}
         logstash_url = os.getenv("LOGSTASH_URL", "http://localhost:5044")
         return CEFExporter(logstash_url)
-        
+
     elif siem_type == "syslog":
         syslog_host = os.getenv("SYSLOG_HOST", "localhost")
         syslog_port = int(os.getenv("SYSLOG_PORT", "514"))
         syslog_proto = os.getenv("SYSLOG_PROTO", "UDP")
         return SyslogExporter(syslog_host, syslog_port, syslog_proto)
-        
+
     elif siem_type == "splunk":
         # Import dynamically to avoid circular dependencies if SplunkExporter gets complex
         try:
             from services.splunk_exporter import SplunkExporter
-            url = os.getenv("SPLUNK_HEC_URL", "http://localhost:8088/services/collector/event")
+
+            url = os.getenv(
+                "SPLUNK_HEC_URL", "http://localhost:8088/services/collector/event"
+            )
             token = os.getenv("SPLUNK_HEC_TOKEN", "")
             return SplunkExporter(url, token)
         except ImportError as e:
             logger.error(f"Failed to load Splunk Export Module: {e}")
             # Fallback to ELK if Splunk is missing
             return ELKExporter(os.getenv("LOGSTASH_URL", "http://localhost:5044"))
-            
+
     else:
-        logger.warning(f"Unknown SIEM_TYPE '{siem_type}', defaulting to ELK/Logstash JSON.")
+        logger.warning(
+            f"Unknown SIEM_TYPE '{siem_type}', defaulting to ELK/Logstash JSON."
+        )
         return ELKExporter(os.getenv("LOGSTASH_URL", "http://localhost:5044"))

@@ -2,8 +2,8 @@ import mlflow
 from mlflow.tracking import MlflowClient
 from config.mlflow_env import *
 
-
 MODEL_NAME = "PhantomNet_Attack_Detector"
+
 
 def test_model_registered():
     client = MlflowClient()

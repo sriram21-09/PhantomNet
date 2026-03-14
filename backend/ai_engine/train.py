@@ -12,7 +12,8 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from services.feature_extractor import FeatureExtractor
 
 MODEL_PATH = os.path.join(os.path.dirname(__file__), "model_rf.pkl")
-FEATURE_NAMES = ['Duration', 'Internal_Traffic', 'Same_Subnet', 'TCP', 'UDP', 'ICMP']
+FEATURE_NAMES = ["Duration", "Internal_Traffic", "Same_Subnet", "TCP", "UDP", "ICMP"]
+
 
 def generate_fix_data(n_samples=5000):
     extractor = FeatureExtractor()
@@ -20,16 +21,16 @@ def generate_fix_data(n_samples=5000):
     labels = []
 
     print(f"⚡ Generating {n_samples} samples (Heavily weighted for UDP Broadcasts)...")
-    
+
     for _ in range(n_samples):
         # 20% Malicious, 80% Benign (To cure the paranoia)
         is_malicious = np.random.rand() < 0.2
-        
+
         if is_malicious:
             # === REAL ATTACKS ===
             # Attackers usually come from OUTSIDE, or use strange ports
             duration = np.random.uniform(0, 0.5)
-            protocol = 'TCP' # Change malicious to mostly TCP to break UDP bias
+            protocol = "TCP"  # Change malicious to mostly TCP to break UDP bias
             src_ip = "45.33.12.10"
             dst_ip = "192.168.29.154"
             label = 1
@@ -39,36 +40,37 @@ def generate_fix_data(n_samples=5000):
             if np.random.rand() > 0.4:
                 # The exact pattern you see in logs
                 duration = 0.1
-                protocol = 'UDP'
+                protocol = "UDP"
                 src_ip = "192.168.29.154"
-                dst_ip = "192.168.29.255" # Broadcast
+                dst_ip = "192.168.29.255"  # Broadcast
             else:
                 # Normal Web
                 duration = np.random.uniform(0.1, 5.0)
-                protocol = 'TCP'
+                protocol = "TCP"
                 src_ip = "192.168.29.154"
                 dst_ip = "8.8.8.8"
 
             label = 0
 
         # Extract
-        norm_dur = extractor.normalize(duration, 'duration')
+        norm_dur = extractor.normalize(duration, "duration")
         proto_vec = extractor.encode_protocol(protocol)
         ip_vec = extractor.extract_ip_patterns(src_ip, dst_ip)
-        
+
         features = [norm_dur, ip_vec[0], ip_vec[1]] + proto_vec
         data.append(features)
         labels.append(label)
 
     return np.array(data), np.array(labels)
 
+
 def train():
     X, y = generate_fix_data()
-    
+
     # Train
     clf = RandomForestClassifier(n_estimators=100, random_state=42)
     clf.fit(X, y)
-    
+
     # Evaluate
     print("\n📊 Feature Importance (Should see UDP drop in rank):")
     importances = clf.feature_importances_
@@ -78,6 +80,7 @@ def train():
 
     joblib.dump(clf, MODEL_PATH)
     print(f"\n✅ Fixed Model Saved to: {MODEL_PATH}")
+
 
 if __name__ == "__main__":
     train()

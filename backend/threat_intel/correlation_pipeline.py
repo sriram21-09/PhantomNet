@@ -16,9 +16,7 @@ class ThreatCorrelationEngine:
 
 
 if __name__ == "__main__":
-    sample = [
-        {"ioc": "1.1.1.1", "type": "ip", "threat": "malicious"}
-    ]
+    sample = [{"ioc": "1.1.1.1", "type": "ip", "threat": "malicious"}]
 
     engine = ThreatCorrelationEngine()
     print(engine.correlate(sample))

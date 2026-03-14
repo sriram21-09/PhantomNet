@@ -1,11 +1,11 @@
 from sqlalchemy import create_engine, func, text
 from sqlalchemy.orm import sessionmaker
 from database.models import PacketLog
-from dotenv import load_dotenv # <--- NEW IMPORT
+from dotenv import load_dotenv  # <--- NEW IMPORT
 import os
 
 # 1. LOAD ENVIRONMENT VARIABLES (Crucial Fix)
-load_dotenv() 
+load_dotenv()
 
 # 2. Setup Database Connection
 # Now it gets the REAL path from your .env file
@@ -41,11 +41,15 @@ except Exception as e:
 print(f"\n🔍 [TASK 2] Scanning for Anomalies (Nulls & Invalid Data)...")
 
 # Find records with missing IPs or Protocols
-null_records = db.query(PacketLog).filter(
-    (PacketLog.src_ip == None) | 
-    (PacketLog.dst_ip == None) | 
-    (PacketLog.protocol == None)
-).all()
+null_records = (
+    db.query(PacketLog)
+    .filter(
+        (PacketLog.src_ip == None)
+        | (PacketLog.dst_ip == None)
+        | (PacketLog.protocol == None)
+    )
+    .all()
+)
 
 # Find "Time Travelers" (Future timestamps or way in the past)
 invalid_time = db.query(PacketLog).filter(PacketLog.timestamp == None).all()

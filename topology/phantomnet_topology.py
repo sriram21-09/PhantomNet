@@ -32,50 +32,119 @@ from mininet.cli import CLI
 from mininet.log import setLogLevel, info
 from mininet.link import TCLink
 
-
 # ═══════════════════════════════════════════════════════════════════════════
 # Node Definitions
 # ═══════════════════════════════════════════════════════════════════════════
 
 HONEYPOT_NODES = {
     # ── Switch s1 — Primary Honeypots ──
-    "h1":  {"ip": "10.0.0.1/24",  "mac": "00:00:00:00:00:01", "role": "ssh_honeypot",    "switch": "s1"},
-    "h2":  {"ip": "10.0.0.2/24",  "mac": "00:00:00:00:00:02", "role": "http_honeypot",   "switch": "s1"},
-    "h3":  {"ip": "10.0.0.3/24",  "mac": "00:00:00:00:00:03", "role": "smtp_honeypot",   "switch": "s1"},
-    "h4":  {"ip": "10.0.0.4/24",  "mac": "00:00:00:00:00:04", "role": "ftp_honeypot",    "switch": "s1"},
-    "h5":  {"ip": "10.0.0.5/24",  "mac": "00:00:00:00:00:05", "role": "coordinator",     "switch": "s1"},
-    "h6":  {"ip": "10.0.0.6/24",  "mac": "00:00:00:00:00:06", "role": "attacker",        "switch": "s1"},
-
+    "h1": {
+        "ip": "10.0.0.1/24",
+        "mac": "00:00:00:00:00:01",
+        "role": "ssh_honeypot",
+        "switch": "s1",
+    },
+    "h2": {
+        "ip": "10.0.0.2/24",
+        "mac": "00:00:00:00:00:02",
+        "role": "http_honeypot",
+        "switch": "s1",
+    },
+    "h3": {
+        "ip": "10.0.0.3/24",
+        "mac": "00:00:00:00:00:03",
+        "role": "smtp_honeypot",
+        "switch": "s1",
+    },
+    "h4": {
+        "ip": "10.0.0.4/24",
+        "mac": "00:00:00:00:00:04",
+        "role": "ftp_honeypot",
+        "switch": "s1",
+    },
+    "h5": {
+        "ip": "10.0.0.5/24",
+        "mac": "00:00:00:00:00:05",
+        "role": "coordinator",
+        "switch": "s1",
+    },
+    "h6": {
+        "ip": "10.0.0.6/24",
+        "mac": "00:00:00:00:00:06",
+        "role": "attacker",
+        "switch": "s1",
+    },
     # ── Switch s2 — Replica Honeypots ──
-    "h7":  {"ip": "10.0.0.7/24",  "mac": "00:00:00:00:00:07", "role": "ssh_honeypot",    "switch": "s2"},
-    "h8":  {"ip": "10.0.0.8/24",  "mac": "00:00:00:00:00:08", "role": "http_honeypot",   "switch": "s2"},
-    "h9":  {"ip": "10.0.0.9/24",  "mac": "00:00:00:00:00:09", "role": "smtp_honeypot",   "switch": "s2"},
-    "h10": {"ip": "10.0.0.10/24", "mac": "00:00:00:00:00:0a", "role": "ssh_honeypot",    "switch": "s2"},
-    "h11": {"ip": "10.0.0.11/24", "mac": "00:00:00:00:00:0b", "role": "http_honeypot",   "switch": "s2"},
-    "h12": {"ip": "10.0.0.12/24", "mac": "00:00:00:00:00:0c", "role": "smtp_honeypot",   "switch": "s2"},
-    "h13": {"ip": "10.0.0.13/24", "mac": "00:00:00:00:00:0d", "role": "ftp_honeypot",    "switch": "s2"},
-    "h14": {"ip": "10.0.0.14/24", "mac": "00:00:00:00:00:0e", "role": "telnet_honeypot", "switch": "s2"},
+    "h7": {
+        "ip": "10.0.0.7/24",
+        "mac": "00:00:00:00:00:07",
+        "role": "ssh_honeypot",
+        "switch": "s2",
+    },
+    "h8": {
+        "ip": "10.0.0.8/24",
+        "mac": "00:00:00:00:00:08",
+        "role": "http_honeypot",
+        "switch": "s2",
+    },
+    "h9": {
+        "ip": "10.0.0.9/24",
+        "mac": "00:00:00:00:00:09",
+        "role": "smtp_honeypot",
+        "switch": "s2",
+    },
+    "h10": {
+        "ip": "10.0.0.10/24",
+        "mac": "00:00:00:00:00:0a",
+        "role": "ssh_honeypot",
+        "switch": "s2",
+    },
+    "h11": {
+        "ip": "10.0.0.11/24",
+        "mac": "00:00:00:00:00:0b",
+        "role": "http_honeypot",
+        "switch": "s2",
+    },
+    "h12": {
+        "ip": "10.0.0.12/24",
+        "mac": "00:00:00:00:00:0c",
+        "role": "smtp_honeypot",
+        "switch": "s2",
+    },
+    "h13": {
+        "ip": "10.0.0.13/24",
+        "mac": "00:00:00:00:00:0d",
+        "role": "ftp_honeypot",
+        "switch": "s2",
+    },
+    "h14": {
+        "ip": "10.0.0.14/24",
+        "mac": "00:00:00:00:00:0e",
+        "role": "telnet_honeypot",
+        "switch": "s2",
+    },
 }
 
 # Protocol → service port mapping
 SERVICE_PORTS = {
-    "ssh_honeypot":    2222,
-    "http_honeypot":   8080,
-    "smtp_honeypot":   2525,
-    "ftp_honeypot":    2121,
+    "ssh_honeypot": 2222,
+    "http_honeypot": 8080,
+    "smtp_honeypot": 2525,
+    "ftp_honeypot": 2121,
     "telnet_honeypot": 2323,
 }
 
 # Docker resource limits per honeypot container
 RESOURCE_LIMITS = {
-    "cpu_quota":  50000,   # 0.5 CPU (50% of one core)
-    "mem_limit": "512m",   # 512 MB RAM
+    "cpu_quota": 50000,  # 0.5 CPU (50% of one core)
+    "mem_limit": "512m",  # 512 MB RAM
 }
 
 
 # ═══════════════════════════════════════════════════════════════════════════
 # Topology Class
 # ═══════════════════════════════════════════════════════════════════════════
+
 
 class PhantomNetMeshTopo(Topo):
     """
@@ -118,6 +187,7 @@ class PhantomNetMeshTopo(Topo):
 # Port Mirroring
 # ═══════════════════════════════════════════════════════════════════════════
 
+
 def add_traffic_mirror():
     """
     Configure port mirroring on both switches.
@@ -153,10 +223,12 @@ def add_traffic_mirror():
 # Resource Monitoring
 # ═══════════════════════════════════════════════════════════════════════════
 
+
 def print_resource_summary():
     """Print calculated resource requirements for the mesh."""
     honeypot_count = sum(
-        1 for cfg in HONEYPOT_NODES.values()
+        1
+        for cfg in HONEYPOT_NODES.values()
         if cfg["role"] not in ("coordinator", "attacker")
     )
     total_cpu = honeypot_count * 0.5
@@ -180,6 +252,7 @@ def print_resource_summary():
 # ═══════════════════════════════════════════════════════════════════════════
 # Connectivity Test
 # ═══════════════════════════════════════════════════════════════════════════
+
 
 def test_mesh_connectivity(net):
     """
@@ -212,6 +285,7 @@ def test_mesh_connectivity(net):
 # ═══════════════════════════════════════════════════════════════════════════
 # Main Entry Point
 # ═══════════════════════════════════════════════════════════════════════════
+
 
 def run_topology():
     setLogLevel("info")

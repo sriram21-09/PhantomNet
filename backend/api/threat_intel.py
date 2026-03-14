@@ -6,6 +6,7 @@ import logging
 logger = logging.getLogger("api_threat_intel")
 router = APIRouter(prefix="/api/v1/enrich", tags=["Enrichment"])
 
+
 @router.get("/ip/{ip}", response_model=Dict[str, Any])
 async def enrich_ip_endpoint(ip: str):
     """
@@ -17,6 +18,5 @@ async def enrich_ip_endpoint(ip: str):
     except Exception as e:
         logger.error(f"Enrichment endpoint failed for {ip}: {e}")
         raise HTTPException(
-            status_code=500,
-            detail="Enrichment service encountered an internal error."
+            status_code=500, detail="Enrichment service encountered an internal error."
         )

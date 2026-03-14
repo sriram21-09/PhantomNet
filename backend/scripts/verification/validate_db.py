@@ -5,13 +5,11 @@ from sqlalchemy.orm import sessionmaker
 from dotenv import load_dotenv
 from database.models import PacketLog
 
+
 def run_diagnostics():
     load_dotenv()
 
-    DATABASE_URL = os.getenv(
-        "DATABASE_URL",
-        "sqlite:///./phantomnet_ci.db"
-    )
+    DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./phantomnet_ci.db")
 
     print(f"🔌 CONFIG: {DATABASE_URL}")
 
@@ -53,7 +51,7 @@ def run_diagnostics():
             length=0,
             threat_score=0.0,
             is_malicious=False,
-            attack_type="DB_TEST"
+            attack_type="DB_TEST",
         )
         session.add(test_log)
         session.commit()
@@ -74,6 +72,7 @@ def run_diagnostics():
         session.close()
 
     print("\n🏁 DIAGNOSTICS COMPLETE")
+
 
 if __name__ == "__main__":
     run_diagnostics()

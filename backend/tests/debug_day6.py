@@ -10,8 +10,9 @@ DATABASE_URL = "postgresql://postgres:Luckky@phantomnet_postgres:5432/phantomnet
 
 Base = declarative_base()
 
+
 class Event(Base):
-    __tablename__ = 'events'
+    __tablename__ = "events"
     id = Column(Integer, primary_key=True)
     timestamp = Column(DateTime, default=datetime.utcnow)
     source_ip = Column(String)
@@ -19,20 +20,23 @@ class Event(Base):
     port = Column(Integer)
     raw_data = Column(String)
 
+
 def debug_test():
     print("🚀 STARTING DEBUG TEST...")
-    
+
     # 1. Create a dummy log file
     log_filename = "debug_temp.json"
     with open(log_filename, "w") as f:
-        f.write('{"timestamp": "2025-01-01 10:00:00", "src_ip": "9.9.9.9", "honeypot_type": "debug", "port": 80}\n')
+        f.write(
+            '{"timestamp": "2025-01-01 10:00:00", "src_ip": "9.9.9.9", "honeypot_type": "debug", "port": 80}\n'
+        )
 
     try:
         # 2. Connect to Database
         engine = create_engine(DATABASE_URL)
         SessionLocal = sessionmaker(bind=engine)
         db = SessionLocal()
-        
+
         # 3. Count before
         before = db.query(Event).count()
         print(f"📊 Rows Before: {before}")
@@ -46,11 +50,11 @@ def debug_test():
                     source_ip=data.get("src_ip"),
                     honeypot_type="debug",
                     port=80,
-                    raw_data=line
+                    raw_data=line,
                 )
                 db.add(new_event)
-        
-        db.commit() # The magic save button
+
+        db.commit()  # The magic save button
         print("✅ Data Committed.")
 
         # 5. Count after
@@ -67,6 +71,7 @@ def debug_test():
     finally:
         if os.path.exists(log_filename):
             os.remove(log_filename)
+
 
 if __name__ == "__main__":
     debug_test()

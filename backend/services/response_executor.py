@@ -86,8 +86,8 @@ class ResponseExecutor:
         self._initialized = True
 
         self.policy = dict(DEFAULT_POLICY)
-        self.blocked_ips = {}           # ip → {"blocked_at", "expires_at", "reason", "level"}
-        self.response_history = []      # [{timestamp, ip, threat_level, actions, details}]
+        self.blocked_ips = {}  # ip → {"blocked_at", "expires_at", "reason", "level"}
+        self.response_history = []  # [{timestamp, ip, threat_level, actions, details}]
         self.rate_limits = defaultdict(list)  # ip → [timestamps]
         self._lock = threading.Lock()
         self._cleanup_thread = None
@@ -99,8 +99,14 @@ class ResponseExecutor:
     # ──────────────────────────────────────────
     # Core: Execute Response
     # ──────────────────────────────────────────
-    def execute(self, ip: str, threat_score: float, threat_level: str,
-                protocol: str = "UNKNOWN", details: str = "") -> dict:
+    def execute(
+        self,
+        ip: str,
+        threat_score: float,
+        threat_level: str,
+        protocol: str = "UNKNOWN",
+        details: str = "",
+    ) -> dict:
         """
         Execute automated response actions based on threat level.
 
@@ -114,7 +120,11 @@ class ResponseExecutor:
         policy = self.policy.get(threat_level)
 
         if not policy or not policy.get("enabled"):
-            return {"status": "skipped", "reason": "policy_disabled", "level": threat_level}
+            return {
+                "status": "skipped",
+                "reason": "policy_disabled",
+                "level": threat_level,
+            }
 
         actions_taken = []
         action_details = {}
@@ -131,7 +141,9 @@ class ResponseExecutor:
                     actions_taken.append("alert")
 
                 elif action == "rate_limit":
-                    result = self._action_rate_limit(ip, policy.get("rate_limit_rpm", 10))
+                    result = self._action_rate_limit(
+                        ip, policy.get("rate_limit_rpm", 10)
+                    )
                     actions_taken.append("rate_limit")
                     action_details["rate_limited"] = result
 
@@ -171,13 +183,18 @@ class ResponseExecutor:
             if len(self.response_history) > 1000:
                 self.response_history = self.response_history[-1000:]
 
-        return {"status": "executed", "actions": actions_taken, "details": action_details}
+        return {
+            "status": "executed",
+            "actions": actions_taken,
+            "details": action_details,
+        }
 
     # ──────────────────────────────────────────
     # Action: Log
     # ──────────────────────────────────────────
-    def _action_log(self, ip: str, score: float, level: str,
-                    protocol: str, details: str):
+    def _action_log(
+        self, ip: str, score: float, level: str, protocol: str, details: str
+    ):
         """Log the threat event."""
         logger.info(
             f"[RESPONSE] [{level}] IP={ip} Score={score:.1f} "
@@ -193,7 +210,7 @@ class ResponseExecutor:
             "type": "THREAT_RESPONSE",
             "level": level,
             "message": f"Automated response triggered for {ip} "
-                       f"(score: {score:.1f}, protocol: {protocol})",
+            f"(score: {score:.1f}, protocol: {protocol})",
             "timestamp": datetime.utcnow().isoformat(),
         }
         logger.warning(f"[ALERT] {alert['message']}")
@@ -208,16 +225,16 @@ class ResponseExecutor:
 
         with self._lock:
             # Clean old entries
-            self.rate_limits[ip] = [
-                t for t in self.rate_limits[ip] if now - t < window
-            ]
+            self.rate_limits[ip] = [t for t in self.rate_limits[ip] if now - t < window]
             self.rate_limits[ip].append(now)
 
             current_rate = len(self.rate_limits[ip])
             is_limited = current_rate > max_rpm
 
         if is_limited:
-            logger.warning(f"[RATE LIMIT] {ip} exceeded {max_rpm} rpm (current: {current_rate})")
+            logger.warning(
+                f"[RATE LIMIT] {ip} exceeded {max_rpm} rpm (current: {current_rate})"
+            )
 
         return {
             "ip": ip,
@@ -251,7 +268,9 @@ class ResponseExecutor:
             self.blocked_ips[ip] = {
                 "blocked_at": datetime.utcnow().isoformat(),
                 "expires_at": expires_at.isoformat() if expires_at else "permanent",
-                "duration_minutes": duration_minutes if duration_minutes > 0 else "permanent",
+                "duration_minutes": (
+                    duration_minutes if duration_minutes > 0 else "permanent"
+                ),
                 "reason": f"Automated: {level} threat",
                 "level": level,
                 "platform": system,
@@ -287,8 +306,14 @@ class ResponseExecutor:
                 # netsh advfirewall
                 rule_name = f"PhantomNet_AutoBlock_{ip}"
                 cmd = [
-                    "netsh", "advfirewall", "firewall", "add", "rule",
-                    f"name={rule_name}", "dir=in", "action=block",
+                    "netsh",
+                    "advfirewall",
+                    "firewall",
+                    "add",
+                    "rule",
+                    f"name={rule_name}",
+                    "dir=in",
+                    "action=block",
                     f"remoteip={ip}",
                 ]
                 result = subprocess.run(cmd, capture_output=True, text=True, timeout=10)
@@ -298,9 +323,17 @@ class ResponseExecutor:
                     "output": result.stdout or result.stderr,
                 }
             else:
-                return {"command": "none", "success": False, "output": f"Unsupported OS: {system}"}
+                return {
+                    "command": "none",
+                    "success": False,
+                    "output": f"Unsupported OS: {system}",
+                }
         except subprocess.TimeoutExpired:
-            return {"command": "timeout", "success": False, "output": "Command timed out"}
+            return {
+                "command": "timeout",
+                "success": False,
+                "output": "Command timed out",
+            }
         except Exception as e:
             return {"command": "error", "success": False, "output": str(e)}
 
@@ -316,7 +349,14 @@ class ResponseExecutor:
                 subprocess.run(cmd, capture_output=True, text=True, timeout=10)
             elif system == "Windows":
                 rule_name = f"PhantomNet_AutoBlock_{ip}"
-                cmd = ["netsh", "advfirewall", "firewall", "delete", "rule", f"name={rule_name}"]
+                cmd = [
+                    "netsh",
+                    "advfirewall",
+                    "firewall",
+                    "delete",
+                    "rule",
+                    f"name={rule_name}",
+                ]
                 subprocess.run(cmd, capture_output=True, text=True, timeout=10)
         except Exception as e:
             logger.error(f"[UNBLOCK] Failed to unblock {ip}: {e}")
@@ -366,8 +406,7 @@ class ResponseExecutor:
     # ──────────────────────────────────────────
     # Action: Notify Admin
     # ──────────────────────────────────────────
-    def _action_notify_admin(self, ip: str, score: float,
-                             level: str, protocol: str):
+    def _action_notify_admin(self, ip: str, score: float, level: str, protocol: str):
         """Send admin notification for critical threats."""
         notification = {
             "type": "CRITICAL_THREAT",
@@ -447,10 +486,7 @@ class ResponseExecutor:
     # ──────────────────────────────────────────
     def get_blocked_ips(self) -> list:
         """Return list of currently blocked IPs."""
-        return [
-            {"ip": ip, **info}
-            for ip, info in self.blocked_ips.items()
-        ]
+        return [{"ip": ip, **info} for ip, info in self.blocked_ips.items()]
 
     def get_history(self, limit: int = 50) -> list:
         """Return recent response actions."""
