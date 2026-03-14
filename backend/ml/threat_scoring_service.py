@@ -25,13 +25,48 @@ except redis.ConnectionError:
     REDIS_AVAILABLE = False
     logger.warning("Redis not available. Running without prediction cache.")
 
-def map_score_to_level(score: float) -> str:
+def map_score_to_level(score: float, context: ThreatInput = None) -> str:
     """
-    Maps a threat score (0-100) to a categorical level.
+    Maps a threat score (0-100) to a categorical level, applying dynamic
+    threshold adjustments based on context (time of day, interaction type, reputation).
     """
-    if score >= 75:
+    # Baseline thresholds (from ROC optimization)
+    # The actual exact numbers can vary by analysis, but these match recent results roughly
+    # We use 40 for medium, 75 for high, 90 for critical by default
+    low_max = 40.0
+    medium_max = 75.0
+    high_max = 90.0
+
+    if context:
+        # Check source reputation
+        if context.is_malicious:
+            return "CRITICAL"
+            
+        # Contextual adjustment: more sensitive at night (00:00 - 05:00 UTC)
+        if context.timestamp:
+            try:
+                from dateutil import parser
+                dt = parser.parse(context.timestamp)
+                if 0 <= dt.hour <= 5:
+                    medium_max -= 10
+                    high_max -= 10
+            except:
+                pass
+                
+        # Contextual adjustment: High interaction honeypots imply high danger
+        if context.honeypot_type and context.honeypot_type.upper() in ["SSH", "TELNET", "RDP"]:
+            medium_max -= 15
+            high_max -= 15
+
+    # Enforce minimum lower bounds so we don't accidentally class everything critical
+    medium_max = max(20.0, medium_max)
+    high_max = max(50.0, high_max)
+
+    if score > high_max:
+        return "CRITICAL"
+    elif score > medium_max:
         return "HIGH"
-    elif score >= 40:
+    elif score > low_max:
         return "MEDIUM"
     else:
         return "LOW"
@@ -126,7 +161,7 @@ def score_threat(input_data: ThreatInput) -> ThreatResponse:
     # 4. Construct Response
     response = ThreatResponse(
         score=round(score, 2),
-        threat_level=map_score_to_level(score),
+        threat_level=map_score_to_level(score, input_data),
         confidence=round(confidence, 2), 
         decision=map_score_to_decision(score)
     )
@@ -221,7 +256,7 @@ def score_threat_batch(inputs: List[ThreatInput]) -> List[ThreatResponse]:
         score = scores[idx]
         resp = ThreatResponse(
             score=round(score, 2),
-            threat_level=map_score_to_level(score),
+            threat_level=map_score_to_level(score, inputs[i]),
             confidence=round(confidences[idx], 2),
             decision=map_score_to_decision(score)
         )
