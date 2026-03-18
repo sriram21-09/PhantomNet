@@ -1,0 +1,82 @@
+============================= test session starts =============================
+platform win32 -- Python 3.14.0, pytest-9.0.2, pluggy-1.6.0 -- C:\Users\shalo\AppData\Local\Programs\Python\Python314\python.exe
+cachedir: .pytest_cache
+rootdir: C:\Users\shalo\PhantomNet
+plugins: anyio-4.12.0, locust-2.43.3, cov-7.0.0
+collecting ... collected 7 items
+
+tests/ml/test_feature_engineering_complete.py::test_extract_all_32_features PASSED [ 14%]
+tests/ml/test_feature_engineering_complete.py::test_session_based_features PASSED [ 28%]
+tests/ml/test_feature_engineering_complete.py::test_behavioral_features PASSED [ 42%]
+tests/ml/test_feature_engineering_complete.py::test_feature_normalization PASSED [ 57%]
+tests/ml/test_feature_engineering_complete.py::test_feature_extraction_performance PASSED [ 71%]
+tests/ml/test_feature_engineering_complete.py::test_feature_consistency PASSED [ 85%]
+tests/ml/test_feature_engineering_complete.py::test_edge_cases FAILED    [100%]
+
+================================== FAILURES ===================================
+_______________________________ test_edge_cases _______________________________
+
+    def test_edge_cases():
+        extractor = CompleteFeatureExtractor()
+        # Missing fields, weird types
+        event = {
+            "src_ip": None,
+            "timestamp": "invalid-timestamp",
+            "length": "not-an-int",
+            "dst_port": None,
+            "threat_score": "high", # invalid type
+            "is_malicious": "yes" # invalid type
+        }
+        try:
+>           features = extractor.extract_features(event)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\ml\test_feature_engineering_complete.py:118: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+backend\ml\feature_engineering_complete.py:51: in extract_features
+    base_features = self.base_extractor.extract_features(event)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <backend.ml.feature_extractor.FeatureExtractor object at 0x000001F2AAE4E7A0>
+event = {'dst_port': None, 'is_malicious': 'yes', 'length': 'not-an-int', 'src_ip': None, ...}
+
+    def extract_features(self, event: dict) -> Dict[str, float]:
+        src_ip = event.get("src_ip", "0.0.0.0")
+        timestamp = self._parse_timestamp(event.get("timestamp"))
+    
+        # Track state
+        self.ip_event_timestamps[src_ip].append(timestamp)
+>       self.ip_packet_lengths[src_ip].append(int(event.get("length", 0)))
+                                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       ValueError: invalid literal for int() with base 10: 'not-an-int'
+
+backend\ml\feature_extractor.py:62: ValueError
+
+During handling of the above exception, another exception occurred:
+
+    def test_edge_cases():
+        extractor = CompleteFeatureExtractor()
+        # Missing fields, weird types
+        event = {
+            "src_ip": None,
+            "timestamp": "invalid-timestamp",
+            "length": "not-an-int",
+            "dst_port": None,
+            "threat_score": "high", # invalid type
+            "is_malicious": "yes" # invalid type
+        }
+        try:
+            features = extractor.extract_features(event)
+            for k, v in features.items():
+                assert isinstance(v, float), f"Expected float for {k}, got {type(v)}"
+                assert not math.isnan(v)
+                assert not math.isinf(v)
+        except Exception as e:
+>           pytest.fail(f"Failed to handle edge case event: {e}")
+E           Failed: Failed to handle edge case event: invalid literal for int() with base 10: 'not-an-int'
+
+tests\ml\test_feature_engineering_complete.py:124: Failed
+=========================== short test summary info ===========================
+FAILED tests/ml/test_feature_engineering_complete.py::test_edge_cases - Faile...
+========================= 1 failed, 6 passed in 0.66s =========================

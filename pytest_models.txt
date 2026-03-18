@@ -1,0 +1,63 @@
+﻿============================= test session starts =============================
+platform win32 -- Python 3.14.0, pytest-9.0.2, pluggy-1.6.0 -- C:\Users\shalo\AppData\Local\Programs\Python\Python314\python.exe
+cachedir: .pytest_cache
+rootdir: C:\Users\shalo\PhantomNet
+plugins: anyio-4.12.0, locust-2.43.3, cov-7.0.0
+collecting ... collected 12 items
+
+tests/ml/test_models_complete.py::TestRandomForest::test_model_loads_correctly PASSED [  8%]
+tests/ml/test_models_complete.py::TestRandomForest::test_accuracy_target PASSED [ 16%]
+tests/ml/test_models_complete.py::TestRandomForest::test_precision_recall PASSED [ 25%]
+tests/ml/test_models_complete.py::TestRandomForest::test_inference_performance PASSED [ 33%]
+tests/ml/test_models_complete.py::TestRandomForest::test_predicts_all_expected_classes PASSED [ 41%]
+tests/ml/test_models_complete.py::TestRandomForest::test_probability_outputs PASSED [ 50%]
+tests/ml/test_models_complete.py::TestRandomForest::test_feature_importance PASSED [ 58%]
+tests/ml/test_models_complete.py::TestIsolationForest::test_predictions_anomaly_scores PASSED [ 66%]
+tests/ml/test_models_complete.py::TestIsolationForest::test_inference_performance PASSED [ 75%]
+tests/ml/test_models_complete.py::TestModelRegistry::test_registry_exists_and_metadata FAILED [ 83%]
+tests/ml/test_models_complete.py::TestModelRegistry::test_rollback_capability FAILED [ 91%]
+tests/ml/test_models_complete.py::test_cross_validation PASSED           [100%]
+
+================================== FAILURES ===================================
+_____________ TestModelRegistry.test_registry_exists_and_metadata _____________
+..\AppData\Local\Programs\Python\Python314\Lib\unittest\mock.py:1429: in patched
+    with self.decoration_helper(patched,
+..\AppData\Local\Programs\Python\Python314\Lib\contextlib.py:141: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+..\AppData\Local\Programs\Python\Python314\Lib\unittest\mock.py:1411: in decoration_helper
+    arg = exit_stack.enter_context(patching)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\AppData\Local\Programs\Python\Python314\Lib\contextlib.py:530: in enter_context
+    result = _enter(cm)
+             ^^^^^^^^^^
+..\AppData\Local\Programs\Python\Python314\Lib\unittest\mock.py:1487: in __enter__
+    self.target = self.getter()
+                  ^^^^^^^^^^^^^
+..\AppData\Local\Programs\Python\Python314\Lib\pkgutil.py:473: in resolve_name
+    result = getattr(result, p)
+             ^^^^^^^^^^^^^^^^^^
+E   AttributeError: module 'backend.ml' has no attribute 'model_registry'
+_________________ TestModelRegistry.test_rollback_capability __________________
+..\AppData\Local\Programs\Python\Python314\Lib\unittest\mock.py:1429: in patched
+    with self.decoration_helper(patched,
+..\AppData\Local\Programs\Python\Python314\Lib\contextlib.py:141: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+..\AppData\Local\Programs\Python\Python314\Lib\unittest\mock.py:1411: in decoration_helper
+    arg = exit_stack.enter_context(patching)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\AppData\Local\Programs\Python\Python314\Lib\contextlib.py:530: in enter_context
+    result = _enter(cm)
+             ^^^^^^^^^^
+..\AppData\Local\Programs\Python\Python314\Lib\unittest\mock.py:1487: in __enter__
+    self.target = self.getter()
+                  ^^^^^^^^^^^^^
+..\AppData\Local\Programs\Python\Python314\Lib\pkgutil.py:473: in resolve_name
+    result = getattr(result, p)
+             ^^^^^^^^^^^^^^^^^^
+E   AttributeError: module 'backend.ml' has no attribute 'model_loader'
+=========================== short test summary info ===========================
+FAILED tests/ml/test_models_complete.py::TestModelRegistry::test_registry_exists_and_metadata
+FAILED tests/ml/test_models_complete.py::TestModelRegistry::test_rollback_capability
+======================== 2 failed, 10 passed in 10.44s ========================

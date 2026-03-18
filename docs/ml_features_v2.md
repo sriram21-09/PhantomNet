@@ -1,7 +1,7 @@
 # PhantomNet ML Features v2 — Complete Feature Documentation
 
 **Project:** PhantomNet  
-**Total Features:** 15  
+**Total Features:** 32  
 **Date:** March 11, 2026  
 **Source of Truth:** `docs/FEATURE_EXTRACTION_SPEC_FINAL.md`
 
@@ -139,6 +139,37 @@ Based on model evaluation across the Isolation Forest and Random Forest classifi
 - **Normal Range:** -2 to 2
 - **Anomalous Range:** <-2 or >2
 - **Rationale:** Aggregate statistical measure that captures extreme outliers across the feature distribution.
+
+### 16-27. Behavioral & Additional V2 Features
+Included from `FeatureExtractorV2`. These include: `command_count`, `avg_command_length`, `shell_escape_count`, `directory_traversal_count`, `failed_login_count`, `payload_entropy`, `interaction_interval_var`, `persistence_score`, `ua_diversity`, `lateral_movement_index`, `sensitive_file_count`, and `payload_to_cmd_ratio`.
+
+### 28-32. Complete Pipeline Features
+The `CompleteFeatureExtractor` introduces 5 additional features to reach a total of 32:
+
+#### 28. `unique_port_count`
+- **Source:** `packet_logs.dst_port`
+- **Type:** Integer
+- **Description:** Count of unique destination ports targeted by the source IP.
+
+#### 29. `average_payload_size`
+- **Source:** `packet_logs.raw_data`
+- **Type:** Float
+- **Description:** Average payload size in bytes sent by the source IP.
+
+#### 30. `error_rate`
+- **Source:** `packet_logs` (event type or status code)
+- **Type:** Float
+- **Description:** Ratio of error responses/events to total events for a source IP.
+
+#### 31. `auth_failure_ratio`
+- **Source:** `packet_logs` (failed login events)
+- **Type:** Float
+- **Description:** Ratio of failed logins to total events.
+
+#### 32. `request_velocity`
+- **Source:** `packet_logs`
+- **Type:** Float
+- **Description:** Event count divided by total session duration in seconds.
 
 ---
 
