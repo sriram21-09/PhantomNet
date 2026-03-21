@@ -2,7 +2,7 @@ import mlflow
 import os
 import joblib
 from pathlib import Path
-from ml.config.mlflow_env import TRACKING_URI, MODEL_NAME
+from backend.ml.config.mlflow_env import TRACKING_URI, MODEL_NAME
 
 # Singleton instance
 _MODEL = None

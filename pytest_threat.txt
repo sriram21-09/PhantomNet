@@ -1,0 +1,24 @@
+﻿============================= test session starts =============================
+platform win32 -- Python 3.14.0, pytest-9.0.2, pluggy-1.6.0 -- C:\Users\shalo\AppData\Local\Programs\Python\Python314\python.exe
+cachedir: .pytest_cache
+rootdir: C:\Users\shalo\PhantomNet
+plugins: anyio-4.12.0, locust-2.43.3, cov-7.0.0
+collecting ... collected 0 items / 1 error
+
+=================================== ERRORS ====================================
+______________ ERROR collecting tests/ml/test_threat_scoring.py _______________
+ImportError while importing test module 'C:\Users\shalo\PhantomNet\tests\ml\test_threat_scoring.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+..\AppData\Local\Programs\Python\Python314\Lib\importlib\__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\ml\test_threat_scoring.py:3: in <module>
+    from backend.ml.threat_scoring_service import map_score_to_level, map_score_to_decision
+backend\ml\threat_scoring_service.py:6: in <module>
+    from schemas.threat_schema import ThreatInput, ThreatResponse
+E   ModuleNotFoundError: No module named 'schemas'
+=========================== short test summary info ===========================
+ERROR tests/ml/test_threat_scoring.py
+!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!
+============================== 1 error in 1.94s ===============================
