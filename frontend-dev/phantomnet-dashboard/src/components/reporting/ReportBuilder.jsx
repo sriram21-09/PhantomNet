@@ -17,7 +17,7 @@ import { exportToExcel } from '../../utils/exportExcel';
 import { exportToCSV, exportToJSON } from '../../utils/exportUtils';
 import './ReportBuilder.css';
 
-const API_BASE = 'http://localhost:8000/api/v1/reports';
+const API_BASE = '/api/v1/reports';
 
 const ALL_SECTIONS = [
     "Executive Summary",

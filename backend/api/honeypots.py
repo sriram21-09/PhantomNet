@@ -21,26 +21,26 @@ def get_honeypot_status():
     """
     return [
         {
-            "name": "SSH Honeypot",
-            "port": 22,
+            "name": "SSH",
+            "port": 2222,
             "status": "active",
             "last_seen": datetime.utcnow().isoformat(),
         },
         {
-            "name": "HTTP Honeypot",
-            "port": 80,
+            "name": "HTTP",
+            "port": 8080,
             "status": "active",
             "last_seen": datetime.utcnow().isoformat(),
         },
         {
-            "name": "FTP Honeypot",
-            "port": 21,
-            "status": "inactive",
-            "last_seen": None,
+            "name": "FTP",
+            "port": 2121,
+            "status": "active",
+            "last_seen": datetime.utcnow().isoformat(),
         },
         {
-            "name": "SMTP Honeypot",
-            "port": 25,
+            "name": "SMTP",
+            "port": 2525,
             "status": "active",
             "last_seen": datetime.utcnow().isoformat(),
         },

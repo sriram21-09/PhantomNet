@@ -12,7 +12,7 @@ import {
 } from "react-icons/fa";
 import "../Styles/pages/ThreatAnalysis.css";
 
-const API = "http://localhost:8000";
+const API = "";
 
 const ThreatAnalysis = () => {
   const [summary, setSummary] = useState({ active: 0, high: 0, medium: 0, low: 0 });
@@ -31,55 +31,67 @@ const ThreatAnalysis = () => {
         fetch(`${API}/api/stats`).then(r => r.ok ? r.json() : null).catch(() => null),
       ]);
 
-      // Process events into threat table
-      if (eventsRes) {
-        const events = eventsRes.events || eventsRes.data || eventsRes || [];
-        const evArr = Array.isArray(events) ? events : [];
+      // /api/events returns: [{ time, ip, type, port, threat, details }, ...]
+      const evArr = Array.isArray(eventsRes) ? eventsRes : [];
 
-        const threats = evArr
-          .filter(e => e.threat_score > 0 || e.threat_level)
-          .slice(0, 8)
-          .map(e => ({
-            time: e.timestamp ? new Date(e.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : "--:--",
-            ip: e.src_ip || "Unknown",
-            type: e.attack_type || e.protocol || "Unknown",
-            score: Math.round(e.threat_score || 0),
-            severity: e.threat_level === "HIGH" ? "High" : e.threat_level === "MEDIUM" ? "Medium" : "Low",
-          }));
+      // Derive numeric score from threat string
+      const scoreFromThreat = (t) => {
+        const u = (t || "").toUpperCase();
+        if (u === "MALICIOUS") return 85;
+        if (u === "SUSPICIOUS") return 55;
+        return 15;
+      };
+      const severityFromThreat = (t) => {
+        const u = (t || "").toUpperCase();
+        if (u === "MALICIOUS") return "High";
+        if (u === "SUSPICIOUS") return "Medium";
+        return "Low";
+      };
 
-        if (threats.length > 0) setRecentThreats(threats);
+      // Build recent threats table
+      const threats = evArr.slice(0, 8).map(e => ({
+        time: e.time ? new Date(e.time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : "--:--",
+        ip: e.ip || "Unknown",
+        type: e.threat || e.type || "Unknown",
+        score: scoreFromThreat(e.threat),
+        severity: severityFromThreat(e.threat),
+      }));
+      if (threats.length > 0) setRecentThreats(threats);
 
-        // Build summary from events
-        let high = 0, medium = 0, low = 0;
-        evArr.forEach(e => {
-          const level = (e.threat_level || "").toUpperCase();
-          if (level === "HIGH") high++;
-          else if (level === "MEDIUM") medium++;
-          else low++;
-        });
+      // Build summary counts
+      let high = 0, medium = 0, low = 0;
+      evArr.forEach(e => {
+        const s = scoreFromThreat(e.threat);
+        if (s >= 80) high++;
+        else if (s >= 40) medium++;
+        else low++;
+      });
+
+      // Fall back to /api/stats for totals if no events returned
+      if (evArr.length > 0) {
         setSummary({ active: evArr.length, high, medium, low });
+      } else if (statsRes) {
+        setSummary({
+          active: statsRes.totalEvents || 0,
+          high: statsRes.criticalAlerts || 0,
+          medium: 0,
+          low: Math.max(0, (statsRes.totalEvents || 0) - (statsRes.criticalAlerts || 0)),
+        });
       }
 
-      // Build live alerts from high-threat events
-      if (eventsRes) {
-        const events = eventsRes.events || eventsRes.data || eventsRes || [];
-        const evArr = Array.isArray(events) ? events : [];
-
-        const alerts = evArr
-          .filter(e => e.threat_score >= 30)
-          .slice(0, 6)
-          .map(e => {
-            const level = (e.threat_level || "LOW").toUpperCase();
-            const severity = level === "HIGH" ? "high" : level === "MEDIUM" ? "medium" : "low";
-            return {
-              severity,
-              icon: alertIcons[severity] || FaWifi,
-              message: `${level}: ${e.attack_type || e.protocol || "Suspicious"} activity from ${e.src_ip || "unknown"} (score: ${Math.round(e.threat_score || 0)})`,
-            };
-          });
-
-        if (alerts.length > 0) setLiveAlerts(alerts);
-      }
+      // Build live alerts from non-benign events
+      const alerts = evArr
+        .filter(e => (e.threat || "").toUpperCase() !== "BENIGN")
+        .slice(0, 6)
+        .map(e => {
+          const severity = severityFromThreat(e.threat).toLowerCase();
+          return {
+            severity,
+            icon: alertIcons[severity] || FaWifi,
+            message: `${(e.threat || "TRAFFIC").toUpperCase()}: ${e.type || "Activity"} from ${e.ip || "unknown"} — ${e.details || ""}`.trim(),
+          };
+        });
+      if (alerts.length > 0) setLiveAlerts(alerts);
 
       setLastUpdated(new Date());
       setLoading(false);

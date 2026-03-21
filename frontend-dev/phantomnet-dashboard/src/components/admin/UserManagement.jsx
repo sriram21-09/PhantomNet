@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Users, Plus, Edit, Trash2, X, CheckCircle, XCircle, Search } from 'lucide-react';
 
-const API_BASE = 'http://localhost:8000/api/v1/admin';
+const API_BASE = '/api/v1/admin';
 
 const UserManagement = () => {
     const [users, setUsers] = useState([]);

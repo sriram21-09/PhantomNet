@@ -160,11 +160,17 @@ async def broadcast_live_metrics() -> None:
             # Enrich with Honeypot Statuses
             stats["honeypots"] = get_honeypot_status()
 
-            # Enrich with system health
+            # Enrich with system health (use os.getcwd() for Windows compatibility)
+            try:
+                disk_path = os.path.splitdrive(os.getcwd())[0] + "\\" or "/"
+                disk_percent = psutil.disk_usage(disk_path).percent
+            except Exception:
+                disk_percent = 0
+
             stats["system_health"] = {
                 "cpu": psutil.cpu_percent(),
                 "memory": psutil.virtual_memory().percent,
-                "disk": psutil.disk_usage("/").percent,
+                "disk": disk_percent,
             }
 
             # Enrich with ML Status (Mock/Placeholder for now as requested)
@@ -185,7 +191,7 @@ async def broadcast_live_metrics() -> None:
             stats["events_per_minute"] = round(epm_count / 5, 1)
 
             await push_realtime_event("LIVE_METRICS", stats)
-        except (AttributeError, KeyError, RuntimeError, socket.error) as e:
+        except Exception as e:
             print(f"Error in metrics broadcast loop: {e}")
         finally:
             if "db" in locals():
@@ -250,7 +256,12 @@ app = FastAPI(
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "http://127.0.0.1:3000"],
+    allow_origins=[
+        "http://localhost:3000",
+        "http://127.0.0.1:3000",
+        "http://localhost:5173",
+        "http://127.0.0.1:5173",
+    ],
     allow_credentials=True,
     allow_methods=["GET", "POST", "PUT", "DELETE"],
     allow_headers=["*"],

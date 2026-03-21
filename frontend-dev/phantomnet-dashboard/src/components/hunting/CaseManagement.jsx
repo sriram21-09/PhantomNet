@@ -7,7 +7,7 @@ import {
 } from 'lucide-react';
 import './CaseManagement.css';
 
-const API_BASE = 'http://localhost:8000/api/v1';
+const API_BASE = '/api/v1';
 
 const PRIORITY_COLORS = {
     Critical: '#ef4444', High: '#f97316', Medium: '#eab308', Low: '#22c55e'

@@ -93,6 +93,15 @@ const PredictiveAnalytics = () => {
         return { ...target, confidence };
     }, [events]);
 
+    // Trend direction — must be declared before any early return (Rules of Hooks)
+    const trendDirection = useMemo(() => {
+        if (!metrics) return 'STABLE';
+        const score = metrics.avgThreatScore || 0;
+        if (score > 60) return 'RISING';
+        if (score < 25) return 'FALLING';
+        return 'STABLE';
+    }, [metrics]);
+
     if (!metrics) {
         return (
             <div className="predictive-container">
@@ -112,15 +121,6 @@ const PredictiveAnalytics = () => {
     };
 
     const risk = getRiskLevel(metrics?.avgThreatScore || 0);
-
-    // Trend direction
-    const trendDirection = useMemo(() => {
-        if (!metrics) return 'STABLE';
-        const score = metrics.avgThreatScore || 0;
-        if (score > 60) return 'RISING';
-        if (score < 25) return 'FALLING';
-        return 'STABLE';
-    }, [metrics]);
 
     const TrendIcon = trendDirection === 'RISING' ? TrendingUp : trendDirection === 'FALLING' ? TrendingDown : Minus;
 

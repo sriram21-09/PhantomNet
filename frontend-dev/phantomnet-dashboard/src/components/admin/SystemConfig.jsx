@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Settings, Save, RotateCcw, CheckCircle, XCircle, Shield, Server, BarChart3, Cpu } from 'lucide-react';
 
-const API_BASE = 'http://localhost:8000/api/v1/admin';
+const API_BASE = '/api/v1/admin';
 
 const CONFIG_SCHEMA = {
     threat_detection: {

@@ -168,8 +168,7 @@ const NetworkTopology = () => {
     // ── WebSocket ────────────────────────────
     const connectWS = useCallback(() => {
         const proto = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-        const isLocal = ['localhost', '127.0.0.1', '[::1]'].includes(window.location.hostname);
-        const host = isLocal ? '127.0.0.1:8000' : window.location.host;
+        const host = window.location.host;
         ws.current = new WebSocket(`${proto}//${host}/api/v1/topology/ws`);
 
         ws.current.onopen = () => setIsConnected(true);

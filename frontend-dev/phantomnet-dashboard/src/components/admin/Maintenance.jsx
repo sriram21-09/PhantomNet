@@ -1,7 +1,7 @@
 import React, { useState, useCallback } from 'react';
 import { Database, Download, Upload, Zap, Trash2, CheckCircle, XCircle, Clock, HardDrive, TriangleAlert } from 'lucide-react';
 
-const API_BASE = 'http://localhost:8000/api/v1/admin';
+const API_BASE = '/api/v1/admin';
 
 const Maintenance = () => {
     const [backups, setBackups] = useState([]);

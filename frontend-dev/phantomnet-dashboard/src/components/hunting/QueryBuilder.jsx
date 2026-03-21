@@ -107,7 +107,7 @@ const QueryBuilder = ({ onSearch, loading }) => {
 
     const fetchHistory = async () => {
         try {
-            const response = await axios.get('http://localhost:8000/api/v1/hunting/history');
+            const response = await axios.get('/api/v1/hunting/history');
             setHistory(response.data || []);
         } catch (err) {
             // graceful — history is non-critical

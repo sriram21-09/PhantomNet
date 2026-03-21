@@ -11,7 +11,7 @@ import { exportToCSV, exportToJSON } from '../utils/exportUtils';
 import { generatePDF } from '../utils/exportPDF';
 import './ThreatHunting.css';
 
-const API_BASE = 'http://localhost:8000/api/v1';
+const API_BASE = '/api/v1';
 
 const ThreatHunting = () => {
     const [results, setResults] = useState([]);

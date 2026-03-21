@@ -5,7 +5,7 @@ import SystemConfig from '../components/admin/SystemConfig';
 import Maintenance from '../components/admin/Maintenance';
 import '../Styles/pages/AdminPanel.css';
 
-const API_BASE = 'http://localhost:8000/api/v1/admin';
+const API_BASE = '/api/v1/admin';
 
 // Admin-only route guard
 const AdminGuard = ({ children }) => {

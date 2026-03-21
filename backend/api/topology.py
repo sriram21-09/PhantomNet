@@ -63,7 +63,7 @@ async def topology_ws_endpoint(websocket: WebSocket):
                     "id": hp_id,
                     "type": "honeypot",
                     "position": {"x": 200 + (idx * 200), "y": 250},
-                    "data": {"label": hp["name"], "port": hp["port"]},
+                    "data": {"label": hp["name"], "port": hp["port"], "status": hp["status"]},
                 }
             )
             edges.append(

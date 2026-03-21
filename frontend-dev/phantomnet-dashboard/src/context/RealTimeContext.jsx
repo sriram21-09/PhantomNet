@@ -12,9 +12,7 @@ export const RealTimeProvider = ({ children }) => {
 
     const connect = useCallback(() => {
         const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-        const host = window.location.hostname;
-        const port = '8000';
-        const wsUrl = `${protocol}//${host}:${port}/api/v1/realtime/ws`;
+        const wsUrl = `${protocol}//${window.location.host}/api/v1/realtime/ws`;
 
         try {
             ws.current = new WebSocket(wsUrl);

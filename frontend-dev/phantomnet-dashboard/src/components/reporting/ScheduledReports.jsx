@@ -12,7 +12,7 @@ import {
 } from 'lucide-react';
 import './ScheduledReports.css';
 
-const API_BASE = 'http://localhost:8000/api/v1/reports';
+const API_BASE = '/api/v1/reports';
 
 const ScheduledReports = () => {
     const [schedules, setSchedules] = useState([]);
