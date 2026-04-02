@@ -1,7 +1,7 @@
 import math
 from typing import Dict
-from backend.ml.feature_extractor import FeatureExtractor
-from backend.ml.feature_engineering_v2 import FeatureExtractorV2
+from ml.feature_extractor import FeatureExtractor
+from ml.feature_engineering_v2 import FeatureExtractorV2
 
 class CompleteFeatureExtractor:
     """

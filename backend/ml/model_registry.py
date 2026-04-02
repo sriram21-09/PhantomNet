@@ -1,7 +1,7 @@
 import mlflow
 from mlflow.tracking import MlflowClient
 from pathlib import Path
-from backend.ml.config.mlflow_env import *
+from ml.config.mlflow_env import *
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 MLRUNS_PATH = PROJECT_ROOT / "mlruns"

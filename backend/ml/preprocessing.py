@@ -3,7 +3,7 @@ import pandas as pd
 import joblib
 import os
 from sklearn.preprocessing import StandardScaler, MinMaxScaler
-from backend.ml.feature_extractor import FeatureExtractor
+from ml.feature_extractor import FeatureExtractor
 
 MODEL_DIR = "backend/ml/"
 
