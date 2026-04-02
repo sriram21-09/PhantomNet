@@ -13,7 +13,6 @@
     "@radix-ui/react-slot": "^1.2.4",
     "@xyflow/react": "^12.10.1",
     "axios": "^1.13.2",
-    "build": "^0.1.4",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "html-to-image": "^1.11.13",
@@ -25,7 +24,6 @@
     "react-leaflet": "^5.0.0",
     "react-router-dom": "^7.10.1",
     "recharts": "^3.7.0",
-    "run": "^1.5.0",
     "tailwind-merge": "^3.4.0"
   },
   "devDependencies": {

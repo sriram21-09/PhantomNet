@@ -3,9 +3,9 @@ import logging
 import hashlib
 import json
 import redis
-from backend.schemas.threat_schema import ThreatInput, ThreatResponse
-import backend.ml.model_loader as model_loader
-from backend.ml.feature_extractor import FeatureExtractor
+from schemas.threat_schema import ThreatInput, ThreatResponse
+import ml.model_loader as model_loader
+from ml.feature_extractor import FeatureExtractor
 from typing import List
 
 # Setup Logger

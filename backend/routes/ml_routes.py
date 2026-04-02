@@ -2,7 +2,7 @@ from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 from typing import List, Dict, Any
 import time
-from backend.ml.preprocessing import DataPreprocessor
+from ml.preprocessing import DataPreprocessor
 
 router = APIRouter()
 preprocessor = DataPreprocessor()
