@@ -3,8 +3,8 @@ import time
 import numpy as np
 import pandas as pd
 from unittest.mock import patch, MagicMock
-import backend.ml.model_registry
-import backend.ml.model_loader
+import ml.model_registry
+import ml.model_loader
 from sklearn.ensemble import RandomForestClassifier, IsolationForest
 from sklearn.datasets import make_classification
 from sklearn.model_selection import cross_val_score, train_test_split
@@ -100,11 +100,11 @@ class TestIsolationForest:
         assert avg_time_ms < 30.0
 
 class TestModelRegistry:
-    @patch('backend.ml.model_registry.MlflowClient')
-    @patch('backend.ml.model_registry.mlflow')
+    @patch('ml.model_registry.MlflowClient')
+    @patch('ml.model_registry.mlflow')
     def test_registry_exists_and_metadata(self, mock_mlflow, mock_client):
         # We verify that model registry script exist and has logic
-        from backend.ml.model_registry import main, MODEL_NAME
+        from ml.model_registry import main, MODEL_NAME
         assert MODEL_NAME == "PhantomNet_Attack_Detector"
         # Mock client behavior
         mock_instance = MagicMock()
@@ -123,11 +123,11 @@ class TestModelRegistry:
             model_uri="runs:/12345/model", name="PhantomNet_Attack_Detector"
         )
 
-    @patch('backend.ml.model_loader.mlflow')
+    @patch('ml.model_loader.mlflow')
     def test_rollback_capability(self, mock_mlflow):
         # Test rollback basically tests version loading
-        from backend.ml.model_loader import load_model, _MODEL
-        import backend.ml.model_loader as loader
+        from ml.model_loader import load_model, _MODEL
+        import ml.model_loader as loader
         loader._LOAD_ATTEMPTED = False
         loader._MODEL = None
         

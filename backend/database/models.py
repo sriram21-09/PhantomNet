@@ -34,6 +34,12 @@ class PacketLog(Base):
     is_malicious = Column(Boolean, default=False)
     event = Column(String, nullable=True)  # e.g., "login_attempt"
 
+    # GeoIP Enrichment
+    country = Column(String, nullable=True)
+    city = Column(String, nullable=True)
+    latitude = Column(Float, nullable=True)
+    longitude = Column(Float, nullable=True)
+
 
 class Alert(Base):
     __tablename__ = "alerts"

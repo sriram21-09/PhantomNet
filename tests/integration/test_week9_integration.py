@@ -8,7 +8,7 @@ from sqlalchemy.orm import sessionmaker
 
 # Assuming local testing defaults
 BACKEND_URL = "http://localhost:8000"
-DB_URL = "sqlite:///./backend/phantomnet.db"  # Default fallback if Postgres isn't running for tests
+DB_URL = "sqlite:///./phantomnet.db"  # Default fallback if Postgres isn't running for tests
 
 engine = create_engine(DB_URL, connect_args={"check_same_thread": False})
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
@@ -50,7 +50,7 @@ class TestWeek9Integration:
     def test_backend_health(self):
         """Ensure the API is reachable."""
         try:
-            resp = requests.get(f"{BACKEND_URL}/health", timeout=2)
+            resp = requests.get(f"{BACKEND_URL}/api/health", timeout=2)
             assert resp.status_code == 200
             assert resp.json().get("status") == "healthy"
         except requests.exceptions.ConnectionError:

@@ -1,6 +1,6 @@
 import pytest
 from unittest.mock import MagicMock
-from backend.ml.threat_scoring_service import map_score_to_level, map_score_to_decision
+from ml.threat_scoring_service import map_score_to_level, map_score_to_decision
 
 def test_threat_score_severity_mapping():
     assert map_score_to_level(20.0) == "LOW"

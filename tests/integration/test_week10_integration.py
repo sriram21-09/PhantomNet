@@ -6,13 +6,13 @@ import time
 from datetime import datetime
 
 # PhantomNet specific imports
-from backend.services.universal_siem_exporter import get_siem_exporter
-from backend.database.models import PacketLog
-from backend.ml.threat_scoring_service import score_threat_batch
-from backend.schemas.threat_schema import ThreatInput
-from backend.ml_engine.explainability import explainer_service
-from backend.services.node_manager import NodeManager
-from backend.services.response_executor import response_executor
+from services.universal_siem_exporter import get_siem_exporter
+from database.models import PacketLog
+from ml.threat_scoring_service import score_threat_batch
+from schemas.threat_schema import ThreatInput
+from ml_engine.explainability import explainer_service
+from services.node_manager import NodeManager
+from services.response_executor import response_executor
 
 
 @pytest.fixture
@@ -102,8 +102,8 @@ class TestWeek10Integration:
 
     def test_distributed_topology(self):
         """Test 3: Verify distributed 11-node tracking."""
-        from backend.database.database import SessionLocal, engine
-        from backend.database.models import HoneypotNode, Base
+        from database.database import SessionLocal, engine
+        from database.models import HoneypotNode, Base
 
         # Ensure schema table is built in active SQLite temp engine
         Base.metadata.create_all(bind=engine)
