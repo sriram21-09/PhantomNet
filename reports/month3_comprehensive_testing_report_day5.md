@@ -102,9 +102,3 @@ Month 3 is verified **READY**. Proceeding to Month 4 implementation tasks.
   - Hardcoding absolute paths for SQLite `phantomnet.db` creates CI bottlenecks. Switching strictly to `relative ./` environments and dynamic MLFlow paths is crucial for seamless Dev-to-Prod pipelines.
   - Testing edge conditions (`features_matrix` without cached components) exposes index-mismatches early.
 
-- **Preparations for Week 12:**
-  - Prepare isolated GPU instances for large scale Random Forest retraining.
-  - Integrate live SIEM (ELK stack) logging endpoints strictly for the `CEF` export protocols.
-
-- **Week 12 plan created:** **YES**
-  - Next week focuses on Month 4 Phase 1: Real-time SIEM logging and high-availability clustered honeypots.
