@@ -2,7 +2,7 @@ import pytest
 from datetime import datetime, timezone
 import time
 import math
-from backend.ml.feature_engineering_complete import CompleteFeatureExtractor
+from ml.feature_engineering_complete import CompleteFeatureExtractor
 
 def test_extract_all_32_features():
     extractor = CompleteFeatureExtractor()

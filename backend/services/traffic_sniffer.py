@@ -1,6 +1,6 @@
 from typing import Optional, Any, Tuple, List, Dict
-from scapy.all import sniff, IP, TCP, UDP, ICMP # type: ignore
 import threading
+import os
 from datetime import datetime
 
 from database.database import SessionLocal
@@ -31,6 +31,7 @@ class RealTimeSniffer:
         Args:
             packet: The scapy packet object to analyze.
         """
+        from scapy.all import IP, TCP, UDP, ICMP  # type: ignore  # lazy import
         if not packet.haslayer(IP): # type: ignore
             return
 
@@ -169,4 +170,12 @@ class RealTimeSniffer:
         """
         Internal target for the sniffer thread; initiates scapy's sniff function.
         """
-        sniff(prn=self.packet_callback, store=0)
+        try:
+            from scapy.all import sniff  # type: ignore  # lazy import
+            sniff(prn=self.packet_callback, store=0)
+        except ImportError:
+            print("[WARN] Scapy not available - sniffer disabled")
+            self.running = False
+        except OSError as e:
+            print(f"[WARN] Sniffer requires admin privileges: {e}")
+            self.running = False

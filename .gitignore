@@ -55,3 +55,6 @@ backend/verify_output.txt
 automation/
 .agent/
 item_edit_help.txt
+mlruns/
+phantomnet.db-journal
+validation_crosscheck.txt

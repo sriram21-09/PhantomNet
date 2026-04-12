@@ -255,7 +255,13 @@ def score_threat_batch(inputs: List[ThreatInput]) -> List[ThreatResponse]:
     # 4. Construct Responses and Cache
     cache_inserts = {}
     for idx, i in enumerate(uncached_indices):
-        score = scores[idx]
+        if idx >= len(scores):
+            print(f"CRITICAL INDEX ERROR: idx={idx}, len(scores)={len(scores)}, len(uncached_indices)={len(uncached_indices)}")
+            score = 0.0
+            confidences.append(0.0) # pad if needed
+        else:
+            score = scores[idx]
+            
         resp = ThreatResponse(
             score=round(score, 2),
             threat_level=map_score_to_level(score, inputs[i]),
