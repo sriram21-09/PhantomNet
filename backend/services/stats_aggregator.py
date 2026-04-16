@@ -43,10 +43,26 @@ class StatsService:
             self.db.query(PacketLog).filter(PacketLog.threat_score >= 0.8).count()
         )
 
+        # Detailed Distribution
+        malicious_count = (
+            self.db.query(PacketLog).filter(PacketLog.threat_score >= 0.75).count()
+        )
+        suspicious_count = (
+            self.db.query(PacketLog).filter(PacketLog.threat_score.between(0.4, 0.7499)).count()
+        )
+        benign_count = (
+            self.db.query(PacketLog).filter(PacketLog.threat_score < 0.4).count()
+        )
+
         return {
             "totalEvents": total_events,
             "uniqueIPs": unique_ips,
             "activeHoneypots": active_honeypots,
-            "avgThreatScore": round(avg_threat * 100, 2),
+            "avgThreatScore": round(avg_threat * 100, 1) if avg_threat <= 1.0 else round(avg_threat, 1),
             "criticalAlerts": critical_alerts,
+            "distribution": {
+                "critical": malicious_count,
+                "suspicious": suspicious_count,
+                "benign": benign_count
+            }
         }
