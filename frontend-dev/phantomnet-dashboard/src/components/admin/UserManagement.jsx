@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Users, Plus, Edit, Trash2, X, CheckCircle, XCircle, Search } from 'lucide-react';
+import { adminFetch } from '../../pages/AdminPanel';
 
 const API_BASE = '/api/v1/admin';
 
@@ -14,14 +15,11 @@ const UserManagement = () => {
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
 
-    const getHeaders = () => ({
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${localStorage.getItem('admin_token')}`,
-    });
+
 
     const fetchUsers = useCallback(async () => {
         try {
-            const res = await fetch(`${API_BASE}/users`, { headers: getHeaders() });
+            const res = await adminFetch(`${API_BASE}/users`);
             const data = await res.json();
             setUsers(data.users || []);
         } catch (err) {
@@ -37,8 +35,8 @@ const UserManagement = () => {
         e.preventDefault();
         setError('');
         try {
-            const res = await fetch(`${API_BASE}/users`, {
-                method: 'POST', headers: getHeaders(),
+            const res = await adminFetch(`${API_BASE}/users`, {
+                method: 'POST',
                 body: JSON.stringify(formData),
             });
             const data = await res.json();
@@ -63,8 +61,8 @@ const UserManagement = () => {
             if (formData.role) body.role = formData.role;
             if (formData.status) body.status = formData.status;
 
-            const res = await fetch(`${API_BASE}/users/${editingUser.id}`, {
-                method: 'PUT', headers: getHeaders(),
+            const res = await adminFetch(`${API_BASE}/users/${editingUser.id}`, {
+                method: 'PUT',
                 body: JSON.stringify(body),
             });
             const data = await res.json();
@@ -81,8 +79,8 @@ const UserManagement = () => {
 
     const handleDelete = async (userId) => {
         try {
-            const res = await fetch(`${API_BASE}/users/${userId}`, {
-                method: 'DELETE', headers: getHeaders(),
+            const res = await adminFetch(`${API_BASE}/users/${userId}`, {
+                method: 'DELETE',
             });
             const data = await res.json();
             if (!res.ok) throw new Error(data.detail || 'Failed');

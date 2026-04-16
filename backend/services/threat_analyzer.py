@@ -31,17 +31,23 @@ logger.setLevel(logging.INFO)
 
 
 class ThreatAnalyzerService:
-    def __init__(self, poll_interval: int = 5):
+    def __init__(self, poll_interval: int = 2):
         self.poll_interval = poll_interval
         self._stop_event = threading.Event()
         self._cache = {}  # Simple Dict Cache [IP -> {score, level, timestamp}]
         self._cache_ttl = 60  # Seconds
         self.running = False
+        self.last_inference_ms = 0.0
         self.last_pattern_scan = datetime.now()
         self.pattern_scan_interval = 60  # Run advanced patterns every minute
 
         self._sequence_buffers = {}  # IP -> [buffer of up to 50 feature vectors]
-        self._load_lstm()
+        self.lstm_model = None
+        self.lstm_scaler = None
+        self.lstm_feature_cols = []
+        self.is_mock_lstm = False
+        
+        # We will load the LSTM model in the background thread to avoid blocking startup
 
     def _load_lstm(self):
         self.lstm_model = None
@@ -51,10 +57,11 @@ class ThreatAnalyzerService:
 
         pkl_path = os.path.abspath(
             os.path.join(
-                os.path.dirname(__file__), "..", "ml_models", "lstm_training_data.pkl"
+                os.path.dirname(__file__), "..", "..", "ml_models", "lstm_training_data.pkl"
             )
         )
         if os.path.exists(pkl_path):
+            print(f"[THREAT_ANALYZER] Loading LSTM scaler from {pkl_path}...")
             try:
                 with open(pkl_path, "rb") as f:
                     data = pickle.load(f)
@@ -65,7 +72,7 @@ class ThreatAnalyzerService:
 
         h5_path = os.path.abspath(
             os.path.join(
-                os.path.dirname(__file__), "..", "ml_models", "lstm_attack_predictor.h5"
+                os.path.dirname(__file__), "..", "..", "ml_models", "lstm_attack_predictor.h5"
             )
         )
         try:
@@ -73,13 +80,14 @@ class ThreatAnalyzerService:
 
             if os.path.exists(h5_path):
                 self.lstm_model = load_model(h5_path)
-                logger.info("LSTM Model loaded successfully.")
+                print("[THREAT_ANALYZER] LSTM Model loaded successfully.")
         except Exception as e:
             logger.debug(
                 f"Could not load Keras LSTM model ({e}). Looking for mock fallback."
             )
             mock_path = h5_path + ".mock.pkl"
             if os.path.exists(mock_path):
+                print(f"[THREAT_ANALYZER] Loading mock LSTM fallback: {mock_path}...")
                 with open(mock_path, "rb") as f:
                     self.lstm_model = pickle.load(f)
                     self.is_mock_lstm = True
@@ -134,6 +142,13 @@ class ThreatAnalyzerService:
         logger.info("Threat Analyzer Service stopped.")
 
     def _run_loop(self):
+        print(f"[THREAT_ANALYZER] Background analysis loop started (Poll: {self.poll_interval}s)")
+        # Lazy load LSTM model in the thread
+        try:
+            self._load_lstm()
+        except Exception as e:
+            print(f"[THREAT_ANALYZER] FAILED to load LSTM in thread: {e}")
+
         while not self._stop_event.is_set():
             try:
                 self._process_unscored_logs()
@@ -200,14 +215,20 @@ class ThreatAnalyzerService:
     def _process_unscored_logs(self):
         db: Session = SessionLocal()
         try:
+            # Check if unsupervised detector needs training (Non-blocking)
+            total_logs = db.query(PacketLog).count()
+            if not unsupervised_detector.is_loaded and not unsupervised_detector.is_training and total_logs > 10:
+                logger.info("ThreatAnalyzer: Triggering background unsupervised training...")
+                threading.Thread(target=unsupervised_detector.train_baseline, kwargs={"days_back": 7}, daemon=True).start()
+
             # Fetch logs where threat_level is NULL
             logs = (
                 db.query(PacketLog)
                 .filter(PacketLog.threat_level.is_(None))
                 .order_by(PacketLog.timestamp.desc())
-                .limit(100)
+                .limit(500)
                 .all()
-            )  # Up to 100 for batching
+            )  # Increased batch size to catch up with queue
 
             if not logs:
                 return
@@ -272,14 +293,17 @@ class ThreatAnalyzerService:
 
                             if lstm_score > 0:
                                 # Ensemble Equation: 50% RF, 30% LSTM, 20% Unsupervised Anomaly baseline
+                                # (Standardizing RF if it was 0-100, but it's now 0-1 in our updated scoring service)
+                                rf_normalized = result.score if result.score <= 1.0 else result.score / 100.0
                                 combined_score = (
-                                    (result.score * 0.5)
+                                    (rf_normalized * 0.5)
                                     + (lstm_score * 0.3)
                                     + (anomaly_score * 0.2)
                                 )
                             else:
                                 # Fallback Sequence (Buffer not full): 80% RF, 20% Unsupervised
-                                combined_score = (result.score * 0.8) + (
+                                rf_normalized = result.score if result.score <= 1.0 else result.score / 100.0
+                                combined_score = (rf_normalized * 0.8) + (
                                     anomaly_score * 0.2
                                 )
 
@@ -297,7 +321,9 @@ class ThreatAnalyzerService:
                             self._apply_threat_result(log, result)
                             updated_count += 1
 
-                    inf_time_ms = (time.time() - start_time) * 1000
+                    end_time = time.time()
+                    inf_time_ms = (end_time - start_time) * 1000
+                    self.last_inference_ms = round(inf_time_ms / len(inputs_for_batching), 2) if inputs_for_batching else 0.0
                     logger.debug(
                         f"Batch prediction complete. Time: {inf_time_ms:.2f}ms for {len(inputs_for_batching)} events."
                     )

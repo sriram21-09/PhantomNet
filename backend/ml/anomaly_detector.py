@@ -11,7 +11,7 @@ except ImportError:
     from ml.feature_extractor import FeatureExtractor
 
 # Path to save the trained model
-MODEL_PATH = os.path.join(os.path.dirname(__file__), "model.pkl")
+MODEL_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "ml_models", "registry", "anomaly_detector.pkl"))
 
 # Fix import for project root execution
 try:
