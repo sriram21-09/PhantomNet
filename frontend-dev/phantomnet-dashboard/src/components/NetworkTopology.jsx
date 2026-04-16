@@ -165,6 +165,33 @@ const NetworkTopology = () => {
         [setEdges]
     );
 
+    // ── Live Node Status Polling ───────────
+    const fetchLiveHoneypots = useCallback(async () => {
+        try {
+            const res = await fetch('/api/honeypots');
+            if (!res.ok) return;
+            const liveData = await res.json();
+            
+            setNodes(nds => nds.map(node => {
+                if (node.type === 'honeypot') {
+                    const match = liveData.find(d => d.name?.toUpperCase() === node.id?.toUpperCase());
+                    if (match) {
+                        return { ...node, data: { ...node.data, status: match.status, port: match.port } };
+                    }
+                }
+                return node;
+            }));
+        } catch (err) {
+            console.error('[Topology] Failed to fetch live node states', err);
+        }
+    }, [setNodes]);
+
+    useEffect(() => {
+        fetchLiveHoneypots();
+        const interval = setInterval(fetchLiveHoneypots, 5000);
+        return () => clearInterval(interval);
+    }, [fetchLiveHoneypots]);
+
     // ── WebSocket ────────────────────────────
     const connectWS = useCallback(() => {
         const proto = window.location.protocol === 'https:' ? 'wss:' : 'ws:';

@@ -9,11 +9,12 @@ class EnsemblePredictor:
     Ensemble Predictor that combines predictions from a Random Forest Classifier
     and an Isolation Forest anomaly detector.
     """
-    def __init__(self, rf_path: str = "backend/ml/models/attack_classifier_v3_enhanced.pkl", 
-                 if_path: str = "backend/ml/models/isolation_forest.pkl"):
+    def __init__(self, rf_path: str = None, if_path: str = None):
+        # Default paths relative to project root registry
+        registry_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "..", "ml_models", "registry"))
         
-        self.rf_path = rf_path
-        self.if_path = if_path
+        self.rf_path = rf_path or os.path.join(registry_dir, "attack_classifier_v1.0.0.pkl")
+        self.if_path = if_path or os.path.join(registry_dir, "anomaly_detector.pkl")
         self.rf_model = None
         self.if_model = None
         

@@ -29,6 +29,12 @@ class MockModelPredict:
         # Return -1 for anomaly, 1 for normal
         return [-1] * len(X)
 
+@pytest.fixture(autouse=True)
+def clear_local_cache():
+    """Clears the local prediction cache in the scoring service before each test."""
+    tss._LOCAL_PRED_CACHE.clear()
+    yield
+
 @pytest.fixture
 def mock_redis():
     with patch('ml.threat_scoring_service.REDIS_AVAILABLE', False):
@@ -36,10 +42,10 @@ def mock_redis():
 
 @pytest.mark.usefixtures("mock_redis", "mock_feature_extractor")
 def test_map_score_to_level_static():
-    assert tss.map_score_to_level(10.0) == "LOW"
-    assert tss.map_score_to_level(50.0) == "MEDIUM"
-    assert tss.map_score_to_level(80.0) == "HIGH"
-    assert tss.map_score_to_level(95.0) == "CRITICAL"
+    assert tss.map_score_to_level(0.1) == "LOW"
+    assert tss.map_score_to_level(0.5) == "MEDIUM"
+    assert tss.map_score_to_level(0.8) == "HIGH"
+    assert tss.map_score_to_level(0.95) == "CRITICAL"
 
 @pytest.mark.usefixtures("mock_redis", "mock_feature_extractor")
 def test_map_score_to_level_dynamic_night():
@@ -47,9 +53,9 @@ def test_map_score_to_level_dynamic_night():
         src_ip="1.1.1.1", dst_ip="2.2.2.2", dst_port=80, protocol="TCP", length=100,
         timestamp="2026-03-14T03:00:00Z" # Night time UTC
     )
-    # Night shifts medium to 65, high to 80
-    assert tss.map_score_to_level(66.0, input_data) == "HIGH" # 66 > 65
-    assert tss.map_score_to_level(85.0, input_data) == "CRITICAL" # 85 > 80
+    # Night shifts thresholds down by 0.1 (e.g. high shifts from 0.9 to 0.8)
+    assert tss.map_score_to_level(0.81, input_data) == "CRITICAL" # 0.81 > 0.8
+    assert tss.map_score_to_level(0.7, input_data) == "HIGH" 
 
 @pytest.mark.usefixtures("mock_redis", "mock_feature_extractor")
 def test_map_score_to_level_dynamic_honeypot():
@@ -57,9 +63,9 @@ def test_map_score_to_level_dynamic_honeypot():
         src_ip="1.1.1.1", dst_ip="2.2.2.2", dst_port=22, protocol="TCP", length=100,
         honeypot_type="SSH"
     )
-    # Honeypot shifts medium to 60, high to 75
-    assert tss.map_score_to_level(65.0, input_data) == "HIGH"
-    assert tss.map_score_to_level(80.0, input_data) == "CRITICAL"
+    # Honeypot shifts thresholds down by 0.15
+    assert tss.map_score_to_level(0.65, input_data) == "HIGH"
+    assert tss.map_score_to_level(0.8, input_data) == "CRITICAL"
 
 @pytest.mark.usefixtures("mock_redis", "mock_feature_extractor")
 def test_map_score_to_level_dynamic_reputation():
@@ -68,7 +74,7 @@ def test_map_score_to_level_dynamic_reputation():
         is_malicious=True
     )
     # Malicious reputation is an automatic CRITICAL
-    assert tss.map_score_to_level(10.0, input_data) == "CRITICAL"
+    assert tss.map_score_to_level(0.1, input_data) == "CRITICAL"
 
 @patch('ml.threat_scoring_service.model_loader.load_model')
 @pytest.mark.usefixtures("mock_redis")
@@ -88,7 +94,7 @@ def test_score_threat_predict_proba(mock_load_model, mock_feature_extractor):
     
     response = tss.score_threat(input_data)
     
-    assert response.score == 80.0
+    assert response.score == 0.8
     assert response.threat_level == "HIGH"
     assert response.confidence == 0.8
     assert response.decision == "BLOCK"
@@ -108,7 +114,7 @@ def test_score_threat_predict(mock_load_model, mock_feature_extractor):
     
     response = tss.score_threat(input_data)
     
-    assert response.score == 85.0
+    assert response.score == 0.85
     assert response.threat_level == "HIGH"
     assert response.confidence == 0.85
     assert response.decision == "BLOCK"
@@ -144,6 +150,6 @@ def test_score_threat_batch(mock_load_model, mock_feature_extractor):
     
     assert len(responses) == 2
     for response in responses:
-        assert response.score == 80.0
+        assert response.score == 0.8
         assert response.threat_level == "HIGH"
         assert response.decision == "BLOCK"

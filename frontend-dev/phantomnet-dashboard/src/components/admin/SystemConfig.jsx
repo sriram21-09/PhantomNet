@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Settings, Save, RotateCcw, CheckCircle, XCircle, Shield, Server, BarChart3, Cpu } from 'lucide-react';
+import { adminFetch } from '../../pages/AdminPanel';
 
 const API_BASE = '/api/v1/admin';
 
@@ -53,14 +54,11 @@ const SystemConfig = () => {
     const [error, setError] = useState('');
     const [activeSection, setActiveSection] = useState('threat_detection');
 
-    const getHeaders = () => ({
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${localStorage.getItem('admin_token')}`,
-    });
+
 
     const fetchConfig = useCallback(async () => {
         try {
-            const res = await fetch(`${API_BASE}/config`, { headers: getHeaders() });
+            const res = await adminFetch(`${API_BASE}/config`);
             const data = await res.json();
             setConfig(data.config || {});
             setOriginal(JSON.parse(JSON.stringify(data.config || {})));
@@ -98,9 +96,8 @@ const SystemConfig = () => {
             const fields = CONFIG_SCHEMA[category].fields;
             for (const field of fields) {
                 const val = getValue(category, field.key);
-                await fetch(`${API_BASE}/config`, {
+                await adminFetch(`${API_BASE}/config`, {
                     method: 'PUT',
-                    headers: getHeaders(),
                     body: JSON.stringify({ key: field.key, value: String(val), category }),
                 });
             }

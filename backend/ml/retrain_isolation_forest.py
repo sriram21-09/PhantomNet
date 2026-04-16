@@ -94,8 +94,8 @@ def retrain_model():
     # Reload to verify
     print("💾 Verifying saved model...")
 
-    model_path = os.path.join(os.path.dirname(__file__), "model.pkl")
-    loaded_model = joblib.load(model_path)
+    from backend.ml.anomaly_detector import MODEL_PATH
+    loaded_model = joblib.load(MODEL_PATH)
     print(
         f"✅ Model successfully retrained with {loaded_model.n_features_in_} features!"
     )

@@ -42,9 +42,12 @@ def setup_mlflow_model():
             filter_string=f"name='{MODEL_NAME}'"
         )
         if registered_models:
-            latest_versions = client.get_latest_versions(
-                MODEL_NAME, stages=[DEFAULT_STAGE]
-            )
+            import warnings
+            with warnings.catch_warnings():
+                warnings.simplefilter("ignore", category=FutureWarning)
+                latest_versions = client.get_latest_versions(
+                    MODEL_NAME, stages=[DEFAULT_STAGE]
+                )
             if latest_versions:
                 model_exists = True
     except Exception:

@@ -50,14 +50,25 @@ const LiveMetrics = () => {
 
     const threatData = useMemo(() => {
         if (!metrics) return [];
+        
+        // Use real distribution from backend if available
+        if (metrics.distribution) {
+            return [
+                { name: 'Critical', value: metrics.distribution.critical || 0, color: '#ff0055' },
+                { name: 'Suspicious', value: metrics.distribution.suspicious || 0, color: '#f77f00' },
+                { name: 'Benign', value: metrics.distribution.benign || 0, color: '#00ff41' },
+            ];
+        }
+
+        // Fallback (only if old backend or missing data)
         const critical = metrics.criticalAlerts || 0;
         const total = metrics.totalEvents || 0;
-        const suspicious = Math.max(0, Math.floor(total * 0.3));
+        const suspicious = Math.max(0, Math.floor(total * 0.1)); // Reduced fallback ratio
         const benign = Math.max(0, total - critical - suspicious);
         return [
-            { name: 'Critical', value: critical || 1, color: '#ff0055' },
-            { name: 'Suspicious', value: suspicious || 1, color: '#f77f00' },
-            { name: 'Benign', value: benign || 1, color: '#00ff41' },
+            { name: 'Critical', value: critical, color: '#ff0055' },
+            { name: 'Suspicious', value: suspicious, color: '#f77f00' },
+            { name: 'Benign', value: benign, color: '#00ff41' },
         ];
     }, [metrics]);
 

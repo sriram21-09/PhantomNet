@@ -5,7 +5,8 @@ import os
 from sklearn.preprocessing import StandardScaler, MinMaxScaler
 from ml.feature_extractor import FeatureExtractor
 
-MODEL_DIR = "backend/ml/"
+# Path to the model registry (project root)
+REGISTRY_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "ml_models", "registry"))
 
 
 class DataPreprocessor:
@@ -51,14 +52,16 @@ class DataPreprocessor:
             return X_scaled
 
     def save_scaler(self):
-        joblib.dump(self.scaler, os.path.join(MODEL_DIR, "scaler.pkl"))
+        # Use absolute path relative to project root registry
+        scaler_path = os.path.join(REGISTRY_DIR, "scaler.pkl")
+        joblib.dump(self.scaler, scaler_path)
         self.is_fitted = True
 
     def load_scaler(self):
-        path = os.path.join(MODEL_DIR, "scaler.pkl")
+        path = os.path.join(REGISTRY_DIR, "scaler.pkl")
         if os.path.exists(path):
             self.scaler = joblib.load(path)
             self.is_fitted = True
         else:
-            print("⚠️ Warning: No scaler found. Using raw data (suboptimal).")
+            print(f"⚠️ Warning: No scaler found at {path}. Using raw data (suboptimal).")
             self.is_fitted = False

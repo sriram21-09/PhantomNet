@@ -459,80 +459,64 @@ body[data-theme="light"] .ip-cell {
   color: #0891b2;
 }
 
-/* Score Bar */
-.score-bar {
+/* Threat Score Bar */
+.threat-score-bar {
   display: flex;
   align-items: center;
   gap: 10px;
   min-width: 100px;
+  overflow: visible !important; /* Ensure no clipping */
 }
 
-.score-fill {
+.threat-score-fill {
   height: 6px;
   border-radius: 10px;
   flex: 1;
 }
 
-.score-fill.high {
+.threat-score-fill.high {
   background: linear-gradient(90deg, #dc2626, #ef4444);
 }
 
-.score-fill.medium {
+.threat-score-fill.medium {
   background: linear-gradient(90deg, #d97706, #f59e0b);
 }
 
-.score-fill.low {
+.threat-score-fill.low {
   background: linear-gradient(90deg, #059669, #22c55e);
 }
 
-/* High Specificity to override theme defaults */
-/* High Specificity to override theme defaults */
-body .threat-wrapper .score-value {
+/* High Specificity for Score Value */
+.threat-wrapper .threat-score-value {
   display: flex;
-  /* Safe flex centering */
   justify-content: center;
   align-items: center;
-  height: 32px;
-  /* Generous height */
+  padding: 6px 10px;
+  min-height: 28px;
   min-width: 48px;
-  /* Generous width */
   font-size: 13px;
-  /* Clearer text */
   font-weight: 700;
-  line-height: normal;
-  /* Let browser decide */
+  line-height: 1;
   opacity: 1 !important;
   margin-left: 12px;
-  overflow: visible;
-
+  
   /* Badge Styling */
   background: rgba(15, 23, 42, 0.8);
-  padding: 0 10px;
   border-radius: 8px;
-  /* Match larger size */
   border: 1px solid rgba(255, 255, 255, 0.1);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
   backdrop-filter: blur(4px);
-  /* Ensure height adapts to content */
-}
-
-/* Light mode override for badge */
-body[data-theme="light"] .threat-wrapper .score-value {
-  background: rgba(255, 255, 255, 0.9);
-  border: 1px solid rgba(0, 0, 0, 0.05);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-  color: #0f172a;
-}
-
-/* Make score values highly visible in dark mode */
-body[data-theme="dark"] .score-value {
   color: #f1f5f9;
   text-shadow: 0 0 8px rgba(255, 255, 255, 0.3);
 }
 
-/* Make score values clearly visible in light mode */
-body[data-theme="light"] .score-value {
+/* Light mode override for badge */
+body[data-theme="light"] .threat-wrapper .threat-score-value {
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
   color: #1e293b;
+  text-shadow: none;
 }
 
 /* Severity Badge */

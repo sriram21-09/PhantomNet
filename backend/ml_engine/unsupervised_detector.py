@@ -21,9 +21,10 @@ class UnsupervisedAnomalyDetector:
         self.feature_extractor = FeatureExtractor()
         self.model_path = os.path.abspath(
             os.path.join(
-                os.path.dirname(__file__), "..", "ml_models", "iforest_baseline.pkl"
+                os.path.dirname(__file__), "..", "..", "ml_models", "iforest_baseline.pkl"
             )
         )
+        self.is_training = False
         self.is_loaded = self.load_model()
 
     def load_model(self) -> bool:
@@ -42,6 +43,10 @@ class UnsupervisedAnomalyDetector:
         Trains the Isolation Forest on the last N days of data,
         assuming the majority is normal traffic.
         """
+        if self.is_training:
+            return False
+        
+        self.is_training = True
         logger.info(f"Training unsupervised baseline on last {days_back} days.")
         db: Session = SessionLocal()
         try:
@@ -94,6 +99,7 @@ class UnsupervisedAnomalyDetector:
             logger.error(f"Error training baseline: {e}")
             return False
         finally:
+            self.is_training = False
             db.close()
 
     def predict_anomalies(self, events: List[Dict[str, Any]]) -> List[float]:
@@ -112,9 +118,9 @@ class UnsupervisedAnomalyDetector:
             # Lower means more anomalous. We invert to make it positive.
             scores = self.model.score_samples(df.values)
 
-            # Normalize approx 0 to 100 for threat score integration
-            # The more negative, the higher the threat
-            normalized_scores = [max(0.0, min(100.0, abs(s) * 150)) for s in scores]
+            # Normalize approx 0 to 1.0 for threat score integration
+            # IsolationForest score_samples is approx -1 to 0. Lower is more anomalous.
+            normalized_scores = [max(0.0, min(1.0, abs(s) * 1.5)) for s in scores]
             return normalized_scores
 
         except Exception as e:
