@@ -1,5 +1,5 @@
 # =========================
-# CORE IMPORTS
+# CORE IMPORTS (Reloaded)
 # =========================
 import os
 import json
@@ -63,6 +63,7 @@ from api.attack_attribution import router as attack_attribution_router
 from api.predictive import router as predictive_router
 from api.admin import router as admin_router
 from api.threat_scoring import router as threat_router
+from ml.threat_scoring_service import score_threat, map_score_to_level, ThreatInput, REDIS_AVAILABLE, _FEATURE_EXTRACTOR
 from api.protocol_analytics import router as analytics_router
 from api.metrics import router as metrics_router
 from api.pattern_analytics import router as pattern_analytics_router
@@ -99,8 +100,16 @@ async def lifespan(_app: FastAPI):
         sniffer.start_background_sniffer()
         print("PhantomNet Sniffer Started")
 
-        # Start Threat Analyzer Background Service
-        threat_analyzer.start()
+        # Start Threat Analyzer Background Service (with 2s delay)
+        async def delayed_analyzer_start():
+            await asyncio.sleep(2)
+            try:
+                threat_analyzer.start()
+                print("Threat Analyzer Service started (background)")
+            except Exception as e:
+                print(f"Error starting threat analyzer: {e}")
+        
+        asyncio.create_task(delayed_analyzer_start())
 
         # Initialize and load scheduled reports
         scheduler_service.load_schedules()
@@ -173,11 +182,12 @@ async def broadcast_live_metrics() -> None:
                 "disk": disk_percent,
             }
 
-            # Enrich with ML Status (Mock/Placeholder for now as requested)
+            # Enrich with ML Status (Dynamic metrics)
+            unscored_count = db.query(PacketLog).filter(PacketLog.threat_level.is_(None)).count()
             stats["ml_status"] = {
-                "inference_time": "12ms",
-                "queue_depth": 0,
-                "status": "online",
+                "inference_time": f"{threat_analyzer.last_inference_ms}ms",
+                "queue_depth": unscored_count,
+                "status": "online" if threat_analyzer.running else "offline",
             }
 
             # Calculate events per minute (last 5 minutes)
@@ -320,16 +330,22 @@ def get_real_traffic(db: Session = Depends(get_db)) -> dict:
     logs = db.query(PacketLog).order_by(PacketLog.timestamp.desc()).limit(50).all()
 
     data = []
+    # Batch cache for this specific request to avoid multiple lookups for the same IP in one loop
+    batch_geo_cache = {}
 
     for log in logs:
         # Use persistent field if available, else look up (for legacy logs)
         location = getattr(log, "country", None) or "UNKNOWN"
         if location == "UNKNOWN":
-            try:
-                geo_info = GeoService.get_geo_info(log.src_ip)
-                location = geo_info.get("flag", "🌐") + " " + geo_info.get("country", "Unknown")
-            except Exception:
-                location = "UNKNOWN"
+            if log.src_ip in batch_geo_cache:
+                location = batch_geo_cache[log.src_ip]
+            else:
+                try:
+                    geo_info = GeoService.get_geo_info(log.src_ip)
+                    location = geo_info.get("flag", "🌐") + " " + geo_info.get("country", "Unknown")
+                    batch_geo_cache[log.src_ip] = location
+                except Exception:
+                    location = "UNKNOWN"
 
         data.append(
             {
@@ -430,35 +446,80 @@ def get_events(
             "type": log.protocol,
             "port": 0,
             "threat": log.attack_type or "BENIGN",
+            "score": log.threat_score or (0.0 if not log.attack_type else 15.0),
             "details": f"{log.attack_type or 'BENIGN'} traffic detected",
         }
         for log in logs
     ]
 
 
+@app.get("/api/features/live")
+def get_live_features(db: Session = Depends(get_db)):
+    """
+    Pulls the latest packet log from the database, runs it through the
+    internal ML FeatureExtractor, and returns the live feature vector dict.
+    """
+    log = db.query(PacketLog).order_by(PacketLog.id.desc()).first()
+    if not log:
+        return {"eventId": "NO-DATA-001", "features": {}}
+
+    event_dict = {
+        "src_ip": log.src_ip or "0.0.0.0",
+        "dst_ip": log.dst_ip or "0.0.0.0",
+        "src_port": log.src_port or 0,
+        "dst_port": log.dst_port or 0,
+        "protocol": log.protocol or "TCP",
+        "length": log.length or 0,
+        "attack_type": log.attack_type or "UNKNOWN",
+        "is_malicious": log.is_malicious or False,
+        "threat_score": log.threat_score or 0.0,
+        "timestamp": log.timestamp.isoformat() if log.timestamp else None
+    }
+    
+    # Run through the true backend feature extractor
+    raw_features = _FEATURE_EXTRACTOR.extract_features(event_dict)
+    
+    features = {}
+    for k, v in raw_features.items():
+        v = round(v, 2) if isinstance(v, float) else v
+        
+        status = "normal"
+        if ("score" in k and v > 50) or ("malicious" in k and v > 0.5) or ("anomaly" in k and v > 1.0):
+            status = "anomalous"
+            
+        features[k] = {
+            "label": k.replace("_", " ").title(),
+            "value": v,
+            "interpretation": f"Calculated value: {v}",
+            "status": status
+        }
+        
+    return {
+        "eventId": f"LIVE-{log.protocol}-{log.id}",
+        "features": features
+    }
+
+
 # =========================
 # HONEYPOT STATUS (MAIN)
 # =========================
-def check_service_status(host: str, port: int, protocol: str = "TCP") -> str:
+async def check_service_status(host: str, port: int, protocol: str = "TCP") -> str:
     """
     Checks if a service is reachable on the given host and port.
-
-    Args:
-        host: Hostname or IP.
-        port: Service port.
-        protocol: Service protocol (e.g., HTTP, SSH).
-
-    Returns:
-        str: 'active' if reachable, 'inactive' otherwise.
     """
     try:
-        # Timeout is short (0.5s) to avoid UI hanging
-        with socket.create_connection((host, port), timeout=0.5) as sock:
-            if protocol == "HTTP":
-                # Send a basic request to trigger the honeypot logger
-                sock.sendall(b"GET / HTTP/1.1\r\nHost: localhost\r\n\r\n")
-            return "active"
-    except (socket.timeout, socket.error):
+        # Async connection check
+        conn = asyncio.open_connection(host, port)
+        reader, writer = await asyncio.wait_for(conn, timeout=0.5)
+        
+        if protocol == "HTTP":
+            writer.write(b"GET / HTTP/1.1\r\nHost: localhost\r\n\r\n")
+            await writer.drain()
+            
+        writer.close()
+        await writer.wait_closed()
+        return "active"
+    except (asyncio.TimeoutError, Exception):
         return "inactive"
 
 
@@ -531,11 +592,9 @@ def _get_last_seen_from_logs(protocol_name: str) -> Optional[str]:
 
 
 @app.get("/api/honeypots/status")
-def honeypot_status(db: Session = Depends(get_db)) -> list:
-    """Returns real-time status of honeypots."""
+async def honeypot_status(db: Session = Depends(get_db)) -> list:
+    """Returns real-time status of honeypots concurrently."""
     is_local = any(env in ENVIRONMENT.lower() for env in ["local", "development", "dev"])
-    last_seen_db: Dict[str, str] = {}
-    packet_counts: Dict[str, int] = {}
     last_seen_db, packet_counts = _get_db_honeypot_metrics(db)
 
     services: List[Dict[str, Any]] = [
@@ -545,35 +604,39 @@ def honeypot_status(db: Session = Depends(get_db)) -> list:
         {"name": "SMTP", "port": 2525, "proto": "SMTP", "host": "phantomnet_smtp"},
     ]
 
-    data = []
-    for svc in services:
-        host: str = "127.0.0.1" if is_local else str(svc["host"])
-        status = check_service_status(host, int(svc["port"]), str(svc["proto"]))
-
-        # Resolve Last Seen
+    # Concurrent Status Checks
+    async def get_full_status(svc):
+        host = "127.0.0.1" if is_local else str(svc["host"])
+        status_task = check_service_status(host, int(svc["port"]), str(svc["proto"]))
+        
+        # Resolve Last Seen from Disk (synchronous but IO based, could be improved later)
         last_seen = _get_last_seen_from_logs(svc["proto"])
         if last_seen:
             last_seen = last_seen.replace("T", " ").split(".")[0]
         else:
             last_seen = last_seen_db.get(svc["proto"]) or last_seen_db.get(svc["proto"].lower()) or "Never"
 
-        data.append({
+        status = await status_task
+        p_count = packet_counts.get(svc["proto"], 0) or packet_counts.get(svc["proto"].lower(), 0)
+        return {
             "name": svc["name"],
             "port": svc["port"],
             "status": status,
             "last_seen": last_seen,
-            "packet_count": packet_counts.get(svc["proto"], 0) or packet_counts.get(svc["proto"].lower(), 0),
-        })
-    return data
+            "packet_count": p_count,
+            "total_events": p_count, # Alias for frontend components
+        }
+
+    return await asyncio.gather(*(get_full_status(s) for s in services))
 
 
 # 🔹 ALIAS SO FRONTEND /api/honeypots ALSO WORKS
 @app.get("/api/honeypots")
-def honeypot_status_alias(db: Session = Depends(get_db)) -> list:
+async def honeypot_status_alias(db: Session = Depends(get_db)) -> list:
     """
     Alias for honeypot status to support multiple frontend paths.
     """
-    return honeypot_status(db)
+    return await honeypot_status(db)
 
 
 # =========================

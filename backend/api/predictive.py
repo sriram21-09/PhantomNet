@@ -105,9 +105,13 @@ def get_risk_score(db: Session = Depends(get_db)):
     max_score = float(result.max) if result.max else 0
     count = result.count or 0
 
+    # Normalize scores to 0-100 for risk calculation if they coming as 0.0-1.0
+    avg_score_scaled = avg_score * 100 if avg_score <= 1.0 else avg_score
+    max_score_scaled = max_score * 100 if max_score <= 1.0 else max_score
+
     # Weighted risk: 50% avg score + 30% max score + 20% volume factor
     volume_factor = min(100, count * 2)
-    risk_score = round(avg_score * 0.5 + max_score * 0.3 + volume_factor * 0.2, 1)
+    risk_score = round(avg_score_scaled * 0.5 + max_score_scaled * 0.3 + volume_factor * 0.2, 1)
 
     if risk_score > 80:
         level = "CRITICAL"
@@ -153,7 +157,8 @@ def get_next_attack_prediction(db: Session = Depends(get_db)):
         "HTTP": {"name": "HTTP HONEYPOT", "port": 8080},
         "FTP": {"name": "FTP HONEYPOT", "port": 2121},
         "SMTP": {"name": "SMTP HONEYPOT", "port": 2525},
-        "TCP": {"name": "NETWORK PERIMETER", "port": 0},
+        "UDP": {"name": "UDP SERVICE", "port": 53},
+        "TCP": {"name": "NETWORK PERIMETER", "port": 80},
     }
 
     if results:

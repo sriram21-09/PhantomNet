@@ -11,8 +11,7 @@ PROJECT_ROOT = os.path.abspath(os.path.join(BASE_DIR, "..", "..", ".."))
 MLRUNS_DIR = os.path.join(PROJECT_ROOT, "mlruns")
 os.makedirs(MLRUNS_DIR, exist_ok=True)
 
-# Use pathlib to generate a valid file URI on all platforms (handles backslashes on Windows)
-TRACKING_URI = pathlib.Path(MLRUNS_DIR).as_uri()
+TRACKING_URI = f"sqlite:///{os.path.join(PROJECT_ROOT, 'mlruns.db').replace(chr(92), '/')}"
 
 MODEL_NAME = "PhantomNet_Attack_Detector"
 DEFAULT_STAGE = "Staging"

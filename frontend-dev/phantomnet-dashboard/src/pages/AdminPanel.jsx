@@ -7,6 +7,29 @@ import '../Styles/pages/AdminPanel.css';
 
 const API_BASE = '/api/v1/admin';
 
+/**
+ * Authenticated fetch helper — automatically handles 401 by clearing
+ * the stale token and reloading the page to show the login form.
+ */
+export const adminFetch = async (url, options = {}) => {
+    const token = localStorage.getItem('admin_token');
+    const headers = {
+        'Content-Type': 'application/json',
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        ...(options.headers || {}),
+    };
+    const res = await fetch(url, { ...options, headers });
+    if (res.status === 401) {
+        // Token is expired / invalid — force re‑login
+        localStorage.removeItem('admin_token');
+        localStorage.removeItem('admin_user');
+        window.location.reload();
+        // Return a never-resolving promise so callers don't act on stale data
+        return new Promise(() => {});
+    }
+    return res;
+};
+
 // Admin-only route guard
 const AdminGuard = ({ children }) => {
     const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -16,10 +39,28 @@ const AdminGuard = ({ children }) => {
 
     useEffect(() => {
         const token = localStorage.getItem('admin_token');
-        if (token) {
-            setIsAuthenticated(true);
+        if (!token) {
+            setIsLoading(false);
+            return;
         }
-        setIsLoading(false);
+        // Validate the saved token against the backend
+        fetch(`${API_BASE}/system-overview`, {
+            headers: { Authorization: `Bearer ${token}` },
+        })
+            .then((res) => {
+                if (res.ok) {
+                    setIsAuthenticated(true);
+                } else {
+                    // Token invalid / expired — clear it
+                    localStorage.removeItem('admin_token');
+                    localStorage.removeItem('admin_user');
+                }
+            })
+            .catch(() => {
+                // Network error — still allow attempt (offline‑tolerant)
+                setIsAuthenticated(true);
+            })
+            .finally(() => setIsLoading(false));
     }, []);
 
     const handleLogin = async (e) => {
@@ -92,10 +133,7 @@ const SystemOverview = () => {
 
     const fetchOverview = useCallback(async () => {
         try {
-            const token = localStorage.getItem('admin_token');
-            const res = await fetch(`${API_BASE}/system-overview`, {
-                headers: { Authorization: `Bearer ${token}` },
-            });
+            const res = await adminFetch(`${API_BASE}/system-overview`);
             const data = await res.json();
             setOverview(data);
         } catch (err) {

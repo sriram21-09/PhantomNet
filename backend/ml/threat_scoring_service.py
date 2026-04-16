@@ -7,6 +7,7 @@ from schemas.threat_schema import ThreatInput, ThreatResponse
 import ml.model_loader as model_loader
 from ml.feature_extractor import FeatureExtractor
 from typing import List
+import time
 
 # Setup Logger
 logger = logging.getLogger(__name__)
@@ -21,21 +22,24 @@ try:
     redis_client.ping()
     REDIS_AVAILABLE = True
     logger.info("Connected to Redis for prediction caching.")
-except redis.ConnectionError:
+except Exception as e:
     REDIS_AVAILABLE = False
-    logger.warning("Redis not available. Running without prediction cache.")
+    logger.info("Redis not available. Using local in-memory prediction cache.")
+
+# Local memory cache fallback
+_LOCAL_PRED_CACHE = {}
 
 def map_score_to_level(score: float, context: ThreatInput = None) -> str:
     """
-    Maps a threat score (0-100) to a categorical level, applying dynamic
+    Maps a threat score (0.0-1.0) to a categorical level, applying dynamic
     threshold adjustments based on context (time of day, interaction type, reputation).
     """
     # Baseline thresholds (from ROC optimization)
     # The actual exact numbers can vary by analysis, but these match recent results roughly
-    # We use 40 for medium, 75 for high, 90 for critical by default
-    low_max = 40.0
-    medium_max = 75.0
-    high_max = 90.0
+    # We use 0.4 for medium, 0.75 for high, 0.9 for critical by default
+    low_max = 0.40
+    medium_max = 0.75
+    high_max = 0.90
 
     if context:
         # Check source reputation
@@ -55,12 +59,12 @@ def map_score_to_level(score: float, context: ThreatInput = None) -> str:
                 
         # Contextual adjustment: High interaction honeypots imply high danger
         if context.honeypot_type and context.honeypot_type.upper() in ["SSH", "TELNET", "RDP"]:
-            medium_max -= 15
-            high_max -= 15
+            medium_max -= 0.15
+            high_max -= 0.15
 
     # Enforce minimum lower bounds so we don't accidentally class everything critical
-    medium_max = max(20.0, medium_max)
-    high_max = max(50.0, high_max)
+    medium_max = max(0.20, medium_max)
+    high_max = max(0.50, high_max)
 
     if score > high_max:
         return "CRITICAL"
@@ -74,11 +78,11 @@ def map_score_to_level(score: float, context: ThreatInput = None) -> str:
 
 def map_score_to_decision(score: float) -> str:
     """
-    Maps a threat score to a decision action.
+    Maps a threat score (0.0-1.0) to a decision action.
     """
-    if score >= 80:
+    if score >= 0.8:
         return "BLOCK"
-    elif score >= 50:
+    elif score >= 0.5:
         return "ALERT"
     else:
         return "ALLOW"
@@ -102,6 +106,18 @@ def score_threat(input_data: ThreatInput) -> ThreatResponse:
                 return ThreatResponse(**data)
             except Exception as e:
                 logger.debug(f"Cache parse error: {e}")
+    else:
+        # Local Cache Check
+        event_str = json.dumps(
+            input_data.model_dump(exclude={"timestamp"}), sort_keys=True
+        )
+        event_hash = "pred_cache:" + hashlib.md5(event_str.encode()).hexdigest()
+        if event_hash in _LOCAL_PRED_CACHE:
+            entry = _LOCAL_PRED_CACHE[event_hash]
+            if time.time() < entry['exp']:
+                return ThreatResponse(**json.loads(entry['data']))
+            else:
+                del _LOCAL_PRED_CACHE[event_hash]
 
     model = model_loader.load_model()
 
@@ -133,7 +149,7 @@ def score_threat(input_data: ThreatInput) -> ThreatResponse:
         if hasattr(model, "predict_proba"):
             probabilities = model.predict_proba(feature_vector)
             malicious_prob = probabilities[0][1]
-            score = malicious_prob * 100.0
+            score = malicious_prob # 0.0 - 1.0
             confidence = max(probabilities[0])
 
         # Check for Isolation Forest / One-Class SVM (predict returns -1 for anomaly)
@@ -142,10 +158,10 @@ def score_threat(input_data: ThreatInput) -> ThreatResponse:
             pred = model.predict(feature_vector.values)[0]
             # IsolationForest: -1 = Anomaly, 1 = Normal
             if pred == -1:
-                score = 85.0  # High threat (generic for anomaly)
+                score = 0.85  # High threat (generic for anomaly)
                 confidence = 0.85  # Estimated confidence
             else:
-                score = 10.0  # Low threat
+                score = 0.10  # Low threat
                 confidence = 0.90
         else:
             raise AttributeError("Model has neither predict_proba nor predict")
@@ -165,12 +181,16 @@ def score_threat(input_data: ThreatInput) -> ThreatResponse:
         decision=map_score_to_decision(score)
     )
 
-    # 5. Populate Cache (1 hour TTL)
     if REDIS_AVAILABLE:
         try:
             redis_client.setex(event_hash, 3600, response.model_dump_json())  # 1h TTL
         except Exception as e:
             logger.debug(f"Failed to cache prediction: {e}")
+    else:
+        _LOCAL_PRED_CACHE[event_hash] = {
+            'data': response.model_dump_json(),
+            'exp': time.time() + 3600
+        }
 
     return response
 
@@ -209,8 +229,15 @@ def score_threat_batch(inputs: List[ThreatInput]) -> List[ThreatResponse]:
             uncached_indices = list(range(len(inputs)))
             uncached_events = [inp.model_dump() for inp in inputs]
     else:
-        uncached_indices = list(range(len(inputs)))
-        uncached_events = [inp.model_dump() for inp in inputs]
+        for i, inp in enumerate(inputs):
+            event_str = json.dumps(inp.model_dump(exclude={"timestamp"}), sort_keys=True)
+            h = "pred_cache:" + hashlib.md5(event_str.encode()).hexdigest()
+            hashes.append(h)
+            if h in _LOCAL_PRED_CACHE and time.time() < _LOCAL_PRED_CACHE[h]['exp']:
+                responses[i] = ThreatResponse(**json.loads(_LOCAL_PRED_CACHE[h]['data']))
+            else:
+                uncached_indices.append(i)
+                uncached_events.append(inp.model_dump())
 
     if not uncached_indices:
         return responses
@@ -234,11 +261,11 @@ def score_threat_batch(inputs: List[ThreatInput]) -> List[ThreatResponse]:
             probabilities = model.predict_proba(feature_matrix)
             malicious_probs = [p[1] for p in probabilities]
             confidences = [max(p) for p in probabilities]
-            scores = [p * 100.0 for p in malicious_probs]
+            scores = [p for p in malicious_probs] # 0.0 - 1.0
 
         elif hasattr(model, "predict"):
             preds = model.predict(feature_matrix.values)
-            scores = [85.0 if p == -1 else 10.0 for p in preds]
+            scores = [0.85 if p == -1 else 0.10 for p in preds]
             confidences = [0.85 if p == -1 else 0.90 for p in preds]
         else:
             raise AttributeError("Model has neither predict_proba nor predict")
@@ -282,5 +309,8 @@ def score_threat_batch(inputs: List[ThreatInput]) -> List[ThreatResponse]:
             pipe.execute()
         except Exception as e:
             logger.debug(f"Failed to multi-cache predictions: {e}")
+    elif cache_inserts:
+        for k, v in cache_inserts.items():
+            _LOCAL_PRED_CACHE[k] = {'data': v, 'exp': time.time() + 3600}
 
     return responses

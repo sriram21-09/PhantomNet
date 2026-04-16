@@ -40,7 +40,7 @@ def get_threat_metrics(db: Session = Depends(get_db)):
         avg_anomaly_score = total_anomaly_score / len(recent_logs)
 
         # Count Active Threats (High Severity)
-        active_threats = sum(1 for log in recent_logs if (log.threat_score or 0) > 70)
+        active_threats = sum(1 for log in recent_logs if (log.threat_score or 0) > 0.7)
 
         return {
             "threatLevel": int(avg_threat_score),

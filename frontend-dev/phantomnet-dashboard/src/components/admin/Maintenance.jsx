@@ -1,5 +1,6 @@
 import React, { useState, useCallback } from 'react';
 import { Database, Download, Upload, Zap, Trash2, CheckCircle, XCircle, Clock, HardDrive, TriangleAlert } from 'lucide-react';
+import { adminFetch } from '../../pages/AdminPanel';
 
 const API_BASE = '/api/v1/admin';
 
@@ -11,10 +12,7 @@ const Maintenance = () => {
     const [purgeDays, setPurgeDays] = useState(30);
     const [showPurgeConfirm, setShowPurgeConfirm] = useState(false);
 
-    const getHeaders = () => ({
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${localStorage.getItem('admin_token')}`,
-    });
+
 
     const setResult = (key, type, message) => {
         setResults(prev => ({ ...prev, [key]: { type, message } }));
@@ -23,7 +21,7 @@ const Maintenance = () => {
 
     const fetchBackups = useCallback(async () => {
         try {
-            const res = await fetch(`${API_BASE}/backups`, { headers: getHeaders() });
+            const res = await adminFetch(`${API_BASE}/backups`);
             const data = await res.json();
             setBackups(data.backups || []);
             setBackupsLoaded(true);
@@ -35,7 +33,7 @@ const Maintenance = () => {
     const handleBackup = async () => {
         setLoading(p => ({ ...p, backup: true }));
         try {
-            const res = await fetch(`${API_BASE}/backup`, { method: 'POST', headers: getHeaders() });
+            const res = await adminFetch(`${API_BASE}/backup`, { method: 'POST' });
             const data = await res.json();
             if (!res.ok) throw new Error(data.detail || 'Backup failed');
             setResult('backup', 'success', `Backup created: ${data.backup_file} (${data.size_mb} MB)`);
@@ -50,7 +48,7 @@ const Maintenance = () => {
     const handleVacuum = async () => {
         setLoading(p => ({ ...p, vacuum: true }));
         try {
-            const res = await fetch(`${API_BASE}/vacuum`, { method: 'POST', headers: getHeaders() });
+            const res = await adminFetch(`${API_BASE}/vacuum`, { method: 'POST' });
             const data = await res.json();
             if (!res.ok) throw new Error(data.detail || 'Vacuum failed');
             setResult('vacuum', 'success', data.message || 'Database optimized successfully');
@@ -65,8 +63,8 @@ const Maintenance = () => {
         setShowPurgeConfirm(false);
         setLoading(p => ({ ...p, purge: true }));
         try {
-            const res = await fetch(`${API_BASE}/events/old?days=${purgeDays}`, {
-                method: 'DELETE', headers: getHeaders(),
+            const res = await adminFetch(`${API_BASE}/events/old?days=${purgeDays}`, {
+                method: 'DELETE',
             });
             const data = await res.json();
             if (!res.ok) throw new Error(data.detail || 'Purge failed');

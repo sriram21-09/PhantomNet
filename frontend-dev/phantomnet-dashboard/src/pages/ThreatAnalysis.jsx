@@ -53,7 +53,7 @@ const ThreatAnalysis = () => {
         time: e.time ? new Date(e.time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : "--:--",
         ip: e.ip || "Unknown",
         type: e.threat || e.type || "Unknown",
-        score: scoreFromThreat(e.threat),
+        score: Math.round(e.score !== undefined ? e.score : scoreFromThreat(e.threat)),
         severity: severityFromThreat(e.threat),
       }));
       if (threats.length > 0) setRecentThreats(threats);
@@ -61,7 +61,7 @@ const ThreatAnalysis = () => {
       // Build summary counts
       let high = 0, medium = 0, low = 0;
       evArr.forEach(e => {
-        const s = scoreFromThreat(e.threat);
+        const s = Math.round(e.score !== undefined ? e.score : scoreFromThreat(e.threat));
         if (s >= 80) high++;
         else if (s >= 40) medium++;
         else low++;
@@ -122,12 +122,12 @@ const ThreatAnalysis = () => {
   };
 
   const getScoreBar = (score) => (
-    <div className="score-bar">
+    <div className="threat-score-bar">
       <div
-        className={`score-fill ${score >= 80 ? "high" : score >= 50 ? "medium" : "low"}`}
+        className={`threat-score-fill ${score >= 80 ? "high" : score >= 50 ? "medium" : "low"}`}
         style={{ width: `${score}%` }}
       />
-      <span className="score-value">{score}</span>
+      <span className="threat-score-value">{score}</span>
     </div>
   );
 
