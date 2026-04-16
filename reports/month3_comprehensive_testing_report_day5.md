@@ -102,4 +102,5 @@ Month 3 is verified **READY**. Proceeding to Month 4 implementation tasks.
   - Hardcoding absolute paths for SQLite `phantomnet.db` creates CI bottlenecks. Switching strictly to `relative ./` environments and dynamic MLFlow paths is crucial for seamless Dev-to-Prod pipelines.
   - Testing edge conditions (`features_matrix` without cached components) exposes index-mismatches early.
 
-- 
+-
+
