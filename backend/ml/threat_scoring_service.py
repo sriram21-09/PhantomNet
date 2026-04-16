@@ -52,8 +52,8 @@ def map_score_to_level(score: float, context: ThreatInput = None) -> str:
                 from dateutil import parser
                 dt = parser.parse(context.timestamp)
                 if 0 <= dt.hour <= 5:
-                    medium_max -= 10
-                    high_max -= 10
+                    medium_max -= 0.10
+                    high_max -= 0.10
             except:
                 pass
                 
