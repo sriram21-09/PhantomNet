@@ -1,221 +1,502 @@
-# 🛡️ PhantomNet – Adaptive AI-Driven Honeypot & Threat Intelligence Framework
+
+# 🛡️ PhantomNet – AI-Driven Distributed Honeypot Deception Framework
 
 <div align="center">
 
-![Version](https://img.shields.io/badge/Version-v3.0.0--final-brightgreen?style=for-the-badge)
+![PhantomNet](https://img.shields.io/badge/PhantomNet-v2.0-brightgreen?style=for-the-badge&logo=github)
 ![Python](https://img.shields.io/badge/Python-3.11+-3776AB?style=for-the-badge&logo=python&logoColor=white)
 ![React](https://img.shields.io/badge/React-19.0+-61DAFB?style=for-the-badge&logo=react&logoColor=black)
 ![FastAPI](https://img.shields.io/badge/FastAPI-0.104+-009688?style=for-the-badge&logo=fastapi&logoColor=white)
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15+-336791?style=for-the-badge&logo=postgresql&logoColor=white)
-![Docker](https://img.shields.io/badge/Docker-11%20Nodes-2496ED?style=for-the-badge&logo=docker&logoColor=white)
-![scikit-learn](https://img.shields.io/badge/scikit--learn-Ensemble%20ML-F7931E?style=for-the-badge&logo=scikitlearn&logoColor=white)
-![Splunk](https://img.shields.io/badge/Splunk-HEC_Enabled-000000?style=for-the-badge&logo=splunk&logoColor=white)
-![Elastic](https://img.shields.io/badge/ELK-Stack_Ready-005571?style=for-the-badge&logo=elastic&logoColor=white)
+![Docker](https://img.shields.io/badge/Docker-Enabled-2496ED?style=for-the-badge&logo=docker&logoColor=white)
+![scikit-learn](https://img.shields.io/badge/scikit--learn-ML-F7931E?style=for-the-badge&logo=scikitlearn&logoColor=white)
+![Phase](https://img.shields.io/badge/Phase_2-Complete-success?style=for-the-badge)
+![Status](https://img.shields.io/badge/Week_10-Delivered-00ff41?style=for-the-badge)
 
-**An enterprise-grade, distributed honeypot mesh powered by an Ensemble AI Engine (RF + LSTM + IForest) that detects, analyzes, and responds to cyber threats in sub-500ms.**
+**An intelligent, distributed honeypot system powered by AI/ML that detects, analyzes, and responds to cyber threats in real-time.**
 
-[Executive Summary](#-executive-summary) • [Core Subsystems](#-core-subsystems--innovations) • [Architecture](#%EF%B8%8F-system-architecture) • [Installation](#-quick-start--installation) • [API](#-api--integrations) • [Team](#-team-members)
+[Features](#-features) • [Architecture](#%EF%B8%8F-architecture) • [Quick Start](#-quick-start) • [API Reference](#-api-reference) • [Team](#-team-members)
 
 </div>
 
 ---
 
-## 🎯 Executive Summary (Final Milestone Delivered)
+## 📋 Table of Contents
 
-PhantomNet flips the script on traditional cybersecurity. Instead of building passive walls, PhantomNet deploys a highly interactive, 11-node deceptive network mesh that lures attackers in, studies their behavior using Deep Packet Inspection (DPI), and scores their payloads using an advanced Ensemble Machine Learning model.
-
-> **May 2026 Release Update:** PhantomNet has completed its final optimization and hardening sprint (Week 10). The platform is now fully production-ready, featuring a **Universal SIEM framework (ELK/Splunk)**, a dedicated **PCAP Analyzer Service**, **SHAP model explainability**, **DBSCAN campaign clustering**, and a breathtaking **React 19 Cyberpunk Dashboard** with 10 dedicated SOC views. All Git repository histories have been surgically cleaned of PCAP bloat for lightning-fast deployments.
-
----
-
-## 🌟 Core Subsystems & Innovations
-
-PhantomNet is built as a microservices architecture comprising over 60+ Python backend services and 99+ architectural documents. 
-
-### 1. 🍯 Advanced Deception Mesh (11-Node Scale)
-PhantomNet operates an 11-container scale honeypot infrastructure featuring advanced deception techniques:
-- **SSH (Port 2222):** Dynamic banners, credential harvesting, command logging, and brute-force tarpits.
-- **HTTP (Port 8080):** Fake admin panels, vulnerable file upload traps, and volumetric DDoS/flood detection.
-- **FTP (Port 2121):** Directory traversal honey-folders and sophisticated log rotation.
-- **SMTP (Port 2525):** Email spoofing detection and open-relay spam traps.
-
-### 2. 🧠 Ensemble AI Threat Engine
-Threats are no longer matched by static rules; they are scored by a multi-layered AI pipeline with **<100ms inference latency**:
-- **LSTM Attack Predictor:** A 2-layer LSTM (128 units) tracking 50-timestep sequences to predict the *next* move an attacker will make.
-- **Isolation Forest (IF):** Unsupervised anomaly baseline (contamination=0.01, 100 estimators) for zero-day payloads.
-- **Random Forest (RF):** Supervised baseline for known attack heuristics.
-- **Ensemble Scoring:** Final threat probability is a weighted decision: `50% RF + 30% LSTM + 20% IF`.
-- **Explainable AI (XAI):** Integrated `TreeExplainer` (SHAP) provides human-readable reasons for *why* an IP was flagged.
-
-### 3. 🔍 PCAP Deep Packet Inspection (DPI)
-A dedicated `pcap_analyzer.py` service actively sniffs the wire:
-- Extracts high-value Indicators of Compromise (IOCs) such as Domains, URLs, and hidden payloads from DNS/HTTP traffic.
-- Uses **Scapy** to detect 6 malicious patterns natively: SYN floods, Port Scans, NULL Scans, C2 Beaconing, Data Exfiltration, and Buffer Overflows.
-
-### 4. 🔄 Universal SIEM Integration
-Designed for the modern SOC, PhantomNet ships with an Abstract Factory pattern supporting instant export to major SIEMs:
-- **ELK Stack:** Logstash pipeline (`phantomnet.conf`) with GeoIP enrichment, threat-level tagging, and ILM rollovers.
-- **Splunk HEC:** Native `splunk_exporter.py` supporting batch events, HEC envelope formatting, and automated retry logic.
-- **Syslog/CEF:** Legacy enterprise support.
-
-### 5. 📊 Tactical React 19 SOC Dashboard
-The frontend (`phantomnet-dashboard`) is a masterpiece of React + Vite + Recharts:
-- **10 Unique Views:** Main NOC, Threat Analysis, Threat Hunting, Topography, Geo Stats, Analytics, Advanced NOC, PCAP Analysis, Events, and Admin.
-- **WebSockets:** Zero-latency streaming event logs and metrics.
-- **Threat Hunting UI:** React query builder for deep IOC correlation and DBSCAN-based attack campaign clustering.
+- [🎯 About PhantomNet](#-about-phantomnet)
+- [✨ Features](#-features)
+- [🏗️ Architecture](#%EF%B8%8F-architecture)
+- [🛠️ Technology Stack](#%EF%B8%8F-technology-stack)
+- [⚡ Quick Start](#-quick-start)
+- [📦 Installation](#-installation)
+- [🔌 API Reference](#-api-reference)
+- [🧪 Testing](#-testing)
+- [📚 Documentation](#-documentation)
+- [📈 Roadmap](#-roadmap)
+- [👥 Team](#-team-members)
+- [💡 Contributing](#-contributing)
 
 ---
 
-## 🏗️ System Architecture
+## 🎯 About PhantomNet
 
-PhantomNet relies on a fully decoupled, asynchronous event-driven design. Endpoints utilize `uvicorn` and Python `asyncio` to ensure socket checks and ML pipeline executions are entirely non-blocking (achieving sub-500ms round trips).
+**PhantomNet** is a final-year engineering capstone project that combines **distributed systems**, **cybersecurity**, and **artificial intelligence** to create an adaptive honeypot mesh. Unlike traditional static honeypots that attackers can easily detect and fingerprint, PhantomNet creates an **intelligent deception layer** that:
+
+- 🔍 **Detects** cyber attacks across multiple protocols (SSH, HTTP, FTP, SMTP) in real-time
+- 🧠 **Learns** attacker behavior using IsolationForest anomaly detection and supervised ML models
+- 🎯 **Scores** every network packet with a threat probability (0–100) and recommended action
+- 📊 **Visualizes** threats on a live cyberpunk-styled dashboard with auto-refresh
+- 🔐 **Responds** with automated decisions: ALLOW, ALERT, or BLOCK
+
+### 🎓 Educational Value
+
+This project demonstrates:
+- Advanced Python programming for security applications
+- Microservices architecture with Docker Compose
+- Machine learning in production cybersecurity workloads
+- Full-stack development: FastAPI backend + React 19 frontend
+- CI/CD with GitHub Actions and MLflow model registry
+
+---
+
+## ✨ Features
+
+### 🍯 Multi-Protocol Honeypots
+
+| Protocol | Port | Status | Capabilities |
+|----------|------|--------|-------------|
+| **SSH** | 2222 | ✅ Active | Full authentication simulation, command logging, brute-force detection |
+| **HTTP** | 8080 | ✅ Active | Fake admin panels, login pages, file upload traps, flood detection |
+| **FTP** | 2121 | ✅ Active | Directory traversal traps, file access logging, log rotation |
+| **SMTP** | 2525 | ✅ Active | Email spoofing detection, spam trap |
+| **Database** | 3306 | 🔮 Planned | SQL injection honeypot, credential theft detection |
+
+### 🤖 AI/ML Threat Analysis Engine
+
+| Component | Technology | Purpose |
+|-----------|-----------|---------|
+| **Threat Scoring** | IsolationForest / RandomForest | Real-time threat probability (0–100) per packet |
+| **Feature Extraction** | Custom `FeatureExtractor` (15 features) | Packet size, protocol, port, entropy, rolling stats |
+| **Background Analyzer** | `ThreatAnalyzerService` | Polls unscored logs every 5s, updates DB with scores |
+| **Model Registry** | MLflow + joblib | Versioned model storage, Production/Staging stages |
+| **Caching** | In-memory IP cache (60s TTL) | Avoids redundant scoring for repeat attackers |
+
+### 📊 Protocol Analytics & Attack Detection
+
+- **Brute-Force Detection**: Identifies IPs exceeding threshold within time window
+- **HTTP Flood Detection**: Flags potential DDoS sources
+- **Time-Series Trends**: Daily attack volume for the last N days
+- **Top Attacker Ranking**: Per-protocol IP leaderboards
+
+### 🖥️ Real-Time Dashboard
+
+- **Advanced NOC**: Live WebSocket event stream with auto-scroll (50-event buffer)
+- **Live Metrics**: Events/min sparkline, threat distribution pie chart, system health bars
+- **Predictive Analytics**: LSTM-V3 forecasting, risk scores, next-attack countdown
+- **Attack Attribution**: Multi-attacker profiling, tool detection, confidence ring gauge
+- **Threat Hunting**: Advanced search, case management, IOC extraction
+- **12+ Pages**: Dashboard, Events, Analytics, Topology, Geo Stats, Threat Hunting, Admin Panel, & more
+
+### 🔐 Admin Panel & RBAC
+
+- **JWT Authentication**: Secure login with role-based access control
+- **User Management**: CRUD operations with Admin/Analyst/Viewer roles
+- **System Configuration**: ML thresholds, honeypot settings, SIEM integration, performance tuning
+- **Maintenance Tools**: Database backup/restore, vacuum/optimize, data purging
+
+### 🐳 Deployment & Scalability
+
+- **7 Docker Services**: PostgreSQL, SSH, HTTP, FTP, SMTP honeypots, API, Frontend
+- **One-Command Deploy**: `docker-compose up -d` brings up the entire platform
+- **Production Config**: Resource limits, restart policies, health checks
+- **API-First Design**: RESTful API with auto-generated OpenAPI/Swagger docs
+
+---
+
+## 🏗️ Architecture
+
+### System Overview
 
 ```mermaid
 graph TD
-    Attacker[🎭 Attacker / Botnet] -->|Scans & Exploits| Honeypots
+    Attacker[🎭 Attacker] -->|Scans / Attacks| Honeypots
     
-    subgraph Deception Layer ["🍯 11-Node Honeypot Mesh"]
+    subgraph Honeypots["🍯 Honeypot Network"]
         SSH[SSH :2222]
         HTTP[HTTP :8080]
         FTP[FTP :2121]
         SMTP[SMTP :2525]
     end
     
-    Honeypots -->|Async Logs| DB[(PostgreSQL 15)]
-    Sniffer[🔍 PCAP Scapy DPI] -->|IOCs & Payloads| DB
+    Honeypots -->|Log Events| DB[(PostgreSQL)]
+    Sniffer[🔍 Traffic Sniffer] -->|Raw Packets| DB
     
-    DB -->|Unscored Packets| Analyzer[🧠 ML Ensemble Engine]
-    Analyzer -->|LSTM + RF + IF + SHAP| Analyzer
-    Analyzer -->|Threat Confidence %| DB
+    DB -->|Unscored Logs| Analyzer[🧠 Threat Analyzer]
+    Analyzer -->|Feature Extraction| ML[ML Engine]
+    ML -->|Score + Decision| Analyzer
+    Analyzer -->|Update Records| DB
     
-    API[⚡ FastAPI Backend] <-->|Batch Caching / Async| DB
-    Exporter[🔄 Universal SIEM Exporter] -->|Push| SplunkELK[Splunk / ELK / Syslog]
-    DB --> Exporter
-    
-    Dashboard[📊 React 19 Dashboard] <-->|REST & WSS| API
-    Dashboard -->|Visualize| Admin[👤 SOC Analyst / Threat Hunter]
+    API[⚡ FastAPI Backend] -->|Query| DB
+    Dashboard[📊 React Dashboard] -->|REST API| API
+    Dashboard -->|Visualize| Admin[👤 Security Admin]
 ```
 
+### Architecture Diagrams
+
+<details>
+<summary>📐 Click to expand all architecture diagrams</summary>
+
+#### 1. System Architecture
+<img width="2328" height="3411" alt="System Architecture" src="https://github.com/user-attachments/assets/1a0eeeec-0e93-4d98-bcea-eb14b3d5f743" />
+
+#### 2. Data Flow Diagram
+<img width="1396" height="2052" alt="Data Flow Diagram" src="https://github.com/user-attachments/assets/e4bb15e0-4755-4ea9-a52c-075db8c7fa5c" />
+
+#### 3. Component Interaction
+<img width="559" height="1970" alt="Component Interaction" src="https://github.com/user-attachments/assets/0180e14a-b795-4255-b067-047002c813d6" />
+
+#### 4. Deployment Architecture
+<img width="2462" height="1176" alt="Deployment Architecture" src="https://github.com/user-attachments/assets/8c03a833-ab38-45d8-b93b-794c01bb1c73" />
+
+#### 5. Database Schema (ERD)
+<img width="1648" height="1787" alt="Database Schema" src="https://github.com/user-attachments/assets/52b4fb98-1777-468c-8afb-888968574e76" />
+
+#### 6. Network Topology
+<img width="1971" height="1354" alt="Network Topology" src="https://github.com/user-attachments/assets/abd39504-1750-43f3-a41a-7b770af7d023" />
+
+#### 7. CI/CD Pipeline
+<img width="3604" height="262" alt="CI/CD Pipeline" src="https://github.com/user-attachments/assets/5b2d2168-ac3b-4b5e-a949-46f5e0f9437c" />
+
+#### 8. Security Architecture
+<img width="636" height="3254" alt="Security Architecture" src="https://github.com/user-attachments/assets/1320379d-11bd-4c95-a3e6-19cf1d60bb00" />
+
+#### 9. Technology Stack Diagram
+<img width="471" height="3342" alt="Technology Stack" src="https://github.com/user-attachments/assets/1fa3c839-3ef6-489d-b4e0-ea37f12b94a2" />
+
+#### 10. Attack Flow Sequence
+<img width="3568" height="1326" alt="Attack Flow" src="https://github.com/user-attachments/assets/1e6c657d-51fb-439c-b4a2-fcc32ed190d0" />
+
+</details>
+
 ---
 
-## 🧰 Full Technology Stack
+## 🛠️ Technology Stack
 
-| Layer | Technologies Used |
-|-------|-------------------|
-| **Core Backend** | Python 3.11, FastAPI, Uvicorn, asyncio, SQLAlchemy 2.0 |
-| **Data & Storage** | PostgreSQL 15, Redis (IP Caching) |
-| **Machine Learning** | scikit-learn, TensorFlow (LSTM), SHAP, MLflow Registry, DBSCAN |
-| **Network Security** | Scapy (DPI/Sniffing), Paramiko (SSH Auth), pyftpdlib |
-| **Frontend UI** | React 19.2, Vite (Rolldown), Tailwind CSS, Recharts, Axios, WebSockets |
-| **SIEM & DevOps** | Docker, Docker Compose, GitHub Actions, Splunk HEC, Logstash |
-| **Quality Control** | Pytest, Locust (50+ concurrent user load testing without failure) |
+### Backend
+
+| Component | Technology | Purpose |
+|-----------|-----------|---------|
+| **Language** | Python 3.11 | Core development |
+| **Framework** | FastAPI + Uvicorn | Async REST API with auto-docs |
+| **ORM** | SQLAlchemy 2.0 | Database abstraction & migrations |
+| **Database** | PostgreSQL 15 (Alpine) | Event storage, packet logs, threat scores |
+| **ML** | scikit-learn, joblib, MLflow | Model training, serialization, registry |
+| **Network** | Paramiko, Scapy, pyftpdlib | Protocol simulation & traffic capture |
+| **Logging** | Python `logging` module | Structured JSON logging with rotation |
+
+### Frontend
+
+| Component | Technology | Purpose |
+|-----------|-----------|---------|
+| **Framework** | React 19.2 | Interactive UI components |
+| **Build Tool** | Vite (Rolldown) | Sub-second HMR, optimized builds |
+| **Styling** | Tailwind CSS | Utility-first responsive design |
+| **Charts** | Recharts | Threat score visualization |
+| **HTTP** | Axios | API communication |
+| **Testing** | Vitest + Playwright | Unit & E2E testing |
+| **Docs** | Storybook 10 | Component documentation |
+
+### DevOps & Infrastructure
+
+| Component | Technology | Purpose |
+|-----------|-----------|---------|
+| **Containerization** | Docker + Docker Compose | 7-service orchestration |
+| **CI/CD** | GitHub Actions | Automated testing & deployment |
+| **Load Testing** | Locust | Concurrent user simulation |
+| **Model Tracking** | MLflow | Experiment tracking & model versioning |
+| **Version Control** | Git / GitHub | Branching strategy with weekly releases |
 
 ---
 
-## ⚡ Quick Start & Installation
+## ⚡ Quick Start
 
 ### Prerequisites
-* **Docker** (v24+) & **Docker Compose** (v2+)
-* **Python** (3.11+) & **Node.js** (v18+)
-* **Hardware Profile:** Minimum 4GB RAM required for the ML Ensemble.
-
-### 🐳 Instant Production Deployment (Recommended)
-Launch the entire massive multi-container stack in under 60 seconds:
 
 ```bash
-# 1. Clone the repository
+python --version          # 3.11+
+node --version            # 18+
+docker --version          # 20+
+docker compose version    # v2+
+git --version
+```
+
+### Clone & Run (Docker — Recommended)
+
+```bash
+# Clone
 git clone https://github.com/sriram21-09/PhantomNet.git
 cd PhantomNet
 
-# 2. Deploy all services (DB, Backend, Frontend, Honeypots, PCAP Analyzer)
+# Start all 7 services
 docker-compose up -d
 
-# 3. Verify System Health
+# Verify
 docker-compose ps
 ```
 
-### 💻 Local Development Setup
+### Access Services
 
-#### Backend Engine (FastAPI)
+| Service | URL | Description |
+|---------|-----|-------------|
+| **Dashboard** | http://localhost:3000 | React frontend |
+| **API Docs (Swagger)** | http://localhost:8000/docs | Interactive API explorer |
+| **API Health** | http://localhost:8000/health | JSON health check |
+| **SSH Honeypot** | `ssh -p 2222 localhost` | SSH trap |
+| **HTTP Honeypot** | http://localhost:8080 | Web trap |
+| **FTP Honeypot** | `ftp localhost 2121` | FTP trap |
+
+---
+
+## 📦 Installation
+
+### Local Development (Without Docker)
+
+#### 1. Backend Setup
+
 ```bash
 cd backend
+
+# Create virtual environment
 python -m venv venv
 
-# Activate Environment
-venv\Scripts\Activate.ps1   # Windows
-source venv/bin/activate    # Linux/Mac
+# Activate (Windows PowerShell)
+venv\Scripts\Activate.ps1
 
-# Install 60+ dependencies
+# Activate (Linux/macOS)
+source venv/bin/activate
+
+# Install dependencies
 pip install -r requirements.txt
+```
 
-# Start Async API Server
+#### 2. Environment Configuration
+
+Create `backend/.env`:
+
+```env
+DATABASE_URL=postgresql://postgres:postgres@localhost:5432/phantomnet
+ENVIRONMENT=local
+```
+
+#### 3. Start Backend
+
+```bash
+cd backend
 uvicorn main:app --host 127.0.0.1 --port 8000 --reload
 ```
 
-#### Frontend Dashboard (React)
+#### 4. Frontend Setup
+
 ```bash
-cd frontend-dev/phantomnet-dashboard
+cd frontend-dev
 npm install
 npm run dev
 ```
 
-### 🌐 Key Access Points
-| Service | URL / Command | Purpose |
-|---------|---------------|-------------|
-| **SOC Dashboard** | `http://localhost:3000` | Main User Interface (React) |
-| **API Swagger Docs** | `http://localhost:8000/docs` | Interactive OpenAPI Specification |
-| **SSH Honeypot** | `ssh -p 2222 admin@localhost` | Trigger SSH Brute-force traps |
-| **HTTP Honeypot** | `http://localhost:8080/admin` | Trigger Web Flood traps |
-| **FTP Honeypot** | `ftp localhost 2121` | Trigger Directory Traversal traps |
+#### 5. Access
+
+- **Frontend**: http://localhost:5173 (Vite dev server)
+- **API Docs**: http://localhost:8000/docs
+- **API Health**: http://localhost:8000/health
 
 ---
 
-## 📂 Project Structure
+## 🔌 API Reference
 
-```text
-PhantomNet/
-├── backend/                  # FastAPI Application & Microservices
-│   ├── api/                  # 30+ REST and WebSocket Routes
-│   ├── core/                 # ML Ensemble Engine & SIEM Exporters
-│   ├── models/               # SQLAlchemy DB Schemas & Migrations
-│   └── tests/                # Pytest Suites & Locust Load Tests
-├── frontend-dev/             # React 19 Frontend App
-│   └── phantomnet-dashboard/ # 15+ UI Components, Hooks, & Views
-├── honeypots/                # Custom Python-based Protocol Traps
-│   ├── ssh_honeypot.py       # Tarpits & Credential Harvester
-│   ├── http_honeypot.py      # Volumetric Analysis
-│   └── ftp_honeypot.py       
-├── ml/                       # Machine Learning Training Pipelines
-│   ├── MLflow_Registry/      # Model Tracking & Versioning
-│   └── models/               # Pre-trained RF, IF, and LSTM weights
-├── docs/                     # 99+ Architectural Docs & Playbooks
-├── docker-compose.yml        # Orchestration Config (11 Nodes)
-└── requirements.txt          # Python Master Dependencies
+### Core Endpoints
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `GET` | `/health` | Health check (DB connectivity) |
+| `GET` | `/api/events` | Paginated traffic events with filtering |
+| `GET` | `/api/stats` | Dashboard aggregate statistics |
+| `GET` | `/api/honeypots/status` | Live honeypot connectivity & last seen |
+| `GET` | `/api/traffic` | Real-time traffic feed |
+| `WS` | `/api/v1/realtime/ws` | WebSocket live event stream |
+
+### Threat Analysis
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `POST` | `/api/v1/analyze/threat-score` | Score a packet → returns threat level, confidence, decision |
+| `GET` | `/api/v1/attribution/profile/{ip}` | Full attacker profile with tool detection |
+| `GET` | `/api/v1/attribution/top-attackers` | Top attackers ranked by activity |
+| `GET` | `/api/v1/predictive/forecast` | 6-hour threat forecast |
+| `GET` | `/api/v1/predictive/risk-score` | Aggregate risk score |
+| `GET` | `/api/v1/predictive/next-attack` | Next attack prediction |
+
+### Protocol Analytics
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `GET` | `/api/v1/analytics/ssh` | SSH stats + brute-force suspects |
+| `GET` | `/api/v1/analytics/http` | HTTP stats + flood suspects |
+| `GET` | `/api/v1/analytics/trends?days=7` | Daily attack volume (time-series) |
+
+### Admin Panel
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `POST` | `/api/v1/admin/login` | JWT authentication |
+| `GET/POST/PUT/DELETE` | `/api/v1/admin/users` | User CRUD (Admin only) |
+| `GET/PUT` | `/api/v1/admin/config` | System configuration |
+| `GET` | `/api/v1/admin/system-overview` | Component status & resources |
+| `POST` | `/api/v1/admin/backup` | Database backup |
+| `POST` | `/api/v1/admin/vacuum` | Database optimization |
+| `DELETE` | `/api/v1/admin/events/old` | Purge old data |
+
+### Active Defense
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `POST` | `/api/active-defense/block/{ip}` | Block an attacker IP |
+
+> 📖 **Full interactive API docs**: http://localhost:8000/docs
+
+---
+
+## 🧪 Testing
+
+### Run Integration Tests
+
+```bash
+# From project root
+cd backend
+venv\Scripts\pytest tests/ -v
 ```
 
----
+### Load Testing (Locust)
 
-## 🔬 Testing, Performance, & Security Hardening
+```bash
+# Install Locust
+pip install locust
 
-PhantomNet is fortified for enterprise deployments, having completed a massive Phase 3 optimization and audit:
-- **Zero API Bottlenecks:** Endpoints completely refactored to `async/await` handling 50+ concurrent requests gracefully with ~13ms average responses via `Locust`.
-- **Smart IP Caching:** Repeated attacks from the same IP bypass the heavy ML pipeline using a 60s TTL IP cache, saving massive computational overhead.
-- **Clean Git History:** Large, stale PCAP files and config bloat have been permanently purged, ensuring a lightweight and completely conflict-free repository.
-- **RBAC & Zero Trust:** API secured via JWT with strict Role-Based Access Control (Admin/Analyst/Viewer). Honeypots operate in strictly isolated Docker namespaces.
+# Run headless load test (50 concurrent users, 1 minute)
+locust -f tests/load_test_config.py --headless -u 50 -r 5 -t 1m --host http://127.0.0.1:8000
+```
 
----
+### Test Results (Week 8)
 
-## 📜 Outstanding Technical Debt & Future Roadmap
-
-As PhantomNet transitions from an academic capstone to an open-source enterprise tool, the following low-priority technical debt remains tracked for future releases:
-- [ ] **Windows DPI Limitations:** Scapy requires `Npcap` natively on Windows (Works flawlessly on Linux/Docker out-of-the-box).
-- [ ] **API Rate Limiting:** Planned implementation of FastAPI middleware for aggressive rate limiting to protect the dashboard backend.
-- [ ] **E2E Testing:** Expanding UI test coverage using Cypress or Playwright.
-- [ ] **Splunk Templates:** While the Kibana dashboard `.json` is included, the Splunk equivalent dashboard template is pending creation.
+| Test Type | Result | Details |
+|-----------|--------|---------|
+| **Integration** | ✅ 6/6 Passed | Health, Threat Scoring, SSH/HTTP Analytics, Trends, Honeypot Status |
+| **Load Test** | ✅ 0% Error Rate | 50 concurrent users, ~13ms avg response, stable throughput |
+| **Live Scoring** | ✅ Passed | ThreatAnalyzerService correctly scores and updates DB records |
 
 ---
 
-## 👥 Meet the Team
+## 📚 Documentation
+
+### Project Documents
+
+| Document | Description |
+|----------|-------------|
+| [`docs/system_architecture.md`](docs/system_architecture.md) | System diagrams and data flow |
+| [`docs/phase2_completion_report.md`](docs/phase2_completion_report.md) | Phase 2 milestone summary |
+| [`docs/integration_test_week8.md`](docs/integration_test_week8.md) | Integration & load test results |
+| [`docs/protocol_analytics_api.md`](docs/protocol_analytics_api.md) | Analytics API reference |
+| [`docs/api_design.md`](docs/api_design.md) | API design specification |
+| [`docs/setup_guide.md`](docs/setup_guide.md) | Detailed installation guide |
+| [`docs/CONTRIBUTING.md`](docs/CONTRIBUTING.md) | Contribution guidelines |
+| [`docs/retrospective/WEEK9_RETRO.md`](docs/retrospective/WEEK9_RETRO.md) | Week 9 completion & retrospective |
+| [`docs/retrospective/WEEK10_RETRO.md`](docs/retrospective/WEEK10_RETRO.md) | Week 10 completion & retrospective |
+| [`docs/WEEK10_PLAN.md`](docs/WEEK10_PLAN.md) | Week 10 roadmap & objectives |
+| [`demos/week10_demo/`](demos/week10_demo/) | Week 10 demo materials & slides |
+| [`backend/api/openapi.yaml`](backend/api/openapi.yaml) | OpenAPI 3.0 specification |
+
+### External References
+
+- [OWASP Honeypot Project](https://owasp.org/)
+- [scikit-learn Documentation](https://scikit-learn.org/)
+- [FastAPI Documentation](https://fastapi.tiangolo.com/)
+- [React Documentation](https://react.dev/)
+- [Docker Documentation](https://docs.docker.com/)
+
+---
+
+## 🔒 Security
+
+| Feature | Implementation |
+|---------|---------------|
+| **Input Validation** | Pydantic v2 schema enforcement on all API inputs |
+| **CORS** | Configured allowlist for frontend origins |
+| **SQL Injection** | Protected via SQLAlchemy ORM (parameterized queries) |
+| **Honeypot Isolation** | Each honeypot runs in a separate Docker container |
+| **Credential Safety** | Environment variables via `.env` (never committed) |
+| **Log Sanitization** | Standardized JSON logging, no raw credential storage |
+
+---
+
+## 📈 Roadmap
+
+### ✅ Phase 1: Foundation (Weeks 1–4) — Complete
+- [x] Project setup, GitHub repo, CI/CD
+- [x] PostgreSQL database schema (`packet_logs`, `traffic_stats`)
+- [x] SSH honeypot (Paramiko) with authentication logging
+- [x] Basic FastAPI backend with CRUD endpoints
+- [x] React frontend skeleton
+
+### ✅ Phase 2: Intelligence & Active Defense (Weeks 5–8) — Complete
+- [x] HTTP & FTP honeypots (Dockerized, JSON logging)
+- [x] SMTP honeypot
+- [x] Traffic sniffer with Scapy (real-time packet capture)
+- [x] ML threat scoring (IsolationForest, RandomForest)
+- [x] ThreatAnalyzerService (background scoring every 5s)
+- [x] Protocol Analytics API (SSH brute-force, HTTP flood detection)
+- [x] Cyberpunk dashboard with Tailwind CSS
+- [x] Integration & load testing (50 concurrent users, 0% errors)
+- [x] Full documentation & OpenAPI spec
+
+### ✅ Phase 2.5: Advanced Dashboard & Admin (Weeks 9–10) — Complete
+- [x] Real-time WebSocket event stream with live metrics
+- [x] LSTM-V3 predictive analytics with attack forecasting
+- [x] Attack attribution system with confidence scoring
+- [x] Threat hunting interface with case management & IOC extraction
+- [x] Admin panel with JWT + RBAC (Admin/Analyst/Viewer)
+- [x] System configuration editor & database maintenance tools
+- [x] Advanced analytics with MTTD/MTTR & export (PDF/CSV)
+- [x] 12+ dashboard pages with premium cyberpunk UI
+
+### 🔮 Phase 3: Hardening & Scale (Week 11+)
+- [ ] Multi-tenancy support
+- [ ] Compliance reporting (GDPR/HIPAA)
+- [ ] LSTM with attention mechanism
+- [ ] Mobile-responsive dashboard
+- [ ] Firewall API integration (iptables/Windows Firewall)
+- [ ] Federated learning prototype
+- [ ] Kubernetes deployment
+- [ ] API rate limiting
+- [ ] E2E testing suite (Playwright)
+- [ ] Security hardening audit
+
+---
+
+## 📊 Project Statistics
+
+| Metric | Value |
+|--------|-------|
+| **Team Size** | 4 members |
+| **Project Duration** | 8 months (32 weeks) |
+| **Docker Services** | 7 (DB, 4 Honeypots, API, Frontend) |
+| **API Endpoints** | 30+ |
+| **Dashboard Pages** | 12+ |
+| **ML Features Extracted** | 15 per packet |
+| **Documentation Files** | 70+ |
+| **Test Pass Rate** | 100% |
+
+---
+
+## 👥 Team Members
 
 | Role | Name | GitHub | Email |
 |------|------|--------|-------|
@@ -226,24 +507,61 @@ As PhantomNet transitions from an academic capstone to an open-source enterprise
 
 ---
 
-## 🤝 Contributing
+## 💡 Contributing
 
-We welcome security researchers, data scientists, and UI developers! Please review our extensive `docs/CONTRIBUTING.md` which covers our PR standards, branch naming conventions, and ML retraining lifecycle.
+We welcome contributions! Please see [`docs/CONTRIBUTING.md`](docs/CONTRIBUTING.md) for full guidelines.
 
 ```bash
-git checkout -b feature/advanced-c2-detection
-git commit -m "[ML] feat: Added DBSCAN clustering for C2 beacons"
-git push origin feature/advanced-c2-detection
+# Fork & Clone
+git clone https://github.com/sriram21-09/PhantomNet.git
+
+# Create feature branch
+git checkout -b feature/your-feature-name
+
+# Commit (follow conventions)
+git commit -m "[Role] type: description"
+# Example: "[Security-Dev] feat: SSH honeypot hardening"
+
+# Push & create PR
+git push origin feature/your-feature-name
 ```
 
-## ⚖️ License & Acknowledgments
-
-* Architecture inspired by the **OWASP Honeypot Project**.
-* Special thanks to our Faculty Advisor and the open-source maintainers of FastAPI, React, Scapy, and Scikit-Learn.
+### Coding Standards
+- **Python**: PEP 8, type hints, docstrings
+- **JavaScript**: ESLint, functional components
+- **Git**: Conventional commits, one feature per PR
+- **Docs**: Update relevant docs with every feature
 
 ---
+
+## 🙏 Acknowledgments
+
+- **OWASP** for honeypot concepts and security guidelines
+- **scikit-learn** for the machine learning library
+- **FastAPI** for the high-performance async framework
+- **React** community for the frontend ecosystem
+- **Docker** for containerization platform
+- **PostgreSQL** for the reliable database engine
+- Our **faculty advisor** for guidance and support
+
+---
+
 <div align="center">
-  <b>Detecting Threats Before They Strike</b><br>
-  <i>Built with ❤️ by the PhantomNet Team</i><br>
-  <code>Last Updated: May 2026 | Milestone: 20/20 Features Complete</code>
+
+### 🚀 Built with ❤️ by the PhantomNet Team
+
+**"Detecting Threats Before They Strike"**
+
+![Python](https://img.shields.io/badge/-Python-3776AB?style=flat-square&logo=python&logoColor=white)
+![FastAPI](https://img.shields.io/badge/-FastAPI-009688?style=flat-square&logo=fastapi&logoColor=white)
+![React](https://img.shields.io/badge/-React-61DAFB?style=flat-square&logo=react&logoColor=black)
+![Docker](https://img.shields.io/badge/-Docker-2496ED?style=flat-square&logo=docker&logoColor=white)
+![PostgreSQL](https://img.shields.io/badge/-PostgreSQL-336791?style=flat-square&logo=postgresql&logoColor=white)
+![scikit-learn](https://img.shields.io/badge/-scikit--learn-F7931E?style=flat-square&logo=scikitlearn&logoColor=white)
+
+---
+
+**Last Updated**: March 6, 2026  
+**Status**: 🟢 Week 10 Delivered (Phase 3 Ready)
+
 </div>
