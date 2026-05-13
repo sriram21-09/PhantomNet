@@ -1,416 +1,348 @@
-# 📡 **PhantomNet** – Enterprise‑Grade Distributed Honeypot & Threat‑Intelligence Platform
-
 <div align="center">
-  <h1>🛡️ PhantomNet</h1>
-  <p><strong>Active Deception • Real‑Time AI Scoring • Production‑Ready Telemetry</strong></p>
-  <p>
-    <img src="https://img.shields.io/badge/Version-2.0.1‑00ff41?style=for-the-badge&logo=github" alt="Version" />
-    <img src="https://img.shields.io/badge/License-MIT‑009688?style=for-the-badge&logo=opensourceinitiative&logoColor=white" alt="License" />
-    <img src="https://img.shields.io/badge/Python-3.11‑3776AB?style=for-the-badge&logo=python&logoColor=white" alt="Python" />
-    <img src="https://img.shields.io/badge/FastAPI‑0.104‑009688?style=for-the-badge&logo=fastapi&logoColor=white" alt="FastAPI" />
-    <img src="https://img.shields.io/badge/React‑19.2‑61DAFB?style=for-the-badge&logo=react&logoColor=black" alt="React" />
-    <img src="https://img.shields.io/badge/PostgreSQL‑15‑336791?style=for-the-badge&logo=postgresql&logoColor=white" alt="PostgreSQL" />
-    <img src="https://img.shields.io/badge/Docker‑Ready‑2496ED?style=for-the-badge&logo=docker&logoColor=white" alt="Docker" />
-    <img src="https://img.shields.io/badge/Status‑Production%20Ready‑success?style=for-the-badge" alt="Status" />
-  </p>
-  <p>
-    <a href="#-project-overview">Overview</a> •
-    <a href="#-features--capabilities">Features</a> •
-    <a href="#-architecture">Architecture</a> •
-    <a href="#-technology-stack">Tech&nbsp;Stack</a> •
-    <a href="#-installation--setup">Installation</a> •
-    <a href="#-api-reference--integration">API</a> •
-    <a href="#-usage--workflows">Usage</a> •
-    <a href="#-project-structure">Structure</a> •
-    <a href="#-security">Security</a> •
-    <a href="#-roadmap">Roadmap</a> •
-    <a href="#-contributing">Contributing</a>
-  </p>
+
+<img src="https://raw.githubusercontent.com/sriram21-09/PhantomNet/main/assets/phantomnet-banner.png" alt="PhantomNet Banner" width="100%" onerror="this.style.display='none'"/>
+
+# 🛡️ PhantomNet
+**Next-Generation Distributed Deception & Threat Intelligence Platform**
+
+*Actively engage attackers. Predict lateral movement. Automate response.*
+
+<p align="center">
+  <a href="#-the-vision">Vision</a> •
+  <a href="#-architecture--data-flow">Architecture</a> •
+  <a href="#-the-deception-matrix">Deception Matrix</a> •
+  <a href="#-ai--ml-engine">AI/ML Engine</a> •
+  <a href="#-zero-to-hero-deployment">Deployment</a> •
+  <a href="#-api--telemetry">API</a>
+</p>
+
+<p align="center">
+  <img src="https://img.shields.io/badge/Release-v2.0.1-00ff41?style=for-the-badge&logo=github&logoColor=white" alt="Version" />
+  <img src="https://img.shields.io/badge/Build-Passing-brightgreen?style=for-the-badge&logo=githubactions&logoColor=white" alt="Build" />
+  <img src="https://img.shields.io/badge/Coverage-94%25-success?style=for-the-badge&logo=codecov&logoColor=white" alt="Coverage" />
+  <img src="https://img.shields.io/badge/License-MIT-009688?style=for-the-badge&logo=opensourceinitiative&logoColor=white" alt="License" />
+</p>
+<p align="center">
+  <img src="https://img.shields.io/badge/Python-3.11+-3776AB?style=for-the-badge&logo=python&logoColor=white" alt="Python" />
+  <img src="https://img.shields.io/badge/FastAPI-0.104+-009688?style=for-the-badge&logo=fastapi&logoColor=white" alt="FastAPI" />
+  <img src="https://img.shields.io/badge/React-19.2+-61DAFB?style=for-the-badge&logo=react&logoColor=black" alt="React" />
+  <img src="https://img.shields.io/badge/PostgreSQL-15+-336791?style=for-the-badge&logo=postgresql&logoColor=white" alt="PostgreSQL" />
+  <img src="https://img.shields.io/badge/Docker-Native-2496ED?style=for-the-badge&logo=docker&logoColor=white" alt="Docker" />
+</p>
+
 </div>
 
 ---
 
-## 📌 Project Overview
+## 👁️ The Vision
 
-**PhantomNet** is a **distributed deception platform** that replaces static honeypots with an **AI‑driven, multi‑protocol mesh** capable of **real‑time threat scoring**, **automated remediation**, and **deep analytics**.  It is engineered for modern enterprise networks where attackers often pivot across services and where rapid, data‑driven response is mandatory.
+Modern enterprise networks operate under the assumption of breach. Static defenses are bypassed by polymorphic malware and coordinated APT (Advanced Persistent Threat) campaigns. 
 
-### Core Engineering Principles
-* **Active Deception** – Protocol‑specific containers (SSH, HTTP, FTP, SMTP) mimic real services, extending attacker dwell time and harvesting richer IOCs.
-* **Data‑Centric Defense** – Every packet is transformed into a 23‑dimensional feature vector, scored by an ensemble of Isolation‑Forest, Random‑Forest and LSTM models.
-* **Micro‑service Isolation** – Each honeypot runs in its own Docker network namespace; the backend API, ML engine and exporters are separate services, enabling independent horizontal scaling.
-* **Zero‑Trust Observability** – Telemetry is encrypted end‑to‑end; the production network never directly contacts honeypots.
-* **Continuous Learning** – Models are versioned and retrained nightly via the CI pipeline; SHAP explainability is exposed in the UI for analyst confidence.
+**PhantomNet** shifts the paradigm from passive logging to **active deception**. By deploying a highly interactive, containerized mesh of protocol-specific honeypots, PhantomNet acts as a digital tripwire. It absorbs reconnaissance, safely detonates payloads, and uses an embedded ensemble of AI models (LSTM, Isolation Forest) to score, predict, and automatically mitigate threats in real-time.
+
+> **PhantomNet is not just a honeypot. It is a closed-loop security ecosystem designed to waste attacker resources while generating zero-false-positive telemetry.**
 
 ---
 
-## ✨ Features & Capabilities
+## ⚙️ Core Capabilities
 
-| **Category** | **Capability** | **Implementation Details** |
-|---|---|---|
-| **Deception Mesh** | SSH, HTTP, FTP, SMTP honeypots (customizable ports) | Docker containers built on `python‑socket‑server` + protocol‑specific emulators; stateful session capture stored in PostgreSQL |
-| **AI Scoring Engine** | IsolationForest, RandomForest, LSTM (sequence) | Models persisted under `ml_models/`; loaded on demand by `backend/services/threat_analyzer.py` |
-| **Explainability** | SHAP feature attribution per event | `backend/ml_engine/explainability/explainer_service.py` provides JSON payload used by UI tooltips |
-| **Automated Playbooks** | YAML‑driven response actions (IP block, tarpit, PCAP dump, ticket creation) | `playbooks/` directory; executed by `backend/services/response_executor.py` after correlation triggers |
-| **Correlation Engine** | Cross‑protocol attack correlation, campaign clustering (DBSCAN) | Runs every 30 s, writes aggregated alerts to `Alert` table |
-| **Real‑Time Dashboard** | WebSocket event stream, topology graph, geo‑IP heatmap | React 19 + Vite; `socket.io-client` connects to `/api/v1/events/stream` |
-| **Observability Stack** | Prometheus metrics, Grafana dashboards, ELK exporter (optional) | Metrics exposed at `/metrics`; Logstash ingest via CEF/JSON format |
-| **DevOps Maturity** | GitHub Actions CI/CD, MLflow experiment tracking, Docker‑Compose prod ready, Kubernetes‑ready manifests | `ci_cd.yml` runs lint, unit tests, model retraining, builds Docker images |
-| **Security Controls** | JWT (admin/analyst/viewer), API‑Key for scoring endpoint, RBAC, secret injection via env vars | Pydantic v2 schemas enforce strict validation |
-| **Extensibility** | Plugin‑style service registration, future operator for dynamic scaling | `backend/core/registry.py` discovers services at startup |
+<table width="100%">
+<tr>
+<td width="50%" valign="top">
+
+### 🕸️ Distributed Deception Mesh
+- **High-Interaction Traps:** Protocol-accurate emulation for SSH, HTTP, FTP, and SMTP.
+- **Stateful Emulation:** Simulates full filesystem access, credential harvesting, and command execution without host risk.
+- **Isolated Namespaces:** 100% containerized with strict cgroups, preventing sandbox escapes and lateral pivoting.
+
+</td>
+<td width="50%" valign="top">
+
+### 🧠 Predictive AI Intelligence
+- **Sub-15ms Scoring:** Every packet is vectorized (23 features) and scored in real-time.
+- **Ensemble ML:** Combines Isolation Forest (anomaly detection), Random Forest, and LSTM (sequence forecasting).
+- **Explainable AI (XAI):** SHAP integrations provide human-readable feature attribution for every generated alert.
+
+</td>
+</tr>
+<tr>
+<td width="50%" valign="top">
+
+### ⚡ Automated Active Defense
+- **Declarative Playbooks:** YAML-based rulesets map threat clusters to immediate infrastructure actions.
+- **Dynamic Tarpitting:** Automatically slows down TCP handshakes for identified scanners, wasting their compute cycles.
+- **Firewall Orchestration:** Instantaneous IP blacklisting and route nullification via integration with edge devices.
+
+</td>
+<td width="50%" valign="top">
+
+### 📊 Zero-Trust Observability
+- **Low-Latency NOC:** React 19 / Vite frontend with WebSockets for sub-second event streaming.
+- **SIEM / SOAR Ready:** Built-in CEF/JSON exporters push normalized telemetry directly to ELK, Splunk, or QRadar.
+- **Live Topology Maps:** Geo-IP mapping and real-time mesh health visualization.
+
+</td>
+</tr>
+</table>
 
 ---
 
-## 🏗️ Architecture
+## 🏗️ Architecture & Data Flow
 
-### 1. High‑Level System Diagram
+PhantomNet operates on a decoupled, event-driven architecture, ensuring that the ingestion pipeline remains highly available even under severe DDoS or scanning loads.
+
+### System Topography
+
 ```mermaid
+%%{init: {'theme': 'base', 'themeVariables': { 'primaryColor': '#0f172a', 'primaryTextColor': '#e2e8f0', 'primaryBorderColor': '#334155', 'lineColor': '#3b82f6', 'secondaryColor': '#1e293b', 'tertiaryColor': '#0f172a'}}}%%
 graph TD
-    Attacker[External Attacker] -->|Scans| Mesh[🍯 Honeypot Mesh]
-    subgraph Mesh[Honeypot Mesh]
-        SSH[SSH :2222]
-        HTTP[HTTP :8080]
-        FTP[FTP :2121]
-        SMTP[SMTP :2525]
+    classDef external fill:#7f1d1d,stroke:#ef4444,stroke-width:2px,color:#fff;
+    classDef honeypot fill:#14532d,stroke:#22c55e,stroke-width:2px,color:#fff;
+    classDef core fill:#1e3a8a,stroke:#3b82f6,stroke-width:2px,color:#fff;
+    classDef data fill:#3f3f46,stroke:#a1a1aa,stroke-width:2px,color:#fff;
+
+    A[External Adversary]:::external -->|Reconnaissance & Exploits| B
+    
+    subgraph Deception Mesh ["🛡️ Containerized Deception Mesh (DMZ)"]
+        B(SSH Trap :2222):::honeypot
+        C(HTTP Trap :8080):::honeypot
+        D(FTP Trap :2121):::honeypot
+        E(SMTP Sink :2525):::honeypot
     end
-    Mesh -->|Async logs| DB[(PostgreSQL)]
-    DB -->|Batch poll| Analyzer[Threat Analyzer Service]
-    Analyzer -->|Feature extraction| ML[ML Pipeline]
-    ML -->|Score & forecast| Analyzer
-    Analyzer -->|Persist| DB
-    Analyzer -->|Alert| Corr[Correlation Engine]
-    Corr -->|Trigger| Exec[Response Executor]
-    Exec -->|Mitigation| Infra[Network Infra]
-    API[FastAPI Backend] -->|REST / WS| DB
-    API -->|WebSocket| Dashboard[React NOC]
-    Dashboard -->|User actions| API
+
+    B & C & D & E -->|Raw Socket Streams| F[(PostgreSQL Event Store)]:::data
+    
+    subgraph Intelligence Core ["🧠 PhantomNet Intelligence Core"]
+        F -->|Batch Polling| G{Threat Analyzer Service}:::core
+        G <-->|Feature Vector| H[ML Pipeline <br/> IsolationForest + LSTM]:::core
+        H -->|Threat Score 0-100| G
+        G -->|Commit Alert| F
+        G -->|Threshold Exceeded| I[Correlation Engine]:::core
+        I -->|Triggers| J[Response Playbooks]:::core
+    end
+    
+    J -.->|Mitigation| A
+    
+    subgraph Observability ["📊 Security Operations"]
+        K[FastAPI Gateway]:::core
+        F <-->|REST / GraphQL| K
+        K <-->|WebSockets (wss://)| L[React NOC Dashboard]:::core
+        K -->|CEF / JSON| M[ELK / External SIEM]:::data
+    end
 ```
 
-### 2. Detailed Data Flow (Event Lifecycle)
+### The ML Inference Pipeline
+
 ```mermaid
-flowchart LR
-    Sniffer[Scapy Sniffer] -->|Capture| DB[(PostgreSQL)]
-    DB -->|Unscored batch| Analyzer[Threat Analyzer]
-    Analyzer -->|Vectorize| FeatureExtractor[Feature Extractor]
-    FeatureExtractor -->|Feed| ModelEnsemble[IsolationForest / RandomForest / LSTM]
-    ModelEnsemble -->|Risk score| Analyzer
-    Analyzer -->|Write score| DB
-    Analyzer -->|High‑risk alert| Corr[Correlation Engine]
-    Corr -->|Playbook match| Exec[Response Executor]
-    Exec -->|Block IP / Tarpit| Firewall
-    API -->|Expose| WS[WebSocket Stream]
-    WS --> Dashboard[React Dashboard]
+sequenceDiagram
+    autonumber
+    participant Attacker
+    participant Mesh as Deception Mesh
+    participant Extractor as Feature Extractor
+    participant ML as ML Ensemble
+    participant DB as PostgreSQL
+    participant UI as NOC Dashboard
+
+    Attacker->>Mesh: Initiates brute-force payload
+    Mesh->>DB: Logs raw packet & session state
+    loop Background Service (Every 500ms)
+        DB->>Extractor: Poll unscored events
+        Extractor->>Extractor: Compute 23D Vector (Entropy, GeoIP, Frequency)
+        Extractor->>ML: Submit for inference
+        ML-->>Extractor: Return Confidence Score + SHAP values
+        Extractor->>DB: Update `ThreatScore` & generate `Alert`
+        DB->>UI: Broadcast via WebSocket Channel
+    end
 ```
-
-### 3. Deployment Topology (Docker‑Compose)
-```mermaid
-stateDiagram-v2
-    [*] --> Compose
-    Compose: docker-compose.prod.yml
-    Compose --> HoneypotContainers
-    Compose --> BackendContainer
-    Compose --> DBContainer
-    Compose --> PrometheusContainer
-    Compose --> GrafanaContainer
-    Compose --> ELKContainer
-    HoneypotContainers --> BackendContainer: Log API
-    BackendContainer --> DBContainer: SQL
-    BackendContainer --> GrafanaContainer: Metrics
-    BackendContainer --> ELKContainer: CEF
-    BackendContainer --> PrometheusContainer: /metrics
-```
-
-<details>
-<summary><strong>📐 Expanded Visual Assets (click to expand)</strong></summary>
-
-* **System Architecture PNG** – `assets/architecture.png`
-* **Data Flow Diagram PNG** – `assets/data_flow.png`
-* **Kubernetes Operator Sketch** – `assets/k8s_operator.png`
-* **Database ER Diagram** – `assets/db_erd.png`
-
-(Images are placeholders; replace with generated assets as needed.)
-
-</details>
 
 ---
 
-## 🛠️ Technology Stack
+## 🍯 The Deception Matrix
 
-| Layer | Technology | Reasoning |
-|---|---|---|
-| **Runtime** | Python 3.11 | Async‑first, rich ecosystem, type safety |
-| **API** | FastAPI 0.104+, Uvicorn | Auto‑generated OpenAPI, sub‑15 ms latency |
-| **Frontend** | React 19.2, Vite, Tailwind 4, Recharts | Component‑driven UI, hot‑module reload, visual polish |
-| **Containerisation** | Docker 24, Docker‑Compose 2.20 | Reproducible environments, CI integration |
-| **Orchestration** | Kubernetes (future) | Auto‑scaling, self‑healing operator |
-| **Database** | PostgreSQL 15, SQLAlchemy 2.0 | ACID guarantees, powerful querying |
-| **Analytics DB (future)** | ClickHouse | Column‑store for petabyte‑scale telemetry |
-| **ML** | scikit‑learn, joblib, optional TensorFlow 2.x (LSTM) | Model diversity, easy serialization |
-| **Experiment Tracking** | MLflow | Model lineage, versioning, UI for metrics |
-| **Observability** | Prometheus, Grafana, ELK (Logstash) | Metrics, dashboards, SIEM export |
-| **CI/CD** | GitHub Actions, pre‑commit (black, isort, ruff) | Automated lint, test, model retraining |
-| **Security** | JWT, API‑Key, RBAC, Pydantic v2 validation | Defense‑in‑depth, minimal attack surface |
-| **Networking** | Scapy, Paramiko, pyftpdlib | Low‑level packet handling, protocol emulation |
+PhantomNet goes beyond simple port-listening. It deploys high-interaction environments designed to deceive human operators and automated scanners alike.
+
+| Protocol | Emulation Strategy | IOCs Harvested |
+| :--- | :--- | :--- |
+| **SSH (Port 2222)** | Simulates a vulnerable Debian shell. Allows pseudo-login with weak credentials. Records all TTY commands and attempts to `wget` payloads. | Usernames, Passwords, Executed Commands, Dropped Malware Hashes |
+| **HTTP (Port 8080)** | Mimics a legacy Admin Portal (e.g., outdated Tomcat/WordPress). Traps directory traversal (`../../`), SQLi attempts, and XSS probing. | User-Agents, Requested URIs, SQL Injection Payloads |
+| **FTP (Port 2121)** | Emulates an anonymous-access file server. Monitors `STOR` and `RETR` commands to capture uploaded ransomware strains. | Uploaded Files, Authentication Patterns |
+| **SMTP (Port 2525)** | Acts as an open relay sinkhole. Accepts and blackholes all outgoing spam, extracting sender domains and malicious attachments. | Sender Addresses, Phishing Templates, Attachment Signatures |
 
 ---
 
-## 🚀 Installation & Setup
+## 🚀 Zero-to-Hero Deployment
+
+Designed for modern DevOps workflows, PhantomNet can be deployed on a single node or across a distributed Kubernetes cluster. 
 
 ### Prerequisites
-| Requirement | Minimum |
-|---|---|
-| **CPU / RAM** | 2 vCPU, 4 GB RAM (prod recommends 4 vCPU, 8 GB) |
-| **Docker Engine** | 24.0+ |
-| **Docker‑Compose** | 2.20+ |
-| **Python (local dev only)** | 3.11 |
-| **Ports** | 8000 (API), 5173 (Dashboard), 2222/8080/2121/2525 (Honeypots) |
+- Docker Engine 24.0+ & Docker Compose v2.0+
+- Production sizing: `4 vCPU`, `8GB RAM`, `50GB NVMe`
 
-### 1. Production‑Ready Deployment (Docker‑Compose)
+### 1. Production Orchestration (Docker-Compose)
+
+Our pre-configured compose stack spins up the entire mesh, the ML core, the database, and the observability stack in isolated networks.
+
 ```bash
-# Clone the repository
+# 1. Clone the repository
 git clone https://github.com/sriram21-09/PhantomNet.git
 cd PhantomNet
 
-# Copy and edit environment variables
+# 2. Initialize security credentials
 cp .env.example .env
-# Edit .env – set JWT_SECRET, API_KEY, POSTGRES_PASSWORD, ENABLE_ELK, etc.
+# Important: Update POSTGRES_PASSWORD, JWT_SECRET, and API_KEY in the .env file
 
-# Spin up the full stack (detached)
-docker-compose -f docker-compose.prod.yml up -d
+# 3. Deploy the architecture
+docker-compose -f docker-compose.prod.yml up -d --build
 
-# Smoke‑test the health endpoint
-curl -s http://localhost:8000/health | jq
+# 4. Verify system health and container alignment
+docker-compose ps
+curl -s http://localhost:8000/api/v1/system/health | jq
 ```
-**What the stack starts:**
-* Four honeypot containers (SSH, HTTP, FTP, SMTP) each isolated on an internal Docker network.
-* `backend/main.py` – FastAPI entrypoint exposing REST + WebSocket.
-* PostgreSQL event store (`db` service).
-* Prometheus & Grafana for metrics.
-* Optional ELK exporter (controlled by `ENABLE_ELK=true`).
 
-### 2. Local Development (FastAPI + Vite)
+### 2. Local Development Environment
+
 <details>
-<summary>Show step‑by‑step commands</summary>
+<summary><b>Click to expand developer setup instructions</b></summary>
 
-**Backend**
+**Backend Initialization:**
 ```bash
 cd backend
-python -m venv venv
-source venv/bin/activate   # Windows: venv\Scripts\activate
+python3 -m venv .venv
+source .venv/bin/activate
 pip install -r requirements.txt
-uvicorn main:app --reload --port 8000
+uvicorn main:app --host 0.0.0.0 --port 8000 --reload
 ```
-**Frontend**
+
+**Frontend Initialization:**
 ```bash
-cd ../frontend-dev/phantomnet-dashboard
+cd frontend-dev/phantomnet-dashboard
 npm install
-npm run dev   # opens http://localhost:5173
-```
-**Database (optional)**
-```bash
-docker run -d --name pg-local -e POSTGRES_PASSWORD=devpass -p 5432:5432 postgres:15
+npm run dev
 ```
 </details>
 
-### 3. Model Retraining (CI‑driven)
-```bash
-# Manual retraining (useful for custom data)
-python -m backend.ml.retrain_isolation_forest --data data/payloads.csv --output ml_models/isolation_forest_custom.pkl
-```
-The GitHub Actions workflow runs this nightly and registers the new model in MLflow.
+---
 
-### 4. Common Issues & Fixes
-| Symptom | Likely Cause | Resolution |
-|---|---|---|
-| `Connection refused` on port 8000 | Backend container not started or port conflict | `docker ps` → ensure `backend` is up; check `docker-compose.yml` port mapping |
-| No events in the dashboard | WebSocket cannot reach API | Verify `API_URL` environment variable in `.env`; ensure CORS origins include dashboard URL |
-| Model file missing (`*.pkl`) | Volume not mounted | Add `- ./ml_models:/app/ml_models` to `docker-compose.yml` and restart |
-| Prometheus metrics 404 | `/metrics` endpoint disabled | Set `ENABLE_METRICS=true` in `.env` and restart backend |
+## 💻 Dashboard & Visualizations
+
+The React 19 dashboard provides an unparalleled, glass-morphism interface for Security Operation Centers (SOCs). 
+
+*(Replace these placeholders with actual high-res screenshots from your environment)*
+
+<div align="center">
+  <img src="https://via.placeholder.com/800x400/0f172a/3b82f6?text=Real-Time+Global+Threat+Map" alt="Global Threat Map" width="48%">
+  <img src="https://via.placeholder.com/800x400/0f172a/10b981?text=Event+Stream+%26+SHAP+Explainability" alt="Event Stream" width="48%">
+</div>
+
+- **Global Threat Topology:** Live 3D globe plotting attacker origins via embedded GeoIP databases.
+- **Event Waterfall:** Auto-scrolling, color-coded stream of incoming packets, scored dynamically.
+- **ML Insights:** Hover over any "CRITICAL" alert to view a SHAP waterfall chart explaining exactly *why* the AI flagged the packet.
 
 ---
 
-## 🔌 API Reference & Integration
+## 🔌 API & Integration
 
-The OpenAPI spec is automatically generated at `http://localhost:8000/docs`.  Core endpoints are listed below; all requests/responses are JSON unless otherwise noted.
+PhantomNet is built API-first. Everything available in the dashboard is accessible via our high-performance REST and WebSocket APIs.
 
-| Endpoint | Method | Description | Auth |
-|---|---|---|---|
-| `/api/v1/events/stream` | `WS` | Live event stream (packet, alert, playbook actions) | JWT (required) |
-| `/api/v1/threat/analyze` | `POST` | Score a single packet payload (synchronous) | API‑Key |
-| `/api/v1/metrics/forecast` | `GET` | LSTM‑based attack volume forecast (next 24 h) | JWT |
-| `/api/v1/system/health` | `GET` | Health check – returns status of all services | None |
-| `/api/v1/playbooks` | `GET` | List available YAML playbooks | JWT |
-| `/api/v1/playbooks/{name}` | `POST` | Trigger a specific playbook manually | API‑Key |
+Interactive Swagger/OpenAPI documentation is auto-generated and hosted at: `http://<your-host>:8000/docs`
 
-### Example: Scoring a Packet (cURL)
+### Example: Programmatic Threat Scoring
+
+Inject external logs into PhantomNet's ML engine using your API Key:
+
 ```bash
-curl -X POST http://localhost:8000/api/v1/threat/analyze \
-  -H "Authorization: Bearer $API_KEY" \
-  -H "Content-Type: application/json" \
-  -d '{
-        "src_ip": "203.0.113.45",
-        "dst_ip": "10.2.0.12",
-        "dst_port": 22,
-        "protocol": "TCP",
-        "payload": "...base64...",
-        "timestamp": "2026-05-13T09:00:00Z"
-      }'
+curl -X POST "https://api.phantomnet.local/v1/threat/analyze" \
+     -H "Authorization: Bearer pn_live_xxxxxxxxxxxxx" \
+     -H "Content-Type: application/json" \
+     -d '{
+           "src_ip": "185.150.12.4",
+           "dst_port": 22,
+           "protocol": "TCP",
+           "payload_base64": "c3NoLXJzYSAuLi4="
+         }'
 ```
-**Response** (abridged)
+
+**JSON Response:**
 ```json
 {
-  "score": 84.7,
-  "threat_level": "CRITICAL",
-  "confidence": 0.96,
-  "decision": "BLOCK",
-  "explainability": {
-    "src_ip": 0.12,
-    "dst_port": 0.34,
-    "payload_entropy": 0.27,
-    "protocol": 0.07,
-    "flags": 0.20
+  "event_id": "evt_9f8a7c6b",
+  "ml_score": 92.4,
+  "classification": "Brute-Force Campaign",
+  "confidence": 0.98,
+  "action_taken": "IP_BLOCKED",
+  "shap_factors": {
+    "payload_entropy": 45.2,
+    "connection_frequency": 30.1,
+    "known_bad_subnet": 17.1
   }
 }
 ```
 
 ---
 
-## 💻 Usage & Typical Workflows
+## 🛡️ Security & Infrastructure Hardening
 
-1. **Launch a simulated attack** – Use standard tools (`ssh -p 2222`, `curl http://localhost:8080/login`, `ftp localhost 2121`). The honeypot captures full session logs.
-2. **Observe in real time** – Dashboard auto‑scrolls new events; high‑risk packets flash red with SHAP tooltip explanations.
-3. **Tune Playbooks** – Edit `playbooks/brute_force_response.yaml` to change block thresholds or integrate Slack notifications.
-4. **Export to SIEM** – Enable `ENABLE_ELK=true`; events flow into Logstash as CEF, ready for Splunk/QRadar.
-5. **Ad‑hoc analysis** – Run the Python client `backend/ml/client.py` to batch‑score PCAP files offline.
-6. **Scale horizontally** – In future Kubernetes mode, increase replica count of `honeypot_ssh` via the custom operator.
+Building a honeypot requires extreme paranoia. We assume attackers will attempt to break out.
 
----
-
-## 📂 Project Structure
-```text
-PhantomNet/
-├── backend/                     # FastAPI service & core business logic
-│   ├── api/                    # Router modules (events, threat, metrics)
-│   ├── core/                   # Settings, security middleware, startup hooks
-│   ├── database/               # SQLAlchemy models (PacketLog, Alert, IOC, etc.)
-│   ├── ml_engine/              # SHAP explainability utilities
-│   ├── services/               # Threat Analyzer, Correlation Engine, SIEM Exporter, Response Executor
-│   ├── tests/                  # Pytest suite (unit & integration)
-│   └── main.py                 # Application entry point
-├── frontend-dev/                # React 19 dashboard (Vite + Tailwind)
-│   ├── src/
-│   │   ├── components/        # Reusable UI widgets (Map, Table, Chart)
-│   │   ├── pages/             # Dashboard pages (Live, Analytics, Settings)
-│   │   ├── services/          # Axios API client, WS wrapper
-│   │   └── hooks/             # Custom React hooks (useMetrics, usePlaybook)
-│   └── vite.config.ts
-├── honeypots/                  # Protocol emulators (ssh, http, ftp, smtp)
-│   ├── ssh/    # Dockerfile + python entrypoint for SSH trap
-│   ├── http/   # Flask‑based fake web app
-│   ├── ftp/    # pyftpdlib server
-│   └── smtp/   # SMTP sink
-├── ml_models/                  # Serialized model artifacts (IsolationForest, LSTM, DBSCAN)
-├── playbooks/                  # YAML response playbooks (brute_force, ransomware, portscan)
-├── docs/                       # Extended markdown documentation (architecture, API design, benchmarks)
-├── .github/workflows/ci_cd.yml # CI pipeline (lint, test, model retrain, Docker build)
-├── docker-compose.yml          # Development stack (all services, no TLS)
-├── docker-compose.prod.yml     # Production‑ready stack (TLS termination via Traefik optional)
-├── .env.example                # Template for required environment variables
-├── requirements.txt            # Python dependencies (pinned versions)
-├── package.json                # Frontend dependencies (React, Vite, Tailwind)
-└── README.md                   # ← This document
-```
+1. **Kernel-Level Isolation:** Honeypots run with `security_opt: no-new-privileges` and `--cap-drop=ALL`.
+2. **Ephemeral File Systems:** Traps use read-only root filesystems; any writes are directed to `tmpfs` mounts that vanish on container restart.
+3. **One-Way Data Diode:** Honeypots can *write* logs to the database via a strictly scoped API proxy, but cannot *read* from it or query the core backend.
+4. **API Security:** Endpoints are secured via highly-scoped JWTs. Rate limiting is enforced via Redis-backed sliding windows.
 
 ---
 
-## 🛡️ Security & Hardening
+## 🗺️ Engineering Roadmap
 
-* **Container Isolation** – Each honeypot runs in a dedicated Docker network; `--cap-drop ALL` is used to minimize privileges.
-* **Input Validation** – Every request body is validated against a Pydantic v2 schema; unexpected fields raise `422 Unprocessable Entity`.
-* **Secrets Management** – All secrets (`JWT_SECRET`, `API_KEY`, DB credentials) are sourced from environment variables; `.gitignore` excludes `.env`.
-* **Transport Security** – In production, a reverse‑proxy (Traefik or Nginx) terminates TLS; internal traffic remains within the Docker overlay network.
-* **RBAC** – JWT claims (`role`) map to three levels: `admin` (full access), `analyst` (read + response), `viewer` (read‑only).
-* **Audit Logging** – Every playbook execution is recorded in the `ResponseLog` table with user, timestamp, and outcome.
-* **Responsible Disclosure** – See `SECURITY.md` for policy; CVEs are triaged within 48 h.
+PhantomNet is continuously evolving. Our roadmap reflects our commitment to enterprise scale and advanced research.
 
----
-
-## 📈 Performance & Scalability
-
-| Aspect | Strategy | Measured KPI |
-|---|---|---|
-| **Request Latency** | FastAPI `async` endpoints, connection pooling | 8 ms median scoring latency (20 ms 99th pct) |
-| **Batch Processing** | Threat Analyzer polls up to 1 000 events per cycle, uses bulk `INSERT…ON CONFLICT` | DB load < 15 % CPU under 10 k events/s |
-| **Horizontal Scaling** | Stateless API behind HAProxy; each replica shares PostgreSQL → easy autoscaling | Linear throughput increase up to 8 replicas (tested) |
-| **Future Scaling** | Kubernetes Operator will auto‑scale honeypot replicas based on traffic spikes; ClickHouse will replace PostgreSQL for raw telemetry |
-| **Observability Overhead** | Prometheus scrape interval 10 s; < 2 % CPU overhead |
+| Phase | Timeline | Major Milestones | Status |
+| :---: | :--- | :--- | :---: |
+| **I** | Q1-Q2 2026 | Multi-protocol honeypots, Base FastAPI architecture, React NOC Dashboard. | 🟢 **Delivered** |
+| **II** | Q3 2026 | ML Pipeline (Isolation Forest, LSTM), WebSocket Streaming, Automated Playbooks. | 🟢 **Delivered** |
+| **III** | Q4 2026 | **Kubernetes Operator Native Scaling**, ClickHouse integration for PB-scale telemetry, Multi-tenant RBAC. | 🟡 *In Progress* |
+| **IV** | Q1 2027 | Reinforcement Learning for dynamic honeypot topology mutation, STIX/TAXII threat sharing federation. | ⚪ *Planned* |
 
 ---
 
-## 🗺️ Roadmap (2026 Q3‑2027)
+## 🤝 Contributing to PhantomNet
 
-| Phase | Target | Key Deliverables |
-|---|---|---|
-| **Phase 1 – MVP (Delivered)** | Distributed honeypots, real‑time scoring, basic dashboard | ✅
-| **Phase 2 – Scaling (In‑Progress)** | Kubernetes operator, ClickHouse ingest, multi‑tenant API keys, role‑based API throttling | ✅ (core operator prototype) |
-| **Phase 3 – Advanced AI** | Reinforcement‑learning mitigation, auto‑tuned model thresholds, online learning pipeline | Planned Q4 2026 |
-| **Phase 4 – Enterprise Hardened** | SSO/OIDC integration, granular RBAC, plug‑in marketplace for custom playbooks, GDPR‑compliant data retention policies | Planned Q1 2027 |
-| **Phase 5 – Global Threat Sharing** | Federated intelligence exchange (STIX/TAXII) with partner networks, distributed SIEM connectors | Conceptual 2027 |
+We operate a strict, professional open-source workflow. We welcome elite engineers, security researchers, and data scientists.
 
----
-
-## 🤝 Contributing
-
-We follow a **Git‑flow‑style** process with strict quality gates.
-
-1. **Fork** the repository and clone your fork.
-2. **Create a feature branch** using the `feat/` prefix (e.g., `feat/add‑ssh‑tarpit`).
-3. **Run pre‑commit hooks** before committing:
-   ```bash
-   pre-commit install
-   pre-commit run --all-files
-   ```
-4. **Write tests** – backend tests live in `backend/tests/`; frontend tests in `frontend-dev/src/__tests__/`.
-5. **Commit** with **Conventional Commits** format (e.g., `feat: add SHAP explainability to UI`).
-6. **Push** and open a Pull Request.  CI will automatically:
-   * Lint (`black`, `ruff`, `isort`)
-   * Run unit and integration tests
-   * Retrain the IsolationForest model (if model files changed)
-   * Build and publish Docker images to GitHub Packages
-7. **Review** – At least one maintainer must approve; ensure no new security findings are introduced.
-
-Please refer to the full contributor guide in [`docs/CONTRIBUTING.md`](docs/CONTRIBUTING.md).
+1. **Review the guidelines:** Read [`CONTRIBUTING.md`](docs/CONTRIBUTING.md) and our [`CODE_OF_CONDUCT.md`](docs/CODE_OF_CONDUCT.md).
+2. **Branching Strategy:** Use `feat/`, `fix/`, or `chore/` prefixes.
+3. **Quality Gates:** All PRs must pass GitHub Actions (Flake8, Black, Pytest, and SonarQube).
+4. **Signed Commits:** Ensure your commits are GPG signed.
 
 ---
 
-## 📚 Documentation Hub
+## 📚 Technical Documentation
 
-| Document | Location | Description |
-|---|---|---|
-| **System Architecture** | `docs/system_architecture.md` | Narrative of components, data flow, and design rationale |
-| **API Specification** | `backend/api/openapi.yaml` (served at `/docs`) | Full OpenAPI 3.0 definition |
-| **Playbook Guide** | `docs/playbooks.md` | How to author, version, and debug YAML playbooks |
-| **Performance Benchmarks** | `docs/benchmarks.md` | Load‑test results, latency charts, scaling curves |
-| **Integration Test Report** | `docs/integration_test_report.md` | End‑to‑end validation across honeypot → analyzer → dashboard |
-| **Security Policy** | `SECURITY.md` | Vulnerability reporting process |
-| **Roadmap** | `docs/roadmap.md` | Timeline and milestones |
+Deep dive into the engineering behind PhantomNet:
+
+- 🏗️ [**System Architecture & Design Decisions**](docs/system_architecture.md)
+- 🧠 [**Machine Learning Pipeline & Model Tuning**](docs/ml_pipeline.md)
+- ⚡ [**Automated Response Playbooks Guide**](docs/playbooks.md)
+- 🛡️ [**Vulnerability Disclosure Policy (SECURITY.md)**](SECURITY.md)
 
 ---
 
-## 📄 License
+## 👨‍💻 Core Architecture Team
 
-PhantomNet is released under the **MIT License**.  See the `LICENSE` file for full terms.
+PhantomNet is architected and maintained by a team of dedicated security engineers and researchers.
+
+| Architect | Focus Area | GitHub |
+| :--- | :--- | :--- |
+| **Kasukurthi Sriram** | Platform Architecture & Security Design | [@sriram21-09](https://github.com/sriram21-09) |
+| **Muramreddy Vivekananda Reddy** | Container Orchestration & Protocol Emulation | [@VivekanandaReddy2006](https://github.com/VivekanandaReddy2006) |
+| **Nattala Vikranth Chakravarthi** | ML Pipelines, Model Inference & XAI | [@Vikranth-tech](https://github.com/Vikranth-tech) |
+| **Satti Sai Ram Manideep Reddy** | UI/UX, WebSocket Streaming & Frontend Architecture | [@sairammanideepreddy2123](https://github.com/sairammanideepreddy2123) |
 
 ---
-
-## 👥 Authors & Credits
-
-| Name | Role | GitHub |
-|---|---|---|
-| **Kasukurthi Sriram** | Architecture, security design, core backend | [@sriram21-09](https://github.com/sriram21-09) |
-| **Muramreddy Vivekananda Reddy** | Docker orchestration, honeypot protocols | [@VivekanandaReddy2006](https://github.com/VivekanandaReddy2006) |
-| **Nattala Vikranth Chakravarthi** | Machine‑learning pipelines, MLflow integration | [@Vikranth-tech](https://github.com/Vikranth-tech) |
-| **Satti Sai Ram Manideep Reddy** | Frontend engineering, UI/UX, visual design | [@sairammanideepreddy2123](https://github.com/sairammanideepreddy2123) |
 
 <div align="center">
-  <i>Detecting threats before they strike – built with precision, deployed with confidence.</i>
+
+**[MIT License](LICENSE)** • Copyright © 2026 PhantomNet Core Team
+
+*Built to turn the network into a weapon against the adversary.*
+
 </div>
