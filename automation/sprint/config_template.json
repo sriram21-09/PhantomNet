@@ -1,0 +1,93 @@
+{
+    "_comment": "PhantomNet Sprint Config Template v4.0 — Copy this file and rename to weekXX_config.json",
+
+    "week": 14,
+
+    "milestone_title": "Month 4 – Sentinel Core (Weeks 13–16)",
+    "milestone_description": "Core Sentinel Layer: ATT&CK mapping, Snort/Sigma rules, Jinja2 playbooks, enhanced STIX, SentinelPlaybook DB, Sentinel Dashboard with approve/reject/export.",
+
+    "month_label": "month-4",
+    "extra_labels": [],
+
+    "labels": [
+        {"name": "week-14", "color": "1D76DB", "description": "Week 14 tasks"}
+    ],
+
+    "day_map": {
+        "1": "Mon (Jun 22)",
+        "2": "Tue (Jun 23)",
+        "3": "Wed (Jun 24)",
+        "4": "Thu (Jun 25)",
+        "5": "Fri (Jun 26)"
+    },
+
+    "tasks": [
+        {
+            "Day": 1,
+            "Role": "Team Lead",
+            "Assignee": "sriram21-09",
+            "Type": "Feature",
+            "Title": "Your Task Title Here",
+            "Objective": "Clear, concise objective statement from the master plan.",
+            "Tasks": [
+                "Sub-task 1 — exactly as written in the master plan",
+                "Sub-task 2",
+                "Sub-task 3"
+            ],
+            "Deliverables": [
+                "path/to/deliverable1",
+                "path/to/deliverable2"
+            ],
+            "Estimate": 6,
+            "Warnings": [
+                "**Do NOT** modify existing_file.py — keep changes isolated.",
+                "This depends on issue #XXX being completed first."
+            ]
+        },
+        {
+            "Day": 1,
+            "Role": "Security Developer",
+            "Assignee": "VivekanandaReddy2006",
+            "Type": "Feature",
+            "Title": "Security Task Title",
+            "Objective": "Security-focused objective.",
+            "Tasks": [
+                "Sub-task 1"
+            ],
+            "Deliverables": [
+                "path/to/deliverable"
+            ],
+            "Estimate": 6
+        },
+        {
+            "Day": 1,
+            "Role": "AI/ML Developer",
+            "Assignee": "vikranthN101",
+            "Type": "Feature",
+            "Title": "AI/ML Task Title",
+            "Objective": "What this task achieves.",
+            "Tasks": [
+                "Sub-task 1"
+            ],
+            "Deliverables": [
+                "path/to/deliverable"
+            ],
+            "Estimate": 6
+        },
+        {
+            "Day": 1,
+            "Role": "Frontend Developer",
+            "Assignee": "sairammanideepreddy2123",
+            "Type": "Integration",
+            "Title": "Frontend Task Title",
+            "Objective": "Frontend-focused objective.",
+            "Tasks": [
+                "Sub-task 1"
+            ],
+            "Deliverables": [
+                "path/to/deliverable"
+            ],
+            "Estimate": 6
+        }
+    ]
+}

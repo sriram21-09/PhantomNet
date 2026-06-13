@@ -24,6 +24,9 @@ wheels/
 
 # Virtual Environment
 venv/
+.venv/
+*/.venv/
+backend/.venv/
 .env
 
 # IDEs
@@ -34,27 +37,82 @@ venv/
 *.log
 *.sqlite3
 *.db
-backend/phantomnet.db
-backend/ml/model.pkl
-backend/ml/scaler.pkl
-backend/ml/threat_model.pkl
-
-# Logs (Added to prevent merge conflicts)
-backend/logs/*.jsonl
-data/predictions.csv
-
-# Hidden / Virtual Environments
-.venv/
-*/.venv/
-backend/.venv/
 phantomnet.db
+phantomnet.db-journal
+backend/phantomnet.db
 backend/full_schema.sql
 backend/verify_output.txt
 
-# Automation Scripts (private to project lead)
-automation/
+# Logs (prevent merge conflicts)
+backend/logs/*.jsonl
+data/predictions.csv
+
+# ─────────────────────────────────────────────
+# GSD / Agent Tooling (not project source code)
+# ─────────────────────────────────────────────
+.gsd/
 .agent/
+.agents/
+adapters/
+GSD-STYLE.md
+PROJECT_RULES.md
+model_capabilities.yaml
 item_edit_help.txt
-mlruns/
-phantomnet.db-journal
 validation_crosscheck.txt
+
+# Gemini / AI Session Data
+.gemini/
+
+# ─────────────────────────────────────────────
+# Reports & Output Files (generated artifacts)
+# ─────────────────────────────────────────────
+# Pylint Reports
+pylint_report.txt
+pylint_report_clean.txt
+pylint_main_report.txt
+pylint_main_only.txt
+final_pylint_check.txt
+
+# Pytest Output
+pytest_out.txt
+pytest_out3.txt
+pytest_out4.txt
+pytest_models.txt
+pytest_models2.txt
+pytest_models3.txt
+pytest_threat.txt
+pytest_out_features.txt
+pytest_out_features_utf8.txt
+out_pytest.txt
+out_pytest_utf8.txt
+
+# Python Output
+py_out.txt
+py_out_utf8.txt
+
+# Stress Test Output
+stress_out.txt
+stress_out5.txt
+stress_out_utf8.txt
+stress_out5_utf8.txt
+
+# Security & Quality Reports
+bandit_report.json
+security_report.json
+complexity_report.txt
+maintainability_report.txt
+mypy_report.txt
+docker_bench_report.txt
+unused_code.txt
+validation_output.txt
+validation_results_utf8.txt
+.coverage
+
+# ─────────────────────────────────────────────
+# Miscellaneous
+# ─────────────────────────────────────────────
+sriram21-09/
+mlruns/
+wsl
+test_siem.py
+node_modules/
