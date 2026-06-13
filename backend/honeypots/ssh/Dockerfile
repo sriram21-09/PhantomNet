@@ -2,16 +2,18 @@ FROM python:3.11-slim
 
 WORKDIR /app
 
-# System deps for asyncssh
-RUN apt-get update && apt-get install -y \
-    openssh-client \
-    && rm -rf /var/lib/apt/lists/*
+# Install dependencies
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
 
-COPY async_ssh_honeypot.py .
-COPY honeypot_host_key .
-
-RUN pip install --no-cache-dir asyncssh
+# Copy necessary database, services, and honeypot files keeping exact package structure
+COPY backend/database /app/backend/database
+COPY backend/services/geo.py /app/backend/services/geo.py
+COPY backend/services/geoip_service.py /app/backend/services/geoip_service.py
+COPY backend/honeypots/db_logger.py /app/backend/honeypots/db_logger.py
+COPY backend/honeypots/ssh /app/backend/honeypots/ssh
 
 EXPOSE 2222
+ENV PYTHONPATH=/app/backend
 
-CMD ["python", "async_ssh_honeypot.py"]
+CMD ["python", "backend/honeypots/ssh/ssh_honeypot.py"]

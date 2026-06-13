@@ -13,7 +13,7 @@ services:
           memory: 1G
 
   # Production overrides for SSH Honeypot
-  ssh-honeypot:
+  ssh_honeypot:
     restart: always
     deploy:
       resources:
@@ -21,7 +21,7 @@ services:
           memory: 512M
 
   # Production overrides for HTTP Honeypot
-  http-honeypot:
+  http_honeypot:
     restart: always
     deploy:
       resources:
@@ -29,7 +29,7 @@ services:
           memory: 512M
 
   # Production overrides for FTP Honeypot
-  ftp-honeypot:
+  ftp_honeypot:
     restart: always
     deploy:
       resources:
@@ -56,6 +56,4 @@ services:
   frontend:
     restart: always
     ports:
-      - "80:80" # Expose on standard HTTP port
-    # verify dist folder exists on host if using the artifact copy method
-
+      - "80:8080" # Expose on standard HTTP port, mapping unprivileged 8080
