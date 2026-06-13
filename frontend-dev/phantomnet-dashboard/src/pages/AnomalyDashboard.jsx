@@ -10,17 +10,54 @@ import { Link } from "react-router-dom";
 import "../Styles/anomaly-dashboard.css";
 import AnomalyAlerts from "../components/AnomalyAlerts";
 
+import React, { useState, useEffect } from "react";
+
 const AnomalyDashboard = () => {
-  /**
-   * Mock summary data
-   * (API-ready – replace later with real backend call)
-   */
-  const summary = {
-    totalAnomalies: 24,
-    highSeverity: 6,
-    mediumSeverity: 12,
-    avgAnomalyScore: 68,
+  const [summary, setSummary] = useState({
+    totalAnomalies: 0,
+    highSeverity: 0,
+    mediumSeverity: 0,
+    avgAnomalyScore: 0,
+  });
+
+  const fetchSummary = async () => {
+    try {
+      const res = await fetch('/api/v1/alerts?limit=100');
+      if (res.ok) {
+        const data = await res.json();
+        const alertsList = data.alerts || [];
+        
+        const total = data.total || 0;
+        const high = alertsList.filter(a => a.level === 'HIGH' || a.level === 'CRITICAL').length;
+        const medium = alertsList.filter(a => a.level === 'MEDIUM').length;
+        
+        let scoreSum = 0;
+        alertsList.forEach(a => {
+          const l = a.level.toUpperCase();
+          if (l === 'CRITICAL') scoreSum += 92;
+          else if (l === 'HIGH') scoreSum += 78;
+          else if (l === 'MEDIUM') scoreSum += 55;
+          else scoreSum += 35;
+        });
+        const avgScore = alertsList.length > 0 ? Math.round(scoreSum / alertsList.length) : 0;
+
+        setSummary({
+          totalAnomalies: total,
+          highSeverity: high,
+          mediumSeverity: medium,
+          avgAnomalyScore: avgScore
+        });
+      }
+    } catch (err) {
+      console.error("Failed to fetch anomaly summary:", err);
+    }
   };
+
+  useEffect(() => {
+    fetchSummary();
+    const interval = setInterval(fetchSummary, 5000);
+    return () => clearInterval(interval);
+  }, []);
 
   return (
     <div className="page-container anomaly-dashboard">

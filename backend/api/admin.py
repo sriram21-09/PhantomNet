@@ -19,6 +19,7 @@ from typing import Optional
 from datetime import datetime, timedelta
 import os
 import shutil
+import json
 import psutil
 
 router = APIRouter(prefix="/api/v1/admin", tags=["Admin"])
@@ -261,20 +262,30 @@ def system_overview(
     total_alerts = db.query(func.count(Alert.id)).scalar() or 0
     total_users = db.query(func.count(User.id)).scalar() or 0
 
-    # DB size
-    db_path = os.path.abspath("phantomnet.db")
-    db_size_mb = (
-        round(os.path.getsize(db_path) / (1024 * 1024), 2)
-        if os.path.exists(db_path)
-        else 0
-    )
+    is_postgres = "postgresql" in engine.url.drivername
+    if is_postgres:
+        db_type = "PostgreSQL"
+        try:
+            db_name = engine.url.database
+            size_bytes = db.execute(text("SELECT pg_database_size(:db_name)"), {"db_name": db_name}).scalar() or 0
+            db_size_mb = round(size_bytes / (1024 * 1024), 2)
+        except Exception:
+            db_size_mb = 0.0
+    else:
+        db_type = "SQLite"
+        db_path = os.path.abspath("phantomnet.db")
+        db_size_mb = (
+            round(os.path.getsize(db_path) / (1024 * 1024), 2)
+            if os.path.exists(db_path)
+            else 0
+        )
 
     return {
         "system": {
             "version": "2.0.0",
             "uptime": "Running",
             "python_version": os.sys.version.split()[0],
-            "db_type": "SQLite",
+            "db_type": db_type,
             "db_size_mb": db_size_mb,
         },
         "resources": {
@@ -291,8 +302,8 @@ def system_overview(
         "components": [
             {"name": "FastAPI Server", "status": "online"},
             {
-                "name": "SQLite Database",
-                "status": "online" if os.path.exists(db_path) else "offline",
+                "name": f"{db_type} Database",
+                "status": "online",
             },
             {"name": "ML Engine", "status": "online"},
             {"name": "Real-Time WebSocket", "status": "online"},
@@ -305,38 +316,99 @@ def system_overview(
 
 
 @router.post("/backup")
-def create_backup(_user: User = Depends(require_role("Admin"))):
-    db_path = os.path.abspath("phantomnet.db")
-    if not os.path.exists(db_path):
-        raise HTTPException(status_code=404, detail="Database file not found")
-
-    backup_dir = os.path.join(os.path.dirname(db_path), "backups")
+def create_backup(db: Session = Depends(get_db), _user: User = Depends(require_role("Admin"))):
+    is_postgres = "postgresql" in engine.url.drivername
+    backup_dir = os.path.abspath("backups")
     os.makedirs(backup_dir, exist_ok=True)
-
     timestamp = datetime.utcnow().strftime("%Y%m%d_%H%M%S")
-    backup_path = os.path.join(backup_dir, f"phantomnet_backup_{timestamp}.db")
-    shutil.copy2(db_path, backup_path)
 
-    size_mb = round(os.path.getsize(backup_path) / (1024 * 1024), 2)
-    return {
-        "status": "success",
-        "backup_file": os.path.basename(backup_path),
-        "size_mb": size_mb,
-        "created_at": datetime.utcnow().isoformat(),
-    }
+    if is_postgres:
+        backup_file = f"phantomnet_backup_{timestamp}.json"
+        backup_path = os.path.join(backup_dir, backup_file)
+        try:
+            data = {
+                "users": [
+                    {
+                        "username": u.username,
+                        "email": u.email,
+                        "hashed_password": u.hashed_password,
+                        "role": u.role,
+                        "status": u.status,
+                        "created_at": u.created_at.isoformat() if u.created_at else None,
+                    } for u in db.query(User).all()
+                ],
+                "system_config": [
+                    {
+                        "key": c.key,
+                        "value": c.value,
+                        "category": c.category,
+                    } for c in db.query(SystemConfig).all()
+                ],
+                "packet_logs": [
+                    {
+                        "timestamp": p.timestamp.isoformat() if p.timestamp else None,
+                        "src_ip": p.src_ip,
+                        "dst_ip": p.dst_ip,
+                        "src_port": p.src_port,
+                        "dst_port": p.dst_port,
+                        "protocol": p.protocol,
+                        "length": p.length,
+                        "threat_score": p.threat_score,
+                        "attack_type": p.attack_type,
+                        "is_malicious": p.is_malicious,
+                    } for p in db.query(PacketLog).order_by(PacketLog.id.desc()).limit(5000).all()
+                ],
+                "alerts": [
+                    {
+                        "timestamp": a.timestamp.isoformat() if a.timestamp else None,
+                        "level": a.level,
+                        "type": a.type,
+                        "source_ip": a.source_ip,
+                        "description": a.description,
+                        "details": a.details,
+                        "is_resolved": a.is_resolved,
+                    } for a in db.query(Alert).all()
+                ]
+            }
+            with open(backup_path, "w") as f:
+                json.dump(data, f, indent=2)
+
+            size_mb = round(os.path.getsize(backup_path) / (1024 * 1024), 2)
+            return {
+                "status": "success",
+                "backup_file": backup_file,
+                "size_mb": size_mb,
+                "created_at": datetime.utcnow().isoformat(),
+            }
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"PostgreSQL backup failed: {str(e)}")
+    else:
+        db_path = os.path.abspath("phantomnet.db")
+        if not os.path.exists(db_path):
+            raise HTTPException(status_code=404, detail="Database file not found")
+
+        backup_file = f"phantomnet_backup_{timestamp}.db"
+        backup_path = os.path.join(backup_dir, backup_file)
+        shutil.copy2(db_path, backup_path)
+
+        size_mb = round(os.path.getsize(backup_path) / (1024 * 1024), 2)
+        return {
+            "status": "success",
+            "backup_file": backup_file,
+            "size_mb": size_mb,
+            "created_at": datetime.utcnow().isoformat(),
+        }
 
 
 @router.get("/backups")
 def list_backups(_user: User = Depends(require_role("Admin"))):
-    db_path = os.path.abspath("phantomnet.db")
-    backup_dir = os.path.join(os.path.dirname(db_path), "backups")
-
+    backup_dir = os.path.abspath("backups")
     if not os.path.exists(backup_dir):
         return {"backups": []}
 
     backups = []
     for f in sorted(os.listdir(backup_dir), reverse=True):
-        if f.endswith(".db"):
+        if f.endswith(".db") or f.endswith(".json"):
             fp = os.path.join(backup_dir, f)
             backups.append(
                 {
@@ -355,9 +427,19 @@ def vacuum_db(
     db: Session = Depends(get_db), _user: User = Depends(require_role("Admin"))
 ):
     try:
-        db.close()
-        with engine.connect() as conn:
-            conn.execute(text("VACUUM"))
+        is_postgres = "postgresql" in engine.url.drivername
+        if is_postgres:
+            # PostgreSQL VACUUM runs outside transaction block using raw autocommit connection
+            raw_conn = engine.raw_connection()
+            raw_conn.set_isolation_level(0)  # AUTOCOMMIT
+            cursor = raw_conn.cursor()
+            cursor.execute("VACUUM")
+            cursor.close()
+            raw_conn.close()
+        else:
+            db.close()
+            with engine.connect() as conn:
+                conn.execute(text("VACUUM"))
         return {"status": "success", "message": "Database vacuumed and optimized"}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

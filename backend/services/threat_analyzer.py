@@ -307,7 +307,7 @@ class ThreatAnalyzerService:
                                     anomaly_score * 0.2
                                 )
 
-                            result.score = combined_score
+                            result.score = float(combined_score)
                             if combined_score >= 0.8:
                                 result.threat_level = "CRITICAL"
                             elif combined_score >= 0.6:
@@ -354,7 +354,7 @@ class ThreatAnalyzerService:
 
     def _apply_threat_result(self, log: PacketLog, result):
         """Helper to apply result entity to PacketLog object"""
-        log.threat_score = result.score
+        log.threat_score = float(result.score)
         log.threat_level = result.threat_level
         log.confidence = result.confidence
         log.attack_type = result.decision

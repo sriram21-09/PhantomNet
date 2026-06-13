@@ -70,6 +70,7 @@ from api.pattern_analytics import router as pattern_analytics_router
 from api.reports import router as reports_router
 from api.hunting import router as hunting_router
 from api.cases import router as cases_router
+from api.alerts import router as alerts_router
 from api.honeypots import get_honeypot_status
 
 # =========================
@@ -303,6 +304,7 @@ app.include_router(pattern_analytics_router)
 app.include_router(reports_router)
 app.include_router(hunting_router)
 app.include_router(cases_router)
+app.include_router(alerts_router)
 
 
 # =========================

@@ -12,7 +12,9 @@ const SAMPLE_ATTACKS = [
 ];
 
 const GeoDashboard = () => {
-    const [attacks, setAttacks] = useState(SAMPLE_ATTACKS);
+    const [attacks, setAttacks] = useState([]);
+    const [totalHits, setTotalHits] = useState(0);
+    const [topOrigin, setTopOrigin] = useState('N/A');
     const [timeFilter, setTimeFilter] = useState('Real-time');
     const [severityFilters, setSeverityFilters] = useState(['critical', 'high', 'medium', 'low']);
 
@@ -42,24 +44,52 @@ const GeoDashboard = () => {
         }
     };
 
-    // Simulate incoming attacks
+    const fetchGeoData = async () => {
+        try {
+            const res = await fetch('http://localhost:8000/api/analytics/attack-map?limit=100');
+            if (res.ok) {
+                const data = await res.json();
+                
+                // Map recent attacks to expected client-side format
+                const mapped = (data.recent_attacks || []).map(a => {
+                    let sev = 'low';
+                    const lvl = (a.threat_level || '').toUpperCase();
+                    if (lvl === 'CRITICAL') sev = 'critical';
+                    else if (lvl === 'HIGH') sev = 'high';
+                    else if (lvl === 'MEDIUM') sev = 'medium';
+
+                    return {
+                        id: a.id,
+                        source_ip: a.src_ip,
+                        source_country: a.country || 'Unknown',
+                        source_lat: a.lat || 0.0,
+                        source_lon: a.lon || 0.0,
+                        dest_ip: '192.168.1.100',
+                        dest_region: 'NOC-US',
+                        dest_lat: 37.77,
+                        dest_lon: -122.41,
+                        severity: sev,
+                        timestamp: a.timestamp || new Date().toISOString()
+                    };
+                });
+
+                setAttacks(mapped);
+                setTotalHits(data.total_events || 0);
+
+                if (data.top_countries && data.top_countries.length > 0) {
+                    setTopOrigin(data.top_countries[0].country.toUpperCase());
+                } else {
+                    setTopOrigin('LOCAL NETWORK');
+                }
+            }
+        } catch (err) {
+            console.error("Failed to fetch geospatial analytics:", err);
+        }
+    };
+
     useEffect(() => {
-        const interval = setInterval(() => {
-            const newAttack = {
-                id: Date.now(),
-                source_ip: `${Math.floor(Math.random() * 255)}.${Math.floor(Math.random() * 255)}.${Math.floor(Math.random() * 255)}.${Math.floor(Math.random() * 255)}`,
-                source_country: 'Unknown',
-                source_lat: (Math.random() * 140) - 70,
-                source_lon: (Math.random() * 360) - 180,
-                dest_ip: '192.168.1.100',
-                dest_region: 'Protected-Node',
-                dest_lat: 37.77,
-                dest_lon: -122.41,
-                severity: ['critical', 'high', 'medium', 'low'][Math.floor(Math.random() * 4)],
-                timestamp: new Date().toISOString()
-            };
-            setAttacks(prev => [newAttack, ...prev.slice(0, 19)]);
-        }, 5000);
+        fetchGeoData();
+        const interval = setInterval(fetchGeoData, 5000);
         return () => clearInterval(interval);
     }, []);
 
@@ -147,7 +177,7 @@ const GeoDashboard = () => {
                     <div className="geo-stats-row">
                         <div className="geo-stat-mini pro-card">
                             <label>TOTAL HITS (24H)</label>
-                            <div className="val">1,245,607</div>
+                            <div className="val">{totalHits.toLocaleString()}</div>
                         </div>
                         <div className="geo-stat-mini pro-card">
                             <label>ACTIVE VECTORS</label>
@@ -155,7 +185,7 @@ const GeoDashboard = () => {
                         </div>
                         <div className="geo-stat-mini pro-card">
                             <label>TOP ORIGIN</label>
-                            <div className="val">CHINA (CN)</div>
+                            <div className="val">{topOrigin}</div>
                         </div>
                     </div>
                 </div>

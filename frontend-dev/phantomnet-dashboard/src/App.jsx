@@ -16,6 +16,8 @@ import ThreatHunting from "./pages/ThreatHunting";
 import AdvancedDashboard from "./pages/AdvancedDashboard";
 import PacketAnalysis from "./components/PacketAnalysis";
 import AdminPanel from "./pages/AdminPanel";
+import MLInsights from "./pages/MLInsights";
+import Honeypots from "./pages/Honeypots";
 
 
 function App() {
@@ -41,6 +43,8 @@ function App() {
               <Route path="/advanced-dashboard" element={<AdvancedDashboard />} />
               <Route path="/packet-analysis" element={<PacketAnalysis />} />
               <Route path="/admin" element={<AdminPanel />} />
+              <Route path="/ml-insights" element={<MLInsights />} />
+              <Route path="/honeypots" element={<Honeypots />} />
             </Routes>
           </div>
         </BrowserRouter>

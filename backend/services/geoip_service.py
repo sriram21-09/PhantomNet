@@ -95,7 +95,14 @@ class GeoIPService:
         """Load MaxMind database if available and initialize Redis."""
         if redis:
             try:
-                self._redis = redis.Redis(host='localhost', port=6379, db=0, decode_responses=True)
+                self._redis = redis.Redis(
+                    host='localhost',
+                    port=6379,
+                    db=0,
+                    decode_responses=True,
+                    socket_connect_timeout=1.0,
+                    socket_timeout=1.0,
+                )
                 self._redis.ping()
                 logger.info("[GeoIP] Connected to Redis for caching.")
             except Exception as e:

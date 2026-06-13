@@ -1,62 +1,82 @@
-import React, { useState, useEffect, useMemo } from 'react';
-import { useRealTime } from '../context/RealTimeContext';
+import React, { useState, useEffect } from 'react';
 import { BrainCircuit, TrendingUp, TrendingDown, TriangleAlert, Radio, Minus, Gauge } from 'lucide-react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import './PredictiveAnalytics.css';
 
 const PredictiveAnalytics = () => {
-    const { metrics, events } = useRealTime();
+    const [loading, setLoading] = useState(true);
     const [countdown, setCountdown] = useState(null);
     const [forecastData, setForecastData] = useState([]);
+    const [riskScore, setRiskScore] = useState(0);
+    const [riskLevel, setRiskLevel] = useState('LOW');
+    const [predictedTarget, setPredictedTarget] = useState({
+        target: 'SSH HONEYPOT (PORT 2222)',
+        confidence: 42
+    });
+    const [trendDirection, setTrendDirection] = useState('STABLE');
 
-    // Generate dynamic forecast from metrics history
-    useEffect(() => {
-        if (!metrics) return;
+    const fetchPredictiveData = async () => {
+        try {
+            const [forecastRes, riskRes, nextRes] = await Promise.all([
+                fetch('/api/v1/predictive/forecast'),
+                fetch('/api/v1/predictive/risk-score'),
+                fetch('/api/v1/predictive/next-attack')
+            ]);
 
-        const now = new Date();
-        const baseVolume = metrics.events_per_minute || 5;
-        const data = [];
+            if (!forecastRes.ok || !riskRes.ok || !nextRes.ok) {
+                throw new Error('Failed to fetch predictive data');
+            }
 
-        // Historical data (past 4 hours)
-        for (let i = -4; i <= 0; i++) {
-            const t = new Date(now.getTime() + i * 3600000);
-            const jitter = Math.random() * 10 - 5;
-            data.push({
-                time: t.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-                current: Math.max(0, Math.round(baseVolume * 60 + jitter * 6 + i * 3)),
+            const forecast = await forecastRes.json();
+            const risk = await riskRes.json();
+            const nextAttack = await nextRes.json();
+
+            const combined = [
+                ...(forecast.historical || []).map(h => ({ time: h.time, current: h.current })),
+                ...(forecast.forecast || []).map(f => ({ time: f.time, forecast: f.predicted }))
+            ];
+            
+            setForecastData(combined);
+            setRiskScore(risk.risk_score || 0);
+            setRiskLevel(risk.risk_level || 'LOW');
+            setPredictedTarget({
+                target: nextAttack.target || 'SSH HONEYPOT (PORT 2222)',
+                confidence: nextAttack.confidence || 42
             });
-        }
-
-        // Forecast data (next 3 hours)
-        const trend = (metrics.avgThreatScore || 30) > 50 ? 1.15 : 0.95;
-        for (let i = 1; i <= 3; i++) {
-            const t = new Date(now.getTime() + i * 3600000);
-            const predicted = Math.round(baseVolume * 60 * Math.pow(trend, i) + Math.random() * 8);
-            data.push({
-                time: t.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-                forecast: Math.max(0, predicted),
-            });
-        }
-
-        setForecastData(data);
-    }, [metrics]);
-
-    // Countdown timer for next predicted attack
-    useEffect(() => {
-        if (!metrics) return;
-
-        const baseMinutes = Math.max(3, 25 - (metrics.events_per_minute || 0) * 2);
-        setCountdown(Math.round(baseMinutes * 60));
-
-        const interval = setInterval(() => {
+            setTrendDirection(forecast.trend || 'STABLE');
+            
             setCountdown(prev => {
-                if (prev <= 1) return Math.round(baseMinutes * 60);
+                if (prev === null || prev <= 0) {
+                    return Math.round((nextAttack.estimated_minutes || 25) * 60);
+                }
+                return prev;
+            });
+            setLoading(false);
+        } catch (err) {
+            console.error('Error fetching predictive data:', err);
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        fetchPredictiveData();
+        const interval = setInterval(fetchPredictiveData, 10000);
+        return () => clearInterval(interval);
+    }, []);
+
+    useEffect(() => {
+        const timer = setInterval(() => {
+            setCountdown(prev => {
+                if (prev === null) return null;
+                if (prev <= 1) {
+                    fetchPredictiveData();
+                    return 0;
+                }
                 return prev - 1;
             });
         }, 1000);
-
-        return () => clearInterval(interval);
-    }, [metrics?.events_per_minute]);
+        return () => clearInterval(timer);
+    }, []);
 
     const formatCountdown = (seconds) => {
         if (!seconds) return '--:--';
@@ -65,44 +85,7 @@ const PredictiveAnalytics = () => {
         return `${String(m).padStart(2, '0')}m ${String(s).padStart(2, '0')}s`;
     };
 
-    // Determine predicted target based on most attacked protocol
-    const predictedTarget = useMemo(() => {
-        if (events.length === 0) return { name: 'SSH HONEYPOT', port: 2222, confidence: 42 };
-
-        const protoCounts = {};
-        events.forEach(e => {
-            const p = e.protocol || 'TCP';
-            protoCounts[p] = (protoCounts[p] || 0) + 1;
-        });
-
-        const sorted = Object.entries(protoCounts).sort((a, b) => b[1] - a[1]);
-        const topProto = sorted[0]?.[0] || 'SSH';
-
-        const targetMap = {
-            SSH: { name: 'SSH HONEYPOT', port: 2222 },
-            HTTP: { name: 'HTTP HONEYPOT', port: 8080 },
-            FTP: { name: 'FTP HONEYPOT', port: 2121 },
-            SMTP: { name: 'SMTP HONEYPOT', port: 2525 },
-            TCP: { name: 'NETWORK PERIMETER', port: 0 },
-        };
-
-        const target = targetMap[topProto] || { name: `${topProto} SERVICE`, port: 0 };
-        const avgScore = events.length > 0 ? events.reduce((s, e) => s + (e.threat_score || 0), 0) / events.length : 0;
-        const confidence = Math.min(95, Math.max(35, Math.round(avgScore * 0.8 + (sorted[0]?.[1] || 0) * 0.5)));
-
-        return { ...target, confidence };
-    }, [events]);
-
-    // Trend direction — must be declared before any early return (Rules of Hooks)
-    const trendDirection = useMemo(() => {
-        if (!metrics) return 'STABLE';
-        const score = metrics.avgThreatScore || 0;
-        if (score > 60) return 'RISING';
-        if (score < 25) return 'FALLING';
-        return 'STABLE';
-    }, [metrics]);
-
-    if (!metrics) {
+    if (loading && forecastData.length === 0) {
         return (
             <div className="predictive-container">
                 <div className="predictive-loading">
@@ -113,15 +96,15 @@ const PredictiveAnalytics = () => {
         );
     }
 
-    const getRiskLevel = (score) => {
-        if (score > 80) return { label: 'CRITICAL', class: 'risk-critical' };
-        if (score > 60) return { label: 'HIGH', class: 'risk-high' };
-        if (score > 30) return { label: 'MEDIUM', class: 'risk-medium' };
-        return { label: 'LOW', class: 'risk-low' };
+    const getRiskClass = (level) => {
+        const lower = String(level).toLowerCase();
+        if (lower === 'critical') return 'risk-critical';
+        if (lower === 'high') return 'risk-high';
+        if (lower === 'medium') return 'risk-medium';
+        return 'risk-low';
     };
 
-    const risk = getRiskLevel(metrics?.avgThreatScore || 0);
-
+    const riskClass = getRiskClass(riskLevel);
     const TrendIcon = trendDirection === 'RISING' ? TrendingUp : trendDirection === 'FALLING' ? TrendingDown : Minus;
 
     return (
@@ -138,14 +121,14 @@ const PredictiveAnalytics = () => {
                 {/* Risk Score Widget */}
                 <div className="risk-widget">
                     <label><Gauge size={12} /> AGGREGATE RISK SCORE</label>
-                    <div className={`risk-value ${risk.class}`}>
-                        <span className="risk-number">{metrics.avgThreatScore || 0}%</span>
-                        <span className="risk-label">{risk.label}</span>
+                    <div className={`risk-value ${riskClass}`}>
+                        <span className="risk-number">{riskScore}%</span>
+                        <span className="risk-label">{riskLevel}</span>
                     </div>
                     <div className="risk-meter">
                         <div
-                            className={`meter-fill ${risk.class}`}
-                            style={{ width: `${metrics.avgThreatScore || 0}%` }}
+                            className={`meter-fill ${riskClass}`}
+                            style={{ width: `${riskScore}%` }}
                         ></div>
                     </div>
                     <div className="risk-indicators">
@@ -164,7 +147,7 @@ const PredictiveAnalytics = () => {
                     <div className="prediction-content">
                         <div className="pred-item">
                             <label>LIKELY TARGET:</label>
-                            <span className="target-value">{predictedTarget.name} (PORT {predictedTarget.port})</span>
+                            <span className="target-value">{predictedTarget.target}</span>
                         </div>
                         <div className="pred-item">
                             <label>CONFIDENCE:</label>

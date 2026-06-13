@@ -36,8 +36,8 @@
 }
 
 .honeypot-card {
-    background: rgba(30, 41, 59, 0.5);
-    border: 1px solid rgba(59, 130, 246, 0.2);
+    background: rgba(30, 41, 59, 0.4);
+    border: 1px solid rgba(59, 130, 246, 0.15);
     border-radius: 1rem;
     padding: 1.5rem;
     transition: all 0.3s ease;
@@ -46,10 +46,79 @@
     overflow: hidden;
 }
 
-.honeypot-card:hover {
+/* Active State styling */
+.honeypot-card.active {
+    border-color: rgba(16, 185, 129, 0.2);
+}
+.honeypot-card.active:hover {
     transform: translateY(-5px);
-    border-color: rgba(59, 130, 246, 0.5);
-    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3), 0 0 15px rgba(59, 130, 246, 0.1);
+    border-color: rgba(16, 185, 129, 0.5);
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3), 0 0 15px rgba(16, 185, 129, 0.15);
+}
+.honeypot-card.active .icon-box {
+    background: rgba(16, 185, 129, 0.1);
+    color: #10b981;
+}
+.honeypot-card.active .status-indicator {
+    background: rgba(16, 185, 129, 0.1);
+    color: #10b981;
+}
+.honeypot-card.active .status-dot {
+    background: #10b981;
+    box-shadow: 0 0 10px #10b981;
+    animation: pulse 2s infinite;
+}
+
+/* Inactive State styling */
+.honeypot-card.inactive {
+    border-color: rgba(239, 68, 68, 0.2);
+}
+.honeypot-card.inactive:hover {
+    transform: translateY(-5px);
+    border-color: rgba(239, 68, 68, 0.5);
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3), 0 0 15px rgba(239, 68, 68, 0.15);
+}
+.honeypot-card.inactive .icon-box {
+    background: rgba(239, 68, 68, 0.1);
+    color: #ef4444;
+}
+.honeypot-card.inactive .status-indicator {
+    background: rgba(239, 68, 68, 0.1);
+    color: #ef4444;
+}
+.honeypot-card.inactive .status-dot {
+    background: #ef4444;
+    box-shadow: 0 0 10px #ef4444;
+}
+.honeypot-card.inactive .scan-line {
+    background: linear-gradient(to right, transparent, #ef4444, transparent);
+}
+
+/* Planned State styling */
+.honeypot-card.planned {
+    border: 1px dashed rgba(245, 158, 11, 0.25);
+    background: rgba(15, 23, 42, 0.3);
+}
+.honeypot-card.planned:hover {
+    transform: translateY(-5px);
+    border-color: rgba(245, 158, 11, 0.5);
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3), 0 0 15px rgba(245, 158, 11, 0.15);
+}
+.honeypot-card.planned .icon-box {
+    background: rgba(245, 158, 11, 0.05);
+    color: #f59e0b;
+    opacity: 0.6;
+}
+.honeypot-card.planned .status-indicator {
+    background: rgba(245, 158, 11, 0.1);
+    color: #f59e0b;
+}
+.honeypot-card.planned .status-dot {
+    background: #f59e0b;
+    box-shadow: none;
+}
+.honeypot-card.planned .scan-line {
+    display: none;
 }
 
 .card-header {
@@ -79,16 +148,15 @@
     font-weight: 600;
     padding: 0.25rem 0.75rem;
     border-radius: 9999px;
-    background: rgba(16, 185, 129, 0.1);
-    color: #10b981;
+    background: rgba(59, 130, 246, 0.1);
+    color: #3b82f6;
 }
 
 .status-dot {
     width: 8px;
     height: 8px;
     border-radius: 50%;
-    background: #10b981;
-    box-shadow: 0 0 10px #10b981;
+    background: #3b82f6;
 }
 
 .card-body h3 {
@@ -114,6 +182,11 @@
     font-family: 'JetBrains Mono', monospace;
 }
 
+.value-highlight {
+    color: #60a5fa;
+    text-shadow: 0 0 8px rgba(96, 165, 250, 0.3);
+}
+
 .scan-line {
     position: absolute;
     top: 0;
@@ -129,8 +202,19 @@
     0% {
         transform: translateY(-300px);
     }
-
     100% {
         transform: translateY(300px);
+    }
+}
+
+@keyframes pulse {
+    0% {
+        box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4);
+    }
+    70% {
+        box-shadow: 0 0 0 10px rgba(16, 185, 129, 0);
+    }
+    100% {
+        box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
     }
 }

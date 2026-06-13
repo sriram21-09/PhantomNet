@@ -28,7 +28,7 @@ const ModelMetricsDashboard = () => {
 
   const fetchMLData = async () => {
     try {
-      const baseUrl = 'http://localhost:5001/api/v1/ml';
+      const baseUrl = '/api/v1/model';
       
       const [statsRes, featuresRes, predictionsRes, confidenceRes] = await Promise.all([
         fetch(`${baseUrl}/stats`),
@@ -54,7 +54,7 @@ const ModelMetricsDashboard = () => {
         recall: stats.metrics.recall,
         f1: stats.metrics.f1_score,
         features: features.features.map(f => ({ name: f.name, value: f.importance })),
-        predictionDistribution: predictions.data.map((d, i) => ({ x: i * 10, y: d.benign + d.malicious })),
+        predictionDistribution: predictions.data.map(d => ({ x: d.time, y: d.benign + d.malicious })),
         confidenceHistogram: confidence.buckets,
         lastTrained: stats.last_updated.replace('T', ' ').substring(0, 19),
         activeDetectors: 14,
@@ -62,7 +62,7 @@ const ModelMetricsDashboard = () => {
       setError(null);
     } catch (err) {
       console.error('ML API Error:', err);
-      setError('Connection to ML Engine failed. Ensure the mock server is running.');
+      setError('Connection to ML Engine failed. Verify backend container is online.');
     } finally {
       if (loading) setLoading(false);
     }

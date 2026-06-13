@@ -1,83 +1,99 @@
-/**
- * Anomaly Alerts
- * --------------
- * Displays recent anomaly alerts detected by the system.
- * Designed for SOC analysts (clear, subtle, readable).
- */
+import React, { useState, useEffect } from 'react';
 
 const AnomalyAlerts = () => {
-  /**
-   * Mock alert data
-   * (Replace with real API later)
-   */
-  const alerts = [
-    {
-      id: 1,
-      source: "SSH Honeypot",
-      description: "Multiple failed login attempts detected",
-      severity: "high",
-      score: 82,
-      time: "2 mins ago",
-    },
-    {
-      id: 2,
-      source: "HTTP Honeypot",
-      description: "Unusual request pattern observed",
-      severity: "medium",
-      score: 61,
-      time: "6 mins ago",
-    },
-    {
-      id: 3,
-      source: "FTP Honeypot",
-      description: "Abnormal file access behavior",
-      severity: "medium",
-      score: 58,
-      time: "12 mins ago",
-    },
-    {
-      id: 4,
-      source: "Network Switch",
-      description: "Unexpected traffic spike detected",
-      severity: "low",
-      score: 42,
-      time: "18 mins ago",
-    },
-  ];
+  const [alerts, setAlerts] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  const fetchAlerts = async () => {
+    try {
+      const res = await fetch('/api/v1/alerts?limit=10');
+      if (res.ok) {
+        const data = await res.json();
+        setAlerts(data.alerts || []);
+      }
+    } catch (err) {
+      console.error("Failed to fetch alerts:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchAlerts();
+    const interval = setInterval(fetchAlerts, 5000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const formatSource = (type, ip) => {
+    const formattedType = type.split('_').map(word => 
+      word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
+    ).join(' ');
+    return ip ? `${formattedType} (${ip})` : formattedType;
+  };
+
+  const getScore = (level) => {
+    const l = level.toUpperCase();
+    if (l === 'CRITICAL') return 92;
+    if (l === 'HIGH') return 78;
+    if (l === 'MEDIUM') return 55;
+    return 35;
+  };
+
+  const formatTime = (timeStr) => {
+    const d = new Date(timeStr);
+    const now = new Date();
+    const diffMs = now - d;
+    const diffMins = Math.floor(diffMs / 60000);
+    if (diffMins < 1) return 'Just now';
+    if (diffMins === 1) return '1 min ago';
+    if (diffMins < 60) return `${diffMins} mins ago`;
+    return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  };
+
+  if (loading && alerts.length === 0) {
+    return <div className="text-slate-500 text-center py-4 hud-font">Loading alerts...</div>;
+  }
+
+  if (alerts.length === 0) {
+    return <div className="text-slate-500 text-center py-4 hud-font">No active security alerts</div>;
+  }
 
   return (
     <div className="anomaly-alerts">
-      {alerts.map((alert) => (
-        <div key={alert.id} className="anomaly-alert-card">
-          {/* LEFT: Severity Indicator */}
-          <div
-            className={`severity-dot severity-${alert.severity}`}
-            title={`Severity: ${alert.severity}`}
-          />
+      {alerts.map((alert) => {
+        const severity = alert.level.toLowerCase();
+        return (
+          <div key={alert.id} className="anomaly-alert-card">
+            {/* LEFT: Severity Indicator */}
+            <div
+              className={`severity-dot severity-${severity}`}
+              title={`Severity: ${alert.level}`}
+            />
 
-          {/* MIDDLE: Alert Info */}
-          <div className="alert-content">
-            <h4 className="alert-title">{alert.source}</h4>
-            <p className="alert-description">
-              {alert.description}
-            </p>
+            {/* MIDDLE: Alert Info */}
+            <div className="alert-content">
+              <h4 className="alert-title">{formatSource(alert.type, alert.source_ip)}</h4>
+              <p className="alert-description">
+                {alert.description}
+              </p>
 
-            <div className="alert-meta">
-              <span className="alert-time">{alert.time}</span>
-              <span className="alert-score">
-                Score: {alert.score}%
-              </span>
+              <div className="alert-meta">
+                <span className="alert-time">{formatTime(alert.timestamp)}</span>
+                <span className="alert-score">
+                  Score: {getScore(alert.level)}%
+                </span>
+              </div>
+            </div>
+
+            {/* RIGHT: Severity Label */}
+            <div
+              className={`alert-severity-label severity-${severity}`}
+            >
+              {alert.level.toUpperCase()}
             </div>
           </div>
-
-          {/* RIGHT: Severity Label */}
-          <div
-            className={`alert-severity-label severity-${alert.severity}`}
-          >
-            {alert.severity.toUpperCase()}
-          </div>
-        </div>
-      ))}
+        );
+      })}
     </div>
   );
 };

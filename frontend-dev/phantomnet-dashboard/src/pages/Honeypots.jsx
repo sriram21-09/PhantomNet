@@ -1,9 +1,9 @@
-import React from "react";
-import { FaShieldAlt, FaTerminal, FaGlobe, FaDatabase, FaEnvelope, FaServer } from "react-icons/fa";
+import React, { useState, useEffect } from "react";
+import { FaTerminal, FaGlobe, FaDatabase, FaEnvelope, FaServer } from "react-icons/fa";
 import "../Styles/pages/Honeypots.css";
 
-const HoneypotCard = ({ title, port, status, icon: Icon, description }) => (
-  <div className="honeypot-card">
+const HoneypotCard = ({ title, port, status, icon: Icon, description, lastSeen, packetCount }) => (
+  <div className={`honeypot-card ${status.toLowerCase()}`}>
     <div className="scan-line"></div>
     <div className="card-header">
       <div className="icon-box">
@@ -11,42 +11,110 @@ const HoneypotCard = ({ title, port, status, icon: Icon, description }) => (
       </div>
       <div className="status-indicator">
         <div className="status-dot"></div>
-        <span>{status}</span>
+        <span className="hud-font">{status.toUpperCase()}</span>
       </div>
     </div>
     <div className="card-body">
       <h3>{title}</h3>
       <p className="description" style={{ fontSize: '0.875rem', color: '#94a3b8', margin: '0.5rem 0 1rem 0' }}>{description}</p>
+      
       <div className="info-row">
         <span className="info-label">LISTENING PORT</span>
-        <span className="info-value">{port}</span>
+        <span className="info-value hud-font">{port}</span>
       </div>
       <div className="info-row">
-        <span className="info-label">PROTOCOL</span>
-        <span className="info-value">{title.split(' ')[0]}</span>
+        <span className="info-label">CAPTURED LOGS</span>
+        <span className="info-value value-highlight hud-font">{packetCount}</span>
+      </div>
+      <div className="info-row">
+        <span className="info-label">LAST ACTIVE</span>
+        <span className="info-value text-dim hud-font">{lastSeen}</span>
       </div>
     </div>
   </div>
 );
 
 const Honeypots = () => {
-  const services = [
-    { title: "SSH Honeypot", port: "2222", status: "ACTIVE", icon: FaTerminal, description: "Advanced session logging and brute-force detection." },
-    { title: "HTTP Honeypot", port: "8080", status: "ACTIVE", icon: FaGlobe, description: "Simulated admin panels and web application traps." },
-    { title: "FTP Honeypot", port: "2121", status: "ACTIVE", icon: FaServer, description: "Directory traversal and file access monitoring." },
-    { title: "SMTP Honeypot", port: "2525", status: "ACTIVE", icon: FaEnvelope, description: "Email spoofing and spam trap environment." },
-    { title: "DB Honeypot", port: "3306", status: "PLANNED", icon: FaDatabase, description: "SQL injection and credential theft detection." },
-  ];
+  const [honeypots, setHoneypots] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchHoneypotStatus = async () => {
+      try {
+        const res = await fetch("http://localhost:8000/api/honeypots");
+        const data = await res.json();
+
+        // Icon map
+        const iconMap = {
+          SSH: FaTerminal,
+          HTTP: FaGlobe,
+          FTP: FaServer,
+          SMTP: FaEnvelope,
+        };
+
+        // Description map
+        const descMap = {
+          SSH: "Advanced session logging and brute-force detection.",
+          HTTP: "Simulated admin panels and web application traps.",
+          FTP: "Directory traversal and file access monitoring.",
+          SMTP: "Email spoofing and spam trap environment.",
+        };
+
+        if (Array.isArray(data)) {
+          const mapped = data.map(hp => ({
+            title: `${hp.name} Honeypot`,
+            port: hp.port.toString(),
+            status: hp.status === "active" ? "ACTIVE" : "INACTIVE",
+            icon: iconMap[hp.name] || FaServer,
+            description: descMap[hp.name] || "Deception listening environment.",
+            lastSeen: hp.last_seen || "Never",
+            packetCount: hp.packet_count || 0
+          }));
+          
+          // Append planned honeypot for roadmap visual representation
+          mapped.push({
+            title: "Database Honeypot",
+            port: "3306",
+            status: "PLANNED",
+            icon: FaDatabase,
+            description: "SQL injection and credential theft detection.",
+            lastSeen: "Not Scheduled",
+            packetCount: 0
+          });
+
+          setHoneypots(mapped);
+        }
+      } catch (err) {
+        console.error("Failed to load honeypots status:", err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchHoneypotStatus();
+    const interval = setInterval(fetchHoneypotStatus, 5000);
+    return () => clearInterval(interval);
+  }, []);
+
+  if (isLoading) {
+    return (
+      <div className="dashboard-wrapper loading-container">
+        <div className="loading-spinner"></div>
+        <div className="loading-text hud-font">QUERYING DECEPTION MESH STATE...</div>
+      </div>
+    );
+  }
 
   return (
     <div className="honeypots-wrapper">
       <div className="honeypots-header">
-        <h1 className="honeypots-title">Honeypot Network</h1>
-        <p className="honeypots-subtitle">LIVE STATUS | DECEPTION MESH TOPOLOGY</p>
+        <div className="header-badge hud-font">DECEPTION_GRID_V2.0</div>
+        <h1 className="honeypots-title glow-text">Honeypot Network</h1>
+        <p className="honeypots-subtitle text-dim">LIVE STATUS | ACTIVE DEFENSE DECEPTION TOPOLOGY</p>
       </div>
 
       <div className="honeypots-grid">
-        {services.map((service, idx) => (
+        {honeypots.map((service, idx) => (
           <HoneypotCard key={idx} {...service} />
         ))}
       </div>

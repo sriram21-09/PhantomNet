@@ -113,6 +113,11 @@ validation_results_utf8.txt
 # ─────────────────────────────────────────────
 sriram21-09/
 mlruns/
+mlruns.db
 wsl
 test_siem.py
 node_modules/
+
+# Raw packet capture data (large binary files)
+data/pcaps/
+*.pcap

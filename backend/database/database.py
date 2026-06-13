@@ -31,7 +31,9 @@ def get_db_engine():
                 pool_size=10,
                 max_overflow=20,
                 connect_args=(
-                    {"check_same_thread": False} if "sqlite" in DATABASE_URL else {}
+                    {"check_same_thread": False, "timeout": 30}
+                    if "sqlite" in DATABASE_URL
+                    else {}
                 ),
             )
             # Test connection

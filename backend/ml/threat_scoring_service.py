@@ -18,7 +18,14 @@ logger = logging.getLogger(__name__)
 _FEATURE_EXTRACTOR = FeatureExtractor()
 
 try:
-    redis_client = redis.Redis(host="localhost", port=6379, db=0, decode_responses=True)
+    redis_client = redis.Redis(
+        host="localhost",
+        port=6379,
+        db=0,
+        decode_responses=True,
+        socket_connect_timeout=1.0,
+        socket_timeout=1.0,
+    )
     redis_client.ping()
     REDIS_AVAILABLE = True
     logger.info("Connected to Redis for prediction caching.")
