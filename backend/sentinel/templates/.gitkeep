@@ -1,0 +1,15 @@
+# backend/sentinel/templates/
+#
+# Jinja2 playbook templates live here.
+# Each .j2 file represents one response playbook type:
+#
+#   ssh_brute_force.j2      — SSH brute-force attack playbook
+#   sql_injection.j2        — SQL injection attack playbook
+#   port_scan.j2            — Port scan / reconnaissance playbook
+#   generic_threat.j2       — Generic / fallback playbook
+#
+# Templates are rendered by backend/sentinel/playbook_generator.py
+# during Phase 5 Week 1 execution.
+#
+# Directory is intentionally left empty for now — templates are
+# added in Plan 5.1 (Week 1, Days 2-3).

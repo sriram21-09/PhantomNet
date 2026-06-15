@@ -40,6 +40,14 @@ class PacketLog(Base):
     latitude = Column(Float, nullable=True)
     longitude = Column(Float, nullable=True)
 
+    # Sentinel Layer — Signature Storage (Phase 5)
+    # Populated by sentinel_service.py (Issue #673, Day 5).
+    # Service type is inferred from dst_port:
+    #   2222 → SSH | 8080 → HTTP | 2121 → FTP | 2525 → SMTP
+    # Raw payloads are sourced from the events table.
+    # ⚠️  Do NOT populate this column anywhere else.
+    detected_signatures = Column(String, nullable=True)
+
 
 class Alert(Base):
     __tablename__ = "alerts"
