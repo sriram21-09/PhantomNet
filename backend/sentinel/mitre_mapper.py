@@ -6,13 +6,19 @@ PhantomNet Sentinel Layer — MITRE ATT&CK Technique Mapper
 Translates raw signature names (produced by ml/signatures.py SignatureEngine)
 into structured MITRE ATT&CK technique objects.
 
-Signature → ATT&CK mapping (Phase 5, Week 1, Day 2):
-  SSH_AUTH_FAILURE    → T1110.001  Brute Force: Password Guessing
-  SSH_HIGH_ACTIVITY   → T1021.004  Remote Services: SSH
-  HTTP_SQL_INJECTION  → T1190      Exploit Public-Facing Application
-  HTTP_XSS_ATTEMPT    → T1059.007  Command and Scripting: JavaScript
-  HTTP_PATH_TRAVERSAL → T1083      File and Directory Discovery
-  HTTP_SCANNER_BEHAVIOR→ T1046     Network Service Scanning
+Signature → ATT&CK mapping (Phase 5, Week 1, Day 2 — 12 total mappings):
+  SSH_AUTH_FAILURE         → T1110.001  Brute Force: Password Guessing
+  SSH_HIGH_ACTIVITY        → T1021.004  Remote Services: SSH
+  HTTP_SQL_INJECTION       → T1190      Exploit Public-Facing Application
+  HTTP_XSS_ATTEMPT         → T1059.007  Command and Scripting Interpreter: JavaScript
+  HTTP_PATH_TRAVERSAL      → T1083      File and Directory Discovery
+  HTTP_SCANNER_BEHAVIOR    → T1046      Network Service Discovery
+  FTP_DATA_EXFILTRATION    → T1048.003  Exfiltration Over Unencrypted Non-C2 Protocol
+  SMTP_LARGE_PAYLOAD       → T1071.003  Application Layer Protocol: Mail Protocols
+  DISTRIBUTED_BRUTE_FORCE  → T1110.004  Brute Force: Credential Stuffing
+  LOW_AND_SLOW_SCAN        → T1595.001  Active Scanning: Scanning IP Blocks
+  MULTI_PROTOCOL_ATTACK    → T1046      Network Service Discovery
+  HIGH_FREQUENCY_ATTACK    → T1498      Network Denial of Service
 
 Public API
 ----------
@@ -27,8 +33,17 @@ Public API
   get_all_techniques() -> list[dict]
       Returns the full mapping table as a list (for API/UI consumption).
 
-ATT&CK Technique Object Schema
--------------------------------
+  get_technique(signature_name: str) -> dict | None
+      Returns a slim dict {id, name, tactic, mitre_url} for a signature,
+      or None if the signature is not mapped.
+
+  get_all_mappings() -> dict[str, dict]
+      Returns a shallow copy of the full internal _TECHNIQUE_MAP dictionary.
+      Keys are signature names; values are technique dicts (without 'signature'
+      field populated).
+
+ATT&CK Technique Object Schema (full)
+--------------------------------------
   {
     "technique_id":   str   # e.g. "T1110.001"
     "technique_name": str   # e.g. "Brute Force: Password Guessing"
@@ -38,6 +53,15 @@ ATT&CK Technique Object Schema
     "url":            str   # Official ATT&CK reference URL
     "severity":       str   # "CRITICAL" | "HIGH" | "MEDIUM" | "LOW"
     "signature":      str   # Source signature name that triggered this
+  }
+
+get_technique() Slim Schema
+----------------------------
+  {
+    "id":        str   # technique_id, e.g. "T1110.001"
+    "name":      str   # technique_name
+    "tactic":    str   # tactic name
+    "mitre_url": str   # Official ATT&CK reference URL
   }
 """
 
@@ -126,7 +150,7 @@ _TECHNIQUE_MAP: dict[str, dict] = {
     },
     "HTTP_SCANNER_BEHAVIOR": {
         "technique_id":   "T1046",
-        "technique_name": "Network Service Scanning",
+        "technique_name": "Network Service Discovery",
         "tactic":         "Discovery",
         "tactic_id":      "TA0007",
         "description": (
@@ -137,6 +161,104 @@ _TECHNIQUE_MAP: dict[str, dict] = {
         ),
         "url": "https://attack.mitre.org/techniques/T1046/",
         "severity": "MEDIUM",
+    },
+
+    # ── FTP ──────────────────────────────────────────────────────────────────
+    "FTP_DATA_EXFILTRATION": {
+        "technique_id":   "T1048.003",
+        "technique_name": "Exfiltration Over Unencrypted Non-C2 Protocol",
+        "tactic":         "Exfiltration",
+        "tactic_id":      "TA0010",
+        "description": (
+            "Adversaries exfiltrate data over unencrypted, non-command-and-control "
+            "protocols to avoid detection and blend with normal network traffic. "
+            "Large or anomalous FTP data transfers on port 20 indicate staged data "
+            "being pushed to an attacker-controlled server over plain-text FTP."
+        ),
+        "url": "https://attack.mitre.org/techniques/T1048/003/",
+        "severity": "CRITICAL",
+    },
+
+    # ── SMTP ─────────────────────────────────────────────────────────────────
+    "SMTP_LARGE_PAYLOAD": {
+        "technique_id":   "T1071.003",
+        "technique_name": "Application Layer Protocol: Mail Protocols",
+        "tactic":         "Command and Control",
+        "tactic_id":      "TA0011",
+        "description": (
+            "Adversaries communicate with compromised systems using standard mail "
+            "protocols (SMTP, POP3, IMAP) to blend C2 traffic with legitimate "
+            "email activity. Oversized SMTP payloads on port 25 suggest data "
+            "exfiltration or C2 channel establishment via email attachments."
+        ),
+        "url": "https://attack.mitre.org/techniques/T1071/003/",
+        "severity": "HIGH",
+    },
+
+    # ── Distributed / Advanced Brute Force ───────────────────────────────────
+    "DISTRIBUTED_BRUTE_FORCE": {
+        "technique_id":   "T1110.004",
+        "technique_name": "Brute Force: Credential Stuffing",
+        "tactic":         "Credential Access",
+        "tactic_id":      "TA0006",
+        "description": (
+            "Adversaries use large lists of username/password pairs obtained from "
+            "prior data breaches to gain access to user accounts. Authentication "
+            "attempts originating from multiple distinct source IPs in coordinated "
+            "bursts indicate a distributed credential-stuffing campaign targeting "
+            "the honeypot's authentication surface."
+        ),
+        "url": "https://attack.mitre.org/techniques/T1110/004/",
+        "severity": "CRITICAL",
+    },
+
+    # ── Reconnaissance / Scanning ────────────────────────────────────────────
+    "LOW_AND_SLOW_SCAN": {
+        "technique_id":   "T1595.001",
+        "technique_name": "Active Scanning: Scanning IP Blocks",
+        "tactic":         "Reconnaissance",
+        "tactic_id":      "TA0043",
+        "description": (
+            "Adversaries scan IP address blocks to build a map of live hosts and "
+            "accessible services before launching targeted attacks. Low-rate, "
+            "time-distributed probes spread across many destination IPs are a "
+            "classic evasion technique designed to fly below IDS rate-based "
+            "thresholds while still performing systematic reconnaissance."
+        ),
+        "url": "https://attack.mitre.org/techniques/T1595/001/",
+        "severity": "MEDIUM",
+    },
+    "MULTI_PROTOCOL_ATTACK": {
+        "technique_id":   "T1046",
+        "technique_name": "Network Service Discovery",
+        "tactic":         "Discovery",
+        "tactic_id":      "TA0007",
+        "description": (
+            "Adversaries enumerate network services across multiple protocols "
+            "to identify open ports, running services, and potential attack "
+            "vectors. Simultaneous probing across TCP, UDP, and ICMP from the "
+            "same source indicates broad-spectrum service discovery activity "
+            "targeting the entire honeypot service portfolio."
+        ),
+        "url": "https://attack.mitre.org/techniques/T1046/",
+        "severity": "HIGH",
+    },
+
+    # ── Impact / Availability ────────────────────────────────────────────────
+    "HIGH_FREQUENCY_ATTACK": {
+        "technique_id":   "T1498",
+        "technique_name": "Network Denial of Service",
+        "tactic":         "Impact",
+        "tactic_id":      "TA0040",
+        "description": (
+            "Adversaries perform network denial-of-service attacks to degrade or "
+            "block availability of targeted resources. Extremely high packet or "
+            "connection rates from one or more sources indicate a volumetric "
+            "flood attack aimed at exhausting the honeypot's bandwidth or "
+            "connection-table capacity, rendering the service unavailable."
+        ),
+        "url": "https://attack.mitre.org/techniques/T1498/",
+        "severity": "CRITICAL",
     },
 }
 
@@ -220,3 +342,60 @@ def get_all_techniques() -> list:
         {**template, "signature": sig}
         for sig, template in _TECHNIQUE_MAP.items()
     ]
+
+
+def get_technique(signature_name: str) -> Optional[dict]:
+    """
+    Return a slim technique summary for a given signature name.
+
+    This is a lightweight alternative to ``map_signature()`` intended for
+    callers that only need the core identifiers — e.g. the Sentinel Dashboard
+    badge renderer or the rule_generator reference field.
+
+    Args:
+        signature_name: Exact signature string (e.g. ``"SSH_AUTH_FAILURE"``).
+
+    Returns:
+        A dict with keys ``id``, ``name``, ``tactic``, and ``mitre_url``,
+        or ``None`` if the signature is not present in the mapping table.
+
+    Example:
+        >>> t = get_technique("FTP_DATA_EXFILTRATION")
+        >>> t["id"]
+        'T1048.003'
+        >>> t["tactic"]
+        'Exfiltration'
+    """
+    template = _TECHNIQUE_MAP.get(signature_name)
+    if template is None:
+        return None
+    return {
+        "id":        template["technique_id"],
+        "name":      template["technique_name"],
+        "tactic":    template["tactic"],
+        "mitre_url": template["url"],
+    }
+
+
+def get_all_mappings() -> dict:
+    """
+    Return a shallow copy of the complete internal signature → technique map.
+
+    Unlike ``get_all_techniques()``, this preserves the original dict-of-dicts
+    structure keyed by signature name, which is more convenient for callers
+    that need O(1) lookup without iterating a list.
+
+    Returns:
+        A ``dict[str, dict]`` where each key is a signature name and each value
+        is the technique dict (without the ``'signature'`` field added).
+
+    Example:
+        >>> mappings = get_all_mappings()
+        >>> len(mappings)
+        12
+        >>> mappings["HIGH_FREQUENCY_ATTACK"]["technique_id"]
+        'T1498'
+    """
+    # Return a shallow copy so callers cannot mutate the master table keys,
+    # while inner dicts remain shared (consistent with map_signature behaviour).
+    return dict(_TECHNIQUE_MAP)
