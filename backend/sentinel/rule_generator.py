@@ -1,9 +1,9 @@
 """
 backend/sentinel/rule_generator.py
 ------------------------------------
-PhantomNet Sentinel Layer — Snort Rule Generator
+PhantomNet Sentinel Layer — Snort & Sigma Rule Generator
 
-Generates Snort IDS rules from ATT&CK technique data captured by the
+Generates Snort and Sigma IDS/detection rules from ATT&CK technique data captured by the
 Sentinel pipeline. Rules are produced by sentinel_service.py and can be
 exported from the Sentinel Dashboard.
 
@@ -12,6 +12,11 @@ Public API
   generate_snort_rule(src_ip, dst_port, protocol, attack_desc,
                       technique_id, sid) -> str
       Generates a single formatted Snort rule string.
+      Raises ValueError on invalid inputs.
+
+  generate_sigma_rule(title, logsource, detection, severity,
+                      status, tags, technique_id) -> str
+      Generates a valid Sigma YAML rule string.
       Raises ValueError on invalid inputs.
 
   validate_ip(ip_str) -> bool
@@ -25,8 +30,10 @@ Public API
 """
 
 import ipaddress
+import re
 import threading
 import typing
+import yaml
 
 # Thread-safe SID tracking
 _sid_lock = threading.Lock()
@@ -206,4 +213,176 @@ def generate_snort_rule(
     )
 
     return rule
+
+
+def clean_and_format_tag(tag: str) -> str:
+    """
+    Normalizes a tag or MITRE ATT&CK technique reference into a standard lowercase Sigma tag.
+    
+    Examples:
+        "T1110.001" -> "attack.t1110.001"
+        "T1190" -> "attack.t1190"
+        "https://attack.mitre.org/techniques/T1110/001/" -> "attack.t1110.001"
+        "honeypot" -> "honeypot"
+    """
+    if not isinstance(tag, str):
+        return ""
+    
+    tag_clean = tag.strip()
+    
+    # If it is a full MITRE URL, extract the technique portion
+    if "attack.mitre.org/techniques/" in tag_clean:
+        parts = tag_clean.split("attack.mitre.org/techniques/")
+        if len(parts) > 1:
+            tag_clean = parts[1]
+            
+    # Clean leading/trailing slashes
+    tag_clean = tag_clean.strip("/")
+    
+    # Check if it matches the ATT&CK technique pattern (e.g. t1110, t1110.001, t1110/001, optionally with attack. prefix)
+    pattern = r"^(?:attack\.)?([tT]\d{4}(?:[./]\d{3})?)$"
+    match = re.match(pattern, tag_clean)
+    if match:
+        tech_id = match.group(1).lower().replace("/", ".")
+        return f"attack.{tech_id}"
+    
+    # If it starts with attack. but is not standard technique pattern, just return lowercase
+    if tag_clean.lower().startswith("attack."):
+        return tag_clean.lower()
+        
+    return tag_clean.lower()
+
+
+def map_severity_to_level(severity: str) -> str:
+    """
+    Maps a severity string to a standard Sigma level (critical, high, medium, low).
+    
+    Supported severity values (case-insensitive):
+        - CRITICAL -> critical
+        - HIGH -> high
+        - MEDIUM -> medium
+        - LOW -> low
+        - INFO -> low
+    """
+    if not isinstance(severity, str):
+        return "medium"
+        
+    sev = severity.strip().lower()
+    if sev in ("critical", "high", "medium", "low"):
+        return sev
+    if sev == "info":
+        return "low"
+        
+    # Default to medium if unknown
+    return "medium"
+
+
+def generate_sigma_rule(
+    title: str,
+    logsource: dict,
+    detection: dict,
+    severity: str,
+    status: str = "experimental",
+    tags: typing.Optional[typing.Union[str, list[str]]] = None,
+    technique_id: typing.Optional[str] = None,
+) -> str:
+    """
+    Generates a valid Sigma rule in YAML format.
+
+    Args:
+        title:        Title of the rule (must be non-empty string).
+        logsource:    Dictionary of logsource properties (must be non-empty dict).
+        detection:    Dictionary of detection criteria (must be non-empty dict).
+        severity:     Severity string (must be mapped to critical/high/medium/low).
+        status:       Status of the rule (default: 'experimental').
+        tags:         Optional tags (list of strings or space/comma separated string).
+        technique_id: Optional MITRE ATT&CK technique ID or URL to format as an attack tag.
+
+    Returns:
+        A valid YAML string representing the Sigma rule.
+
+    Raises:
+        ValueError: If input validation fails.
+    """
+    if not title or not isinstance(title, str) or not title.strip():
+        raise ValueError("Title must be a non-empty string.")
+
+    if not isinstance(logsource, dict) or not logsource:
+        raise ValueError("Logsource must be a non-empty dictionary.")
+
+    if not isinstance(detection, dict) or not detection:
+        raise ValueError("Detection block must be a non-empty dictionary.")
+
+    if not severity or not isinstance(severity, str) or not severity.strip():
+        raise ValueError("Severity must be a non-empty string.")
+
+    if not isinstance(status, str) or not status.strip():
+        raise ValueError("Status must be a non-empty string.")
+
+    # Map severity to Sigma level
+    level = map_severity_to_level(severity)
+
+    # Process and format tags
+    processed_tags = []
+    
+    # 1. Process technique_id if provided
+    if technique_id:
+        tech_tag = clean_and_format_tag(technique_id)
+        if tech_tag:
+            processed_tags.append(tech_tag)
+
+    # 2. Process other tags
+    if tags:
+        if isinstance(tags, str):
+            # Split by commas first, then by whitespaces
+            raw_tags = [t.strip() for t in tags.replace(",", " ").split() if t.strip()]
+        elif isinstance(tags, list):
+            raw_tags = [str(t) for t in tags if t]
+        else:
+            raw_tags = []
+
+        for t in raw_tags:
+            formatted = clean_and_format_tag(t)
+            if formatted and formatted not in processed_tags:
+                processed_tags.append(formatted)
+
+    # Structure detection block (handle search identifiers and condition)
+    detection_copy = dict(detection)
+    if "condition" not in detection_copy:
+        # Check if it has a flat list of fields or nested search identifiers
+        is_flat = False
+        for k, v in detection_copy.items():
+            if not isinstance(v, (dict, list)):
+                is_flat = True
+                break
+        if is_flat:
+            detection_copy = {
+                "selection": detection_copy,
+                "condition": "selection"
+            }
+        else:
+            if "selection" in detection_copy:
+                detection_copy["condition"] = "selection"
+            else:
+                # Use all keys except 'condition'
+                keys = [k for k in detection_copy.keys() if k != "condition"]
+                if keys:
+                    detection_copy["condition"] = " or ".join(keys)
+                else:
+                    detection_copy["condition"] = "selection"
+
+    # Construct standard ordered Sigma rule dict
+    sigma_rule = {
+        "title": title.strip(),
+        "status": status.strip().lower(),
+        "logsource": logsource,
+        "detection": detection_copy,
+        "level": level,
+    }
+
+    if processed_tags:
+        sigma_rule["tags"] = processed_tags
+
+    # Dump to valid YAML string preserving insertion order (sort_keys=False)
+    return yaml.safe_dump(sigma_rule, sort_keys=False, default_flow_style=False)
 

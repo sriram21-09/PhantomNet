@@ -1,7 +1,9 @@
 import unittest
+import yaml
 
 from sentinel.rule_generator import (
     generate_snort_rule, 
+    generate_sigma_rule,
     validate_ip, 
     validate_port,
     SNORT_RULE_TEMPLATE
@@ -282,6 +284,169 @@ class TestRuleGenerator(unittest.TestCase):
         rule3 = generate_snort_rule("any", 80, "tcp", "Brute", "https://attack.mitre.org/techniques/T1110/001/")
         parsed3 = validate_snort_syntax(rule3)
         self.assertEqual(parsed3["options"]["reference"], "url,attack.mitre.org/techniques/T1110/001/")
+
+    def test_generate_sigma_rule_success(self):
+        # Test basic successful Sigma rule generation
+        title = "SSH Brute Force Attempt"
+        logsource = {
+            "category": "authentication",
+            "product": "linux"
+        }
+        detection = {
+            "selection": {
+                "EventID": 4625,
+                "SubStatus": "0xC000006A"
+            },
+            "condition": "selection"
+        }
+        severity = "HIGH"
+        tags = ["honeypot", "ssh"]
+        technique_id = "T1110.001"
+        
+        yaml_str = generate_sigma_rule(
+            title=title,
+            logsource=logsource,
+            detection=detection,
+            severity=severity,
+            status="experimental",
+            tags=tags,
+            technique_id=technique_id
+        )
+        
+        # Verify it parses as valid YAML
+        parsed = yaml.safe_load(yaml_str)
+        
+        self.assertEqual(parsed["title"], title)
+        self.assertEqual(parsed["status"], "experimental")
+        self.assertEqual(parsed["logsource"], logsource)
+        self.assertEqual(parsed["detection"], detection)
+        self.assertEqual(parsed["level"], "high")
+        self.assertIn("attack.t1110.001", parsed["tags"])
+        self.assertIn("honeypot", parsed["tags"])
+        self.assertIn("ssh", parsed["tags"])
+
+    def test_generate_sigma_rule_invalid_inputs(self):
+        # Test empty title
+        with self.assertRaises(ValueError):
+            generate_sigma_rule(
+                title="",
+                logsource={"category": "auth"},
+                detection={"selection": {"EventID": 1}},
+                severity="low"
+            )
+        # Test empty logsource
+        with self.assertRaises(ValueError):
+            generate_sigma_rule(
+                title="Test Title",
+                logsource={},
+                detection={"selection": {"EventID": 1}},
+                severity="low"
+            )
+        # Test empty detection
+        with self.assertRaises(ValueError):
+            generate_sigma_rule(
+                title="Test Title",
+                logsource={"category": "auth"},
+                detection={},
+                severity="low"
+            )
+        # Test empty severity
+        with self.assertRaises(ValueError):
+            generate_sigma_rule(
+                title="Test Title",
+                logsource={"category": "auth"},
+                detection={"selection": {"EventID": 1}},
+                severity=""
+            )
+
+    def test_generate_sigma_rule_severity_mapping(self):
+        # Test various severity mappings
+        logsource = {"category": "test"}
+        detection = {"selection": {"field": "value"}}
+        
+        # Critical
+        r_crit = generate_sigma_rule("Title", logsource, detection, "CRITICAL")
+        self.assertEqual(yaml.safe_load(r_crit)["level"], "critical")
+        
+        # High
+        r_high = generate_sigma_rule("Title", logsource, detection, "high ")
+        self.assertEqual(yaml.safe_load(r_high)["level"], "high")
+        
+        # Medium
+        r_med = generate_sigma_rule("Title", logsource, detection, "Medium")
+        self.assertEqual(yaml.safe_load(r_med)["level"], "medium")
+        
+        # Low
+        r_low = generate_sigma_rule("Title", logsource, detection, "LOW")
+        self.assertEqual(yaml.safe_load(r_low)["level"], "low")
+        
+        # Info -> low
+        r_info = generate_sigma_rule("Title", logsource, detection, "info")
+        self.assertEqual(yaml.safe_load(r_info)["level"], "low")
+        
+        # Unknown -> medium
+        r_unk = generate_sigma_rule("Title", logsource, detection, "unknown_severity")
+        self.assertEqual(yaml.safe_load(r_unk)["level"], "medium")
+
+    def test_generate_sigma_rule_detection_formatting(self):
+        logsource = {"category": "test"}
+        
+        # Test case 1: Flat dict detection block automatically wrapped in selection
+        flat_detection = {"CommandLine|contains": "whoami", "User": "root"}
+        rule_flat = generate_sigma_rule("Title", logsource, flat_detection, "low")
+        parsed_flat = yaml.safe_load(rule_flat)
+        self.assertIn("selection", parsed_flat["detection"])
+        self.assertEqual(parsed_flat["detection"]["selection"], flat_detection)
+        self.assertEqual(parsed_flat["detection"]["condition"], "selection")
+        
+        # Test case 2: Structured selection but missing condition
+        structured_no_cond = {"selection": {"CommandLine|contains": "whoami"}}
+        rule_struct = generate_sigma_rule("Title", logsource, structured_no_cond, "low")
+        parsed_struct = yaml.safe_load(rule_struct)
+        self.assertEqual(parsed_struct["detection"]["condition"], "selection")
+        
+        # Test case 3: Structured multiple sections missing condition
+        multi_no_cond = {
+            "selection_1": {"CommandLine|contains": "whoami"},
+            "selection_2": {"User": "root"}
+        }
+        rule_multi = generate_sigma_rule("Title", logsource, multi_no_cond, "low")
+        parsed_multi = yaml.safe_load(rule_multi)
+        # Condition should be "selection_1 or selection_2" or "selection_2 or selection_1"
+        cond = parsed_multi["detection"]["condition"]
+        self.assertTrue(cond in ("selection_1 or selection_2", "selection_2 or selection_1"))
+
+    def test_generate_sigma_rule_tag_formatting(self):
+        logsource = {"category": "test"}
+        detection = {"selection": {"field": "value"}}
+        
+        # Test various tag inputs and MITRE technique normalization
+        yaml_str = generate_sigma_rule(
+            title="Title",
+            logsource=logsource,
+            detection=detection,
+            severity="low",
+            tags="honeypot, T1110.001, attack.t1059.007",
+            technique_id="https://attack.mitre.org/techniques/T1190/"
+        )
+        parsed = yaml.safe_load(yaml_str)
+        tags = parsed["tags"]
+        
+        self.assertIn("attack.t1190", tags)      # from technique_id URL
+        self.assertIn("attack.t1110.001", tags)  # from tags (normalized)
+        self.assertIn("attack.t1059.007", tags)  # from tags (normalized)
+        self.assertIn("honeypot", tags)          # from tags (general tag lowercased)
+        
+        # Test comma/space separated string of tags
+        yaml_str2 = generate_sigma_rule(
+            title="Title",
+            logsource=logsource,
+            detection=detection,
+            severity="low",
+            tags="tag1 tag2,tag3",
+        )
+        parsed2 = yaml.safe_load(yaml_str2)
+        self.assertEqual(parsed2["tags"], ["tag1", "tag2", "tag3"])
 
 
 if __name__ == '__main__':
