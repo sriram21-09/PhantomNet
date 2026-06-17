@@ -23,6 +23,13 @@ from database.database import get_db, engine, SessionLocal
 from database.models import Base, PacketLog, TrafficStats
 
 # =========================
+# SENTINEL MODELS
+# =========================
+# Must be imported BEFORE Base.metadata.create_all() runs in lifespan()
+# so SQLAlchemy registers sentinel_playbooks in the shared metadata.
+from sentinel.models import SentinelPlaybook  # noqa: F401  (side-effect import)
+
+# =========================
 # INTERNAL SERVICES
 # =========================
 from services.traffic_sniffer import RealTimeSniffer
