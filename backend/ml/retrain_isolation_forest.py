@@ -12,6 +12,7 @@ from datetime import datetime, timedelta
 # The safest way for "backend.ml.anomaly_detector" to work is if "backend" is a package in sys.path.
 # If we run from project root, "backend" is a folder in .
 sys.path.append(os.getcwd())
+sys.path.append(os.path.join(os.getcwd(), "backend"))
 
 try:
     from backend.ml.anomaly_detector import AnomalyDetector
