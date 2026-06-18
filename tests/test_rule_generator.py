@@ -6,7 +6,8 @@ from sentinel.rule_generator import (
     generate_sigma_rule,
     validate_ip, 
     validate_port,
-    SNORT_RULE_TEMPLATE
+    SNORT_RULE_TEMPLATE,
+    generate_rules_for_campaign
 )
 
 
@@ -447,6 +448,127 @@ class TestRuleGenerator(unittest.TestCase):
         )
         parsed2 = yaml.safe_load(yaml_str2)
         self.assertEqual(parsed2["tags"], ["tag1", "tag2", "tag3"])
+
+    def test_generate_rules_for_campaign_basic(self):
+        cluster_data = {
+            "campaign_id": "campaign_alpha",
+            "cluster_id": 42,
+            "unique_sources": ["192.168.1.100"],
+            "target_ports": [22],
+            "protocols": ["tcp"]
+        }
+        mitre_info = {
+            "technique_id": "T1110.001",
+            "technique_name": "Brute Force: Password Guessing",
+            "tactic": "Credential Access",
+            "url": "https://attack.mitre.org/techniques/T1110/001/",
+            "severity": "HIGH"
+        }
+        
+        result = generate_rules_for_campaign(cluster_data, mitre_info)
+        
+        self.assertEqual(result["metadata"]["campaign_id"], "campaign_alpha")
+        self.assertEqual(result["metadata"]["cluster_id"], 42)
+        self.assertEqual(result["metadata"]["snort_rule_count"], 1)
+        self.assertEqual(result["metadata"]["sigma_rule_count"], 1)
+        
+        # Check Snort rule
+        self.assertEqual(len(result["snort_rules_list"]), 1)
+        snort_rule = result["snort_rules_list"][0]
+        parsed_snort = validate_snort_syntax(snort_rule)
+        self.assertEqual(parsed_snort["src_ip"], "192.168.1.100")
+        self.assertEqual(parsed_snort["dst_port"], "22")
+        self.assertEqual(parsed_snort["protocol"], "tcp")
+        self.assertIn("T1110/001/", parsed_snort["options"]["reference"])
+        
+        # Check Sigma rule
+        self.assertEqual(len(result["sigma_rules_list"]), 1)
+        parsed_sigma = yaml.safe_load(result["sigma_rules_list"][0])
+        self.assertEqual(parsed_sigma["title"], "Campaign campaign_alpha Detection for Brute Force: Password Guessing")
+        self.assertEqual(parsed_sigma["level"], "high")
+        self.assertEqual(parsed_sigma["detection"]["selection"]["src_ip"], ["192.168.1.100"])
+        self.assertEqual(parsed_sigma["detection"]["selection"]["dst_port"], [22])
+        self.assertEqual(parsed_sigma["detection"]["selection"]["protocol"], ["tcp"])
+
+    def test_generate_rules_for_campaign_multiple_combinations(self):
+        cluster_data = {
+            "campaign_id": "campaign_beta",
+            "cluster_id": 99,
+            "unique_sources": ["10.0.0.5", "10.0.0.6"],
+            "target_ports": [80, 443],
+            "protocols": ["tcp", "udp"]
+        }
+        # List of multiple techniques
+        mitre_info = [
+            {
+                "technique_id": "T1190",
+                "technique_name": "Exploit Public-Facing Application",
+                "severity": "CRITICAL"
+            },
+            {
+                "technique_id": "T1046",
+                "technique_name": "Network Service Discovery",
+                "severity": "MEDIUM"
+            }
+        ]
+        
+        result = generate_rules_for_campaign(cluster_data, mitre_info)
+        
+        # Snort rules count should be: 2 (sources) * 2 (protocols) * 2 (ports) * 2 (techniques) = 16
+        self.assertEqual(result["metadata"]["snort_rule_count"], 16)
+        self.assertEqual(result["metadata"]["sigma_rule_count"], 2)
+        
+        # Verify all Snort rules have correct syntax
+        for rule in result["snort_rules_list"]:
+            parsed = validate_snort_syntax(rule)
+            self.assertIn(parsed["src_ip"], ["10.0.0.5", "10.0.0.6"])
+            self.assertIn(parsed["protocol"], ["tcp", "udp"])
+            self.assertIn(parsed["dst_port"], ["80", "443"])
+            
+        # Verify Sigma rules
+        for yaml_str in result["sigma_rules_list"]:
+            parsed_sigma = yaml.safe_load(yaml_str)
+            self.assertIn(parsed_sigma["level"], ["critical", "medium"])
+            self.assertEqual(parsed_sigma["detection"]["selection"]["src_ip"], ["10.0.0.5", "10.0.0.6"])
+            self.assertEqual(parsed_sigma["detection"]["selection"]["dst_port"], [80, 443])
+            self.assertEqual(parsed_sigma["detection"]["selection"]["protocol"], ["tcp", "udp"])
+
+    def test_generate_rules_for_campaign_edge_cases(self):
+        # 1. Empty mitre_info (should fallback to generic)
+        result_no_mitre = generate_rules_for_campaign(
+            cluster_data={"unique_sources": ["192.168.1.1"], "target_ports": [80], "protocols": ["tcp"]},
+            mitre_info=None
+        )
+        self.assertEqual(result_no_mitre["metadata"]["sigma_rule_count"], 1)
+        self.assertEqual(result_no_mitre["metadata"]["snort_rule_count"], 1)
+        self.assertEqual(result_no_mitre["metadata"]["techniques"], ["T1046"])
+        
+        # 2. Unsupported protocol (should filter out or fallback)
+        result_bad_proto = generate_rules_for_campaign(
+            cluster_data={"unique_sources": ["192.168.1.1"], "target_ports": [80], "protocols": ["http", "ssh", "tcp"]},
+            mitre_info=None
+        )
+        # HTTP and SSH are not Snort-supported protocols. Only TCP remains.
+        # So it should generate 1 Snort rule (for TCP).
+        self.assertEqual(result_bad_proto["metadata"]["snort_rule_count"], 1)
+        self.assertEqual(result_bad_proto["metadata"]["protocols"], ["http", "ssh", "tcp"])
+        parsed = validate_snort_syntax(result_bad_proto["snort_rules_list"][0])
+        self.assertEqual(parsed["protocol"], "tcp")
+        
+        # 3. Invalid IP and Port filtering
+        result_invalid_ip_port = generate_rules_for_campaign(
+            cluster_data={
+                "unique_sources": ["invalid-ip", "1.1.1.1"],
+                "target_ports": [99999, 8080],
+                "protocols": ["tcp"]
+            },
+            mitre_info=None
+        )
+        # Invalid IP and port are filtered out. Only 1.1.1.1 and 8080 remain.
+        self.assertEqual(result_invalid_ip_port["metadata"]["snort_rule_count"], 1)
+        parsed = validate_snort_syntax(result_invalid_ip_port["snort_rules_list"][0])
+        self.assertEqual(parsed["src_ip"], "1.1.1.1")
+        self.assertEqual(parsed["dst_port"], "8080")
 
 
 if __name__ == '__main__':
