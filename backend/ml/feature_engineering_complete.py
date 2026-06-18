@@ -1,7 +1,13 @@
 import math
 from typing import Dict
-from ml.feature_extractor import FeatureExtractor
-from ml.feature_engineering_v2 import FeatureExtractorV2
+
+# Fix import for project root execution
+try:
+    from backend.ml.feature_extractor import FeatureExtractor
+    from backend.ml.feature_engineering_v2 import FeatureExtractorV2
+except ImportError:
+    from ml.feature_extractor import FeatureExtractor
+    from ml.feature_engineering_v2 import FeatureExtractorV2
 
 class CompleteFeatureExtractor:
     """
