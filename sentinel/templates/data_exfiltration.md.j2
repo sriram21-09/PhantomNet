@@ -1,0 +1,861 @@
+{#
+  sentinel/templates/data_exfiltration.md.j2
+  ============================================
+  Data Exfiltration – Incident Response Playbook.
+  Extends base_playbook.md.j2 via Jinja2 template inheritance.
+
+  This template OVERRIDES four blocks from the base:
+    • header         – adds exfiltration-specific metadata (exfil vector, data
+                       classification, volume, destination, DLP status)
+    • attack_mapping – pins MITRE ATT&CK techniques for data exfiltration
+    • containment    – 5-phase data-exfiltration containment:
+                         Phase 1 · Immediate Isolation & Traffic Block
+                         Phase 2 · DLP Review & Policy Hardening
+                         Phase 3 · File Integrity Verification
+                         Phase 4 · Outbound Traffic Analysis
+                         Phase 5 · Data Classification & Impact Assessment
+    • artifacts      – exfiltration-specific detection rules, log sources,
+                       SIEM queries, and evidence paths
+
+  Context variables
+  -----------------
+  source_ip              (str)   Internal host initiating exfiltration
+  destination_ip         (str)   External destination IP/hostname
+  destination_domain     (str)   External destination domain (if resolved)
+  exfil_vector           (str)   http | https | dns | ftp | smtp | usb |
+                                 cloud_storage | sftp | icmp (default https)
+  exfil_bytes            (int)   Estimated bytes exfiltrated
+  exfil_bytes_hr         (str)   Human-readable size, e.g. "2.4 GB"
+  exfil_duration         (str)   Duration of exfiltration window
+  data_classification    (str)   PUBLIC | INTERNAL | CONFIDENTIAL | SECRET | TOP_SECRET
+  affected_systems       (list)  Hostnames / IPs of systems involved
+  affected_data_types    (list)  Types of data exfiltrated (PII, PCI, IP, etc.)
+  affected_files         (list)  Specific files or directories involved
+  dlp_vendor             (str)   DLP product, e.g. Symantec DLP, Microsoft Purview
+  dlp_mode               (str)   monitor | block (default monitor)
+  dlp_policy_name        (str)   Name of triggered DLP policy
+  destination_country    (str)   Country of destination IP (geo-lookup)
+  breach_notif_required  (bool)  Whether GDPR/HIPAA/PCI breach notification needed
+  legal_hold_required    (bool)  Whether legal hold is required
+  insider_threat         (bool)  Whether an insider is suspected
+  c2_suspected           (bool)  Whether C2 channel is suspected
+  cloud_provider         (str)   AWS | GCP | Azure | other (if cloud_storage vector)
+  cloud_bucket           (str)   Specific cloud storage bucket/container
+  exfil_protocol_detail  (str)   Protocol-specific detail (e.g. DNS subdomain, SMTP headers)
+  baseline_bytes_per_day (str)   Normal outbound baseline for source host
+  ticket_system          (str)   Ticketing system (default Jira)
+  ticket_project         (str)   Project key (default SEC)
+  audit_period_hours     (int)   Hours of logs to review (default 72)
+  dpo_contact            (str)   Data Protection Officer contact
+  legal_contact          (str)   Legal team contact
+  forensic_image_path    (str)   Path to forensic disk image
+  encryption_used        (bool)  Whether exfiltrated data was encrypted by attacker
+#}
+
+{% extends "base_playbook.md.j2" %}
+
+{# ═══════════════════════════════════════════════════════════════════════════
+   BLOCK 1 · HEADER  (exfiltration-specific metadata)
+   ═══════════════════════════════════════════════════════════════════════════ #}
+{% block header %}
+# 📤 {{ title | default("Data Exfiltration – Incident Response Playbook") }}
+
+---
+
+| Field                   | Value |
+|-------------------------|-------|
+| **Playbook ID**         | `{{ playbook_id | default("PB-EXFIL-001") }}` |
+| **Version**             | `{{ version | default("1.0.0") }}` |
+| **Severity**            | {% if severity | default("CRITICAL") == "CRITICAL" %}🔴 **CRITICAL**{% elif severity | default("CRITICAL") == "HIGH" %}🟠 **HIGH**{% elif severity | default("CRITICAL") == "MEDIUM" %}🟡 **MEDIUM**{% else %}🟢 **LOW**{% endif %} |
+| **Classification**      | `{{ classification | default("TLP:RED") }}` |
+| **Attack Pattern**      | `data_exfiltration` · `{{ exfil_vector | default("https") }}_exfil` |
+| **Exfil Vector**        | `{{ exfil_vector | default("https") | upper }}` |
+| **Source Host**         | `{{ source_ip | default("N/A") }}` |
+| **Destination IP**      | `{{ destination_ip | default("N/A") }}` |
+| **Destination Domain**  | `{{ destination_domain | default("N/A") }}` |
+| **Destination Country** | `{{ destination_country | default("Unknown") }}` |
+| **Volume Exfiltrated**  | `{{ exfil_bytes_hr | default("Unknown") }}` (`{{ exfil_bytes | default("?") }}` bytes) |
+| **Exfil Duration**      | `{{ exfil_duration | default("Unknown") }}` |
+| **Data Classification** | `{{ data_classification | default("CONFIDENTIAL") }}` |
+| **DLP Vendor**          | `{{ dlp_vendor | default("None / Unknown") }}` |
+| **DLP Mode**            | `{{ dlp_mode | default("monitor") }}` |
+| **DLP Policy**          | `{{ dlp_policy_name | default("N/A") }}` |
+| **Breach Notification** | `{{ "REQUIRED" if breach_notif_required | default(false) else "Under Assessment" }}` |
+| **Legal Hold**          | `{{ "REQUIRED" if legal_hold_required | default(false) else "Not Required" }}` |
+| **Insider Threat**      | `{{ "⚠️ SUSPECTED" if insider_threat | default(false) else "Not Suspected" }}` |
+| **C2 Channel**          | `{{ "⚠️ SUSPECTED" if c2_suspected | default(false) else "Not Suspected" }}` |
+| **Generated At**        | `{{ generated_at | default("N/A") }}` |
+| **Generated By**        | `PhantomNet Sentinel – PlaybookGenerator v{{ generator_version | default("1.0") }}` |
+| **Owner**               | `{{ owner | default("Security Operations Centre (SOC)") }}` |
+| **Ticket System**       | `{{ ticket_system | default("Jira") }} · {{ ticket_project | default("SEC") }}` |
+| **Status**              | `{{ status | default("ACTIVE") }}` |
+
+---
+{% endblock header %}
+
+{# ═══════════════════════════════════════════════════════════════════════════
+   BLOCK 2 · MITRE ATT&CK MAPPING  (Exfiltration techniques)
+   ═══════════════════════════════════════════════════════════════════════════ #}
+{% block attack_mapping %}
+## 🎯 MITRE ATT\&CK Mapping – Data Exfiltration
+
+| Technique ID | Technique Name | Tactic | Sub-technique | Description |
+|---|---|---|---|---|
+| [T1041](https://attack.mitre.org/techniques/T1041/) | **Exfiltration Over C2 Channel** | Exfiltration | — | Data sent out via an established C2 channel blending with normal traffic. |
+| [T1048](https://attack.mitre.org/techniques/T1048/) | **Exfiltration Over Alternative Protocol** | Exfiltration | [T1048.003](https://attack.mitre.org/techniques/T1048/003/) – Unencrypted/Obfuscated | Data sent over `{{ exfil_vector | default("https") | upper }}` to `{{ destination_domain | default(destination_ip | default("unknown destination")) }}`. |
+| [T1567](https://attack.mitre.org/techniques/T1567/) | **Exfiltration Over Web Service** | Exfiltration | [T1567.002](https://attack.mitre.org/techniques/T1567/002/) – Exfiltration to Cloud Storage | Data uploaded to cloud storage (`{{ cloud_provider | default("unknown") }}`{% if cloud_bucket is defined %} bucket: `{{ cloud_bucket }}`{% endif %}). |
+| [T1020](https://attack.mitre.org/techniques/T1020/) | **Automated Exfiltration** | Exfiltration | — | Automated scripts archive and send data on a schedule or triggered basis. |
+| [T1030](https://attack.mitre.org/techniques/T1030/) | **Data Transfer Size Limits** | Exfiltration | — | Adversary splits data into chunks to avoid DLP threshold detection. |
+| [T1052](https://attack.mitre.org/techniques/T1052/) | **Exfiltration Over Physical Medium** | Exfiltration | [T1052.001](https://attack.mitre.org/techniques/T1052/001/) – Exfiltration Over USB | Data copied to removable media (USB/external drive) by insider. |
+| [T1022](https://attack.mitre.org/techniques/T1022/) | **Data Encrypted** | Exfiltration | — | Data encrypted before exfiltration to evade content inspection by DLP. |
+| [T1005](https://attack.mitre.org/techniques/T1005/) | **Data from Local System** | Collection | — | Adversary collects files, credentials, and configs from the compromised host. |
+| [T1039](https://attack.mitre.org/techniques/T1039/) | **Data from Network Shared Drive** | Collection | — | Files gathered from network shares before staging and exfiltration. |
+| [T1074](https://attack.mitre.org/techniques/T1074/) | **Data Staged** | Collection | [T1074.001](https://attack.mitre.org/techniques/T1074/001/) – Local Data Staging | Data collected and archived (zip/tar) locally before transfer. |
+| [T1071](https://attack.mitre.org/techniques/T1071/) | **Application Layer Protocol** | Command and Control | [T1071.004](https://attack.mitre.org/techniques/T1071/004/) – DNS | DNS tunnelling used for covert data exfiltration through recursive queries. |
+| [T1132](https://attack.mitre.org/techniques/T1132/) | **Data Encoding** | Command and Control | [T1132.001](https://attack.mitre.org/techniques/T1132/001/) – Standard Encoding | Data encoded with Base64 or similar before exfiltration. |
+
+> 📖 References: [MITRE ATT&CK – Exfiltration](https://attack.mitre.org/tactics/TA0010/) · [MITRE ATT&CK – Collection](https://attack.mitre.org/tactics/TA0009/)
+
+---
+{% endblock attack_mapping %}
+
+{# ═══════════════════════════════════════════════════════════════════════════
+   BLOCK 3 · CONTAINMENT STEPS  (5 phases for data exfiltration response)
+   ═══════════════════════════════════════════════════════════════════════════ #}
+{% block containment %}
+## 🚨 Containment Steps – Data Exfiltration Response
+
+> **⚡ CRITICAL: Execute all phases in order. Every checkbox must be ticked. Data exfiltration is a NOTIFIABLE BREACH under GDPR/HIPAA/PCI-DSS — escalate to {{ dpo_contact | default("the Data Protection Officer") }} and legal (`{{ legal_contact | default("legal@phantomnet.local") }}`) immediately.**
+
+---
+
+### 🔴 Phase 1 · Immediate Isolation & Traffic Block `(T+0 → T+15 min)`
+
+> Goal: Stop active exfiltration NOW while preserving forensic evidence.
+
+- [ ] **🚨 DO NOT reboot or power off `{{ source_ip | default("<source_host>") }}`** – A live system preserves memory forensics (encryption keys, process tree, open file handles). Shutdown destroys this evidence.
+
+- [ ] **Capture live memory from `{{ source_ip | default("<source_host>") }}`** – Before any network isolation, dump RAM:
+  ```bash
+  # Linux – using LiME kernel module
+  sudo insmod lime.ko "path=/tmp/mem_dump_{{ source_ip | default("host") }}_$(date +%s).lime format=lime"
+
+  # Windows – using WinPmem
+  winpmem.exe -o C:\forensics\mem_{{ source_ip | default("host") }}_$(Get-Date -Format yyyyMMddHHmmss).raw
+
+  # Verify dump integrity
+  sha256sum /tmp/mem_dump_*.lime > /tmp/mem_dump.sha256
+  ```
+
+- [ ] **Isolate source host `{{ source_ip | default("<source_host>") }}`** – Cut network access without shutdown:
+  ```bash
+  # Linux – drop all outbound traffic (preserve inbound for forensic access)
+  iptables -I OUTPUT -s {{ source_ip | default("<source_ip>") }} -j DROP
+  # Block at SDN / switch level for total isolation
+  phantomnet-sdn isolate --host {{ source_ip | default("<source_ip>") }} --preserve-mgmt
+  # Windows host – isolate via NetSh
+  netsh advfirewall set allprofiles firewallpolicy blockinbound,blockoutbound
+  ```
+
+- [ ] **Block destination at perimeter firewall** – Immediately block all traffic to `{{ destination_ip | default("<destination_ip>") }}` / `{{ destination_domain | default("<destination_domain>") }}`:
+  ```bash
+  iptables -I OUTPUT -d {{ destination_ip | default("<destination_ip>") }} -j DROP
+  iptables -I FORWARD -d {{ destination_ip | default("<destination_ip>") }} -j DROP
+  # DNS sinkhole the destination domain
+  echo "0.0.0.0  {{ destination_domain | default("<destination_domain>") }}" >> /etc/hosts
+  ```
+
+{% if exfil_vector | default("https") == "dns" %}
+- [ ] **Block DNS exfiltration** – Restrict DNS queries from `{{ source_ip | default("<source_host>") }}` to only the internal resolver:
+  ```bash
+  iptables -I OUTPUT -s {{ source_ip | default("<source_ip>") }} -p udp --dport 53 \
+    ! -d {{ internal_dns | default("10.0.0.1") }} -j DROP
+  iptables -I OUTPUT -s {{ source_ip | default("<source_ip>") }} -p tcp --dport 53 \
+    ! -d {{ internal_dns | default("10.0.0.1") }} -j DROP
+  ```
+{% endif %}
+
+{% if exfil_vector | default("https") in ["http", "https"] %}
+- [ ] **Block HTTP/HTTPS proxy bypass** – Force all web traffic through the inspecting proxy:
+  ```bash
+  # Transparent proxy redirect (iptables)
+  iptables -t nat -I OUTPUT -s {{ source_ip | default("<source_ip>") }} \
+    -p tcp -m multiport --dports 80,443 -j REDIRECT --to-port 3128
+  ```
+{% endif %}
+
+{% if exfil_vector | default("https") == "usb" or insider_threat | default(false) %}
+- [ ] **Physically secure USB / removable media** – Confiscate all USB devices from `{{ source_ip | default("<source_host>") }}`'s physical location. Disable USB ports:
+  ```bash
+  # Linux – disable USB storage
+  echo 'blacklist usb_storage' >> /etc/modprobe.d/blacklist.conf
+  rmmod usb_storage 2>/dev/null
+  # Windows – disable via registry
+  reg add "HKLM\SYSTEM\CurrentControlSet\Services\USBSTOR" /v Start /t REG_DWORD /d 4 /f
+  ```
+{% endif %}
+
+- [ ] **Start full-packet capture on exfiltration path** – Capture all remaining traffic between `{{ source_ip | default("<source_ip>") }}` and `{{ destination_ip | default("<destination_ip>") }}`:
+  ```bash
+  tcpdump -i {{ capture_interface | default("eth0") }} \
+    "host {{ source_ip | default("<source_ip>") }} and host {{ destination_ip | default("<destination_ip>") }}" \
+    -w /tmp/exfil_{{ source_ip | default("host") }}_$(date +%s).pcap -s 0 &
+  echo "PCAP PID: $!"
+  ```
+
+- [ ] **Preserve current network connections** – Capture active connections before isolation:
+  ```bash
+  # Linux
+  ss -antp > /tmp/netstat_{{ source_ip | default("host") }}_$(date +%s).txt
+  lsof -i > /tmp/lsof_{{ source_ip | default("host") }}_$(date +%s).txt
+  # Running processes snapshot
+  ps auxf > /tmp/processes_{{ source_ip | default("host") }}_$(date +%s).txt
+  ```
+
+- [ ] **Revoke active sessions / credentials** – If cloud or SaaS accounts are involved, revoke all OAuth tokens and API keys immediately:
+  ```bash
+  {% if cloud_provider is defined and cloud_provider %}
+  # {{ cloud_provider }} – revoke IAM credentials
+  {% if cloud_provider == "AWS" %}
+  aws iam delete-access-key --access-key-id <compromised_key_id> --user-name <user>
+  aws iam update-login-profile --user-name <user> --password-reset-required
+  {% elif cloud_provider == "GCP" %}
+  gcloud iam service-accounts keys delete <key_id> --iam-account=<account>
+  {% elif cloud_provider == "Azure" %}
+  az ad user revoke-sign-in-sessions --id <user_id>
+  az ad app credential delete --id <app_id> --key-id <key_id>
+  {% endif %}
+  {% else %}
+  # Revoke all OAuth tokens for the affected user account
+  # Check identity provider (IdP) and revoke active sessions
+  {% endif %}
+  ```
+
+{% if insider_threat | default(false) %}
+- [ ] **⚠️ INSIDER THREAT PROTOCOL** – Do NOT alert the suspected user. Coordinate with HR and Legal before any interview. Preserve all access logs under legal hold.
+{% endif %}
+
+{% if c2_suspected | default(false) %}
+- [ ] **⚠️ C2 SUSPECTED** – Treat destination `{{ destination_ip | default("<destination_ip>") }}` as C2 infrastructure. Do NOT visit the domain or IP from corporate devices. Submit to threat intel immediately.
+{% endif %}
+
+- [ ] **Notify DPO and Legal** – Exfiltration of `{{ data_classification | default("CONFIDENTIAL") }}` data requires immediate notification:
+  - DPO: `{{ dpo_contact | default("dpo@phantomnet.local") }}`
+  - Legal: `{{ legal_contact | default("legal@phantomnet.local") }}`
+
+---
+
+### 🔍 Phase 2 · DLP Review & Policy Hardening `(T+15 → T+90 min)`
+
+> Goal: Understand what DLP missed, fix it, and prevent re-exfiltration.
+
+#### 2a. DLP Alert & Log Review
+
+- [ ] **Pull DLP alert logs for the last `{{ audit_period_hours | default(72) }}` hours**
+  - DLP vendor: `{{ dlp_vendor | default("None / Unknown") }}`
+  - Policy triggered: `{{ dlp_policy_name | default("N/A") }}`
+  - Current mode: `{{ dlp_mode | default("monitor") }}` → **Target: `block`**
+
+  ```bash
+  # Symantec DLP – export incidents via REST API
+  curl -sk -u admin:$DLP_PASS \
+    "https://{{ dlp_host | default("dlp.phantomnet.local") }}/ProtectManager/webservices/v2/incidents" \
+    | python3 -m json.tool > /tmp/dlp_incidents_{{ generated_at | default("now") }}.json
+
+  # Microsoft Purview – via PowerShell
+  Get-DlpDetailReport -StartDate (Get-Date).AddHours(-{{ audit_period_hours | default(72) }}) `
+    -EndDate (Get-Date) | Export-Csv /tmp/purview_dlp_{{ generated_at | default("now") }}.csv
+  ```
+
+- [ ] **Identify why DLP did NOT block the exfiltration** – Root-cause analysis:
+  - [ ] Was the exfil vector (`{{ exfil_vector | default("https") | upper }}`) covered by a DLP policy?
+  - [ ] Was the data encrypted before transfer (DLP bypass via encryption)?
+  - [ ] Did the exfil use a non-standard port outside DLP coverage?
+  - [ ] Was the data chunked to stay below DLP size thresholds?
+  - [ ] Was an allowed application (browser, cloud sync) used as the channel?
+
+{% if encryption_used | default(false) %}
+- [ ] **⚠️ Encrypted exfiltration detected** – Standard content inspection cannot scan encrypted payloads. Require SSL/TLS inspection (MITM) on all outbound traffic:
+  ```bash
+  # Squid proxy – enable SSL bump
+  # Add to squid.conf:
+  # ssl_bump stare step1 !trusted_sites
+  # ssl_bump bump step2 !trusted_sites
+  # sslcrtd_program /usr/lib64/squid/security_file_certgen -s /var/lib/squid/ssl_db -M 4MB
+  ```
+{% endif %}
+
+#### 2b. DLP Policy Gap Analysis
+
+- [ ] **Review coverage for all exfil vectors** – Verify DLP policies exist for:
+  - [ ] **HTTP/HTTPS** – outbound web content inspection
+  - [ ] **Email (SMTP)** – attachment and body scanning for sensitive content
+  - [ ] **Cloud Storage** – block upload to `{{ cloud_provider | default("all") }}` services for unclassified hosts
+  - [ ] **DNS** – monitor for DNS tunnelling patterns (high-entropy subdomain queries)
+  - [ ] **USB / Removable Media** – endpoint DLP agent policy
+  - [ ] **FTP / SFTP** – block or monitor file transfers to non-approved destinations
+  - [ ] **Printing** – DLP print policy for SECRET/CONFIDENTIAL documents
+
+- [ ] **Switch DLP to BLOCK mode** – If DLP is in `monitor` mode, switch to `block` immediately:
+  ```powershell
+  # Microsoft Purview – switch policy to block
+  Set-DlpCompliancePolicy -Identity "{{ dlp_policy_name | default("Data Exfiltration Policy") }}" `
+    -Mode BlockWithNotify
+  ```
+
+- [ ] **Create/update DLP rules for the observed exfil pattern**:
+  ```bash
+  # Example: block bulk file uploads to external IPs
+  # Rule: IF outbound bytes > {{ exfil_bytes | default(10485760) }} in 1 hour THEN block + alert
+  # Add rule via DLP vendor management console
+  ```
+
+- [ ] **Enable DLP on endpoint agents** – Ensure the DLP agent is installed and active on `{{ source_ip | default("<source_host>") }}` and all hosts in affected segments:
+  ```bash
+  # Check agent status (Symantec DLP example)
+  sc query "Vontu Endpoint Agent"
+  # Expected: STATE: 4 RUNNING
+  ```
+
+#### 2c. Egress Control Hardening
+
+- [ ] **Audit proxy allow-list** – Remove all non-business destinations from the proxy allow-list for the affected host/VLAN.
+
+- [ ] **Enable egress filtering for sensitive data segments** – Apply strict outbound ACL for any VLAN handling `{{ data_classification | default("CONFIDENTIAL") }}` data:
+  ```bash
+  # Block direct internet access from internal servers (force proxy)
+  iptables -I OUTPUT -s {{ affected_subnet | default("10.0.0.0/8") }} \
+    -m multiport --dports 80,443 ! -d {{ proxy_ip | default("10.0.0.1") }} -j DROP
+  ```
+
+- [ ] **Review and tighten cloud storage access** – Block access to personal cloud storage (Dropbox, Google Drive, OneDrive personal, WeTransfer) from corporate endpoints:
+  ```bash
+  # DNS sinkhole personal cloud services
+  for domain in dropbox.com drive.google.com onedrive.live.com wetransfer.com; do
+    echo "0.0.0.0  $domain" >> /etc/hosts
+  done
+  ```
+
+- [ ] **Document all findings** – Record DLP gap analysis results in the incident ticket.
+
+---
+
+### 🔐 Phase 3 · File Integrity Verification `(T+90 min → T+4 hours)`
+
+> Goal: Establish exactly what data was accessed, copied, archived, and exfiltrated.
+
+#### 3a. Identify Staged / Accessed Files
+
+- [ ] **Audit recently accessed files on `{{ source_ip | default("<source_host>") }}`** – Find all files accessed in the `{{ audit_period_hours | default(72) }}`-hour window preceding detection:
+  ```bash
+  # Linux – find files accessed since detection window
+  find / -not -path "/proc/*" -not -path "/sys/*" \
+    -atime -{{ audit_period_hours | default(72) }} \
+    -type f -ls 2>/dev/null | sort -k8 -r | head -100 \
+    > /tmp/accessed_files_{{ source_ip | default("host") }}.txt
+
+  # Filter for sensitive paths
+  grep -E "{{ sensitive_paths | default('/home|/var/www|/etc|/opt|/data') }}" \
+    /tmp/accessed_files_{{ source_ip | default("host") }}.txt
+  ```
+
+- [ ] **Identify archive/compression activity** – Look for recently created archives (data staging):
+  ```bash
+  # Find ZIP, TAR, RAR, 7z files created in the window
+  find / -not -path "/proc/*" -not -path "/sys/*" \
+    -mtime -{{ audit_period_hours | default(72) }} \
+    \( -name "*.zip" -o -name "*.tar*" -o -name "*.rar" \
+       -o -name "*.7z" -o -name "*.gz" \) \
+    -ls 2>/dev/null > /tmp/archives_{{ source_ip | default("host") }}.txt
+  cat /tmp/archives_{{ source_ip | default("host") }}.txt
+
+  # Windows – PowerShell
+  Get-ChildItem -Recurse -Include *.zip,*.tar,*.rar,*.7z `
+    | Where-Object { $_.LastWriteTime -gt (Get-Date).AddHours(-{{ audit_period_hours | default(72) }}) } `
+    | Select-Object FullName, LastWriteTime, Length | Export-Csv /tmp/archives.csv
+  ```
+
+{% if affected_files is defined and affected_files %}
+- [ ] **Verify integrity of flagged files** – Run cryptographic hash against the known-good baseline for each affected file:
+
+  | File / Path | Expected SHA256 | Current SHA256 | Status |
+  |---|---|---|---|
+{% for f in affected_files %}
+  | `{{ f }}` | Run against CMDB baseline | `sha256sum {{ f }}` | ☐ Verify |
+{% endfor %}
+
+{% else %}
+- [ ] **Build file hash inventory** – Hash all files in sensitive directories and compare with AIDE/Tripwire baseline:
+  ```bash
+  # Generate current hashes
+  find {{ sensitive_data_path | default("/data /home /var/www") }} \
+    -type f -exec sha256sum {} \; 2>/dev/null \
+    > /tmp/current_hashes_$(date +%s).txt
+
+  # Compare with AIDE baseline
+  aide --check --config /etc/aide/aide.conf \
+    2>&1 | grep -E "changed|removed|added" \
+    > /tmp/aide_delta_$(date +%s).txt
+  ```
+{% endif %}
+
+#### 3b. File Integrity Monitoring (FIM) Review
+
+- [ ] **Review FIM alerts for the exfiltration window**:
+  ```bash
+  # AIDE – check for changes in sensitive directories
+  aide --check --config /etc/aide/aide.conf
+
+  # Wazuh / OSSEC FIM alerts
+  grep "Integrity checksum" /var/ossec/logs/alerts/alerts.log | \
+    grep "$(date -d '-{{ audit_period_hours | default(72) }} hours' +%Y/%m/%d)" | head -50
+
+  # Windows – Auditpol + Get Security Event Log
+  Get-WinEvent -FilterHashtable @{LogName='Security'; Id=4663} `
+    | Where-Object { $_.TimeCreated -gt (Get-Date).AddHours(-{{ audit_period_hours | default(72) }}) } `
+    | Select-Object TimeCreated, Message | Export-Csv /tmp/fim_events.csv
+  ```
+
+- [ ] **Identify deleted files / anti-forensics** – Check for deliberate evidence destruction:
+  ```bash
+  # Linux – check for recently shredded / wiped files
+  grep -r "shred\|wipe\|dd if=/dev/zero\|secure-delete" \
+    /var/log/auth.log /var/log/syslog /var/log/bash_history 2>/dev/null
+
+  # Check bash history for data-staging commands
+  cat /home/*/. bash_history /root/.bash_history 2>/dev/null | \
+    grep -E "zip|tar|scp|curl|wget|ftp|nc|netcat|base64|openssl enc"
+
+  # Recover recently deleted files (if possible)
+  # foremost -t all -i /dev/<disk> -o /tmp/recovered/
+  ```
+
+- [ ] **Check SIEM for file-access audit events** – Pull all 4663/4660 (Windows) or `audit` (Linux) file-read/delete events:
+  ```bash
+  # Linux – auditd
+  ausearch -k sensitive_data_access --start {{ audit_period_hours | default(72) }} hours ago \
+    -i > /tmp/auditd_file_access.txt
+
+  # grep for exfil-pattern commands
+  ausearch --start today -m execve -i | \
+    grep -E "curl|wget|scp|ftp|nc|python.*socket|b64encode"
+  ```
+
+- [ ] **Verify data-at-rest encryption** – Confirm that sensitive files on `{{ source_ip | default("<source_host>") }}` are encrypted at rest (BitLocker/LUKS):
+  ```bash
+  # Linux – check LUKS
+  lsblk -o NAME,FSTYPE,MOUNTPOINT | grep -i crypto
+  # Windows
+  manage-bde -status C:
+  ```
+
+{% if affected_files is defined and affected_files %}
+#### 3c. Specific Affected Files
+
+  The following files are confirmed or suspected to have been accessed:
+{% for f in affected_files %}
+  - `{{ f }}`
+{% endfor %}
+{% endif %}
+
+---
+
+### 📡 Phase 4 · Outbound Traffic Analysis `(T+4 → T+8 hours)`
+
+> Goal: Reconstruct the full exfiltration timeline and quantify data loss.
+
+#### 4a. Traffic Volume & Baseline Comparison
+
+- [ ] **Pull NetFlow / IPFIX data for `{{ source_ip | default("<source_host>") }}`** over the `{{ audit_period_hours | default(72) }}`-hour window:
+  ```bash
+  nfdump -r {{ netflow_dir | default("/var/cache/nfdump/") }} \
+    -t "{{ detection_time | default("2026-01-01 00:00:00") }}" \
+    "src ip {{ source_ip | default("<source_ip>") }}" \
+    -s bytes:p -n 50 -o long > /tmp/netflow_{{ source_ip | default("host") }}.txt
+  ```
+
+- [ ] **Compare against daily baseline** – Normal outbound for `{{ source_ip | default("<source_host>") }}`:
+  - Baseline: `{{ baseline_bytes_per_day | default("Unknown – establish from 30-day rolling average") }}` per day
+  - Observed: `{{ exfil_bytes_hr | default("Unknown") }}` (`{{ exfil_bytes | default("?") }}` bytes) in `{{ exfil_duration | default("unknown duration") }}`
+
+  ```bash
+  # SIEM baseline comparison
+  # Splunk: compare 72h window vs 30-day rolling average
+  # (see SIEM Query 2 below)
+  ```
+
+- [ ] **Reconstruct exfiltration timeline** – Build a minute-by-minute timeline of outbound bytes to `{{ destination_ip | default("<destination_ip>") }}`:
+  ```bash
+  # tcpdump / PCAP reconstruction
+  tshark -r /tmp/exfil_*.pcap \
+    -T fields -e frame.time_epoch -e ip.src -e ip.dst \
+    -e frame.len -e tcp.dstport \
+    -Y "ip.dst == {{ destination_ip | default("0.0.0.0") }}" \
+    | awk '{print $1, $5}' | sort -n > /tmp/exfil_timeline.txt
+  ```
+
+#### 4b. Protocol-Specific Analysis
+
+{% if exfil_vector | default("https") == "dns" %}
+- [ ] **DNS Tunnelling Analysis** – Inspect DNS queries for high-entropy subdomains (data encoding):
+  ```bash
+  # Extract DNS queries from PCAP
+  tshark -r /tmp/exfil_*.pcap -Y "dns.flags.response==0" \
+    -T fields -e dns.qry.name | sort | uniq -c | sort -rn | head -50 \
+    > /tmp/dns_queries.txt
+
+  # Calculate subdomain entropy (Python)
+  python3 -c "
+  import math, collections
+  with open('/tmp/dns_queries.txt') as f:
+      for line in f:
+          count, name = line.strip().split(None, 1)
+          sub = name.split('.')[0]
+          freq = collections.Counter(sub)
+          h = -sum(v/len(sub)*math.log2(v/len(sub)) for v in freq.values())
+          if h > 3.5:  # High entropy = likely encoded data
+              print(f'HIGH ENTROPY ({h:.2f}): {name}')
+  "
+
+  # Check for known DNS tunnelling tool fingerprints (iodine, dnscat2)
+  grep -E "iodine|dnscat|dns2tcp" {{ ids_alert_log | default("/var/log/snort/alert") }}
+  ```
+{% endif %}
+
+{% if exfil_vector | default("https") in ["http", "https"] %}
+- [ ] **HTTP/HTTPS Traffic Analysis** – Reconstruct transferred content from PCAP:
+  ```bash
+  # Extract HTTP objects from PCAP
+  tshark -r /tmp/exfil_*.pcap \
+    --export-objects "http,/tmp/http_objects_$(date +%s)/"
+
+  # Check for large POST bodies (data upload pattern)
+  tshark -r /tmp/exfil_*.pcap -Y "http.request.method == POST" \
+    -T fields -e http.host -e http.request.uri \
+    -e http.content_length -e frame.time | sort -k4 -rn | head -20
+  ```
+{% endif %}
+
+{% if exfil_vector | default("https") == "smtp" %}
+- [ ] **Email Exfiltration Analysis** – Review SMTP logs for bulk attachment sending:
+  ```bash
+  grep "{{ source_ip | default("<source_ip>") }}" \
+    {{ smtp_log | default("/var/log/mail.log") }} | \
+    grep -E "size|attach|FROM|TO" | head -100
+  ```
+{% endif %}
+
+- [ ] **Identify all external destinations contacted by `{{ source_ip | default("<source_host>") }}`**:
+  ```bash
+  # NetFlow – all unique external IPs contacted in the window
+  nfdump -r {{ netflow_dir | default("/var/cache/nfdump/") }} \
+    "src ip {{ source_ip | default("<source_ip>") }} and not dst net 10.0.0.0/8" \
+    -s dstip:bytes -n 30 -o fmt:'%da %byt %bps'
+  ```
+
+- [ ] **Check for data exfiltration via cloud storage** – Look for API calls to `{{ cloud_provider | default("cloud") }}` storage:
+  ```bash
+  {% if cloud_provider is defined and cloud_provider == "AWS" %}
+  # AWS S3 – check CloudTrail for PutObject events from source host
+  aws cloudtrail lookup-events \
+    --lookup-attributes AttributeKey=EventName,AttributeValue=PutObject \
+    --start-time $(date -d '-{{ audit_period_hours | default(72) }} hours' --iso-8601=seconds) \
+    | python3 -m json.tool | grep -A5 "{{ source_ip | default("<source_ip>") }}"
+  {% elif cloud_provider is defined and cloud_provider == "GCP" %}
+  # GCP – check audit log for storage.objects.create
+  gcloud logging read "resource.type=gcs_bucket AND protoPayload.methodName=storage.objects.create" \
+    --freshness={{ audit_period_hours | default(72) }}h --format=json | python3 -m json.tool
+  {% else %}
+  # Check proxy logs for cloud storage API patterns
+  grep -i "{{ cloud_bucket | default("amazonaws.com\|blob.core.windows.net\|storage.googleapis.com") }}" \
+    {{ proxy_log | default("/var/log/squid/access.log") }} | \
+    grep "{{ source_ip | default("<source_ip>") }}" | head -50
+  {% endif %}
+  ```
+
+- [ ] **Run correlation against other internal hosts** – Check if the same destination was contacted by other hosts (lateral spread):
+  ```bash
+  nfdump -r {{ netflow_dir | default("/var/cache/nfdump/") }} \
+    "dst ip {{ destination_ip | default("<destination_ip>") }}" \
+    -s srcip:bytes -n 20 -o fmt:'%sa %byt'
+  ```
+
+---
+
+### 📊 Phase 5 · Data Classification & Impact Assessment `(T+8 hours → Close)`
+
+> Goal: Quantify the breach, determine regulatory obligations, and produce the incident report.
+
+#### 5a. Data Classification Review
+
+- [ ] **Confirm classification of exfiltrated data** – Determine the sensitivity level:
+
+{% if affected_data_types is defined and affected_data_types %}
+  **Data types confirmed or suspected in exfiltration:**
+  | Data Type | Classification | Regulatory Scope | Count / Volume |
+  |---|---|---|---|
+{% for dtype in affected_data_types %}
+  | `{{ dtype }}` | `{{ data_classification | default("CONFIDENTIAL") }}` | Review applicable regulations | Unknown – investigate |
+{% endfor %}
+{% else %}
+  | Data Type | Classification | Regulatory Scope | Count / Volume |
+  |---|---|---|---|
+  | PII (Names, emails, addresses) | CONFIDENTIAL | GDPR Art. 4(1), CCPA | Investigate |
+  | Financial / Payment data | SECRET | PCI-DSS SAQ | Investigate |
+  | Healthcare data (PHI) | SECRET | HIPAA §164.402 | Investigate |
+  | Intellectual Property | CONFIDENTIAL | Trade secrets law | Investigate |
+  | Authentication credentials | SECRET | All frameworks | Investigate |
+  | Source code / config files | CONFIDENTIAL | IP law | Investigate |
+{% endif %}
+
+- [ ] **Count affected records / data subjects** – This is critical for breach notification:
+  ```sql
+  -- Example: count affected PII records in the exfiltrated tables
+  SELECT COUNT(*) as affected_records,
+         COUNT(DISTINCT email) as unique_subjects
+  FROM {{ affected_db_table | default("users") }}
+  WHERE last_accessed BETWEEN '{{ detection_time | default("2026-01-01") }}'
+    AND '{{ generated_at | default("NOW") }}';
+  ```
+
+#### 5b. Regulatory & Breach Notification Assessment
+
+{% if breach_notif_required | default(false) %}
+- [ ] **🚨 BREACH NOTIFICATION REQUIRED** – Based on classification `{{ data_classification | default("CONFIDENTIAL") }}` and affected data types, breach notification is MANDATORY:
+
+  | Regulation | Notification Deadline | Authority / Recipient |
+  |---|---|---|
+  | **GDPR** | 72 hours from awareness | National Data Protection Authority |
+  | **HIPAA** | 60 days from discovery | HHS Office for Civil Rights |
+  | **PCI-DSS** | Immediate | Card brands + acquiring bank |
+  | **CCPA** | Without unreasonable delay | Affected California residents |
+  | **NIS2** | 24 hours (early warning), 72 hours (notification) | National CSIRT |
+
+  DPO contact: `{{ dpo_contact | default("dpo@phantomnet.local") }}`
+  Legal contact: `{{ legal_contact | default("legal@phantomnet.local") }}`
+
+{% else %}
+- [ ] **Assess breach notification requirements** – Review whether `{{ data_classification | default("CONFIDENTIAL") }}` data exfiltration triggers notification under:
+  - [ ] GDPR (EU residents affected?)
+  - [ ] HIPAA (PHI involved?)
+  - [ ] PCI-DSS (payment card data in scope?)
+  - [ ] CCPA (California residents affected?)
+  - [ ] Local data protection laws
+{% endif %}
+
+{% if legal_hold_required | default(false) %}
+- [ ] **🔒 LEGAL HOLD ACTIVATED** – Preserve all evidence under legal hold:
+  ```bash
+  # Create immutable forensic copy of affected system
+  dd if={{ forensic_image_path | default("/dev/sda") }} \
+    of=/forensics/legal_hold_{{ source_ip | default("host") }}_$(date +%s).img \
+    bs=4M conv=sync,noerror
+  sha256sum /forensics/legal_hold_*.img > /forensics/legal_hold.sha256
+
+  # Lock the evidence file (make immutable)
+  chattr +i /forensics/legal_hold_*.img
+  ```
+{% else %}
+- [ ] **Evaluate legal hold requirement** – Consult with `{{ legal_contact | default("legal@phantomnet.local") }}` on whether evidence must be preserved for litigation.
+{% endif %}
+
+#### 5c. Impact Assessment
+
+- [ ] **Complete impact matrix**:
+
+  | Dimension | Finding | Risk Level |
+  |---|---|---|
+  | **Records Affected** | Investigate – run SQL count above | ☐ TBD |
+  | **Data Subjects** | Investigate – unique individual count | ☐ TBD |
+  | **Business Impact** | Assess IP loss, competitive damage | ☐ TBD |
+  | **Regulatory Impact** | Map to applicable regulations above | ☐ TBD |
+  | **Reputational Impact** | Assess public disclosure risk | ☐ TBD |
+  | **Financial Impact** | Estimate regulatory fines + remediation costs | ☐ TBD |
+
+- [ ] **Quantify total data volume exfiltrated**:
+  - Estimated: `{{ exfil_bytes_hr | default("Unknown") }}` (`{{ exfil_bytes | default("?") }}` bytes)
+  - Duration: `{{ exfil_duration | default("Unknown") }}`
+  - Baseline (normal): `{{ baseline_bytes_per_day | default("Unknown") }}` per day
+  - Exfil rate anomaly: _(calculate deviation from baseline)_
+
+- [ ] **Assess affected systems** – Determine the full blast radius:
+{% if affected_systems is defined and affected_systems %}
+  | System | Role | Data at Risk | Isolation Status |
+  |---|---|---|---|
+{% for sys in affected_systems %}
+  | `{{ sys }}` | Investigate | Review data classification | ☐ Isolated |
+{% endfor %}
+{% else %}
+  - [ ] Audit all systems accessible from `{{ source_ip | default("<source_host>") }}` during the exfil window
+  - [ ] Check network share access logs for bulk file reads
+  - [ ] Review cloud access logs for all accounts used by the affected host/user
+{% endif %}
+
+#### 5d. Remediation & Close-out
+
+- [ ] **Rebuild or reimage `{{ source_ip | default("<source_host>") }}`** – After forensic image is secured, rebuild the host from a trusted image:
+  ```bash
+  # Confirm forensic image is complete and hashed before reimaging
+  sha256sum /forensics/legal_hold_*.img
+  # Then reimage from golden image / Ansible playbook
+  ```
+
+- [ ] **Reset all credentials** – Force password reset for:
+  - [ ] The user account associated with `{{ source_ip | default("<source_host>") }}`
+  - [ ] All service accounts with access to affected data stores
+  - [ ] All API keys / tokens used from the compromised host
+  - [ ] Admin accounts if privilege escalation was detected
+
+- [ ] **Patch the exfiltration vector** – Address the root cause that enabled exfiltration:
+  - [ ] Tighten DLP policy to block mode
+  - [ ] Implement egress filtering on all sensitive segments
+  - [ ] Deploy / tune UEBA (User Entity Behaviour Analytics) for anomalous data access
+  - [ ] Enable file access auditing on all sensitive repositories
+
+- [ ] **Create incident ticket in `{{ ticket_system | default("Jira") }}`** – Project: `{{ ticket_project | default("SEC") }}`
+  Summary: *"Data Exfiltration: `{{ source_ip | default("<source_host>") }}` → `{{ destination_domain | default(destination_ip | default("<dest>")) }}` via `{{ exfil_vector | default("https") | upper }}` – `{{ exfil_bytes_hr | default("unknown volume") }}` of `{{ data_classification | default("CONFIDENTIAL") }}` data"*
+
+- [ ] **Produce breach report** – Complete the formal breach report including:
+  - Timeline of events
+  - Data types and volume affected
+  - Number of affected individuals
+  - Regulatory notification status
+  - Remediation actions taken
+  - Lessons learned
+
+- [ ] **Schedule post-incident review** – 48-hour debrief with DPO (`{{ dpo_contact | default("DPO") }}`), Legal (`{{ legal_contact | default("Legal") }}`), and SOC.
+
+---
+{% endblock containment %}
+
+{# ═══════════════════════════════════════════════════════════════════════════
+   BLOCK 4 · ARTIFACTS  (exfiltration detection rules + SIEM queries)
+   ═══════════════════════════════════════════════════════════════════════════ #}
+{% block artifacts %}
+## 📁 Artifacts & Rule References – Data Exfiltration
+
+### Detection Rules
+
+| Rule ID | Rule Name | Source | Threshold | Status |
+|---------|-----------|--------|-----------|--------|
+| `RULE-EXFIL-001` | Outbound Data Volume Spike             | `NetFlow / SIEM` | `> {{ baseline_bytes_per_day | default("10 MB") }}/hour` | ✅ Active |
+| `RULE-EXFIL-002` | DLP Policy Violation                   | `{{ dlp_vendor | default("DLP System") }}` | Any violation | ✅ Active |
+| `RULE-EXFIL-003` | DNS Tunnelling Detection (High Entropy)| `IDS / DNS Monitor` | Entropy > 3.5 | ✅ Active |
+| `RULE-EXFIL-004` | Large HTTPS POST to Non-Approved Host  | `Proxy / WAF` | `> 10 MB per request` | ✅ Active |
+| `RULE-EXFIL-005` | Data Staging – Archive Creation        | `EDR / FIM` | `.zip/.tar > 100MB` | ✅ Active |
+| `RULE-EXFIL-006` | Credential / API Key in Outbound HTTP  | `DLP / Proxy` | Any match | ✅ Active |
+| `RULE-EXFIL-007` | Cloud Storage Upload to Personal Account| `CASB / Proxy` | Any match | ✅ Active |
+| `RULE-EXFIL-008` | USB Mass Storage Device Connected      | `EDR / DLP Endpoint` | Any connect | ✅ Active |
+| `RULE-EXFIL-009` | Email with > N Attachments to External | `DLP / Email Gateway` | `> 5 files` | ✅ Active |
+| `RULE-EXFIL-010` | UEBA Anomaly – Unusual Data Access     | `UEBA Engine` | Deviation > 3σ | ✅ Active |
+{% if detection_rules is defined and detection_rules %}
+{% for rule in detection_rules %}
+| `{{ rule.id | default("RULE-???") }}` | {{ rule.name }} | `{{ rule.source | default("SIEM") }}` | `{{ rule.threshold | default("Any") }}` | {{ rule.status | default("✅ Active") }} |
+{% endfor %}
+{% endif %}
+
+### Log Sources
+
+| Source | Path / Index | Key Fields | Retention |
+|--------|--------------|------------|-----------|
+| **NetFlow / IPFIX**     | `{{ netflow_index | default("netflow-*") }}`              | `src_ip`, `dst_ip`, `bytes`, `duration`       | `{{ log_retention | default("90 days") }}` |
+| **Proxy Logs**          | `{{ proxy_log | default("proxy-access-*") }}`             | `src_ip`, `url`, `method`, `bytes_out`        | `{{ log_retention | default("90 days") }}` |
+| **DLP Alerts**          | `{{ dlp_log_index | default("dlp-alerts-*") }}`           | `policy_name`, `user`, `data_type`, `action`  | `{{ log_retention | default("90 days") }}` |
+| **EDR / FIM Events**    | `{{ edr_log_index | default("edr-events-*") }}`           | `file_path`, `action`, `hash`, `user`         | `{{ log_retention | default("90 days") }}` |
+| **DNS Query Logs**      | `{{ dns_log_index | default("dns-queries-*") }}`          | `query_name`, `src_ip`, `response`, `entropy` | `{{ log_retention | default("90 days") }}` |
+| **Email Gateway Logs**  | `{{ email_log_index | default("email-gateway-*") }}`      | `from`, `to`, `subject`, `attach_count`       | `{{ log_retention | default("90 days") }}` |
+| **CASB / Cloud Logs**   | `{{ casb_log_index | default("casb-events-*") }}`         | `user`, `app`, `action`, `bytes`              | `{{ log_retention | default("90 days") }}` |
+| **Auditd / WinEvent**   | `{{ audit_log_index | default("audit-events-*") }}`       | `event_id`, `user`, `object`, `action`        | `{{ log_retention | default("90 days") }}` |
+| **SIEM Alerts**         | `{{ siem_index | default("siem-alerts-*") }}`             | `rule_id`, `severity`, `src_ip`               | `{{ log_retention | default("90 days") }}` |
+
+### SIEM Detection Queries
+
+**Query 1 – Outbound Volume Anomaly (primary detection):**
+```splunk
+index=netflow src_ip="{{ source_ip | default("*") }}"
+  NOT dest_ip IN (10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16)
+  | bin _time span=1h
+  | stats sum(bytes) as total_bytes by _time, src_ip, dest_ip
+  | eval total_mb = round(total_bytes/1048576, 2)
+  | where total_bytes > {{ exfil_bytes | default(10485760) }}
+  | sort - total_bytes
+  | table _time, src_ip, dest_ip, total_mb
+```
+
+**Query 2 – Baseline Deviation (UEBA-style):**
+```splunk
+index=netflow src_ip="{{ source_ip | default("*") }}"
+  NOT dest_ip IN (10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16)
+  | timechart span=1d sum(bytes) as daily_bytes by src_ip
+  | eventstats avg(daily_bytes) as avg_baseline, stdev(daily_bytes) as stddev by src_ip
+  | eval z_score = (daily_bytes - avg_baseline) / stddev
+  | where z_score > 3
+  | table _time, src_ip, daily_bytes, avg_baseline, z_score
+```
+
+**Query 3 – DNS Tunnelling Detection:**
+```splunk
+index=dns-queries src_ip="{{ source_ip | default("*") }}"
+  | eval subdomain=mvindex(split(query_name, "."), 0)
+  | eval sub_len=len(subdomain)
+  | where sub_len > 30
+  | rex field=subdomain mode=sed "s/[aeiouAEIOU]//g"
+  | eval consonant_ratio=len(subdomain)/sub_len
+  | stats count as query_count, values(query_name) as dns_queries by src_ip, dest_domain
+  | where query_count > 100
+  | sort - query_count
+```
+
+**Query 4 – DLP Policy Violation Correlation:**
+```splunk
+index=dlp-alerts policy_name="{{ dlp_policy_name | default("*") }}"
+  user="{{ affected_user | default("*") }}"
+  | stats count as violations, values(data_type) as data_types,
+          values(action) as actions, dc(policy_name) as policies_hit
+    by user, src_ip, dest_domain, _time
+  | sort - violations
+```
+
+**Query 5 – Data Staging Detection (Archive Creation):**
+```splunk
+index=edr-events src_ip="{{ source_ip | default("*") }}"
+  action="file_create" file_ext IN ("zip", "tar", "gz", "7z", "rar")
+  | where file_size > 104857600
+  | table _time, src_ip, user, file_path, file_size, hash
+  | sort - file_size
+```
+
+**Query 6 – Cloud Storage Exfiltration:**
+```splunk
+index=proxy-access src_ip="{{ source_ip | default("*") }}"
+  url IN ("*amazonaws.com*", "*blob.core.windows.net*",
+          "*storage.googleapis.com*", "*dropbox.com*")
+  http_method="PUT" OR http_method="POST"
+  | stats sum(bytes_out) as total_upload by src_ip, url, user
+  | eval upload_mb = round(total_upload/1048576, 2)
+  | where total_upload > 1048576
+  | sort - total_upload
+```
+
+### Evidence Collection Paths
+
+{% if evidence_paths is defined and evidence_paths %}
+{% for path in evidence_paths %}
+- `{{ path }}`
+{% endfor %}
+{% else %}
+- `forensics/{{ source_ip | default("unknown_host") }}/mem_dump_{{ generated_at | default("timestamp") }}.lime`
+- `forensics/{{ source_ip | default("unknown_host") }}/disk_image_{{ generated_at | default("timestamp") }}.img`
+- `captures/exfil_{{ source_ip | default("unknown_host") }}_{{ destination_ip | default("unknown_dest") }}_{{ generated_at | default("timestamp") }}.pcap`
+- `forensics/{{ source_ip | default("unknown_host") }}/accessed_files_{{ audit_period_hours | default(72) }}h.txt`
+- `forensics/{{ source_ip | default("unknown_host") }}/archives_{{ audit_period_hours | default(72) }}h.txt`
+- `forensics/{{ source_ip | default("unknown_host") }}/netstat_snapshot.txt`
+- `forensics/{{ source_ip | default("unknown_host") }}/process_snapshot.txt`
+- `reports/incidents/data_exfiltration/{{ source_ip | default("unknown_host") }}/{{ generated_at | default("timestamp") }}/`
+- `reports/incidents/data_exfiltration/{{ source_ip | default("unknown_host") }}/breach_report_{{ generated_at | default("timestamp") }}.pdf`
+- `forensics/dlp/dlp_incidents_{{ generated_at | default("timestamp") }}.json`
+- `forensics/fim/aide_delta_{{ generated_at | default("timestamp") }}.txt`
+{% endif %}
+
+---
+{% endblock artifacts %}
