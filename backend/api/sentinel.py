@@ -20,7 +20,6 @@ Week 14, Day 2 — Integration & API
 from __future__ import annotations
 
 import logging
-from datetime import datetime
 from typing import Any, Dict, List, Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Query

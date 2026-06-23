@@ -40,7 +40,6 @@ Phase 5, Week 2 (Week 14), Day 1 — Integration & API
 
 from __future__ import annotations
 
-import json
 import logging
 from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional
@@ -48,12 +47,8 @@ from typing import Any, Dict, List, Optional
 from sqlalchemy.orm import Session
 
 # Sentinel sub-modules
-from sentinel.mitre_mapper import map_signature, map_signatures, get_technique
-from sentinel.rule_generator import (
-    generate_snort_rule,
-    generate_sigma_rule,
-    generate_rules_for_campaign,
-)
+from sentinel.mitre_mapper import map_signature, map_signatures
+from sentinel.rule_generator import generate_rules_for_campaign
 from sentinel.stix_enhanced import build_stix_bundle, bundle_to_json
 from sentinel.models import SentinelPlaybook
 
@@ -142,29 +137,32 @@ class SentinelService:
         templates actually reside.
         """
         if self._playbook_gen is None:
+            # Try backend/sentinel first
             try:
-                from sentinel.playbook_generator import PlaybookGenerator
+                from sentinel.playbook_generator import PlaybookGenerator  # noqa: F811
                 self._playbook_gen = PlaybookGenerator()
-            except (ImportError, Exception):
-                # Fallback: root-level sentinel package has the generator
+            except Exception:
+                pass
+
+            # Fallback: root-level sentinel package where templates reside
+            if self._playbook_gen is None:
                 try:
-                    import os, sys
+                    import os
+                    import sys as _sys
                     root_dir = os.path.abspath(
                         os.path.join(os.path.dirname(__file__), "..", "..")
                     )
-                    if root_dir not in sys.path:
-                        sys.path.insert(0, root_dir)
-                    # Import from root sentinel package
+                    if root_dir not in _sys.path:
+                        _sys.path.insert(0, root_dir)
                     from importlib import import_module
-                    mod = import_module("sentinel.playbook_generator")
-                    PlaybookGenerator = mod.PlaybookGenerator
-                    self._playbook_gen = PlaybookGenerator()
+                    _mod = import_module("sentinel.playbook_generator")
+                    self._playbook_gen = _mod.PlaybookGenerator()
                     logger.info(
                         "PlaybookGenerator loaded from root sentinel package"
                     )
                 except Exception:
                     logger.warning(
-                        "PlaybookGenerator not available — playbook rendering "
+                        "PlaybookGenerator not available \u2014 playbook rendering "
                         "will return a placeholder."
                     )
         return self._playbook_gen
