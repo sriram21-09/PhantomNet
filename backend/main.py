@@ -28,6 +28,7 @@ from database.models import Base, PacketLog, TrafficStats
 # Must be imported BEFORE Base.metadata.create_all() runs in lifespan()
 # so SQLAlchemy registers sentinel_playbooks in the shared metadata.
 from sentinel.models import SentinelPlaybook  # noqa: F401  (side-effect import)
+from sentinel.sentinel_service import SentinelService
 
 # =========================
 # INTERNAL SERVICES
@@ -132,6 +133,11 @@ async def lifespan(_app: FastAPI):
         # Start Event Stream Broadcaster
         asyncio.create_task(broadcast_event_stream())
 
+        # Start Sentinel Generation Loop if enabled
+        if os.getenv("SENTINEL_ENABLED", "false").lower() == "true":
+            asyncio.create_task(sentinel_generation_loop())
+            print("Sentinel Generation Loop started (background)")
+
         # Seed default admin
         _db = SessionLocal()
         seed_default_admin(_db)
@@ -142,6 +148,42 @@ async def lifespan(_app: FastAPI):
     yield
     print("PhantomNet Shutting Down")
     threat_analyzer.stop()
+
+
+async def sentinel_generation_loop() -> None:
+    """
+    Background task to periodically run campaign clustering and feed new clusters
+    to Sentinel for playbook generation.
+    """
+    print("[+] Sentinel Generation Loop Started")
+    processed_campaign_ids: Set[str] = set()
+    
+    while True:
+        try:
+            # Run every 5 minutes
+            await asyncio.sleep(300)
+            
+            # Wrap in to_thread to avoid blocking event loop
+            clusters = await asyncio.to_thread(campaign_clusterer.identify_campaigns, 24)
+            if not clusters:
+                continue
+                
+            db = SessionLocal()
+            try:
+                svc = SentinelService(db)
+                for cluster in clusters:
+                    cid = cluster.get("campaign_id")
+                    if not cid or cid in processed_campaign_ids:
+                        continue
+                        
+                    # Generate playbook
+                    svc.generate_playbook(cluster)
+                    processed_campaign_ids.add(cid)
+                    print(f"[*] Sentinel generated playbook for campaign {cid}")
+            finally:
+                db.close()
+        except Exception as e:
+            print(f"Error in sentinel generation loop: {e}")
 
 
 async def _pcap_cleanup_scheduler(analyzer) -> None:
