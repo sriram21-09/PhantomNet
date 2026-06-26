@@ -489,6 +489,61 @@ class TestSnortRuleSyntax(unittest.TestCase):
 class TestSIDAutoIncrement(unittest.TestCase):
     """Task 5 - SID auto-increment must not produce duplicates."""
 
+    def setUp(self):
+        from sentinel.rule_generator import _SID_FILE_PATH, _load_sid
+        import sentinel.rule_generator as rg
+        import os
+
+        # Save original file contents if any to restore in tearDown
+        self.original_exists = os.path.exists(_SID_FILE_PATH)
+        self.original_val = None
+        if self.original_exists:
+            try:
+                with open(_SID_FILE_PATH, "r") as f:
+                    self.original_val = f.read()
+            except Exception:
+                pass
+
+        # Reset for the test
+        if os.path.exists(_SID_FILE_PATH):
+            try:
+                os.remove(_SID_FILE_PATH)
+            except Exception:
+                pass
+
+        if hasattr(rg, "_NEXT_SID"):
+            with rg._sid_lock:
+                rg._NEXT_SID = 1000001
+        if hasattr(rg, "_current_sid"):
+            with rg._sid_lock:
+                rg._current_sid = 1000000
+
+    def tearDown(self):
+        from sentinel.rule_generator import _SID_FILE_PATH, _load_sid
+        import sentinel.rule_generator as rg
+        import os
+
+        # Restore original SID file if it existed
+        if self.original_exists and self.original_val is not None:
+            try:
+                os.makedirs(os.path.dirname(_SID_FILE_PATH), exist_ok=True)
+                with open(_SID_FILE_PATH, "w") as f:
+                    f.write(self.original_val)
+                if hasattr(rg, "_NEXT_SID"):
+                    with rg._sid_lock:
+                        rg._NEXT_SID = rg._load_sid()
+                if hasattr(rg, "_current_sid"):
+                    with rg._sid_lock:
+                        rg._current_sid = rg._load_sid() - 1
+            except Exception:
+                pass
+        else:
+            if os.path.exists(_SID_FILE_PATH):
+                try:
+                    os.remove(_SID_FILE_PATH)
+                except Exception:
+                    pass
+
     def _collect_auto_sids(self, count):
         sids = []
         for _ in range(count):
@@ -551,6 +606,136 @@ class TestSIDAutoIncrement(unittest.TestCase):
         sids = self._collect_auto_sids(100)
         self.assertEqual(len(sids), len(set(sids)),
                          "Duplicate SIDs detected in 100 sequential auto-SID calls.")
+
+    def test_sid_persistence_across_restart(self):
+        """Verify Snort SID persists across simulated server restarts."""
+        from sentinel.rule_generator import _SID_FILE_PATH, _load_sid, generate_snort_rule
+        import sentinel.rule_generator as rg
+        import os
+
+        # Save original file contents if any to restore later
+        original_exists = os.path.exists(_SID_FILE_PATH)
+        original_val = None
+        if original_exists:
+            try:
+                with open(_SID_FILE_PATH, "r") as f:
+                    original_val = f.read()
+            except Exception:
+                pass
+
+        try:
+            # Start fresh: remove file and reset in-memory SID
+            if os.path.exists(_SID_FILE_PATH):
+                os.remove(_SID_FILE_PATH)
+
+            if hasattr(rg, "_NEXT_SID"):
+                with rg._sid_lock:
+                    rg._NEXT_SID = 1000001
+            if hasattr(rg, "_current_sid"):
+                with rg._sid_lock:
+                    rg._current_sid = 1000000
+
+            # Generate rule 1
+            rule1 = generate_snort_rule("any", 80, "tcp", "persist test 1", "T1234")
+            sid1 = int(parse_snort_rule(rule1)["options"]["sid"])
+            self.assertEqual(sid1, 1000001)
+
+            # Generate rule 2
+            rule2 = generate_snort_rule("any", 80, "tcp", "persist test 2", "T1234")
+            sid2 = int(parse_snort_rule(rule2)["options"]["sid"])
+            self.assertEqual(sid2, 1000002)
+
+            # Simulate restart: reset in-memory SID and force reload from file
+            if hasattr(rg, "_NEXT_SID"):
+                with rg._sid_lock:
+                    rg._NEXT_SID = rg._load_sid()
+            if hasattr(rg, "_current_sid"):
+                with rg._sid_lock:
+                    rg._current_sid = rg._load_sid() - 1
+
+            # Next generated rule must continue from 1000003
+            rule3 = generate_snort_rule("any", 80, "tcp", "persist test 3", "T1234")
+            sid3 = int(parse_snort_rule(rule3)["options"]["sid"])
+            self.assertEqual(sid3, 1000003)
+
+        finally:
+            # Restore original SID file if it existed
+            if original_exists and original_val is not None:
+                try:
+                    os.makedirs(os.path.dirname(_SID_FILE_PATH), exist_ok=True)
+                    with open(_SID_FILE_PATH, "w") as f:
+                        f.write(original_val)
+                    if hasattr(rg, "_NEXT_SID"):
+                        with rg._sid_lock:
+                            rg._NEXT_SID = rg._load_sid()
+                    if hasattr(rg, "_current_sid"):
+                        with rg._sid_lock:
+                            rg._current_sid = rg._load_sid() - 1
+                except Exception:
+                    pass
+            elif os.path.exists(_SID_FILE_PATH):
+                try:
+                    os.remove(_SID_FILE_PATH)
+                except Exception:
+                    pass
+
+    def test_corrupted_sid_file_handled_gracefully(self):
+        """Verify corrupted/empty/missing SID storage is handled gracefully."""
+        from sentinel.rule_generator import _SID_FILE_PATH, _load_sid
+        import sentinel.rule_generator as rg
+        import os
+
+        # Save original file contents if any to restore later
+        original_exists = os.path.exists(_SID_FILE_PATH)
+        original_val = None
+        if original_exists:
+            try:
+                with open(_SID_FILE_PATH, "r") as f:
+                    original_val = f.read()
+            except Exception:
+                pass
+
+        try:
+            # Test missing file
+            if os.path.exists(_SID_FILE_PATH):
+                os.remove(_SID_FILE_PATH)
+            self.assertEqual(rg._load_sid(), 1000001)
+
+            # Test empty file
+            with open(_SID_FILE_PATH, "w") as f:
+                f.write("")
+            self.assertEqual(rg._load_sid(), 1000001)
+
+            # Test non-integer corrupted file
+            with open(_SID_FILE_PATH, "w") as f:
+                f.write("corrupted_value_123")
+            self.assertEqual(rg._load_sid(), 1000001)
+
+            # Test negative integer corrupted file
+            with open(_SID_FILE_PATH, "w") as f:
+                f.write("-500")
+            self.assertEqual(rg._load_sid(), 1000001)
+
+        finally:
+            # Restore original
+            if original_exists and original_val is not None:
+                try:
+                    os.makedirs(os.path.dirname(_SID_FILE_PATH), exist_ok=True)
+                    with open(_SID_FILE_PATH, "w") as f:
+                        f.write(original_val)
+                    if hasattr(rg, "_NEXT_SID"):
+                        with rg._sid_lock:
+                            rg._NEXT_SID = rg._load_sid()
+                    if hasattr(rg, "_current_sid"):
+                        with rg._sid_lock:
+                            rg._current_sid = rg._load_sid() - 1
+                except Exception:
+                    pass
+            elif os.path.exists(_SID_FILE_PATH):
+                try:
+                    os.remove(_SID_FILE_PATH)
+                except Exception:
+                    pass
 
 
 # ===========================================================================

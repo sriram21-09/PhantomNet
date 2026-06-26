@@ -252,6 +252,21 @@ print("="*65)
 
 import threading
 
+# Clean up persistent SID storage so that Task 5 tests run in isolation
+from sentinel.rule_generator import _SID_FILE_PATH
+import sentinel.rule_generator as rg
+if os.path.exists(_SID_FILE_PATH):
+    try:
+        os.remove(_SID_FILE_PATH)
+    except Exception:
+        pass
+if hasattr(rg, "_NEXT_SID"):
+    with rg._sid_lock:
+        rg._NEXT_SID = 1000001
+if hasattr(rg, "_current_sid"):
+    with rg._sid_lock:
+        rg._current_sid = 1000000
+
 def _get_sid(rule_str):
     m = re.search(r"sid:(\d+);", rule_str)
     return int(m.group(1)) if m else None
@@ -308,7 +323,7 @@ print(f"SUMMARY:  {len(failures)} failure(s) out of all checks")
 if failures:
     print("\nFailed checks:")
     for f in failures:
-        print(f"  ✗  {f}")
+        print(f"  [X]  {f}")
     sys.exit(1)
 else:
     print("\n  ALL DELIVERABLES VERIFIED — ZERO ERRORS")

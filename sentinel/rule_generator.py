@@ -36,15 +36,60 @@ _VALID_PROTOCOLS = {"tcp", "udp", "icmp", "ip"}
 # Thread-safe SID counter
 # ---------------------------------------------------------------------------
 
-_sid_lock = threading.Lock()
-_current_sid = 1_000_000  # first auto-generated SID will be 1_000_001
+import os
+import logging
 
+_logger = logging.getLogger("sentinel.rule_generator")
+
+def _find_data_dir() -> str:
+    current = os.path.dirname(os.path.abspath(__file__))
+    for _ in range(5):
+        candidate = os.path.join(current, "data")
+        if os.path.isdir(candidate):
+            return candidate
+        parent = os.path.dirname(current)
+        if parent == current:
+            break
+        current = parent
+    return os.path.dirname(os.path.abspath(__file__))
+
+_BASE_SID = 1000001
+_SID_FILE_PATH = os.path.join(_find_data_dir(), "last_sid.txt")
+
+def _load_sid() -> int:
+    if not os.path.exists(_SID_FILE_PATH):
+        return _BASE_SID
+    try:
+        with open(_SID_FILE_PATH, "r", encoding="utf-8") as f:
+            content = f.read().strip()
+            if not content:
+                return _BASE_SID
+            val = int(content)
+            if val <= 0:
+                _logger.warning("Corrupted SID value in storage: %s. Reverting to base SID.", content)
+                return _BASE_SID
+            return val
+    except Exception as e:
+        _logger.warning("Error reading SID storage: %s. Reverting to base SID.", e)
+        return _BASE_SID
+
+def _save_sid(sid: int) -> None:
+    try:
+        os.makedirs(os.path.dirname(_SID_FILE_PATH), exist_ok=True)
+        with open(_SID_FILE_PATH, "w", encoding="utf-8") as f:
+            f.write(str(sid))
+    except Exception as e:
+        _logger.error("Failed to write SID to storage: %s", e)
+
+_sid_lock = threading.Lock()
+_current_sid = _load_sid() - 1
 
 def _next_auto_sid() -> int:
     """Return the next unique SID (thread-safe, monotonically increasing)."""
     global _current_sid
     with _sid_lock:
         _current_sid += 1
+        _save_sid(_current_sid + 1)
         return _current_sid
 
 
@@ -54,6 +99,7 @@ def _advance_counter_if_needed(explicit_sid: int) -> None:
     with _sid_lock:
         if explicit_sid >= _current_sid:
             _current_sid = explicit_sid
+            _save_sid(_current_sid + 1)
 
 
 # ---------------------------------------------------------------------------
@@ -375,21 +421,27 @@ def generate_sigma_rule(
     det = dict(detection)
 
     if "condition" not in det:
-        # Flat dict (no 'selection' key) → wrap it
-        if "selection" not in det:
-            det = {"selection": det, "condition": "selection"}
+        # Check if it has a flat list of fields or nested search identifiers
+        is_flat = False
+        for k, v in det.items():
+            if not isinstance(v, (dict, list)):
+                is_flat = True
+                break
+        if is_flat:
+            det = {
+                "selection": det,
+                "condition": "selection"
+            }
         else:
-            # Has exactly one selection_* key
-            selection_keys = [k for k in det if k != "condition"]
-            if len(selection_keys) == 1:
+            if "selection" in det:
                 det["condition"] = "selection"
             else:
-                det["condition"] = " or ".join(selection_keys)
-    else:
-        # condition already present; check for multi-selection without explicit condition
-        selection_keys = [k for k in det if k != "condition"]
-        if len(selection_keys) > 1 and det.get("condition") not in det:
-            det["condition"] = " or ".join(selection_keys)
+                # Use all keys except 'condition'
+                keys = [k for k in det.keys() if k != "condition"]
+                if keys:
+                    det["condition"] = " or ".join(keys)
+                else:
+                    det["condition"] = "selection"
 
     # --- build tags list -----------------------------------------------
     all_tags: list[str] = []

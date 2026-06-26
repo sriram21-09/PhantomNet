@@ -30,14 +30,58 @@ Public API
 """
 
 import ipaddress
+import os
 import re
 import threading
 import typing
 import yaml
+import logging
+
+_logger = logging.getLogger("sentinel.rule_generator")
+
+def _find_data_dir() -> str:
+    current = os.path.dirname(os.path.abspath(__file__))
+    for _ in range(5):
+        candidate = os.path.join(current, "data")
+        if os.path.isdir(candidate):
+            return candidate
+        parent = os.path.dirname(current)
+        if parent == current:
+            break
+        current = parent
+    return os.path.dirname(os.path.abspath(__file__))
+
+_BASE_SID = 1000001
+_SID_FILE_PATH = os.path.join(_find_data_dir(), "last_sid.txt")
+
+def _load_sid() -> int:
+    if not os.path.exists(_SID_FILE_PATH):
+        return _BASE_SID
+    try:
+        with open(_SID_FILE_PATH, "r", encoding="utf-8") as f:
+            content = f.read().strip()
+            if not content:
+                return _BASE_SID
+            val = int(content)
+            if val <= 0:
+                _logger.warning("Corrupted SID value in storage: %s. Reverting to base SID.", content)
+                return _BASE_SID
+            return val
+    except Exception as e:
+        _logger.warning("Error reading SID storage: %s. Reverting to base SID.", e)
+        return _BASE_SID
+
+def _save_sid(sid: int) -> None:
+    try:
+        os.makedirs(os.path.dirname(_SID_FILE_PATH), exist_ok=True)
+        with open(_SID_FILE_PATH, "w", encoding="utf-8") as f:
+            f.write(str(sid))
+    except Exception as e:
+        _logger.error("Failed to write SID to storage: %s", e)
 
 # Thread-safe SID tracking
 _sid_lock = threading.Lock()
-_NEXT_SID = 1000001
+_NEXT_SID = _load_sid()
 
 
 def escape_snort_string(val: str) -> str:
@@ -196,6 +240,9 @@ def generate_snort_rule(
             # Advance next SID if explicit SID is equal or greater, preventing future collisions
             if sid_to_use >= _NEXT_SID:
                 _NEXT_SID = sid_to_use + 1
+
+        # Persist the new SID counter value
+        _save_sid(_NEXT_SID)
 
     # Escape attack description to keep Snort syntax valid
     escaped_desc = escape_snort_string(attack_desc)
