@@ -1,0 +1,489 @@
+/* ==========================================
+   SENTINEL STATS WIDGET — Cyber HUD Design
+   Matches PremiumMetricCard + Dashboard aesthetic
+   ========================================== */
+
+/* --- Section Container --- */
+.sentinel-stats-section {
+  margin-bottom: 24px;
+}
+
+/* --- Section Header --- */
+.sentinel-stats-header {
+  margin-bottom: 16px;
+  padding: 0 4px;
+}
+
+.sentinel-header-badge {
+  display: inline-block;
+  font-size: 9px;
+  font-weight: 900;
+  letter-spacing: 2.5px;
+  padding: 3px 10px;
+  border-radius: 6px;
+  margin-bottom: 6px;
+  text-transform: uppercase;
+}
+
+body[data-theme="dark"] .sentinel-header-badge {
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.18), rgba(168, 85, 247, 0.12));
+  color: #a78bfa;
+  border: 1px solid rgba(139, 92, 246, 0.3);
+}
+
+body[data-theme="light"] .sentinel-header-badge {
+  background: linear-gradient(135deg, #ede9fe, #ddd6fe);
+  color: #7c3aed;
+  border: 1px solid rgba(139, 92, 246, 0.35);
+}
+
+.sentinel-header-title {
+  font-size: 17px;
+  font-weight: 800;
+  margin: 0;
+  letter-spacing: 0.5px;
+}
+
+body[data-theme="dark"] .sentinel-header-title {
+  background: linear-gradient(135deg, #a78bfa, #c084fc, #818cf8);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+body[data-theme="light"] .sentinel-header-title {
+  background: linear-gradient(135deg, #7c3aed, #8b5cf6, #6366f1);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.sentinel-header-subtitle {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  margin: 2px 0 0;
+  text-transform: uppercase;
+}
+
+body[data-theme="dark"] .sentinel-header-subtitle {
+  color: #64748b;
+}
+
+body[data-theme="light"] .sentinel-header-subtitle {
+  color: #94a3b8;
+}
+
+/* --- Stats Grid --- */
+.sentinel-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+}
+
+@media (max-width: 1200px) {
+  .sentinel-stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
+  .sentinel-stats-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* --- Individual Stat Card --- */
+.sentinel-stat-card {
+  position: relative;
+  border-radius: 18px;
+  padding: 20px;
+  overflow: hidden;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  backdrop-filter: blur(12px);
+  animation: sentinelFadeIn 0.5s ease-out both;
+}
+
+.sentinel-stat-card:nth-child(1) { animation-delay: 0.05s; }
+.sentinel-stat-card:nth-child(2) { animation-delay: 0.1s; }
+.sentinel-stat-card:nth-child(3) { animation-delay: 0.15s; }
+.sentinel-stat-card:nth-child(4) { animation-delay: 0.2s; }
+
+@keyframes sentinelFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+body[data-theme="dark"] .sentinel-stat-card {
+  background: rgba(15, 23, 42, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+}
+
+body[data-theme="light"] .sentinel-stat-card {
+  background: rgba(255, 255, 255, 0.85);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+}
+
+.sentinel-stat-card:hover {
+  transform: translateY(-6px);
+}
+
+body[data-theme="dark"] .sentinel-stat-card:hover {
+  background: rgba(15, 23, 42, 0.7);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+}
+
+body[data-theme="light"] .sentinel-stat-card:hover {
+  background: #ffffff;
+  box-shadow: 0 10px 35px rgba(0, 0, 0, 0.08);
+}
+
+/* --- Accent bar on top --- */
+.sentinel-card-accent {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  border-radius: 18px 18px 0 0;
+  opacity: 0.8;
+  transition: opacity 0.3s ease;
+}
+
+.sentinel-stat-card:hover .sentinel-card-accent {
+  opacity: 1;
+}
+
+.sentinel-variant-purple .sentinel-card-accent {
+  background: linear-gradient(90deg, #8b5cf6, #a78bfa, #c084fc);
+}
+
+.sentinel-variant-amber .sentinel-card-accent {
+  background: linear-gradient(90deg, #f59e0b, #fbbf24, #fcd34d);
+}
+
+.sentinel-variant-emerald .sentinel-card-accent {
+  background: linear-gradient(90deg, #10b981, #34d399, #6ee7b7);
+}
+
+.sentinel-variant-rose .sentinel-card-accent {
+  background: linear-gradient(90deg, #f43f5e, #fb7185, #fda4af);
+}
+
+/* --- Card Inner Layout --- */
+.sentinel-card-inner {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* --- Card Top (Icon + Pulse) --- */
+.sentinel-card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.sentinel-icon-wrap {
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  transition: all 0.3s ease;
+}
+
+.sentinel-variant-purple .sentinel-icon-wrap {
+  background: rgba(139, 92, 246, 0.12);
+  color: #a78bfa;
+}
+
+.sentinel-variant-amber .sentinel-icon-wrap {
+  background: rgba(245, 158, 11, 0.12);
+  color: #fbbf24;
+}
+
+.sentinel-variant-emerald .sentinel-icon-wrap {
+  background: rgba(16, 185, 129, 0.12);
+  color: #34d399;
+}
+
+.sentinel-variant-rose .sentinel-icon-wrap {
+  background: rgba(244, 63, 94, 0.12);
+  color: #fb7185;
+}
+
+body[data-theme="light"] .sentinel-variant-purple .sentinel-icon-wrap {
+  background: rgba(139, 92, 246, 0.1);
+  color: #7c3aed;
+}
+
+body[data-theme="light"] .sentinel-variant-amber .sentinel-icon-wrap {
+  background: rgba(245, 158, 11, 0.1);
+  color: #d97706;
+}
+
+body[data-theme="light"] .sentinel-variant-emerald .sentinel-icon-wrap {
+  background: rgba(16, 185, 129, 0.1);
+  color: #059669;
+}
+
+body[data-theme="light"] .sentinel-variant-rose .sentinel-icon-wrap {
+  background: rgba(244, 63, 94, 0.1);
+  color: #e11d48;
+}
+
+.sentinel-stat-card:hover .sentinel-icon-wrap {
+  transform: scale(1.08);
+  box-shadow: 0 0 16px rgba(139, 92, 246, 0.15);
+}
+
+/* --- Pulse Dot --- */
+.sentinel-pulse-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  animation: sentinelPulse 2s infinite ease-in-out;
+}
+
+.sentinel-variant-purple .sentinel-pulse-dot {
+  background: #a78bfa;
+  box-shadow: 0 0 8px rgba(167, 139, 250, 0.5);
+}
+
+.sentinel-variant-amber .sentinel-pulse-dot {
+  background: #fbbf24;
+  box-shadow: 0 0 8px rgba(251, 191, 36, 0.5);
+}
+
+.sentinel-variant-emerald .sentinel-pulse-dot {
+  background: #34d399;
+  box-shadow: 0 0 8px rgba(52, 211, 153, 0.5);
+}
+
+.sentinel-variant-rose .sentinel-pulse-dot {
+  background: #fb7185;
+  box-shadow: 0 0 8px rgba(251, 113, 133, 0.5);
+}
+
+@keyframes sentinelPulse {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.5);
+    opacity: 0.4;
+  }
+}
+
+/* --- Card Value --- */
+.sentinel-card-value {
+  font-size: 30px;
+  font-weight: 900;
+  line-height: 1;
+  letter-spacing: -1px;
+  transition: color 0.3s ease;
+}
+
+body[data-theme="dark"] .sentinel-card-value {
+  color: #f1f5f9;
+}
+
+body[data-theme="light"] .sentinel-card-value {
+  color: #0f172a;
+}
+
+.sentinel-variant-purple .sentinel-card-value {
+  text-shadow: 0 0 20px rgba(139, 92, 246, 0.15);
+}
+
+.sentinel-variant-amber .sentinel-card-value {
+  text-shadow: 0 0 20px rgba(245, 158, 11, 0.15);
+}
+
+.sentinel-variant-emerald .sentinel-card-value {
+  text-shadow: 0 0 20px rgba(16, 185, 129, 0.15);
+}
+
+.sentinel-variant-rose .sentinel-card-value {
+  text-shadow: 0 0 20px rgba(244, 63, 94, 0.15);
+}
+
+/* --- Card Info --- */
+.sentinel-card-info {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.sentinel-card-title {
+  font-size: 13px;
+  font-weight: 700;
+  margin: 0;
+}
+
+body[data-theme="dark"] .sentinel-card-title {
+  color: #cbd5e1;
+}
+
+body[data-theme="light"] .sentinel-card-title {
+  color: #334155;
+}
+
+.sentinel-card-subtitle {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  margin: 0;
+  text-transform: uppercase;
+}
+
+body[data-theme="dark"] .sentinel-card-subtitle {
+  color: #475569;
+}
+
+body[data-theme="light"] .sentinel-card-subtitle {
+  color: #94a3b8;
+}
+
+/* --- Bottom Progress Bar --- */
+.sentinel-card-bar {
+  width: 100%;
+  height: 4px;
+  border-radius: 2px;
+  overflow: hidden;
+  margin-top: 2px;
+}
+
+body[data-theme="dark"] .sentinel-card-bar {
+  background: rgba(148, 163, 184, 0.08);
+}
+
+body[data-theme="light"] .sentinel-card-bar {
+  background: rgba(148, 163, 184, 0.12);
+}
+
+.sentinel-card-bar-fill {
+  height: 100%;
+  border-radius: 2px;
+  transition: width 1s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.sentinel-variant-purple .sentinel-card-bar-fill {
+  background: linear-gradient(90deg, #8b5cf6, #a78bfa);
+  box-shadow: 0 0 10px rgba(139, 92, 246, 0.35);
+}
+
+.sentinel-variant-amber .sentinel-card-bar-fill {
+  background: linear-gradient(90deg, #f59e0b, #fbbf24);
+  box-shadow: 0 0 10px rgba(245, 158, 11, 0.35);
+}
+
+.sentinel-variant-emerald .sentinel-card-bar-fill {
+  background: linear-gradient(90deg, #10b981, #34d399);
+  box-shadow: 0 0 10px rgba(16, 185, 129, 0.35);
+}
+
+.sentinel-variant-rose .sentinel-card-bar-fill {
+  background: linear-gradient(90deg, #f43f5e, #fb7185);
+  box-shadow: 0 0 10px rgba(244, 63, 94, 0.35);
+}
+
+/* --- Glow Effect on Hover --- */
+.sentinel-card-glow {
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+  pointer-events: none;
+}
+
+.sentinel-variant-purple .sentinel-card-glow {
+  background: radial-gradient(circle, rgba(139, 92, 246, 0.06) 0%, transparent 70%);
+}
+
+.sentinel-variant-amber .sentinel-card-glow {
+  background: radial-gradient(circle, rgba(245, 158, 11, 0.06) 0%, transparent 70%);
+}
+
+.sentinel-variant-emerald .sentinel-card-glow {
+  background: radial-gradient(circle, rgba(16, 185, 129, 0.06) 0%, transparent 70%);
+}
+
+.sentinel-variant-rose .sentinel-card-glow {
+  background: radial-gradient(circle, rgba(244, 63, 94, 0.06) 0%, transparent 70%);
+}
+
+.sentinel-stat-card:hover .sentinel-card-glow {
+  opacity: 1;
+}
+
+/* --- Loading State --- */
+.sentinel-stat-card.sentinel-loading .sentinel-card-value {
+  color: #64748b;
+  animation: sentinelShimmer 1.5s infinite ease-in-out;
+}
+
+.sentinel-stat-card.sentinel-loading .sentinel-card-bar-fill {
+  width: 0% !important;
+}
+
+@keyframes sentinelShimmer {
+  0%, 100% {
+    opacity: 0.4;
+  }
+  50% {
+    opacity: 0.8;
+  }
+}
+
+/* --- Hover border highlight per variant --- */
+body[data-theme="dark"] .sentinel-variant-purple:hover {
+  border-color: rgba(139, 92, 246, 0.25);
+}
+
+body[data-theme="dark"] .sentinel-variant-amber:hover {
+  border-color: rgba(245, 158, 11, 0.25);
+}
+
+body[data-theme="dark"] .sentinel-variant-emerald:hover {
+  border-color: rgba(16, 185, 129, 0.25);
+}
+
+body[data-theme="dark"] .sentinel-variant-rose:hover {
+  border-color: rgba(244, 63, 94, 0.25);
+}
+
+body[data-theme="light"] .sentinel-variant-purple:hover {
+  border-color: rgba(139, 92, 246, 0.2);
+}
+
+body[data-theme="light"] .sentinel-variant-amber:hover {
+  border-color: rgba(245, 158, 11, 0.2);
+}
+
+body[data-theme="light"] .sentinel-variant-emerald:hover {
+  border-color: rgba(16, 185, 129, 0.2);
+}
+
+body[data-theme="light"] .sentinel-variant-rose:hover {
+  border-color: rgba(244, 63, 94, 0.2);
+}

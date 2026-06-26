@@ -21,3 +21,22 @@ export const fetchThreatMetrics = async () => {
   apiCache.set(CACHE_KEY, data, 5000); // 5s TTL
   return data;
 };
+
+export const fetchSentinelStats = async () => {
+  const CACHE_KEY = "sentinel_stats";
+  const cachedData = apiCache.get(CACHE_KEY);
+
+  if (cachedData) {
+    return cachedData;
+  }
+
+  const response = await fetch(`${BASE_URL}/sentinel/stats`);
+
+  if (!response.ok) {
+    throw new Error("Failed to fetch sentinel stats");
+  }
+
+  const data = await response.json();
+  apiCache.set(CACHE_KEY, data, 30000); // 30s TTL
+  return data;
+};
