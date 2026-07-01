@@ -174,20 +174,23 @@ def _serialize_playbook_detail(row: SentinelPlaybook) -> dict:
 
 @router.get("/playbooks", response_model=Dict[str, Any])
 def list_playbooks(
-    limit: int = Query(default=20, ge=1, le=100, description="Max results per page"),
-    offset: int = Query(default=0, ge=0, description="Pagination offset"),
+    page: int = Query(default=1, ge=1, description="Page number (1-indexed, default 1)"),
+    per_page: int = Query(default=20, ge=1, le=100, description="Results per page (1–100, default 20)"),
     status: Optional[str] = Query(default=None, description="Filter by status: pending|approved|rejected|exported"),
     attack_type: Optional[str] = Query(default=None, description="Filter by attack type"),
     db: Session = Depends(get_db),
 ):
     """
-    List all Sentinel playbooks with pagination and optional filtering.
+    List all Sentinel playbooks with page-based pagination and optional filtering.
 
     Query parameters:
-      - **limit**: Maximum number of results (1–100, default 20)
-      - **offset**: Pagination offset (default 0)
+      - **page**: Page number, 1-indexed (default 1)
+      - **per_page**: Results per page, 1–100 (default 20)
       - **status**: Filter by workflow status
       - **attack_type**: Filter by attack classification
+
+    Response format:
+      ``{ total, page, per_page, playbooks[] }``
     """
     try:
         query = db.query(SentinelPlaybook)
@@ -198,19 +201,23 @@ def list_playbooks(
             query = query.filter(SentinelPlaybook.attack_type == attack_type.strip())
 
         total = query.count()
+
+        # Calculate offset from page/per_page
+        offset = (page - 1) * per_page
+
         playbooks = (
             query
             .order_by(SentinelPlaybook.created_at.desc())
             .offset(offset)
-            .limit(limit)
+            .limit(per_page)
             .all()
         )
 
         return {
             "status": "success",
             "total": total,
-            "limit": limit,
-            "offset": offset,
+            "page": page,
+            "per_page": per_page,
             "playbooks": [_serialize_playbook_summary(p) for p in playbooks],
         }
     except Exception as exc:
