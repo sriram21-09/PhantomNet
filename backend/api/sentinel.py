@@ -123,6 +123,7 @@ class ReviewRequest(BaseModel):
     @field_validator("reviewed_by")
     @classmethod
     def validate_reviewed_by(cls, v: str) -> str:
+        """Strip whitespace and reject empty reviewed_by values."""
         v = v.strip()
         if not v:
             raise ValueError("reviewed_by must not be empty or whitespace")
@@ -133,8 +134,18 @@ class ReviewRequest(BaseModel):
 # Helper: serialise a SentinelPlaybook ORM row to dict
 # ---------------------------------------------------------------------------
 
-def _serialize_playbook_summary(row: SentinelPlaybook) -> dict:
-    """Convert a SentinelPlaybook ORM object to a summary dict."""
+def _serialize_playbook_summary(row: SentinelPlaybook) -> Dict[str, Any]:
+    """Convert a SentinelPlaybook ORM object to a summary dict.
+
+    Includes core identity, threat context, MITRE mapping, and lifecycle
+    fields.  Datetime columns are serialised to ISO-8601 strings.
+
+    Args:
+        row: SentinelPlaybook ORM instance.
+
+    Returns:
+        Dictionary with 14 summary fields.
+    """
     return {
         "id": row.id,
         "playbook_id": row.playbook_id,
@@ -153,8 +164,18 @@ def _serialize_playbook_summary(row: SentinelPlaybook) -> dict:
     }
 
 
-def _serialize_playbook_detail(row: SentinelPlaybook) -> dict:
-    """Convert a SentinelPlaybook ORM object to a full detail dict."""
+def _serialize_playbook_detail(row: SentinelPlaybook) -> Dict[str, Any]:
+    """Convert a SentinelPlaybook ORM object to a full detail dict.
+
+    Extends :func:`_serialize_playbook_summary` with rules, playbook
+    content, and review lifecycle fields.
+
+    Args:
+        row: SentinelPlaybook ORM instance.
+
+    Returns:
+        Dictionary with all 21 serialised fields.
+    """
     data = _serialize_playbook_summary(row)
     data.update({
         "mitre_url": row.mitre_url,
@@ -179,18 +200,22 @@ def list_playbooks(
     status: Optional[str] = Query(default=None, description="Filter by status: pending|approved|rejected|exported"),
     attack_type: Optional[str] = Query(default=None, description="Filter by attack type"),
     db: Session = Depends(get_db),
-):
+) -> Dict[str, Any]:
     """
     List all Sentinel playbooks with page-based pagination and optional filtering.
 
-    Query parameters:
-      - **page**: Page number, 1-indexed (default 1)
-      - **per_page**: Results per page, 1–100 (default 20)
-      - **status**: Filter by workflow status
-      - **attack_type**: Filter by attack classification
+    Args:
+        page: Page number, 1-indexed (default 1).
+        per_page: Results per page, 1-100 (default 20).
+        status: Filter by workflow status (pending|approved|rejected|exported).
+        attack_type: Filter by attack classification label.
+        db: Injected database session.
 
-    Response format:
-      ``{ total, page, per_page, playbooks[] }``
+    Returns:
+        Dict with keys: status, total, page, per_page, playbooks[].
+
+    Raises:
+        HTTPException 500: On unexpected database errors.
     """
     try:
         query = db.query(SentinelPlaybook)
@@ -233,21 +258,38 @@ def list_playbooks(
 def get_playbook(
     playbook_id: int,
     db: Session = Depends(get_db),
-):
+) -> Dict[str, Any]:
     """
     Get a single Sentinel playbook by its database ID.
 
     Returns the full playbook detail including content, Snort/Sigma rules,
     and MITRE ATT&CK mapping.
-    """
-    row = db.query(SentinelPlaybook).filter(SentinelPlaybook.id == playbook_id).first()
-    if not row:
-        raise HTTPException(status_code=404, detail=f"Playbook with id={playbook_id} not found")
 
-    return {
-        "status": "success",
-        "playbook": _serialize_playbook_detail(row),
-    }
+    Args:
+        playbook_id: Integer primary key of the playbook.
+        db: Injected database session.
+
+    Returns:
+        JSON response with full playbook detail.
+
+    Raises:
+        HTTPException 404: If no playbook exists with the given ID.
+        HTTPException 500: On unexpected database errors.
+    """
+    try:
+        row = db.query(SentinelPlaybook).filter(SentinelPlaybook.id == playbook_id).first()
+        if not row:
+            raise HTTPException(status_code=404, detail=f"Playbook with id={playbook_id} not found")
+
+        return {
+            "status": "success",
+            "playbook": _serialize_playbook_detail(row),
+        }
+    except HTTPException:
+        raise
+    except Exception as exc:
+        logger.error("Failed to retrieve playbook id=%d: %s", playbook_id, exc)
+        raise HTTPException(status_code=500, detail=f"Failed to retrieve playbook: {str(exc)}")
 
 
 # ---------------------------------------------------------------------------
@@ -257,12 +299,23 @@ def get_playbook(
 @router.get("/stats", response_model=Dict[str, Any])
 def get_sentinel_stats(
     db: Session = Depends(get_db),
-):
+) -> Dict[str, Any]:
     """
     Return Sentinel pipeline statistics.
 
     Includes total playbook count and breakdown by status
     (pending, approved, rejected, exported).
+
+    Args:
+        db: Injected database session.
+
+    Returns:
+        Dict with keys: status, total_playbooks, pending, approved,
+        rejected, exported, avg_threat_score, latest_playbook_at,
+        top_attack_types.
+
+    Raises:
+        HTTPException 500: On unexpected database errors.
     """
     try:
         total = db.query(func.count(SentinelPlaybook.id)).scalar() or 0
@@ -319,12 +372,18 @@ def get_sentinel_stats(
 # ---------------------------------------------------------------------------
 
 @router.get("/mitre/mapping", response_model=Dict[str, Any])
-def get_mitre_mappings():
+def get_mitre_mappings() -> Dict[str, Any]:
     """
     Return all 12 MITRE ATT&CK technique mappings used by the Sentinel pipeline.
 
     Each mapping shows the signature name, technique ID, technique name,
     tactic, severity, and the official ATT&CK reference URL.
+
+    Returns:
+        Dict with keys: status, total, mappings[].
+
+    Raises:
+        HTTPException 500: On unexpected errors.
     """
     try:
         techniques = get_all_techniques()
@@ -346,14 +405,23 @@ def get_mitre_mappings():
 def generate_playbook(
     request: GenerateRequest,
     db: Session = Depends(get_db),
-):
+) -> Dict[str, Any]:
     """
     Trigger manual playbook generation for a campaign.
 
     Runs the full Sentinel pipeline:
-      mapper → generator → rules → stix → DB save
+      mapper -> generator -> rules -> stix -> DB save
 
-    The request body must include at least `source_ips` and `target_ports`.
+    Args:
+        request: GenerateRequest with source_ips, target_ports, etc.
+        db: Injected database session.
+
+    Returns:
+        Dict with keys: status, playbook_id, db_record_id, service_type,
+        attack_type, technique_id, technique_name, threat_score, message.
+
+    Raises:
+        HTTPException 500: On pipeline failure.
     """
     try:
         campaign_data = {
@@ -397,16 +465,27 @@ def approve_playbook(
     playbook_id: int = Path(..., ge=1, description="Database ID of the playbook to approve"),
     body: ReviewRequest = ...,
     db: Session = Depends(get_db),
-):
+) -> Dict[str, Any]:
     """
     Approve a Sentinel playbook.
 
     Updates **three** fields atomically:
-      - ``status`` → ``"approved"``
-      - ``reviewed_by`` → analyst username from request body
-      - ``reviewed_at`` → current UTC timestamp
+      - ``status`` -> ``"approved"``
+      - ``reviewed_by`` -> analyst username from request body
+      - ``reviewed_at`` -> current UTC timestamp
 
-    Only playbooks with status ``"pending"`` can be approved.
+    Args:
+        playbook_id: Database ID of the playbook to approve.
+        body: ReviewRequest with reviewed_by username.
+        db: Injected database session.
+
+    Returns:
+        Dict with keys: status, message, playbook (full detail).
+
+    Raises:
+        HTTPException 404: If playbook not found.
+        HTTPException 409: If playbook status is not pending/rejected.
+        HTTPException 500: On database commit failure.
     """
     row = db.query(SentinelPlaybook).filter(SentinelPlaybook.id == playbook_id).first()
     if not row:
@@ -455,16 +534,27 @@ def reject_playbook(
     playbook_id: int = Path(..., ge=1, description="Database ID of the playbook to reject"),
     body: ReviewRequest = ...,
     db: Session = Depends(get_db),
-):
+) -> Dict[str, Any]:
     """
     Reject a Sentinel playbook.
 
     Updates **three** fields atomically:
-      - ``status`` → ``"rejected"``
-      - ``reviewed_by`` → analyst username from request body
-      - ``reviewed_at`` → current UTC timestamp
+      - ``status`` -> ``"rejected"``
+      - ``reviewed_by`` -> analyst username from request body
+      - ``reviewed_at`` -> current UTC timestamp
 
-    Only playbooks with status ``"pending"`` can be rejected.
+    Args:
+        playbook_id: Database ID of the playbook to reject.
+        body: ReviewRequest with reviewed_by username.
+        db: Injected database session.
+
+    Returns:
+        Dict with keys: status, message, playbook (full detail).
+
+    Raises:
+        HTTPException 404: If playbook not found.
+        HTTPException 409: If playbook status is not pending/approved.
+        HTTPException 500: On database commit failure.
     """
     row = db.query(SentinelPlaybook).filter(SentinelPlaybook.id == playbook_id).first()
     if not row:
@@ -519,16 +609,26 @@ def export_playbook(
         description="Export format: markdown | json | stix",
     ),
     db: Session = Depends(get_db),
-):
+) -> StreamingResponse:
     """
     Export a Sentinel playbook as a downloadable file.
 
     Supported formats via ``?format=`` query parameter:
-      - **markdown** — Playbook content as ``.md`` file (default)
-      - **json** — Full playbook record as ``.json`` file
-      - **stix** — STIX 2.1 bundle as ``.json`` file (generated on-the-fly)
+      - **markdown** -- Playbook content as ``.md`` file (default)
+      - **json** -- Full playbook record as ``.json`` file
+      - **stix** -- STIX 2.1 bundle as ``.json`` file (generated on-the-fly)
 
-    On successful export, the playbook status is updated to ``"exported"``.
+    Args:
+        playbook_id: Database ID of the playbook to export.
+        format: Export format string (markdown|json|stix).
+        db: Injected database session.
+
+    Returns:
+        StreamingResponse with the file download.
+
+    Raises:
+        HTTPException 400: If export format is invalid.
+        HTTPException 404: If playbook not found.
     """
     fmt = format.strip().lower()
     if fmt not in _VALID_EXPORT_FORMATS:
@@ -627,12 +727,24 @@ def list_snort_rules(
     offset: int = Query(default=0, ge=0, description="Pagination offset"),
     attack_type: Optional[str] = Query(default=None, description="Filter by attack type"),
     db: Session = Depends(get_db),
-):
+) -> Dict[str, Any]:
     """
     List all Snort IDS rules generated by the Sentinel pipeline.
 
     Returns playbooks that have a non-null ``snort_rule`` field, with
     pagination and optional attack_type filtering.
+
+    Args:
+        limit: Max results per page (1-200, default 50).
+        offset: Pagination offset (default 0).
+        attack_type: Filter by attack classification label.
+        db: Injected database session.
+
+    Returns:
+        Dict with keys: status, total, limit, offset, rules[].
+
+    Raises:
+        HTTPException 500: On unexpected database errors.
     """
     try:
         query = db.query(SentinelPlaybook).filter(
@@ -689,12 +801,24 @@ def list_sigma_rules(
     offset: int = Query(default=0, ge=0, description="Pagination offset"),
     attack_type: Optional[str] = Query(default=None, description="Filter by attack type"),
     db: Session = Depends(get_db),
-):
+) -> Dict[str, Any]:
     """
     List all Sigma detection rules generated by the Sentinel pipeline.
 
     Returns playbooks that have a non-null ``sigma_rule`` field, with
     pagination and optional attack_type filtering.
+
+    Args:
+        limit: Max results per page (1-200, default 50).
+        offset: Pagination offset (default 0).
+        attack_type: Filter by attack classification label.
+        db: Injected database session.
+
+    Returns:
+        Dict with keys: status, total, limit, offset, rules[].
+
+    Raises:
+        HTTPException 500: On unexpected database errors.
     """
     try:
         query = db.query(SentinelPlaybook).filter(

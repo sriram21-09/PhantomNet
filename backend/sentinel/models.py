@@ -47,6 +47,10 @@ Usage
 from __future__ import annotations
 
 from datetime import datetime
+import logging
+from typing import Any, Dict, Optional
+
+logger = logging.getLogger("sentinel.models")
 
 from sqlalchemy import Boolean, Column, DateTime, Float, Integer, String, Text
 
@@ -274,13 +278,14 @@ class SentinelPlaybook(Base):
     # ΓöÇΓöÇ Helpers ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
 
     def __repr__(self) -> str:  # pragma: no cover
+        """Return a developer-friendly string representation of the playbook record."""
         return (
             f"<SentinelPlaybook id={self.id} playbook_id={self.playbook_id!r} "
             f"attack_type={self.attack_type!r} confidence={self.confidence_score} "
             f"severity={self.severity!r} status={self.status!r}>"
         )
 
-    def to_dict(self) -> dict:
+    def to_dict(self) -> Dict[str, Any]:
         """
         Serialize all 23 columns to a plain dictionary.
 

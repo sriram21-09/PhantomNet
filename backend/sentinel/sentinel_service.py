@@ -90,7 +90,14 @@ _SERVICE_DEFAULT_SIGNATURE: Dict[str, str] = {
 # Playbook ID generator
 # ---------------------------------------------------------------------------
 def _generate_playbook_id() -> str:
-    """Generate a unique playbook ID like PB-20260619-HHMMSS-XXXXXX."""
+    """Generate a unique playbook ID with timestamp and random suffix.
+
+    Format: ``PB-YYYYMMDD-HHMMSS-XXXXXX`` where ``XXXXXX`` is a random
+    6-character hex string derived from UUID4.
+
+    Returns:
+        A unique playbook identifier string.
+    """
     import uuid
     now = datetime.now(tz=timezone.utc)
     suffix = uuid.uuid4().hex[:6].upper()
@@ -122,6 +129,11 @@ class SentinelService:
     """
 
     def __init__(self, db: Session) -> None:
+        """Initialise the SentinelService with a database session.
+
+        Args:
+            db: Active SQLAlchemy session for querying and persisting data.
+        """
         self.db = db
         self.sig_engine = SignatureEngine()
         self._playbook_gen = None  # lazy-loaded
@@ -130,12 +142,15 @@ class SentinelService:
     # Lazy loader for PlaybookGenerator
     # ------------------------------------------------------------------
     @property
-    def playbook_gen(self):
+    def playbook_gen(self) -> Optional[Any]:
         """Lazy-load PlaybookGenerator to avoid import-time side effects.
 
         Attempts import from backend/sentinel first, then falls back to
         the root sentinel package where PlaybookGenerator and its Jinja2
         templates actually reside.
+
+        Returns:
+            A PlaybookGenerator instance, or None if unavailable.
         """
         if self._playbook_gen is None:
             # Try backend/sentinel first
@@ -200,6 +215,8 @@ class SentinelService:
             return playbook
         except Exception:
             db.rollback()
+            logger.error("create_and_run pipeline failed for campaign_data keys=%s",
+                         list(campaign_data.keys()), exc_info=True)
             raise
         finally:
             db.close()

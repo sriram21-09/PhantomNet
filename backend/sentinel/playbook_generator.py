@@ -259,6 +259,20 @@ class PlaybookGenerator:
     }
 
     def __init__(self, templates_dir: Optional[str] = None) -> None:
+        """Initialise the PlaybookGenerator with a Jinja2 template directory.
+
+        Configures a Jinja2 :class:`~jinja2.Environment` backed by a
+        :class:`~jinja2.FileSystemLoader`.  When *templates_dir* is ``None``,
+        the loader resolves ``templates/`` relative to this source file.
+
+        Args:
+            templates_dir: Absolute or relative path to the Jinja2 template
+                directory.  Defaults to ``sentinel/templates/`` when ``None``.
+
+        Raises:
+            jinja2.TemplateNotFound: If the resolved directory does not exist
+                (raised lazily on first template load, not at init time).
+        """
         if templates_dir is None:
             current_dir = os.path.dirname(os.path.abspath(__file__))
             templates_dir = os.path.join(current_dir, "templates")
@@ -792,6 +806,7 @@ class PlaybookGenerator:
     # ------------------------------------------------------------------
 
     def __repr__(self) -> str:  # pragma: no cover
+        """Return a developer-friendly string representation of the generator."""
         return (
             f"{self.__class__.__name__}("
             f"templates_dir={self.templates_dir!r}, "

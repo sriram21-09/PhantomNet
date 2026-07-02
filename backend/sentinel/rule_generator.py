@@ -82,6 +82,15 @@ def get_tactic_sigma_tag(tactic: str) -> "str | None":
 
 
 def _find_data_dir() -> str:
+    """Locate the project ``data/`` directory by walking up from this file.
+
+    Searches up to five parent directories from the location of this source
+    file.  Falls back to the directory containing this file if no ``data/``
+    directory is found.
+
+    Returns:
+        Absolute path to the ``data/`` directory.
+    """
     current = os.path.dirname(os.path.abspath(__file__))
     for _ in range(5):
         candidate = os.path.join(current, "data")
@@ -97,6 +106,15 @@ _BASE_SID = 1000001
 _SID_FILE_PATH = os.path.join(_find_data_dir(), "last_sid.txt")
 
 def _load_sid() -> int:
+    """Load the last-used Snort SID from persistent storage.
+
+    Reads the SID counter from ``_SID_FILE_PATH``.  Returns
+    ``_BASE_SID`` when the file is missing, empty, corrupted, or
+    contains an invalid value.
+
+    Returns:
+        The next available SID integer.
+    """
     if not os.path.exists(_SID_FILE_PATH):
         return _BASE_SID
     try:
@@ -114,6 +132,15 @@ def _load_sid() -> int:
         return _BASE_SID
 
 def _save_sid(sid: int) -> None:
+    """Persist the current SID counter to ``_SID_FILE_PATH``.
+
+    Creates the parent directory if it does not exist.  Logs an error
+    if the write fails but does not raise — SID tracking is
+    best-effort.
+
+    Args:
+        sid: The SID value to write to storage.
+    """
     try:
         os.makedirs(os.path.dirname(_SID_FILE_PATH), exist_ok=True)
         with open(_SID_FILE_PATH, "w", encoding="utf-8") as f:
@@ -202,7 +229,17 @@ SNORT_RULE_TEMPLATE = (
 
 
 def validate_ip(ip_str: str) -> bool:
-    """Validate if the string is a valid IP address or allowed variable/keyword."""
+    """Validate if the string is a valid IP address or allowed variable/keyword.
+
+    Accepts valid IPv4/IPv6 addresses, CIDR notation, and Snort keywords
+    (``any``, ``$EXTERNAL_NET``, ``$HOME_NET``).
+
+    Args:
+        ip_str: String to validate as an IP address or keyword.
+
+    Returns:
+        True if the input is a valid IP, CIDR, or Snort keyword.
+    """
     if not isinstance(ip_str, str):
         return False
     if ip_str.lower() in ("any", "$external_net", "$home_net"):
@@ -215,17 +252,26 @@ def validate_ip(ip_str: str) -> bool:
             ipaddress.ip_address(ip_str)
         return True
     except ValueError:
+        _logger.debug("IP validation failed for: %s", ip_str)
         return False
 
 
 def validate_port(port: typing.Union[int, str]) -> bool:
-    """Validate if the port is a valid port number or 'any'."""
+    """Validate if the port is a valid port number (0–65535) or the keyword ``'any'``.
+
+    Args:
+        port: Integer port number or string (``'any'`` or numeric string).
+
+    Returns:
+        True if the port is valid.
+    """
     if isinstance(port, str) and port.lower() == "any":
         return True
     try:
         port_num = int(port)
         return 0 <= port_num <= 65535
-    except ValueError:
+    except (TypeError, ValueError):
+        _logger.debug("Port validation failed for: %s", port)
         return False
 
 
