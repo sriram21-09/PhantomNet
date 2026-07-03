@@ -1,5 +1,5 @@
 import { Link, useLocation } from "react-router-dom";
-import { useContext } from "react";
+import { useState, useEffect } from "react";
 import ThemeToggle from "./ThemeToggle";
 import {
   FaShieldAlt,
@@ -23,6 +23,24 @@ import "../Styles/components/Navbar.css";
 
 const Navbar = () => {
   const location = useLocation();
+  const [pendingCount, setPendingCount] = useState(0);
+
+  /* Fetch Sentinel stats on mount and route changes */
+  useEffect(() => {
+    const fetchSentinelStats = async () => {
+      try {
+        const res = await fetch("/api/sentinel/stats");
+        const data = await res.json();
+        if (res.ok && data.status === "success") {
+          setPendingCount(data.pending || 0);
+        }
+      } catch {
+        // Hide badge if stats unavailable
+        setPendingCount(0);
+      }
+    };
+    fetchSentinelStats();
+  }, [location.pathname]);
 
   const navLinks = [
     { path: "/dashboard", label: "Dashboard", icon: FaTachometerAlt },
@@ -111,6 +129,9 @@ const Navbar = () => {
                         >
                           <SubIcon className="submenu-icon" />
                           <span>{sub.label}</span>
+                          {sub.path === "/sentinel" && pendingCount > 0 && (
+                            <span className="sentinel-nav-badge">{pendingCount}</span>
+                          )}
                         </Link>
                       );
                     })}

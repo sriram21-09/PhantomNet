@@ -1,9 +1,10 @@
-import React, { useState, useEffect, useMemo } from "react";
-import { FaShieldAlt, FaTerminal } from "react-icons/fa";
+import React, { useState, useEffect, useMemo, useCallback } from "react";
+import { FaShieldAlt, FaTerminal, FaSortAmountDown, FaSortAmountUp, FaPlus, FaSync } from "react-icons/fa";
 import PlaybookCard from "../components/sentinel/PlaybookCard";
 import MitreTag from "../components/sentinel/MitreTag";
 import RulePreview from "../components/sentinel/RulePreview";
 import PlaybookViewer from "../components/sentinel/PlaybookViewer";
+import ToastContainer, { useToast } from "../components/ui/ToastNotification";
 import "../Styles/pages/SentinelDashboard.css";
 
 /* Sample playbooks to preview PlaybookCard variants */
@@ -549,6 +550,19 @@ tags:
   - attack.execution
   - attack.t1059.001`;
 
+/* ═══════════════════════════════════════════════════════════════
+   Sort Configuration
+   ═══════════════════════════════════════════════════════════════ */
+
+const SEVERITY_ORDER = { critical: 4, high: 3, medium: 2, low: 1 };
+const STATUS_ORDER = { draft: 1, approved: 2, rejected: 3 };
+
+const SORT_COLUMNS = [
+  { key: "date", label: "Date" },
+  { key: "severity", label: "Severity" },
+  { key: "status", label: "Status" },
+];
+
 const SentinelDashboard = () => {
   const [playbooks, setPlaybooks] = useState([]);
   const [stats, setStats] = useState(null);
@@ -561,6 +575,13 @@ const SentinelDashboard = () => {
   const [loadingDetails, setLoadingDetails] = useState(false);
 
   const [techniques, setTechniques] = useState(sampleTechniques);
+
+  /* ── Sort State ── */
+  const [sortColumn, setSortColumn] = useState("date");
+  const [sortDirection, setSortDirection] = useState("desc"); // newest first
+
+  /* ── Toast Notifications ── */
+  const { toasts, addToast, removeToast } = useToast();
 
   const fetchData = async () => {
     setLoading(true);
@@ -610,6 +631,12 @@ const SentinelDashboard = () => {
     } catch (err) {
       console.error("Dashboard connection error:", err);
       setError(err.message || "Failed to connect to the Sentinel Security Service");
+      addToast({
+        type: "error",
+        title: "Connection Failed",
+        message: err.message || "Failed to connect to the Sentinel Security Service",
+        duration: 6000,
+      });
     } finally {
       setLoading(false);
     }
@@ -634,6 +661,48 @@ const SentinelDashboard = () => {
       (pb) => getNormalizedStatus(pb.status) === activeTab
     );
   }, [playbooks, activeTab]);
+
+  /* ── Sort toggle handler ── */
+  const handleSortClick = useCallback((column) => {
+    setSortColumn((prev) => {
+      if (prev === column) {
+        setSortDirection((d) => (d === "asc" ? "desc" : "asc"));
+        return prev;
+      }
+      setSortDirection(column === "date" ? "desc" : "asc");
+      return column;
+    });
+  }, []);
+
+  /* ── Sorted playbooks ── */
+  const sortedPlaybooks = useMemo(() => {
+    const list = [...filteredPlaybooks];
+    const dir = sortDirection === "asc" ? 1 : -1;
+
+    list.sort((a, b) => {
+      switch (sortColumn) {
+        case "date": {
+          const da = a.created_at || "";
+          const db = b.created_at || "";
+          return dir * da.localeCompare(db);
+        }
+        case "severity": {
+          const sa = SEVERITY_ORDER[getPlaybookSeverity(a)] || 0;
+          const sb = SEVERITY_ORDER[getPlaybookSeverity(b)] || 0;
+          return dir * (sa - sb);
+        }
+        case "status": {
+          const sta = STATUS_ORDER[getNormalizedStatus(a.status)] || 0;
+          const stb = STATUS_ORDER[getNormalizedStatus(b.status)] || 0;
+          return dir * (sta - stb);
+        }
+        default:
+          return 0;
+      }
+    });
+
+    return list;
+  }, [filteredPlaybooks, sortColumn, sortDirection]);
 
   // Compute tab counts
   const counts = useMemo(() => {
@@ -692,9 +761,19 @@ const SentinelDashboard = () => {
         setSelectedPlaybook(data.playbook);
       } else {
         console.error("Failed to load playbook details:", data.detail);
+        addToast({
+          type: "error",
+          title: "Playbook Load Failed",
+          message: data.detail || "Failed to load playbook details",
+        });
       }
     } catch (err) {
       console.error("Failed to fetch playbook details:", err);
+      addToast({
+        type: "error",
+        title: "Network Error",
+        message: "Could not reach the Sentinel API. Please check your connection.",
+      });
     } finally {
       setLoadingDetails(false);
     }
@@ -830,6 +909,35 @@ const SentinelDashboard = () => {
           </button>
         </div>
 
+        {/* ── Sort Header Bar ── */}
+        {!loading && !error && filteredPlaybooks.length > 0 && (
+          <div className="sentinel-sort-bar hud-font">
+            <span className="sort-bar-label">SORT BY:</span>
+            {SORT_COLUMNS.map((col) => {
+              const isActive = sortColumn === col.key;
+              return (
+                <button
+                  key={col.key}
+                  className={`sort-header-btn ${isActive ? "active" : ""}`}
+                  onClick={() => handleSortClick(col.key)}
+                  title={`Sort by ${col.label}`}
+                >
+                  {col.label}
+                  {isActive && (
+                    <span className="sort-arrow">
+                      {sortDirection === "asc" ? (
+                        <FaSortAmountUp className="sort-arrow-icon" />
+                      ) : (
+                        <FaSortAmountDown className="sort-arrow-icon" />
+                      )}
+                    </span>
+                  )}
+                </button>
+              );
+            })}
+          </div>
+        )}
+
         {/* Display Grid States */}
         {loading ? (
           <div className="sentinel-playbook-grid">
@@ -845,20 +953,38 @@ const SentinelDashboard = () => {
             <h3>System Connection Failure</h3>
             <p>{error}</p>
             <button onClick={fetchData} className="retry-btn">
+              <FaSync style={{ marginRight: "0.5rem" }} />
               Retry Connection
             </button>
           </div>
         ) : filteredPlaybooks.length === 0 ? (
           <div className="sentinel-empty-state">
-            <div className="sentinel-empty-icon">📂</div>
+            <div className="sentinel-empty-icon">
+              <FaShieldAlt />
+            </div>
             <h3 className="sentinel-empty-title">No Playbooks Found</h3>
             <p className="sentinel-empty-description">
-              No response playbooks match the tab selection status: "{activeTab.toUpperCase()}"
+              {activeTab === "all"
+                ? "No response playbooks have been generated yet. Trigger the Sentinel pipeline to create your first automated playbook."
+                : `No playbooks with status "${activeTab.toUpperCase()}" found.`}
             </p>
+            {activeTab === "all" ? (
+              <button className="sentinel-cta-btn" onClick={fetchData}>
+                <FaPlus style={{ marginRight: "0.5rem" }} />
+                Refresh Playbooks
+              </button>
+            ) : (
+              <button
+                className="sentinel-cta-btn"
+                onClick={() => setActiveTab("all")}
+              >
+                View All Playbooks
+              </button>
+            )}
           </div>
         ) : (
           <div className="sentinel-playbook-grid">
-            {filteredPlaybooks.map((pb) => (
+            {sortedPlaybooks.map((pb) => (
               <PlaybookCard
                 key={pb.id}
                 title={pb.playbook_name || "Untitled Playbook"}
@@ -893,6 +1019,9 @@ const SentinelDashboard = () => {
           sigmaRule={selectedPlaybook.sigma_rule}
         />
       )}
+
+      {/* ── Toast Notifications ── */}
+      <ToastContainer toasts={toasts} onDismiss={removeToast} />
     </div>
   );
 };

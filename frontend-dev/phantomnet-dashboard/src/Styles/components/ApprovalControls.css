@@ -410,3 +410,18 @@ body[data-theme="light"] .toast-error {
 .toast-close:hover {
     opacity: 1;
 }
+
+/* ─── Button Loading State ─── */
+.btn-loading {
+    opacity: 0.7;
+    pointer-events: none;
+}
+
+.btn-spinner {
+    animation: approval-spin 0.8s linear infinite;
+}
+
+@keyframes approval-spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
