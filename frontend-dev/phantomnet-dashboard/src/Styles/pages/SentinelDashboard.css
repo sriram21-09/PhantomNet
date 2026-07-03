@@ -479,3 +479,134 @@ body[data-theme="light"] .sentinel-error-state h3 {
     color: #ffffff;
     box-shadow: 0 0 15px rgba(139, 92, 246, 0.35);
 }
+
+/* ─── Sort Header Bar ─── */
+.sentinel-sort-bar {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 1.25rem;
+    padding: 0.6rem 1rem;
+    background: rgba(30, 41, 59, 0.3);
+    border: 1px solid rgba(139, 92, 246, 0.08);
+    border-radius: 10px;
+    backdrop-filter: blur(6px);
+}
+
+body[data-theme="light"] .sentinel-sort-bar {
+    background: rgba(255, 255, 255, 0.6);
+    border-color: rgba(139, 92, 246, 0.08);
+    box-shadow: 0 1px 6px rgba(0, 0, 0, 0.04);
+}
+
+.sort-bar-label {
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    color: #64748b;
+    margin-right: 0.5rem;
+}
+
+body[data-theme="light"] .sort-bar-label {
+    color: #94a3b8;
+}
+
+.sort-header-btn {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    padding: 0.4rem 0.85rem;
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: 6px;
+    color: #64748b;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.sort-header-btn:hover {
+    color: #cbd5e1;
+    background: rgba(139, 92, 246, 0.06);
+}
+
+body[data-theme="light"] .sort-header-btn:hover {
+    color: #334155;
+    background: rgba(139, 92, 246, 0.05);
+}
+
+.sort-header-btn.active {
+    color: #a78bfa;
+    background: rgba(139, 92, 246, 0.12);
+    border-color: rgba(139, 92, 246, 0.2);
+}
+
+body[data-theme="light"] .sort-header-btn.active {
+    color: #7c3aed;
+    background: rgba(139, 92, 246, 0.08);
+    border-color: rgba(139, 92, 246, 0.12);
+}
+
+.sort-arrow {
+    display: inline-flex;
+    align-items: center;
+}
+
+.sort-arrow-icon {
+    font-size: 0.6rem;
+    color: #a78bfa;
+    filter: drop-shadow(0 0 4px rgba(139, 92, 246, 0.4));
+}
+
+body[data-theme="light"] .sort-arrow-icon {
+    color: #7c3aed;
+    filter: none;
+}
+
+/* ─── CTA Button ─── */
+.sentinel-cta-btn {
+    margin-top: 1.5rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    padding: 0.75rem 1.75rem;
+    background: linear-gradient(135deg, rgba(139, 92, 246, 0.15), rgba(139, 92, 246, 0.08));
+    color: #a78bfa;
+    border: 1px solid rgba(139, 92, 246, 0.3);
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.25s ease;
+}
+
+.sentinel-cta-btn:hover {
+    background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+    color: #ffffff;
+    box-shadow: 0 0 20px rgba(139, 92, 246, 0.4);
+    transform: translateY(-1px);
+}
+
+body[data-theme="light"] .sentinel-cta-btn {
+    background: rgba(139, 92, 246, 0.06);
+    color: #7c3aed;
+    border-color: rgba(139, 92, 246, 0.2);
+}
+
+body[data-theme="light"] .sentinel-cta-btn:hover {
+    background: linear-gradient(135deg, #7c3aed, #6d28d9);
+    color: #ffffff;
+    box-shadow: 0 0 20px rgba(124, 58, 237, 0.25);
+}
+
+/* ─── Enhanced Empty State Icon ─── */
+.sentinel-empty-icon svg {
+    font-size: 2.5rem;
+}

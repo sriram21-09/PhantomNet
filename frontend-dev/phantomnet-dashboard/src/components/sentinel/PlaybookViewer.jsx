@@ -15,6 +15,8 @@ import {
   FaDownload,
   FaExpand,
   FaCompress,
+  FaFileAlt,
+  FaCubes,
 } from "react-icons/fa";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
@@ -551,20 +553,89 @@ const PlaybookViewer = ({
 
   // Modal state is reset via parent key unmount/remount
 
-  /* ── Export markdown ── */
-  const handleExport = useCallback(() => {
-    const content = activeTab === "playbook" ? resolvedMarkdown : activeTab === "snort" ? snortRule : sigmaRule;
-    const ext = activeTab === "playbook" ? "md" : activeTab === "snort" ? "rules" : "yml";
-    const blob = new Blob([content], { type: "text/plain;charset=utf-8" });
+  /* ── Download helper ── */
+  const triggerDownload = useCallback((content, filename, mimeType = "text/plain;charset=utf-8") => {
+    if (!content) return;
+    const blob = new Blob([content], { type: mimeType });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `${title.replace(/\s+/g, "_")}.${ext}`;
+    a.download = filename;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
-  }, [activeTab, markdownContent, snortRule, sigmaRule, title]);
+  }, []);
+
+  const safeTitle = title.replace(/\s+/g, "_");
+
+  /* ── Export current tab (header button) ── */
+  const handleExport = useCallback(() => {
+    const content = activeTab === "playbook" ? resolvedMarkdown : activeTab === "snort" ? snortRule : sigmaRule;
+    const ext = activeTab === "playbook" ? "md" : activeTab === "snort" ? "rules" : "yml";
+    triggerDownload(content, `${safeTitle}.${ext}`);
+  }, [activeTab, resolvedMarkdown, snortRule, sigmaRule, safeTitle, triggerDownload]);
+
+  /* ── Format-specific downloads ── */
+  const handleDownloadSnort = useCallback(() => {
+    triggerDownload(snortRule, `${safeTitle}_snort.rules`);
+  }, [snortRule, safeTitle, triggerDownload]);
+
+  const handleDownloadSigma = useCallback(() => {
+    triggerDownload(sigmaRule, `${safeTitle}_sigma.yml`);
+  }, [sigmaRule, safeTitle, triggerDownload]);
+
+  const handleDownloadSTIX = useCallback(() => {
+    const stixBundle = JSON.stringify({
+      type: "bundle",
+      id: `bundle--${crypto.randomUUID ? crypto.randomUUID() : Date.now()}`,
+      spec_version: "2.1",
+      created: new Date().toISOString(),
+      objects: [
+        {
+          type: "attack-pattern",
+          id: `attack-pattern--${technique}`,
+          name: title,
+          description: `Sentinel playbook for technique ${technique}`,
+          external_references: [
+            {
+              source_name: "mitre-attack",
+              external_id: technique,
+              url: `https://attack.mitre.org/techniques/${technique.replace(".", "/")}/`,
+            },
+          ],
+        },
+        {
+          type: "indicator",
+          id: `indicator--${Date.now()}`,
+          name: `${title} - Detection Indicator`,
+          pattern_type: "snort",
+          pattern: snortRule || "[no snort rule]",
+          valid_from: new Date().toISOString(),
+          labels: ["malicious-activity"],
+        },
+        {
+          type: "note",
+          id: `note--${Date.now() + 1}`,
+          content: resolvedMarkdown || "No playbook content",
+          object_refs: [`attack-pattern--${technique}`],
+        },
+      ],
+    }, null, 2);
+    triggerDownload(stixBundle, `${safeTitle}_stix.json`, "application/json;charset=utf-8");
+  }, [technique, title, snortRule, resolvedMarkdown, safeTitle, triggerDownload]);
+
+  const handleDownloadPlaybook = useCallback(() => {
+    triggerDownload(resolvedMarkdown, `${safeTitle}_playbook.md`);
+  }, [resolvedMarkdown, safeTitle, triggerDownload]);
+
+  /* ── Download buttons config ── */
+  const downloadButtons = [
+    { label: "Snort Rules",  ext: ".rules", icon: FaShieldAlt, handler: handleDownloadSnort,    disabled: !snortRule },
+    { label: "Sigma Rules",  ext: ".yml",   icon: FaFileCode,  handler: handleDownloadSigma,    disabled: !sigmaRule },
+    { label: "STIX Bundle",  ext: ".json",  icon: FaCubes,     handler: handleDownloadSTIX,     disabled: !resolvedMarkdown && !snortRule },
+    { label: "Playbook",     ext: ".md",    icon: FaFileAlt,   handler: handleDownloadPlaybook, disabled: !resolvedMarkdown },
+  ];
 
   if (!isOpen) return null;
 
@@ -683,6 +754,28 @@ const PlaybookViewer = ({
             );
           })}
         </nav>
+
+        {/* ═══ Download Bar ═══ */}
+        {!isLoading && (
+          <div className="pbv-download-bar">
+            {downloadButtons.map((btn) => {
+              const BtnIcon = btn.icon;
+              return (
+                <button
+                  key={btn.label}
+                  className="pbv-download-btn"
+                  onClick={btn.handler}
+                  disabled={btn.disabled}
+                  title={btn.disabled ? `No ${btn.label} available` : `Download ${btn.label} (${btn.ext})`}
+                >
+                  <BtnIcon className="pbv-download-btn-icon" />
+                  <span className="pbv-download-btn-label">{btn.label}</span>
+                  <span className="pbv-download-btn-ext">{btn.ext}</span>
+                </button>
+              );
+            })}
+          </div>
+        )}
 
         {/* ═══ Content Area ═══ */}
         <div className="pbv-content-area">

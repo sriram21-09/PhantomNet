@@ -333,3 +333,38 @@ body[data-theme="light"] .submenu-link.active {
         display: none;
     }
 }
+
+/* ═══════════════════════════════════════════════════════════════
+   SENTINEL NAV BADGE — Pending Playbook Counter
+   ═══════════════════════════════════════════════════════════════ */
+
+.sentinel-nav-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 18px;
+    height: 18px;
+    padding: 0 5px;
+    font-size: 10px;
+    font-weight: 800;
+    line-height: 1;
+    color: #ffffff;
+    background: linear-gradient(135deg, #ef4444, #f97316);
+    border-radius: 9999px;
+    margin-left: 6px;
+    box-shadow: 0 0 8px rgba(239, 68, 68, 0.5);
+    animation: sentinel-badge-pulse 2s ease-in-out infinite;
+}
+
+body[data-theme="light"] .sentinel-nav-badge {
+    box-shadow: 0 0 6px rgba(239, 68, 68, 0.35);
+}
+
+@keyframes sentinel-badge-pulse {
+    0%, 100% {
+        box-shadow: 0 0 8px rgba(239, 68, 68, 0.5);
+    }
+    50% {
+        box-shadow: 0 0 16px rgba(239, 68, 68, 0.8);
+    }
+}

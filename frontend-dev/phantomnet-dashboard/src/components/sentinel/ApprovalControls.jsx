@@ -6,7 +6,8 @@ import {
   FaTimesCircle,
   FaUser,
   FaExclamationTriangle,
-  FaInfoCircle
+  FaInfoCircle,
+  FaSpinner
 } from "react-icons/fa";
 import "../../Styles/components/ApprovalControls.css";
 
@@ -122,26 +123,26 @@ const ApprovalControls = ({ playbookId, status, onStatusChange }) => {
       <div className="approval-actions">
         {/* Approve Button */}
         <button
-          className={`btn-approve ${isApproved ? "active-approved" : ""}`}
+          className={`btn-approve ${isApproved ? "active-approved" : ""} ${loading ? "btn-loading" : ""}`}
           onClick={() => setConfirmType("approve")}
           disabled={loading || isApproved}
           type="button"
           title="Approve this playbook for deployment"
         >
-          <FaCheck className="btn-icon" />
-          {isApproved ? "Approved" : "Approve"}
+          {loading ? <FaSpinner className="btn-icon btn-spinner" /> : <FaCheck className="btn-icon" />}
+          {isApproved ? "Approved" : loading ? "Processing..." : "Approve"}
         </button>
 
         {/* Reject Button */}
         <button
-          className={`btn-reject ${isRejected ? "active-rejected" : ""}`}
+          className={`btn-reject ${isRejected ? "active-rejected" : ""} ${loading ? "btn-loading" : ""}`}
           onClick={() => setConfirmType("reject")}
           disabled={loading || isRejected}
           type="button"
           title="Reject this playbook"
         >
-          <FaTimes className="btn-icon" />
-          {isRejected ? "Rejected" : "Reject"}
+          {loading ? <FaSpinner className="btn-icon btn-spinner" /> : <FaTimes className="btn-icon" />}
+          {isRejected ? "Rejected" : loading ? "Processing..." : "Reject"}
         </button>
       </div>
 
