@@ -66,7 +66,11 @@ get_technique() Slim Schema
 """
 
 from __future__ import annotations
-from typing import Optional
+
+import logging
+from typing import Any, Dict, List, Optional
+
+logger = logging.getLogger("sentinel.mitre_mapper")
 
 # ---------------------------------------------------------------------------
 # MITRE ATT&CK Technique Lookup Table
@@ -267,7 +271,7 @@ _TECHNIQUE_MAP: dict[str, dict] = {
 # Public API
 # ---------------------------------------------------------------------------
 
-def map_signature(signature_name: str) -> Optional[dict]:
+def map_signature(signature_name: str) -> Optional[Dict[str, Any]]:
     """
     Map a single signature name to its MITRE ATT&CK technique.
 
@@ -286,14 +290,16 @@ def map_signature(signature_name: str) -> Optional[dict]:
     """
     template = _TECHNIQUE_MAP.get(signature_name)
     if template is None:
+        logger.debug("No ATT&CK mapping found for signature: %s", signature_name)
         return None
     # Return a copy so callers cannot mutate the master table
     technique = dict(template)
     technique["signature"] = signature_name
+    logger.debug("Mapped signature %s -> %s", signature_name, technique["technique_id"])
     return technique
 
 
-def map_signatures(signature_names: list) -> list:
+def map_signatures(signature_names: List[str]) -> List[Dict[str, Any]]:
     """
     Map a list of signature names to ATT&CK techniques.
 
@@ -314,7 +320,7 @@ def map_signatures(signature_names: list) -> list:
         2
     """
     seen_ids: set[str] = set()
-    techniques: list[dict] = []
+    techniques: List[Dict[str, Any]] = []
 
     for sig in signature_names:
         technique = map_signature(sig)
@@ -325,10 +331,12 @@ def map_signatures(signature_names: list) -> list:
             seen_ids.add(tid)
             techniques.append(technique)
 
+    logger.info("Mapped %d/%d signatures to %d unique techniques",
+                len(techniques), len(signature_names), len(seen_ids))
     return techniques
 
 
-def get_all_techniques() -> list:
+def get_all_techniques() -> List[Dict[str, Any]]:
     """
     Return the complete ATT&CK technique mapping table.
 
@@ -344,7 +352,7 @@ def get_all_techniques() -> list:
     ]
 
 
-def get_technique(signature_name: str) -> Optional[dict]:
+def get_technique(signature_name: str) -> Optional[Dict[str, str]]:
     """
     Return a slim technique summary for a given signature name.
 
@@ -368,6 +376,7 @@ def get_technique(signature_name: str) -> Optional[dict]:
     """
     template = _TECHNIQUE_MAP.get(signature_name)
     if template is None:
+        logger.debug("No slim technique found for signature: %s", signature_name)
         return None
     return {
         "id":        template["technique_id"],
@@ -377,7 +386,7 @@ def get_technique(signature_name: str) -> Optional[dict]:
     }
 
 
-def get_all_mappings() -> dict:
+def get_all_mappings() -> Dict[str, Dict[str, Any]]:
     """
     Return a shallow copy of the complete internal signature → technique map.
 

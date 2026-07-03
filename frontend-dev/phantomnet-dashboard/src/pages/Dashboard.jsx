@@ -14,7 +14,8 @@ import PremiumMetricCard from "../components/PremiumMetricCard";
 import CyberMeshMap from "../components/CyberMeshMap";
 import TrendsChart from "../components/TrendsChart";
 import WelcomeModal from "../components/WelcomeModal";
-import { fetchThreatMetrics } from "../services/api";
+import SentinelStatsWidget from "../components/SentinelStatsWidget";
+import { fetchThreatMetrics, fetchSentinelStats } from "../services/api";
 import { Button } from "../components/ui/button";
 import "../Styles/pages/Dashboard.css";
 
@@ -23,6 +24,11 @@ const Dashboard = () => {
   const [threatMetrics, setThreatMetrics] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+
+  // Sentinel Stats State
+  const [sentinelStats, setSentinelStats] = useState(null);
+  const [sentinelLoading, setSentinelLoading] = useState(true);
+  const [sentinelError, setSentinelError] = useState(null);
 
   // Existing Stats Fetch
   useEffect(() => {
@@ -63,6 +69,28 @@ const Dashboard = () => {
 
     loadThreatMetrics();
     const interval = setInterval(loadThreatMetrics, 5000);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  // Sentinel Stats Fetch
+  useEffect(() => {
+    const loadSentinelStats = async () => {
+      try {
+        setSentinelLoading(true);
+        const data = await fetchSentinelStats();
+        setSentinelStats(data);
+        setSentinelError(null);
+      } catch (err) {
+        console.error("Sentinel stats fetch error:", err);
+        setSentinelError(err.message);
+      } finally {
+        setSentinelLoading(false);
+      }
+    };
+
+    loadSentinelStats();
+    const interval = setInterval(loadSentinelStats, 60000);
 
     return () => clearInterval(interval);
   }, []);
@@ -137,6 +165,13 @@ const Dashboard = () => {
               progress={stats.criticalAlerts > 0 ? 90 : 0}
             />
           </div>
+
+          {/* Sentinel Playbook Intelligence */}
+          <SentinelStatsWidget
+            stats={sentinelStats}
+            loading={sentinelLoading}
+            error={sentinelError}
+          />
 
           {/* Main Visual Intelligence Section */}
           <div className="dashboard-content">

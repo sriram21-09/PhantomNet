@@ -1,0 +1,412 @@
+/* ==========================================================================
+   APPROVAL CONTROLS - Sentinel Cyber HUD Stylesheet
+   ========================================================================== */
+
+.approval-controls-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem 1.5rem;
+    background: rgba(15, 23, 42, 0.4);
+    border-top: 1px solid rgba(255, 255, 255, 0.04);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+    flex-shrink: 0;
+    gap: 1rem;
+    position: relative;
+    z-index: 10;
+}
+
+body[data-theme="light"] .approval-controls-container {
+    background: rgba(241, 245, 249, 0.6);
+    border-color: rgba(0, 0, 0, 0.05);
+}
+
+.approval-status-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+}
+
+.approval-status-label {
+    font-size: 0.6rem;
+    font-weight: 700;
+    color: #64748b;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+body[data-theme="light"] .approval-status-label {
+    color: #94a3b8;
+}
+
+/* ─── Buttons ─── */
+.approval-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.approval-actions button {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    border: 1px solid transparent;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.approval-actions button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* Approve Button Styling */
+.btn-approve {
+    background: rgba(16, 185, 129, 0.08);
+    color: #10b981;
+    border-color: rgba(16, 185, 129, 0.2);
+}
+
+.btn-approve:hover:not(:disabled) {
+    background: #10b981;
+    color: #0f172a;
+    border-color: #10b981;
+    box-shadow: 0 0 15px rgba(16, 185, 129, 0.3);
+}
+
+.btn-approve.active-approved {
+    background: rgba(16, 185, 129, 0.15);
+    color: #34d399;
+    border-color: rgba(16, 185, 129, 0.4);
+    box-shadow: 0 0 10px rgba(16, 185, 129, 0.1);
+    cursor: default;
+}
+
+/* Reject Button Styling */
+.btn-reject {
+    background: rgba(239, 68, 68, 0.08);
+    color: #ef4444;
+    border-color: rgba(239, 68, 68, 0.2);
+}
+
+.btn-reject:hover:not(:disabled) {
+    background: #ef4444;
+    color: #ffffff;
+    border-color: #ef4444;
+    box-shadow: 0 0 15px rgba(239, 68, 68, 0.3);
+}
+
+.btn-reject.active-rejected {
+    background: rgba(239, 68, 68, 0.15);
+    color: #f87171;
+    border-color: rgba(239, 68, 68, 0.4);
+    box-shadow: 0 0 10px rgba(239, 68, 68, 0.1);
+    cursor: default;
+}
+
+.btn-icon {
+    font-size: 0.7rem;
+}
+
+/* ─── Confirmation Modal ─── */
+.confirm-modal-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 9900;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(2, 6, 23, 0.8);
+    backdrop-filter: blur(8px);
+    animation: confirmFadeIn 0.2s ease-out;
+}
+
+@keyframes confirmFadeIn {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+
+.confirm-modal-card {
+    position: relative;
+    width: 90vw;
+    max-width: 440px;
+    background: rgba(15, 23, 42, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+    border-radius: 16px;
+    padding: 1.75rem;
+    animation: confirmScaleIn 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+    overflow: hidden;
+}
+
+@keyframes confirmScaleIn {
+    from { opacity: 0; transform: scale(0.9) translateY(10px); }
+    to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+body[data-theme="light"] .confirm-modal-card {
+    background: #ffffff;
+    border-color: rgba(0, 0, 0, 0.08);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.12);
+}
+
+.confirm-modal-card .hud-corner {
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    border-color: #8b5cf6;
+    border-width: 2px;
+    opacity: 0.5;
+}
+
+.confirm-modal-card .hud-corner.top-left { top: 8px; left: 8px; border-top-style: solid; border-left-style: solid; }
+.confirm-modal-card .hud-corner.top-right { top: 8px; right: 8px; border-top-style: solid; border-right-style: solid; }
+.confirm-modal-card .hud-corner.bottom-left { bottom: 8px; left: 8px; border-bottom-style: solid; border-left-style: solid; }
+.confirm-modal-card .hud-corner.bottom-right { bottom: 8px; right: 8px; border-bottom-style: solid; border-right-style: solid; }
+
+.confirm-modal-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+}
+
+.confirm-warn-icon {
+    font-size: 1.25rem;
+    color: #f59e0b;
+}
+
+.confirm-modal-header h3 {
+    font-size: 1rem;
+    font-weight: 800;
+    color: #f1f5f9;
+    margin: 0;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+}
+
+body[data-theme="light"] .confirm-modal-header h3 {
+    color: #0f172a;
+}
+
+.confirm-modal-body {
+    font-size: 0.85rem;
+    line-height: 1.5;
+    color: #cbd5e1;
+    margin-bottom: 1.5rem;
+}
+
+body[data-theme="light"] .confirm-modal-body {
+    color: #475569;
+}
+
+.confirm-modal-body p {
+    margin: 0 0 0.75rem 0;
+}
+
+.confirm-desc {
+    font-size: 0.75rem;
+    color: #64748b !important;
+}
+
+.text-success { color: #10b981; }
+.text-danger { color: #ef4444; }
+
+/* Analyst input verification */
+.analyst-input-group {
+    margin-top: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+}
+
+.analyst-input-group label {
+    font-size: 0.65rem;
+    font-weight: 700;
+    color: #8b5cf6;
+    letter-spacing: 0.05em;
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+}
+
+.analyst-input-group label .input-icon {
+    font-size: 0.6rem;
+}
+
+.analyst-input-group input {
+    background: rgba(30, 41, 59, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 6px;
+    padding: 0.45rem 0.75rem;
+    color: #f1f5f9;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    transition: all 0.2s ease;
+}
+
+.analyst-input-group input:focus {
+    outline: none;
+    border-color: rgba(139, 92, 246, 0.5);
+    box-shadow: 0 0 8px rgba(139, 92, 246, 0.2);
+    background: rgba(30, 41, 59, 0.8);
+}
+
+body[data-theme="light"] .analyst-input-group input {
+    background: #f8fafc;
+    border-color: rgba(0, 0, 0, 0.08);
+    color: #0f172a;
+}
+
+body[data-theme="light"] .analyst-input-group input:focus {
+    border-color: #8b5cf6;
+    background: #ffffff;
+}
+
+.confirm-modal-footer {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 0.75rem;
+}
+
+.confirm-modal-footer button {
+    padding: 0.5rem 1rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    border-radius: 6px;
+    border: 1px solid transparent;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-cancel {
+    background: transparent;
+    border-color: rgba(255, 255, 255, 0.08) !important;
+    color: #64748b;
+}
+
+.btn-cancel:hover:not(:disabled) {
+    background: rgba(255, 255, 255, 0.03);
+    color: #94a3b8;
+}
+
+body[data-theme="light"] .btn-cancel {
+    border-color: rgba(0, 0, 0, 0.08) !important;
+    color: #475569;
+}
+
+body[data-theme="light"] .btn-cancel:hover {
+    background: rgba(0, 0, 0, 0.03);
+    color: #1e293b;
+}
+
+.btn-confirm-approve {
+    background: #10b981;
+    color: #0f172a;
+}
+
+.btn-confirm-approve:hover:not(:disabled) {
+    box-shadow: 0 0 15px rgba(16, 185, 129, 0.4);
+    transform: translateY(-1px);
+}
+
+.btn-confirm-reject {
+    background: #ef4444;
+    color: #ffffff;
+}
+
+.btn-confirm-reject:hover:not(:disabled) {
+    box-shadow: 0 0 15px rgba(239, 68, 68, 0.4);
+    transform: translateY(-1px);
+}
+
+/* ─── Floating Toast Notification ─── */
+.floating-toast {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.85rem 1.25rem;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+    z-index: 9999;
+    animation: toastSlideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) both;
+    font-size: 0.8rem;
+    max-width: 360px;
+    border: 1px solid transparent;
+}
+
+@keyframes toastSlideIn {
+    from {
+        transform: translateY(20px) scale(0.95);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0) scale(1);
+        opacity: 1;
+    }
+}
+
+.toast-success {
+    background: rgba(15, 23, 42, 0.95);
+    border-color: rgba(16, 185, 129, 0.3);
+    color: #34d399;
+}
+
+.toast-error {
+    background: rgba(15, 23, 42, 0.95);
+    border-color: rgba(239, 68, 68, 0.3);
+    color: #f87171;
+}
+
+body[data-theme="light"] .toast-success {
+    background: #ffffff;
+    border-color: rgba(16, 185, 129, 0.4);
+    color: #065f46;
+}
+
+body[data-theme="light"] .toast-error {
+    background: #ffffff;
+    border-color: rgba(239, 68, 68, 0.4);
+    color: #991b1b;
+}
+
+.toast-icon {
+    font-size: 1rem;
+    flex-shrink: 0;
+}
+
+.toast-text {
+    line-height: 1.4;
+    flex: 1;
+}
+
+.toast-close {
+    background: transparent;
+    border: none;
+    color: inherit;
+    opacity: 0.5;
+    cursor: pointer;
+    padding: 0.2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: opacity 0.2s ease;
+}
+
+.toast-close:hover {
+    opacity: 1;
+}

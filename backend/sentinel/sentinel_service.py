@@ -1,26 +1,26 @@
 """
 backend/sentinel/sentinel_service.py
 --------------------------------------
-PhantomNet Sentinel Layer — Orchestration Service
+PhantomNet Sentinel Layer ΓÇö Orchestration Service
 
 Wires together the four Sentinel sub-modules into a single pipeline:
 
-    mitre_mapper  →  rule_generator  →  stix_enhanced  →  playbook_generator
+    mitre_mapper  ΓåÆ  rule_generator  ΓåÆ  stix_enhanced  ΓåÆ  playbook_generator
 
-Campaign clustering output has NO attack_type field — it only returns:
+Campaign clustering output has NO attack_type field ΓÇö it only returns:
     source_ips, target_ports, protocols, event_count, time_range
 
 This service performs a 4-step inference process:
 
     1. Infer protocol/service from target_ports:
-         2222 → SSH,  8080 → HTTP,  2121 → FTP,  2525 → SMTP
+         2222 ΓåÆ SSH,  8080 ΓåÆ HTTP,  2121 ΓåÆ FTP,  2525 ΓåÆ SMTP
     2. Query PacketLog for matching IPs + timestamps to retrieve threat_levels
     3. Optionally query events table for raw_data to run
        SignatureEngine.check_signatures()
     4. Use inferred signature name to call mitre_mapper.get_technique()
     5. Store the result in PacketLog.detected_signatures for matched log entries
 
-⚠️  Do NOT modify threat_analyzer.py — campaign clustering runs separately
+ΓÜá∩╕Å  Do NOT modify threat_analyzer.py ΓÇö campaign clustering runs separately
     via API, not inside the ThreatAnalyzer loop.
 
 Public API
@@ -32,10 +32,10 @@ Public API
         Class-level convenience: creates session, runs pipeline, closes session.
 
     generate_playbook(campaign_data) -> SentinelPlaybook
-        Full pipeline: infer → query → map → generate rules → build STIX
-        → render playbook → persist SentinelPlaybook row → return ORM object.
+        Full pipeline: infer ΓåÆ query ΓåÆ map ΓåÆ generate rules ΓåÆ build STIX
+        ΓåÆ render playbook ΓåÆ persist SentinelPlaybook row ΓåÆ return ORM object.
 
-Phase 5, Week 2 (Week 14), Day 1 — Integration & API
+Phase 5, Week 2 (Week 14), Day 1 ΓÇö Integration & API
 """
 
 from __future__ import annotations
@@ -51,6 +51,7 @@ from sentinel.mitre_mapper import map_signature, map_signatures
 from sentinel.rule_generator import generate_rules_for_campaign
 from sentinel.stix_enhanced import build_stix_bundle, bundle_to_json
 from sentinel.models import SentinelPlaybook
+from sentinel.confidence_scoring import calculate_confidence, ConfidenceResult
 
 # Database models and session
 from database.models import PacketLog, Event, IOC
@@ -62,7 +63,7 @@ from ml.signatures import SignatureEngine
 logger = logging.getLogger("sentinel.service")
 
 # ---------------------------------------------------------------------------
-# Port → Service mapping (honeypot port assignments)
+# Port ΓåÆ Service mapping (honeypot port assignments)
 # ---------------------------------------------------------------------------
 _PORT_SERVICE_MAP: Dict[int, str] = {
     2222: "SSH",
@@ -76,7 +77,7 @@ _PORT_SERVICE_MAP: Dict[int, str] = {
     25:   "SMTP",
 }
 
-# Service → default signature name (used when SignatureEngine has no raw_data)
+# Service ΓåÆ default signature name (used when SignatureEngine has no raw_data)
 _SERVICE_DEFAULT_SIGNATURE: Dict[str, str] = {
     "SSH":  "SSH_AUTH_FAILURE",
     "HTTP": "HTTP_SCANNER_BEHAVIOR",
@@ -89,7 +90,14 @@ _SERVICE_DEFAULT_SIGNATURE: Dict[str, str] = {
 # Playbook ID generator
 # ---------------------------------------------------------------------------
 def _generate_playbook_id() -> str:
-    """Generate a unique playbook ID like PB-20260619-HHMMSS-XXXXXX."""
+    """Generate a unique playbook ID with timestamp and random suffix.
+
+    Format: ``PB-YYYYMMDD-HHMMSS-XXXXXX`` where ``XXXXXX`` is a random
+    6-character hex string derived from UUID4.
+
+    Returns:
+        A unique playbook identifier string.
+    """
     import uuid
     now = datetime.now(tz=timezone.utc)
     suffix = uuid.uuid4().hex[:6].upper()
@@ -121,6 +129,11 @@ class SentinelService:
     """
 
     def __init__(self, db: Session) -> None:
+        """Initialise the SentinelService with a database session.
+
+        Args:
+            db: Active SQLAlchemy session for querying and persisting data.
+        """
         self.db = db
         self.sig_engine = SignatureEngine()
         self._playbook_gen = None  # lazy-loaded
@@ -129,12 +142,15 @@ class SentinelService:
     # Lazy loader for PlaybookGenerator
     # ------------------------------------------------------------------
     @property
-    def playbook_gen(self):
+    def playbook_gen(self) -> Optional[Any]:
         """Lazy-load PlaybookGenerator to avoid import-time side effects.
 
         Attempts import from backend/sentinel first, then falls back to
         the root sentinel package where PlaybookGenerator and its Jinja2
         templates actually reside.
+
+        Returns:
+            A PlaybookGenerator instance, or None if unavailable.
         """
         if self._playbook_gen is None:
             # Try backend/sentinel first
@@ -186,7 +202,7 @@ class SentinelService:
 
         Returns:
             The persisted SentinelPlaybook ORM object (detached from
-            the now-closed session — all attributes are eagerly loaded
+            the now-closed session ΓÇö all attributes are eagerly loaded
             before close).
 
         Raises:
@@ -199,6 +215,8 @@ class SentinelService:
             return playbook
         except Exception:
             db.rollback()
+            logger.error("create_and_run pipeline failed for campaign_data keys=%s",
+                         list(campaign_data.keys()), exc_info=True)
             raise
         finally:
             db.close()
@@ -227,11 +245,11 @@ class SentinelService:
                 continue
             service = _PORT_SERVICE_MAP.get(port_int)
             if service:
-                logger.debug("Port %d → service %s", port_int, service)
+                logger.debug("Port %d ΓåÆ service %s", port_int, service)
                 return service
 
         logger.warning(
-            "No recognised service for ports %s — defaulting to UNKNOWN",
+            "No recognised service for ports %s ΓÇö defaulting to UNKNOWN",
             target_ports,
         )
         return "UNKNOWN"
@@ -336,7 +354,7 @@ class SentinelService:
             )
             return ioc_rows
         except Exception as exc:
-            logger.warning("IOC query failed: %s — continuing without IOC enrichment", exc)
+            logger.warning("IOC query failed: %s ΓÇö continuing without IOC enrichment", exc)
             return []
 
     # ------------------------------------------------------------------
@@ -384,7 +402,7 @@ class SentinelService:
                 .all()
             )
         except Exception as exc:
-            logger.warning("Events query failed: %s — using default signature", exc)
+            logger.warning("Events query failed: %s ΓÇö using default signature", exc)
             default_sig = _SERVICE_DEFAULT_SIGNATURE.get(service_type)
             return [default_sig] if default_sig else []
 
@@ -404,7 +422,7 @@ class SentinelService:
             if default_sig:
                 detected.add(default_sig)
                 logger.debug(
-                    "No event-based signatures — using default: %s", default_sig
+                    "No event-based signatures ΓÇö using default: %s", default_sig
                 )
 
         return list(detected)
@@ -452,6 +470,28 @@ class SentinelService:
         return updated
 
     # ------------------------------------------------------------------
+    # Collect ML anomaly scores from matched packet logs
+    # ------------------------------------------------------------------
+    @staticmethod
+    def _collect_ml_scores(packet_logs: List[PacketLog]) -> List[float]:
+        """Extract all non-None, positive threat_score values from PacketLog rows.
+
+        These are used as the ``ml_scores`` input to ``calculate_confidence()``.
+        Scores are expected on the 0–100 scale (PacketLog.threat_score convention).
+
+        Args:
+            packet_logs: List of PacketLog ORM objects from Step 2 query.
+
+        Returns:
+            List of float threat scores.  Empty list when no valid scores exist.
+        """
+        return [
+            float(p.threat_score)
+            for p in packet_logs
+            if p.threat_score is not None and p.threat_score > 0
+        ]
+
+    # ------------------------------------------------------------------
     # Extract average threat score from matched logs
     # ------------------------------------------------------------------
     @staticmethod
@@ -473,10 +513,10 @@ class SentinelService:
 
         Performs the complete inference and generation process:
           1. Infer service from target_ports
-          2. Query PacketLog for matching IPs + timestamps → threat_levels
+          2. Query PacketLog for matching IPs + timestamps ΓåÆ threat_levels
           2b. Query IOC table for threat intelligence enrichment
-          3. Run SignatureEngine on events → detected signature names
-          4. Map signatures via mitre_mapper → ATT&CK technique
+          3. Run SignatureEngine on events ΓåÆ detected signature names
+          4. Map signatures via mitre_mapper ΓåÆ ATT&CK technique
           5. Generate Snort/Sigma rules via rule_generator
           6. Build enriched STIX 2.1 bundle via stix_enhanced
           7. Render playbook via playbook_generator (if available)
@@ -497,11 +537,11 @@ class SentinelService:
             The object carries a ``result_dict`` attribute with all
             generated artefacts for convenience.
         """
-        logger.info("═" * 60)
-        logger.info("SentinelService.generate_playbook() — START")
+        logger.info("ΓòÉ" * 60)
+        logger.info("SentinelService.generate_playbook() ΓÇö START")
         logger.info("Campaign data keys: %s", list(campaign_data.keys()))
 
-        # ── Extract campaign fields ───────────────────────────────────────
+        # ΓöÇΓöÇ Extract campaign fields ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
         source_ips = campaign_data.get("source_ips") or []
         target_ports = campaign_data.get("target_ports") or []
         protocols = campaign_data.get("protocols") or ["TCP"]
@@ -527,29 +567,52 @@ class SentinelService:
             protocols = [protocols]
         protocol_str = protocols[0].upper() if protocols else "TCP"
 
-        # ── Step 1: Infer service from target_ports ───────────────────────
+        # ΓöÇΓöÇ Step 1: Infer service from target_ports ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
         service_type = self._infer_service(normalised_ports)
-        logger.info("Step 1 — Inferred service: %s (from ports %s)", service_type, normalised_ports)
+        logger.info("Step 1 ΓÇö Inferred service: %s (from ports %s)", service_type, normalised_ports)
 
-        # ── Step 2: Query PacketLog ───────────────────────────────────────
+        # ΓöÇΓöÇ Step 2: Query PacketLog ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
         matched_logs = self._query_packet_logs(source_ips, normalised_ports, time_range)
         threat_score = self._avg_threat_score(matched_logs)
-        logger.info("Step 2 — Matched %d PacketLog rows, avg threat_score=%.2f", len(matched_logs), threat_score)
+        logger.info("Step 2 ΓÇö Matched %d PacketLog rows, avg threat_score=%.2f", len(matched_logs), threat_score)
 
-        # ── Step 2b: Query IOC table for enrichment ───────────────────────
+        # ΓöÇΓöÇ Step 2b: Query IOC table for enrichment ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
         ioc_rows = self._query_iocs(source_ips)
         ioc_threat_level = self._max_ioc_threat_level(ioc_rows)
         if ioc_threat_level:
-            logger.info("Step 2b — IOC enrichment: %d IOCs, max threat_level=%s",
+            logger.info("Step 2b ΓÇö IOC enrichment: %d IOCs, max threat_level=%s",
                         len(ioc_rows), ioc_threat_level)
         else:
-            logger.info("Step 2b — No IOC matches found for source IPs")
+            logger.info("Step 2b ΓÇö No IOC matches found for source IPs")
+
+        # ── Step 2c: Calculate confidence score ───────────────────────────
+        ml_scores = self._collect_ml_scores(matched_logs)
+        # unique_ioc_count = unique source IPs observed (IOC proxy from source_ips)
+        unique_ioc_count = len(set(source_ips))
+        confidence_result: ConfidenceResult = calculate_confidence(
+            event_count=event_count,
+            ml_scores=ml_scores,
+            unique_ioc_count=unique_ioc_count,
+            protocols=protocols,
+            cluster_size_cap=200,
+        )
+        confidence_score = confidence_result.confidence
+        confidence_severity = confidence_result.severity
+        logger.info(
+            "Step 2c — Confidence score: %.4f  severity=%s  "
+            "(css=%.3f mlas=%.3f iod=%.3f mpb=%.1f)",
+            confidence_score, confidence_severity,
+            confidence_result.cluster_size_score,
+            confidence_result.ml_avg_score,
+            confidence_result.ioc_density,
+            confidence_result.multi_proto_bonus,
+        )
 
         # ── Step 3: Run SignatureEngine on events ─────────────────────────
         signature_names = self._run_signature_analysis(source_ips, service_type)
-        logger.info("Step 3 — Detected signatures: %s", signature_names)
+        logger.info("Step 3 ΓÇö Detected signatures: %s", signature_names)
 
-        # ── Step 4: Map signatures → MITRE ATT&CK ────────────────────────
+        # ΓöÇΓöÇ Step 4: Map signatures ΓåÆ MITRE ATT&CK ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
         techniques = map_signatures(signature_names)
         primary_technique = techniques[0] if techniques else None
 
@@ -567,7 +630,7 @@ class SentinelService:
                 "technique_name": "Network Service Discovery",
                 "tactic": "Discovery",
                 "tactic_id": "TA0007",
-                "description": "Unknown attack pattern — default mapping.",
+                "description": "Unknown attack pattern ΓÇö default mapping.",
                 "url": "https://attack.mitre.org/techniques/T1046/",
                 "severity": "MEDIUM",
                 "signature": "UNKNOWN",
@@ -576,21 +639,21 @@ class SentinelService:
                 signature_names = ["UNKNOWN"]
 
         attack_type = signature_names[0] if signature_names else "UNKNOWN"
-        logger.info("Step 4 — Primary technique: %s (%s)",
+        logger.info("Step 4 ΓÇö Primary technique: %s (%s)",
                      primary_technique.get("technique_id"), primary_technique.get("technique_name"))
 
-        # ── Step 5: Generate Snort/Sigma rules ────────────────────────────
+        # ΓöÇΓöÇ Step 5: Generate Snort/Sigma rules ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
         rules_result = generate_rules_for_campaign(
             campaign_data,
             techniques if techniques else primary_technique,
         )
         snort_rule = rules_result.get("snort_rules", "")
         sigma_rule = rules_result.get("sigma_rules", "")
-        logger.info("Step 5 — Generated %d Snort + %d Sigma rules",
+        logger.info("Step 5 ΓÇö Generated %d Snort + %d Sigma rules",
                      rules_result["metadata"]["snort_rule_count"],
                      rules_result["metadata"]["sigma_rule_count"])
 
-        # ── Step 6: Build STIX 2.1 bundle ─────────────────────────────────
+        # ΓöÇΓöÇ Step 6: Build STIX 2.1 bundle ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
         # Merge source IPs as IOCs + any IOC table entries
         iocs = [{"type": "ip", "value": ip} for ip in source_ips]
         for ioc_row in ioc_rows:
@@ -615,9 +678,9 @@ class SentinelService:
             tlp_level=tlp,
         )
         stix_json = bundle_to_json(stix_bundle, pretty=True)
-        logger.info("Step 6 — STIX bundle: %d objects, tlp=%s", len(stix_bundle.objects), tlp)
+        logger.info("Step 6 ΓÇö STIX bundle: %d objects, tlp=%s", len(stix_bundle.objects), tlp)
 
-        # ── Step 7: Render playbook ───────────────────────────────────────
+        # ΓöÇΓöÇ Step 7: Render playbook ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
         playbook_name = f"{service_type} {primary_technique.get('technique_name', 'Response')} Playbook"
         template_name = None
         playbook_content = None
@@ -650,14 +713,14 @@ class SentinelService:
                 }
                 playbook_content = self.playbook_gen.generate(context)
                 template_name = self.playbook_gen._select_template(attack_pattern)
-                logger.info("Step 7 — Playbook rendered: %d chars, template=%s",
+                logger.info("Step 7 ΓÇö Playbook rendered: %d chars, template=%s",
                             len(playbook_content), template_name)
             except Exception as exc:
-                logger.warning("Playbook rendering failed: %s — using placeholder", exc)
+                logger.warning("Playbook rendering failed: %s ΓÇö using placeholder", exc)
                 playbook_content = (
                     f"# {playbook_name}\n\n"
                     f"Campaign: {campaign_id}\n"
-                    f"Technique: {primary_technique.get('technique_id')} — "
+                    f"Technique: {primary_technique.get('technique_id')} ΓÇö "
                     f"{primary_technique.get('technique_name')}\n"
                     f"Source IPs: {', '.join(source_ips)}\n"
                     f"Ports: {normalised_ports}\n"
@@ -667,14 +730,14 @@ class SentinelService:
             playbook_content = (
                 f"# {playbook_name}\n\n"
                 f"Campaign: {campaign_id}\n"
-                f"Technique: {primary_technique.get('technique_id')} — "
+                f"Technique: {primary_technique.get('technique_id')} ΓÇö "
                 f"{primary_technique.get('technique_name')}\n"
                 f"Source IPs: {', '.join(source_ips)}\n"
                 f"Ports: {normalised_ports}\n"
                 f"Threat Score: {threat_score}\n"
             )
 
-        # ── Step 8: Persist SentinelPlaybook row ──────────────────────────
+        # ΓöÇΓöÇ Step 8: Persist SentinelPlaybook row ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
         playbook_id = _generate_playbook_id()
         dst_port_primary = normalised_ports[0] if normalised_ports else None
 
@@ -685,6 +748,8 @@ class SentinelService:
             protocol=protocol_str,
             attack_type=attack_type,
             threat_score=threat_score,
+            confidence_score=confidence_score,
+            severity=confidence_severity,
             technique_id=primary_technique.get("technique_id"),
             technique_name=primary_technique.get("technique_name"),
             tactic=primary_technique.get("tactic"),
@@ -701,21 +766,21 @@ class SentinelService:
             self.db.add(playbook_record)
             self.db.commit()
             self.db.refresh(playbook_record)
-            logger.info("Step 8 — SentinelPlaybook persisted: id=%d, playbook_id=%s",
+            logger.info("Step 8 ΓÇö SentinelPlaybook persisted: id=%d, playbook_id=%s",
                         playbook_record.id, playbook_id)
         except Exception as exc:
             self.db.rollback()
             logger.error("Failed to persist SentinelPlaybook: %s", exc)
             raise
 
-        # ── Step 9: Store detected_signatures in PacketLog ────────────────
+        # ΓöÇΓöÇ Step 9: Store detected_signatures in PacketLog ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
         sigs_stored = self._store_signatures(matched_logs, signature_names)
-        logger.info("Step 9 — Stored signatures on %d PacketLog rows", sigs_stored)
+        logger.info("Step 9 ΓÇö Stored signatures on %d PacketLog rows", sigs_stored)
 
-        logger.info("SentinelService.generate_playbook() — COMPLETE")
-        logger.info("═" * 60)
+        logger.info("SentinelService.generate_playbook() ΓÇö COMPLETE")
+        logger.info("ΓòÉ" * 60)
 
-        # ── Attach result_dict for convenience ────────────────────────────
+        # ΓöÇΓöÇ Attach result_dict for convenience ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
         playbook_record.result_dict = {
             "playbook_id": playbook_id,
             "campaign_id": campaign_id,
@@ -736,6 +801,9 @@ class SentinelService:
             "playbook_content": playbook_content,
             "template_name": template_name,
             "threat_score": threat_score,
+            "confidence_score": confidence_score,
+            "severity": confidence_severity,
+            "confidence_breakdown": confidence_result.breakdown,
             "ioc_threat_level": ioc_threat_level,
             "ioc_count": len(ioc_rows),
             "matched_logs_count": len(matched_logs),

@@ -214,8 +214,10 @@ def build_attack_pattern(technique: Dict[str, Any]) -> stix2.AttackPattern:
     technique_name = technique.get("technique_name") or technique.get("name")
 
     if not technique_id:
+        logger.error("build_attack_pattern called with missing technique_id")
         raise ValueError("technique dict must contain 'technique_id' or 'id'")
     if not technique_name:
+        logger.error("build_attack_pattern called with missing technique_name")
         raise ValueError("technique dict must contain 'technique_name' or 'name'")
 
     tactic = technique.get("tactic", "unknown")
@@ -417,7 +419,10 @@ def build_stix_bundle(
     """
     # ── 1. Resolve TLP marking ─────────────────────────────────────────────
     tlp_level_clean = str(tlp_level).strip().lower()
-    tlp_marking = _TLP_MAP.get(tlp_level_clean, stix2.TLP_WHITE)
+    tlp_marking = _TLP_MAP.get(tlp_level_clean)
+    if tlp_marking is None:
+        logger.warning("Unknown TLP level %r — defaulting to TLP:WHITE", tlp_level)
+        tlp_marking = stix2.TLP_WHITE
 
     # ── 2. Build ATT&CK-enriched AttackPattern ─────────────────────────────
     attack_pattern = build_attack_pattern(technique)

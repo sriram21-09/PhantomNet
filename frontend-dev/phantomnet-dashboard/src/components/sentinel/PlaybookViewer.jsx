@@ -19,6 +19,8 @@ import {
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import RulePreview from "./RulePreview";
+import ApprovalControls from "./ApprovalControls";
+import LoadingSpinner from "../LoadingSpinner";
 import "../../Styles/components/PlaybookViewer.css";
 
 /* ═══════════════════════════════════════════════════════════════
@@ -492,17 +494,24 @@ const MarkdownRenderer = ({ content }) => {
 const PlaybookViewer = ({
   isOpen = false,
   onClose,
+  id,
+  status = "pending",
+  onStatusChange,
   title = "Untitled Playbook",
   severity = "medium",
   technique = "T0000",
   date = "—",
   markdownContent = "",
+  playbook_content = "",
   snortRule = "",
   sigmaRule = "",
+  isLoading = false,
 }) => {
   const [activeTab, setActiveTab] = useState("playbook");
   const [isFullscreen, setIsFullscreen] = useState(false);
   const panelRef = useRef(null);
+
+  const resolvedMarkdown = playbook_content || markdownContent;
 
   /* ── Close on Escape ── */
   useEffect(() => {
@@ -544,7 +553,7 @@ const PlaybookViewer = ({
 
   /* ── Export markdown ── */
   const handleExport = useCallback(() => {
-    const content = activeTab === "playbook" ? markdownContent : activeTab === "snort" ? snortRule : sigmaRule;
+    const content = activeTab === "playbook" ? resolvedMarkdown : activeTab === "snort" ? snortRule : sigmaRule;
     const ext = activeTab === "playbook" ? "md" : activeTab === "snort" ? "rules" : "yml";
     const blob = new Blob([content], { type: "text/plain;charset=utf-8" });
     const url = URL.createObjectURL(blob);
@@ -570,7 +579,7 @@ const PlaybookViewer = ({
   });
 
   /* ── Determine markdown readiness status ── */
-  const hasMarkdown = Boolean(markdownContent);
+  const hasMarkdown = Boolean(resolvedMarkdown);
 
   return (
     <div
@@ -677,41 +686,58 @@ const PlaybookViewer = ({
 
         {/* ═══ Content Area ═══ */}
         <div className="pbv-content-area">
-          {/* ── Playbook Tab ── */}
-          {activeTab === "playbook" && (
-            <div
-              role="tabpanel"
-              id="pbv-panel-playbook"
-              aria-labelledby="pbv-tab-playbook"
-            >
-              <MarkdownRenderer key={markdownContent} content={markdownContent} />
+          {isLoading ? (
+            <div style={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: "250px", flexDirection: "column" }}>
+              <LoadingSpinner />
             </div>
-          )}
+          ) : (
+            <>
+              {/* ── Playbook Tab ── */}
+              {activeTab === "playbook" && (
+                <div
+                  role="tabpanel"
+                  id="pbv-panel-playbook"
+                  aria-labelledby="pbv-tab-playbook"
+                >
+                  <MarkdownRenderer key={resolvedMarkdown} content={resolvedMarkdown} />
+                </div>
+              )}
 
-          {/* ── Snort Rules Tab ── */}
-          {activeTab === "snort" && (
-            <div
-              className="pbv-rule-section"
-              role="tabpanel"
-              id="pbv-panel-snort"
-              aria-labelledby="pbv-tab-snort"
-            >
-              <RulePreview snortRule={snortRule} sigmaRule="" />
-            </div>
-          )}
+              {/* ── Snort Rules Tab ── */}
+              {activeTab === "snort" && (
+                <div
+                  className="pbv-rule-section"
+                  role="tabpanel"
+                  id="pbv-panel-snort"
+                  aria-labelledby="pbv-tab-snort"
+                >
+                  <RulePreview snortRule={snortRule} sigmaRule="" />
+                </div>
+              )}
 
-          {/* ── Sigma Rules Tab ── */}
-          {activeTab === "sigma" && (
-            <div
-              className="pbv-rule-section"
-              role="tabpanel"
-              id="pbv-panel-sigma"
-              aria-labelledby="pbv-tab-sigma"
-            >
-              <RulePreview snortRule="" sigmaRule={sigmaRule} />
-            </div>
+              {/* ── Sigma Rules Tab ── */}
+              {activeTab === "sigma" && (
+                <div
+                  className="pbv-rule-section"
+                  role="tabpanel"
+                  id="pbv-panel-sigma"
+                  aria-labelledby="pbv-tab-sigma"
+                >
+                  <RulePreview snortRule="" sigmaRule={sigmaRule} />
+                </div>
+              )}
+            </>
           )}
         </div>
+
+        {/* ═══ Approval Controls ═══ */}
+        {id && (
+          <ApprovalControls
+            playbookId={id}
+            status={status}
+            onStatusChange={onStatusChange}
+          />
+        )}
 
         {/* ═══ Footer ═══ */}
         <footer className="pbv-footer">

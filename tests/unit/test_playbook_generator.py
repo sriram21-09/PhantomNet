@@ -148,7 +148,7 @@ class TestGenerateBruteForce:
         rendered = gen.generate({
             "attack_pattern": "brute_force",
             "source_ip": "192.168.1.100",
-        })
+        }, format="yaml")
         data = yaml.safe_load(rendered)
         assert isinstance(data, dict)
 
@@ -163,7 +163,7 @@ class TestGenerateBruteForce:
             "tarpit_delay_ms": 3000,
             "alert_level": "CRITICAL",
         }
-        data = yaml.safe_load(gen.generate(context))
+        data = yaml.safe_load(gen.generate(context, format="yaml"))
         assert data["name"] == "Brute Force Response"
         assert "Triggered when failed logins exceed 30" in data["description"]
 
@@ -177,7 +177,7 @@ class TestGenerateBruteForce:
 
     def test_default_values_applied(self, gen):
         # Only the required key – all others should use Jinja2 defaults
-        data = yaml.safe_load(gen.generate({"attack_pattern": "brute_force"}))
+        data = yaml.safe_load(gen.generate({"attack_pattern": "brute_force"}, format="yaml"))
         actions = data["actions"]
         assert actions[0]["params"]["duration"] == "3600"
         assert actions[2]["params"]["level"] == "HIGH"
@@ -194,7 +194,7 @@ class TestGeneratePortScan:
             "source_ip": "10.0.0.5",
             "port_count_threshold": 100,
             "capture_duration": "600s",
-        }))
+        }, format="yaml"))
         assert data["name"] == "Port Scan Response"
 
     def test_ip_rendered(self, gen):
@@ -202,12 +202,12 @@ class TestGeneratePortScan:
             "attack_pattern": "port_scan",
             "source_ip": "10.0.0.5",
             "capture_duration": "600s",
-        }))
+        }, format="yaml"))
         assert data["actions"][0]["params"]["ip"] == "10.0.0.5"
         assert data["actions"][0]["params"]["duration"] == "600s"
 
     def test_default_honeypot_count(self, gen):
-        data = yaml.safe_load(gen.generate({"attack_pattern": "port_scan"}))
+        data = yaml.safe_load(gen.generate({"attack_pattern": "port_scan"}, format="yaml"))
         assert data["actions"][1]["params"]["count"] == 3
 
 
@@ -217,11 +217,11 @@ class TestGeneratePortScan:
 
 class TestGenerateCredentialReuse:
     def test_correct_name(self, gen):
-        data = yaml.safe_load(gen.generate({"attack_pattern": "credential_reuse"}))
+        data = yaml.safe_load(gen.generate({"attack_pattern": "credential_reuse"}, format="yaml"))
         assert data["name"] == "Credential Reuse Detection"
 
     def test_default_alert_level_critical(self, gen):
-        data = yaml.safe_load(gen.generate({"attack_pattern": "honeytoken"}))
+        data = yaml.safe_load(gen.generate({"attack_pattern": "honeytoken"}, format="yaml"))
         assert data["actions"][0]["params"]["level"] == "CRITICAL"
 
 
@@ -231,11 +231,11 @@ class TestGenerateCredentialReuse:
 
 class TestGenerateDistributedAttack:
     def test_correct_name(self, gen):
-        data = yaml.safe_load(gen.generate({"attack_pattern": "distributed_attack"}))
+        data = yaml.safe_load(gen.generate({"attack_pattern": "distributed_attack"}, format="yaml"))
         assert data["name"] == "Distributed Attack Response"
 
     def test_default_ioc_format(self, gen):
-        data = yaml.safe_load(gen.generate({"attack_pattern": "distributed"}))
+        data = yaml.safe_load(gen.generate({"attack_pattern": "distributed"}, format="yaml"))
         share_action = next(
             a for a in data["actions"] if a["name"] == "share_iocs"
         )
@@ -253,7 +253,7 @@ class TestErrorPaths:
 
     def test_unknown_pattern_raises_file_not_found(self, gen):
         with pytest.raises(FileNotFoundError, match="unknown_pattern_response.yaml.j2"):
-            gen.generate({"attack_pattern": "unknown_pattern"})
+            gen.generate({"attack_pattern": "unknown_pattern"}, format="yaml")
 
     def test_non_dict_context_raises_type_error(self, gen):
         with pytest.raises(TypeError):

@@ -78,13 +78,13 @@ print(f"Test 3  PASS: All 10 routes registered")
 # ------------------------------------------------------------------
 db = SessionLocal()
 try:
-    result = list_playbooks(limit=10, offset=0, status=None, attack_type=None, db=db)
+    result = list_playbooks(page=1, per_page=10, status=None, attack_type=None, db=db)
     assert result["status"] == "success"
     assert "total" in result
     assert "playbooks" in result
     assert isinstance(result["playbooks"], list)
-    assert "limit" in result
-    assert "offset" in result
+    assert "page" in result
+    assert "per_page" in result
     print(f"Test 4  PASS: GET /playbooks returns paginated list (total={result['total']})")
 finally:
     pass

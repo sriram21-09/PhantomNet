@@ -133,10 +133,13 @@ async def lifespan(_app: FastAPI):
         # Start Event Stream Broadcaster
         asyncio.create_task(broadcast_event_stream())
 
-        # Start Sentinel Generation Loop if enabled
-        if os.getenv("SENTINEL_ENABLED", "false").lower() == "true":
+        # Start Sentinel Generation Loop if enabled (opt-in via env var)
+        _sentinel_enabled = os.getenv("SENTINEL_ENABLED", "false").lower() == "true"
+        if _sentinel_enabled:
             asyncio.create_task(sentinel_generation_loop())
-            print("Sentinel Generation Loop started (background)")
+            print("✅ Sentinel Generation Loop started (SENTINEL_ENABLED=true)")
+        else:
+            print("⏸️  Sentinel Generation Loop disabled (SENTINEL_ENABLED=false)")
 
         # Seed default admin
         _db = SessionLocal()
@@ -152,38 +155,186 @@ async def lifespan(_app: FastAPI):
 
 async def sentinel_generation_loop() -> None:
     """
-    Background task to periodically run campaign clustering and feed new clusters
-    to Sentinel for playbook generation.
+    Background task that periodically runs campaign clustering and feeds
+    new (un-processed) clusters to the Sentinel pipeline for automatic
+    playbook generation.
+
+    Dedup strategy (two layers):
+      1. In-memory ``_processed_hashes`` set — fast O(1) check per cycle.
+      2. DB-level check on startup — pre-seeds the set with campaign IDs
+         already stored as SentinelPlaybook rows, so the loop survives
+         process restarts without regenerating duplicates.
+
+    Each campaign is identified by a deterministic hash derived from its
+    sorted source IPs + sorted target ports + campaign_id.  This ensures
+    that even if cluster IDs shift across DBSCAN runs, the *same* campaign
+    is not processed twice.
+
+    Runs every 5 minutes (300 s).  Controlled by SENTINEL_ENABLED env var
+    in the lifespan() context manager.
+
+    Phase 5, Week 2 (Week 14), Day 4 — Sentinel Generation Loop
     """
-    print("[+] Sentinel Generation Loop Started")
-    processed_campaign_ids: Set[str] = set()
-    
+    import hashlib
+    import logging
+
+    _log = logging.getLogger("sentinel.generation_loop")
+    _log.info("Sentinel Generation Loop initialising")
+
+    # ── Layer 2: Pre-seed from DB to survive restarts ─────────────────────
+    _processed_hashes: Set[str] = set()
+    try:
+        _seed_db = SessionLocal()
+        existing_playbooks = (
+            _seed_db.query(SentinelPlaybook.src_ip, SentinelPlaybook.playbook_id)
+            .all()
+        )
+        for row in existing_playbooks:
+            # Use playbook_id as an existing-record marker
+            _processed_hashes.add(row.playbook_id)
+        _seed_db.close()
+        _log.info(
+            "Pre-seeded %d existing playbook IDs from DB for dedup",
+            len(_processed_hashes),
+        )
+    except Exception as exc:
+        _log.warning("DB pre-seed failed (non-fatal): %s", exc)
+
+    print(f"[+] Sentinel Generation Loop Started (pre-seeded {len(_processed_hashes)} existing playbooks)")
+
+    cycle_count = 0
     while True:
         try:
-            # Run every 5 minutes
+            # Wait 5 minutes between cycles
             await asyncio.sleep(300)
-            
-            # Wrap in to_thread to avoid blocking event loop
-            clusters = await asyncio.to_thread(campaign_clusterer.identify_campaigns, 24)
-            if not clusters:
+            cycle_count += 1
+
+            _log.info("═" * 50)
+            _log.info("Sentinel cycle #%d — starting campaign scan", cycle_count)
+
+            # ── Run campaign clustering (blocking call → thread pool) ─────
+            result = await asyncio.to_thread(
+                campaign_clusterer.identify_campaigns, 24
+            )
+
+            # identify_campaigns returns {"campaign_count": N, "campaigns": [...]}
+            if not result or result.get("campaign_count", 0) == 0:
+                _log.info(
+                    "Cycle #%d — no campaigns detected, sleeping", cycle_count
+                )
                 continue
-                
+
+            campaigns = result.get("campaigns", [])
+            total_found = len(campaigns)
+            new_count = 0
+            skipped_count = 0
+            error_count = 0
+
+            _log.info(
+                "Cycle #%d — %d campaign(s) found from clustering",
+                cycle_count, total_found,
+            )
+
             db = SessionLocal()
             try:
                 svc = SentinelService(db)
-                for cluster in clusters:
-                    cid = cluster.get("campaign_id")
-                    if not cid or cid in processed_campaign_ids:
+
+                for campaign in campaigns:
+                    campaign_id = campaign.get("campaign_id", "")
+                    if not campaign_id:
+                        _log.warning("Skipping campaign with empty campaign_id")
+                        skipped_count += 1
                         continue
-                        
-                    # Generate playbook
-                    svc.generate_playbook(cluster)
-                    processed_campaign_ids.add(cid)
-                    print(f"[*] Sentinel generated playbook for campaign {cid}")
+
+                    # ── Build deterministic dedup hash ────────────────────
+                    source_ips = sorted(campaign.get("unique_sources", []))
+                    target_ports = sorted(
+                        str(p) for p in campaign.get("target_ports", [])
+                    )
+                    hash_input = (
+                        f"{campaign_id}|"
+                        f"{'|'.join(source_ips)}|"
+                        f"{'|'.join(target_ports)}"
+                    )
+                    campaign_hash = hashlib.sha256(
+                        hash_input.encode("utf-8")
+                    ).hexdigest()[:16]
+
+                    # ── Layer 1: In-memory dedup check ────────────────────
+                    if campaign_hash in _processed_hashes:
+                        _log.debug(
+                            "Cycle #%d — SKIP campaign %s (hash=%s, already processed)",
+                            cycle_count, campaign_id, campaign_hash,
+                        )
+                        skipped_count += 1
+                        continue
+
+                    # ── Map campaign_clusterer fields → SentinelService ───
+                    # campaign_clusterer returns:
+                    #   unique_sources, target_ports, protocols, event_count,
+                    #   start_time, end_time, campaign_id, cluster_id
+                    # SentinelService.generate_playbook expects:
+                    #   source_ips, target_ports, protocols, event_count,
+                    #   campaign_id, time_range
+                    campaign_data = {
+                        "source_ips": campaign.get("unique_sources", []),
+                        "target_ports": campaign.get("target_ports", []),
+                        "protocols": campaign.get("protocols", ["TCP"]),
+                        "event_count": campaign.get("event_count", 0),
+                        "campaign_id": campaign_id,
+                        "time_range": {
+                            "start": campaign.get("start_time"),
+                            "end": campaign.get("end_time"),
+                        } if campaign.get("start_time") else None,
+                    }
+
+                    try:
+                        svc.generate_playbook(campaign_data)
+                        _processed_hashes.add(campaign_hash)
+                        new_count += 1
+                        _log.info(
+                            "Cycle #%d — GENERATED playbook for campaign %s "
+                            "(hash=%s, ips=%d, ports=%s, events=%d)",
+                            cycle_count,
+                            campaign_id,
+                            campaign_hash,
+                            len(campaign_data["source_ips"]),
+                            campaign_data["target_ports"],
+                            campaign_data["event_count"],
+                        )
+                    except Exception as gen_exc:
+                        error_count += 1
+                        _log.error(
+                            "Cycle #%d — FAILED to generate playbook for "
+                            "campaign %s: %s",
+                            cycle_count, campaign_id, gen_exc,
+                        )
             finally:
                 db.close()
+
+            # ── Cycle summary log ─────────────────────────────────────────
+            _log.info(
+                "Cycle #%d — SUMMARY: found=%d, new=%d, skipped=%d, errors=%d, "
+                "total_tracked=%d",
+                cycle_count,
+                total_found,
+                new_count,
+                skipped_count,
+                error_count,
+                len(_processed_hashes),
+            )
+            print(
+                f"[*] Sentinel cycle #{cycle_count}: "
+                f"{total_found} found, {new_count} new, "
+                f"{skipped_count} skipped, {error_count} errors"
+            )
+
         except Exception as e:
-            print(f"Error in sentinel generation loop: {e}")
+            _log.error(
+                "Sentinel generation loop error (cycle #%d): %s",
+                cycle_count, e,
+            )
+            print(f"[!] Sentinel generation loop error: {e}")
 
 
 async def _pcap_cleanup_scheduler(analyzer) -> None:

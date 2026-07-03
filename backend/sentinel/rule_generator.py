@@ -39,7 +39,58 @@ import logging
 
 _logger = logging.getLogger("sentinel.rule_generator")
 
+# ---------------------------------------------------------------------------
+# ATT&CK Tactic → Sigma Tag Map
+# Maps MITRE tactic names to standard Sigma attack.<tactic_slug> tags.
+# Reference: https://github.com/SigmaHQ/sigma/blob/master/tags/attack.md
+# ---------------------------------------------------------------------------
+_TACTIC_SIGMA_TAG: dict[str, str] = {
+    "Reconnaissance":        "attack.reconnaissance",
+    "Resource Development":  "attack.resource_development",
+    "Initial Access":        "attack.initial_access",
+    "Execution":             "attack.execution",
+    "Persistence":           "attack.persistence",
+    "Privilege Escalation":  "attack.privilege_escalation",
+    "Defense Evasion":       "attack.defense_evasion",
+    "Credential Access":     "attack.credential_access",
+    "Discovery":             "attack.discovery",
+    "Lateral Movement":      "attack.lateral_movement",
+    "Collection":            "attack.collection",
+    "Command and Control":   "attack.command_and_control",
+    "Exfiltration":          "attack.exfiltration",
+    "Impact":                "attack.impact",
+}
+
+
+def get_tactic_sigma_tag(tactic: str) -> "str | None":
+    """Return the standard Sigma tactic tag for a MITRE tactic name.
+
+    Examples::
+
+        get_tactic_sigma_tag("Credential Access")  # -> "attack.credential_access"
+        get_tactic_sigma_tag("Unknown Tactic")      # -> None
+
+    Args:
+        tactic: MITRE ATT&CK tactic name (e.g. "Credential Access").
+
+    Returns:
+        Sigma-formatted tactic tag string, or None if the tactic is not mapped.
+    """
+    if not isinstance(tactic, str):
+        return None
+    return _TACTIC_SIGMA_TAG.get(tactic.strip())
+
+
 def _find_data_dir() -> str:
+    """Locate the project ``data/`` directory by walking up from this file.
+
+    Searches up to five parent directories from the location of this source
+    file.  Falls back to the directory containing this file if no ``data/``
+    directory is found.
+
+    Returns:
+        Absolute path to the ``data/`` directory.
+    """
     current = os.path.dirname(os.path.abspath(__file__))
     for _ in range(5):
         candidate = os.path.join(current, "data")
@@ -55,6 +106,15 @@ _BASE_SID = 1000001
 _SID_FILE_PATH = os.path.join(_find_data_dir(), "last_sid.txt")
 
 def _load_sid() -> int:
+    """Load the last-used Snort SID from persistent storage.
+
+    Reads the SID counter from ``_SID_FILE_PATH``.  Returns
+    ``_BASE_SID`` when the file is missing, empty, corrupted, or
+    contains an invalid value.
+
+    Returns:
+        The next available SID integer.
+    """
     if not os.path.exists(_SID_FILE_PATH):
         return _BASE_SID
     try:
@@ -72,6 +132,15 @@ def _load_sid() -> int:
         return _BASE_SID
 
 def _save_sid(sid: int) -> None:
+    """Persist the current SID counter to ``_SID_FILE_PATH``.
+
+    Creates the parent directory if it does not exist.  Logs an error
+    if the write fails but does not raise — SID tracking is
+    best-effort.
+
+    Args:
+        sid: The SID value to write to storage.
+    """
     try:
         os.makedirs(os.path.dirname(_SID_FILE_PATH), exist_ok=True)
         with open(_SID_FILE_PATH, "w", encoding="utf-8") as f:
@@ -243,7 +312,17 @@ SEVERITY_TO_PRIORITY = {
 
 
 def validate_ip(ip_str: str) -> bool:
-    """Validate if the string is a valid IPv4 address/network or allowed variable/keyword."""
+    """Validate if the string is a valid IPv4 address/network or allowed variable/keyword.
+
+    Accepts valid IPv4 addresses, CIDR notation, and Snort keywords
+    (``any``, ``$EXTERNAL_NET``, ``$HOME_NET``).
+
+    Args:
+        ip_str: String to validate as an IP address or keyword.
+
+    Returns:
+        True if the input is a valid IP, CIDR, or Snort keyword.
+    """
     if not isinstance(ip_str, str) or len(ip_str) > 50:
         return False
     if ip_str.lower() in ("any", "$external_net", "$home_net"):
@@ -260,17 +339,26 @@ def validate_ip(ip_str: str) -> bool:
                 return False
         return True
     except ValueError:
+        _logger.debug("IP validation failed for: %s", ip_str)
         return False
 
 
 def validate_port(port: typing.Union[int, str]) -> bool:
-    """Validate if the port is a valid port number (0-65535) or 'any'."""
+    """Validate if the port is a valid port number (0–65535) or the keyword ``'any'``.
+
+    Args:
+        port: Integer port number or string (``'any'`` or numeric string).
+
+    Returns:
+        True if the port is valid.
+    """
     if isinstance(port, str) and port.lower() == "any":
         return True
     try:
         port_num = int(port)
         return 0 <= port_num <= 65535
-    except ValueError:
+    except (TypeError, ValueError):
+        _logger.debug("Port validation failed for: %s", port)
         return False
 
 def _is_called_from_verify_rule_generator() -> bool:
@@ -499,6 +587,7 @@ def generate_sigma_rule(
     status: str = "experimental",
     tags: typing.Optional[typing.Union[str, list[str]]] = None,
     technique_id: typing.Optional[str] = None,
+    tactic: typing.Optional[str] = None,
 ) -> str:
     """
     Generates a valid Sigma rule in YAML format.
@@ -511,6 +600,10 @@ def generate_sigma_rule(
         status:       Status of the rule (default: 'experimental').
         tags:         Optional tags (list of strings or space/comma separated string).
         technique_id: Optional MITRE ATT&CK technique ID or URL to format as an attack tag.
+        tactic:       Optional MITRE ATT&CK tactic name (e.g. "Credential Access").
+                      When provided the corresponding Sigma tactic tag is automatically
+                      appended (e.g. "attack.credential_access") alongside the technique
+                      tag, satisfying the Sigma ATT&CK tag specification.
 
     Returns:
         A valid YAML string representing the Sigma rule.
@@ -559,6 +652,13 @@ def generate_sigma_rule(
             formatted = clean_and_format_tag(t)
             if formatted and formatted not in processed_tags:
                 processed_tags.append(formatted)
+
+    # 3. Auto-inject tactic tag from tactic name (Sigma ATT&CK tag spec requirement).
+    #    This ensures every rule has BOTH attack.<technique_id> AND attack.<tactic_name>.
+    if tactic:
+        tactic_tag = get_tactic_sigma_tag(tactic)
+        if tactic_tag and tactic_tag not in processed_tags:
+            processed_tags.append(tactic_tag)
 
     # Structure detection block (handle search identifiers and condition)
     detection_copy = dict(detection)
@@ -800,7 +900,8 @@ def generate_rules_for_campaign(
             severity=tech["severity"],
             status="experimental",
             tags=["campaign"],
-            technique_id=tech["technique_id"]
+            technique_id=tech["technique_id"],
+            tactic=tech.get("tactic"),  # auto-inject attack.<tactic> tag per Sigma spec
         )
         sigma_rules_list.append(rule)
 

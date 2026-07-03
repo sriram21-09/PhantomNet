@@ -326,3 +326,156 @@ body[data-theme="light"] .sentinel-empty-hint {
     border-color: rgba(0, 0, 0, 0.06);
     color: #64748b;
 }
+
+/* ─── Filter Tabs ─── */
+.sentinel-tabs-container {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    padding-bottom: 0.75rem;
+}
+
+body[data-theme="light"] .sentinel-tabs-container {
+    border-bottom-color: rgba(0, 0, 0, 0.06);
+}
+
+.sentinel-tab-btn {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    padding: 0.5rem 1rem;
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: 8px;
+    color: #64748b;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.sentinel-tab-btn:hover {
+    color: #cbd5e1;
+    background: rgba(139, 92, 246, 0.05);
+}
+
+body[data-theme="light"] .sentinel-tab-btn:hover {
+    color: #334155;
+    background: rgba(139, 92, 246, 0.04);
+}
+
+.sentinel-tab-btn.active {
+    background: rgba(139, 92, 246, 0.12);
+    color: #a78bfa;
+    border-color: rgba(139, 92, 246, 0.2);
+}
+
+body[data-theme="light"] .sentinel-tab-btn.active {
+    background: rgba(139, 92, 246, 0.08);
+    color: #7c3aed;
+    border-color: rgba(139, 92, 246, 0.15);
+}
+
+.sentinel-tab-btn .tab-count {
+    font-size: 0.6rem;
+    font-weight: 800;
+    background: rgba(255, 255, 255, 0.05);
+    padding: 0.15rem 0.40rem;
+    border-radius: 9999px;
+    color: inherit;
+}
+
+body[data-theme="light"] .sentinel-tab-btn .tab-count {
+    background: rgba(0, 0, 0, 0.05);
+}
+
+/* ─── Loading Skeletons ─── */
+.playbook-skeleton-card {
+    height: 184px;
+    background: rgba(15, 23, 42, 0.3);
+    border: 1px dashed rgba(139, 92, 246, 0.12);
+    border-radius: 16px;
+    position: relative;
+    overflow: hidden;
+}
+
+body[data-theme="light"] .playbook-skeleton-card {
+    background: rgba(255, 255, 255, 0.5);
+    border-color: rgba(139, 92, 246, 0.08);
+}
+
+.playbook-skeleton-glow {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, transparent, rgba(139, 92, 246, 0.04), transparent);
+    transform: translateX(-100%);
+    animation: skeletonShimmer 1.6s infinite;
+}
+
+@keyframes skeletonShimmer {
+    100% { transform: translateX(100%); }
+}
+
+/* ─── Error State ─── */
+.sentinel-error-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 4rem 2rem;
+    text-align: center;
+    border: 1px dashed rgba(239, 68, 68, 0.2);
+    border-radius: 16px;
+    background: rgba(239, 68, 68, 0.02);
+}
+
+.sentinel-error-state .error-icon {
+    font-size: 2rem;
+    color: #ef4444;
+    margin-bottom: 1rem;
+}
+
+.sentinel-error-state h3 {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: #f1f5f9;
+    margin: 0 0 0.5rem 0;
+}
+
+body[data-theme="light"] .sentinel-error-state h3 {
+    color: #0f172a;
+}
+
+.sentinel-error-state p {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    color: #64748b;
+    max-width: 480px;
+    margin: 0 0 1.5rem 0;
+}
+
+.retry-btn {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 0.6rem 1.25rem;
+    background: rgba(139, 92, 246, 0.1);
+    color: #a78bfa;
+    border: 1px solid rgba(139, 92, 246, 0.25);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.retry-btn:hover {
+    background: #8b5cf6;
+    color: #ffffff;
+    box-shadow: 0 0 15px rgba(139, 92, 246, 0.35);
+}

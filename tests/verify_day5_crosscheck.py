@@ -56,7 +56,7 @@ check("generate_playbook exists", hasattr(svc, "generate_playbook"))
 check("generate_playbook is callable", callable(svc.generate_playbook))
 
 # Full pipeline test
-result = svc.generate_playbook({
+result_obj = svc.generate_playbook({
     "source_ips": ["10.0.0.50"],
     "target_ports": [2222],
     "protocols": ["TCP"],
@@ -64,7 +64,8 @@ result = svc.generate_playbook({
     "campaign_id": "VERIFY-001",
 })
 
-check("Returns dict", isinstance(result, dict))
+check("Returns SentinelPlaybook", isinstance(result_obj, SentinelPlaybook))
+result = result_obj.result_dict
 check("Has playbook_id", "playbook_id" in result)
 check("Has campaign_id", result["campaign_id"] == "VERIFY-001")
 check("Has service_type", "service_type" in result)
@@ -124,35 +125,39 @@ print("TASK 5: Use inferred signature name to call mitre_mapper")
 print("=" * 60)
 
 # SSH pipeline
-r_ssh = svc.generate_playbook({
+r_ssh_obj = svc.generate_playbook({
     "source_ips": ["10.0.0.1"], "target_ports": [2222],
     "protocols": ["TCP"], "event_count": 10, "campaign_id": "V-SSH",
 })
+r_ssh = r_ssh_obj.result_dict
 check("SSH -> technique T1110.001", r_ssh["technique"]["id"] == "T1110.001")
 check("SSH -> tactic Credential Access", r_ssh["technique"]["tactic"] == "Credential Access")
 check("SSH -> attack_type SSH_AUTH_FAILURE", r_ssh["attack_type"] == "SSH_AUTH_FAILURE")
 
 # HTTP pipeline
-r_http = svc.generate_playbook({
+r_http_obj = svc.generate_playbook({
     "source_ips": ["10.0.0.2"], "target_ports": [8080],
     "protocols": ["TCP"], "event_count": 10, "campaign_id": "V-HTTP",
 })
+r_http = r_http_obj.result_dict
 check("HTTP -> technique T1046", r_http["technique"]["id"] == "T1046")
 check("HTTP -> attack_type HTTP_SCANNER_BEHAVIOR", r_http["attack_type"] == "HTTP_SCANNER_BEHAVIOR")
 
 # FTP pipeline
-r_ftp = svc.generate_playbook({
+r_ftp_obj = svc.generate_playbook({
     "source_ips": ["10.0.0.3"], "target_ports": [2121],
     "protocols": ["TCP"], "event_count": 10, "campaign_id": "V-FTP",
 })
+r_ftp = r_ftp_obj.result_dict
 check("FTP -> technique T1048.003", r_ftp["technique"]["id"] == "T1048.003")
 check("FTP -> attack_type FTP_DATA_EXFILTRATION", r_ftp["attack_type"] == "FTP_DATA_EXFILTRATION")
 
 # SMTP pipeline
-r_smtp = svc.generate_playbook({
+r_smtp_obj = svc.generate_playbook({
     "source_ips": ["10.0.0.4"], "target_ports": [2525],
     "protocols": ["TCP"], "event_count": 10, "campaign_id": "V-SMTP",
 })
+r_smtp = r_smtp_obj.result_dict
 check("SMTP -> technique T1071.003", r_smtp["technique"]["id"] == "T1071.003")
 check("SMTP -> attack_type SMTP_LARGE_PAYLOAD", r_smtp["attack_type"] == "SMTP_LARGE_PAYLOAD")
 

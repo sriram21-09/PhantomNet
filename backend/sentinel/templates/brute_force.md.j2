@@ -67,6 +67,7 @@
 | **Owner**          | `{{ owner | default("Security Operations Centre (SOC)") }}` |
 | **Status**         | `{{ status | default("ACTIVE") }}` |
 | **Ticket System**  | `{{ ticket_system | default("Jira") }} · {{ ticket_project | default("SEC") }}` |
+| **Event Summary**  | **{{ event_summary | default("N/A") }}** |
 
 ---
 {% endblock header %}
