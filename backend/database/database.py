@@ -1,6 +1,7 @@
 import time
 import logging
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, event
+from sqlalchemy.engine import Engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.exc import OperationalError
 from .models import Base
@@ -13,6 +14,19 @@ logger = logging.getLogger("PhantomNet-DB")
 
 load_dotenv()
 DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./phantomnet.db")
+
+# SQLite WAL mode registration on Engine connect event
+@event.listens_for(Engine, "connect")
+def set_sqlite_pragma(dbapi_connection, connection_record):
+    cursor = dbapi_connection.cursor()
+    try:
+        cursor.execute("PRAGMA journal_mode=WAL")
+        cursor.execute("PRAGMA synchronous=NORMAL")
+    except Exception:
+        pass
+    finally:
+        cursor.close()
+
 
 
 def get_db_engine():
