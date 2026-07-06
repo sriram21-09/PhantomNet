@@ -1,11 +1,10 @@
 import pytest
-import pytest_asyncio
 import httpx
 from unittest.mock import patch, AsyncMock, MagicMock
 from services.threat_intel import ThreatIntelService
 
 
-@pytest_asyncio.fixture
+@pytest.fixture
 async def intel_service():
     with patch.dict(
         "os.environ", {"ABUSE_IPDB_KEY": "test_key", "ALIENVAULT_OTX_KEY": "test_otx"}
@@ -15,7 +14,7 @@ async def intel_service():
         await service.close()
 
 
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_enrich_internal_ip(intel_service):
     """Internal IPs should return early with a trusted status."""
     result = await intel_service.enrich_ip("127.0.0.1")
@@ -23,7 +22,7 @@ async def test_enrich_internal_ip(intel_service):
     assert "local" in result["source"]
 
 
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_fetch_abuse_ipdb_success(intel_service):
     """Test successful AbuseIPDB enrichment."""
     mock_response = MagicMock(spec=httpx.Response)
@@ -48,7 +47,7 @@ async def test_fetch_abuse_ipdb_success(intel_service):
     assert result["domain"] == "malicious.com"
 
 
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_fetch_alienvault_otx_success(intel_service):
     """Test successful AlienVault OTX enrichment."""
     mock_response = MagicMock(spec=httpx.Response)

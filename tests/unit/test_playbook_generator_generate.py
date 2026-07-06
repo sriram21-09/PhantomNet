@@ -106,7 +106,7 @@ class TestInit:
         """Critical: template path must use os.path.dirname(__file__)."""
         expected_dir = os.path.join(
             os.path.dirname(os.path.abspath(
-                os.path.join(os.path.dirname(__file__), "..", "..", "sentinel", "playbook_generator.py")
+                os.path.join(os.path.dirname(__file__), "..", "..", "backend", "sentinel", "playbook_generator.py")
             )),
             "templates",
         )
@@ -115,7 +115,7 @@ class TestInit:
     def test_no_hardcoded_absolute_path(self):
         """Verify source code does NOT hardcode absolute paths."""
         src = os.path.join(
-            os.path.dirname(__file__), "..", "..", "sentinel", "playbook_generator.py"
+            os.path.dirname(__file__), "..", "..", "backend", "sentinel", "playbook_generator.py"
         )
         with open(src, encoding="utf-8") as f:
             content = f.read()

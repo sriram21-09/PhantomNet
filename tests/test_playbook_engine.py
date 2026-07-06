@@ -2,6 +2,7 @@ import asyncio
 import os
 import sys
 import logging
+import pytest
 
 # Add backend to path
 sys.path.append(os.path.join(os.getcwd(), "backend"))
@@ -13,6 +14,7 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("test_playbook")
 
 
+@pytest.mark.anyio
 async def test_brute_force_playbook():
     print("\n--- Testing Brute Force Response Playbook ---")
     playbook_path = "playbooks/brute_force_response.yaml"
@@ -27,6 +29,7 @@ async def test_brute_force_playbook():
         print(f"  - Action: {action['name']} | Status: {action['status']}")
 
 
+@pytest.mark.anyio
 async def test_port_scan_playbook():
     print("\n--- Testing Port Scan Response Playbook ---")
     playbook_path = "playbooks/port_scan_response.yaml"
@@ -41,6 +44,7 @@ async def test_port_scan_playbook():
         print(f"  - Action: {action['name']} | Status: {action['status']}")
 
 
+@pytest.mark.anyio
 async def test_credential_reuse_playbook():
     print("\n--- Testing Credential Reuse Detection Playbook ---")
     playbook_path = "playbooks/credential_reuse_response.yaml"
@@ -60,6 +64,7 @@ async def test_credential_reuse_playbook():
         print(f"  - Action: {action['name']} | Status: {action['status']}")
 
 
+@pytest.mark.anyio
 async def test_distributed_attack_playbook():
     print("\n--- Testing Distributed Attack Response Playbook ---")
     playbook_path = "playbooks/distributed_attack_response.yaml"
@@ -86,6 +91,7 @@ async def test_distributed_attack_playbook():
         print(f"  - Action: {action['name']} | Status: {action['status']}")
 
 
+@pytest.mark.anyio
 async def test_rollback():
     print("\n--- Testing Rollback Functionality ---")
     playbook_data = {

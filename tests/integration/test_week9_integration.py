@@ -1,13 +1,15 @@
 import pytest
 import time
-import requests
 import json
 from datetime import datetime
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
+from fastapi.testclient import TestClient
+from backend.main import app
 
-# Assuming local testing defaults
-BACKEND_URL = "http://localhost:8000"
+# Local testing client
+client = TestClient(app)
+
 DB_URL = "sqlite:///./phantomnet.db"  # Default fallback if Postgres isn't running for tests
 
 engine = create_engine(DB_URL, connect_args={"check_same_thread": False})
@@ -49,14 +51,9 @@ class TestWeek9Integration:
 
     def test_backend_health(self):
         """Ensure the API is reachable."""
-        try:
-            resp = requests.get(f"{BACKEND_URL}/api/health", timeout=2)
-            assert resp.status_code == 200
-            assert resp.json().get("status") == "healthy"
-        except requests.exceptions.ConnectionError:
-            pytest.skip(
-                "Backend is offline. Start the uvicorn server to run integration tests."
-            )
+        resp = client.get("/api/health")
+        assert resp.status_code == 200
+        assert resp.json().get("status") in ["healthy", "online"]
 
     def test_ml_scoring_latency(self):
         """
@@ -112,24 +109,22 @@ class TestWeek9Integration:
                 inject_mock_sqlite_packet(src_ip=f"192.168.200.{i}", dst_port=2222)
 
         # 2. Trigger the endpoint manually
-        resp = requests.get(f"{BACKEND_URL}/api/v1/patterns/advanced")
-        if resp.status_code == 200:
-            data = resp.json()
+        resp = client.get("/api/v1/patterns/advanced")
+        assert resp.status_code == 200
+        data = resp.json()
 
-            # Assert the module structure exists
-            assert "distributed_brute_force_ssh" in data
+        # Assert the module structure exists
+        assert "distributed_brute_force_ssh" in data
 
-            # Validate detection logic caught our injected mock packets
-            dbf_events = data["distributed_brute_force_ssh"]
-            if len(dbf_events) > 0:
-                assert dbf_events[0]["distinct_attacker_ips"] >= 4
-                assert dbf_events[0]["total_attempts"] >= 28
-                assert dbf_events[0]["pattern"] == "Distributed Brute Force"
-            else:
-                # If zero, it means the DB might be empty or using entirely different mock structures.
-                # Valid conceptually, but flags a warning.
-                print(
-                    "WARNING: Pattern Detector returned 0 events. Check database state."
-                )
+        # Validate detection logic caught our injected mock packets
+        dbf_events = data["distributed_brute_force_ssh"]
+        if len(dbf_events) > 0:
+            assert dbf_events[0]["distinct_attacker_ips"] >= 4
+            assert dbf_events[0]["total_attempts"] >= 28
+            assert dbf_events[0]["pattern"] == "Distributed Brute Force"
         else:
-            pytest.skip("Backend /patterns API offline or threw 500.")
+            # If zero, it means the DB might be empty or using entirely different mock structures.
+            # Valid conceptually, but flags a warning.
+            print(
+                "WARNING: Pattern Detector returned 0 events. Check database state."
+            )

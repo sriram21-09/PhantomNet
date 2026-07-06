@@ -31,7 +31,7 @@ import pytest
 from jinja2 import Environment, FileSystemLoader
 
 TEMPLATES_DIR = os.path.abspath(
-    os.path.join(os.path.dirname(__file__), "..", "..", "sentinel", "templates")
+    os.path.join(os.path.dirname(__file__), "..", "..", "backend", "sentinel", "templates")
 )
 TEMPLATE_NAME = "data_exfiltration.md.j2"
 

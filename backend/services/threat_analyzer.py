@@ -318,6 +318,7 @@ class ThreatAnalyzerService:
                                 result.threat_level = "LOW"
 
                             self._cache_score(log.src_ip, result)
+                            log.anomaly_score = float(anomaly_score)
                             self._apply_threat_result(log, result)
                             updated_count += 1
 

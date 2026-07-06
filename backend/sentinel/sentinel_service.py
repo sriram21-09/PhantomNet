@@ -765,8 +765,9 @@ class SentinelService:
             technique_name=primary_technique.get("technique_name"),
             tactic=primary_technique.get("tactic"),
             mitre_url=primary_technique.get("url"),
-            snort_rule=snort_rule[:4000] if snort_rule else None,
-            sigma_rule=sigma_rule[:4000] if sigma_rule else None,
+            snort_rule=snort_rule if snort_rule else None,
+            sigma_rule=sigma_rule if sigma_rule else None,
+
             playbook_name=playbook_name,
             playbook_content=playbook_content,
             template_name=template_name,

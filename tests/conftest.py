@@ -28,3 +28,14 @@ if 'sentinel' in sys.modules:
             for key in list(sys.modules.keys()):
                 if key == 'sentinel' or key.startswith('sentinel.'):
                     del sys.modules[key]
+
+# Ensure 'ml' namespace package can find submodules in both backend/ml and root ml/
+try:
+    import ml
+    if hasattr(ml, "__path__"):
+        root_ml_dir = os.path.join(PROJECT_ROOT, "ml")
+        if root_ml_dir not in ml.__path__:
+            ml.__path__.append(root_ml_dir)
+except ImportError:
+    pass
+

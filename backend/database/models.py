@@ -52,6 +52,11 @@ class PacketLog(Base):
     confidence = Column(Float, nullable=True)
     is_malicious = Column(Boolean, default=False)
     event = Column(String, nullable=True)  # e.g., "login_attempt"
+    anomaly_score = Column(Float, default=0.0)
+    mail_from = Column(String(256), nullable=True)
+    rcpt_to = Column(String(256), nullable=True)
+    email_subject = Column(String(512), nullable=True)
+    body_len = Column(Integer, nullable=True)
 
     # GeoIP Enrichment
     country = Column(String, nullable=True)

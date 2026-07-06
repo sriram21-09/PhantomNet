@@ -46,7 +46,7 @@ from sentinel.rule_generator import generate_snort_rule, generate_sigma_rule
 # ── Jinja2 for template rendering ────────────────────────────────────────────
 from jinja2 import Environment, FileSystemLoader
 
-TEMPLATES_DIR = os.path.join(PROJECT_ROOT, "sentinel", "templates")
+TEMPLATES_DIR = os.path.join(PROJECT_ROOT, "backend", "sentinel", "templates")
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Test data — SQLi payloads covering multiple injection patterns

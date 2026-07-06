@@ -29,7 +29,7 @@ TEMPLATE_NAME = "base_playbook.md.j2"
 def env():
     """Jinja2 environment pointed at sentinel/templates/."""
     templates_dir = os.path.join(
-        os.path.dirname(__file__), "..", "..", "sentinel", "templates"
+        os.path.dirname(__file__), "..", "..", "backend", "sentinel", "templates"
     )
     return Environment(
         loader=FileSystemLoader(os.path.abspath(templates_dir)),
