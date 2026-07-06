@@ -10,9 +10,28 @@ from sqlalchemy import (
 )
 from sqlalchemy.orm import relationship, declarative_base
 from datetime import datetime
+from sqlalchemy import event
+from sqlalchemy.engine import Engine
 
 # Define Base here to avoid circular imports
 Base = declarative_base()
+
+# SQLite Concurrency Lock Fix: Write-Ahead Logging (WAL) Mode
+@event.listens_for(Engine, "connect")
+def set_sqlite_pragma(dbapi_connection, connection_record):
+    """
+    Globally configures SQLite connections to use WAL mode and normal synchronization,
+    resolving the database lock (SQLITE_BUSY) errors under concurrent write workloads.
+    """
+    cursor = dbapi_connection.cursor()
+    try:
+        cursor.execute("PRAGMA journal_mode=WAL")
+        cursor.execute("PRAGMA synchronous=NORMAL")
+    except Exception:
+        pass
+    finally:
+        cursor.close()
+
 
 
 class PacketLog(Base):
