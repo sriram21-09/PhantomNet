@@ -74,20 +74,19 @@ def run_all_tests():
         print("  STAGE 1: SSH Brute Force Attack Simulation")
         print("-" * 70)
 
-        attacker_ips = ["10.99.1.101", "10.99.1.102", "10.99.1.103"]
+        attacker_ips = [f"10.99.1.{100 + i}" for i in range(15)]
         now = datetime.utcnow()
         inserted_ids = []
 
-        for i in range(15):
-            ip = attacker_ips[i % len(attacker_ips)]
+        for i, ip in enumerate(attacker_ips):
             log = PacketLog(
-                timestamp=now - timedelta(minutes=15 - i),
+                timestamp=now + timedelta(milliseconds=i),
                 src_ip=ip,
                 dst_ip="10.0.0.50",
                 src_port=40000 + i,
                 dst_port=2222,
                 protocol="TCP",
-                length=64 + (i * 10),
+                length=64,  # Keep length constant to prevent DBSCAN variance
                 attack_type=None,
                 threat_score=None,
                 threat_level=None,
