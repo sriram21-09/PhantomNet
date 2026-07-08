@@ -1,6 +1,16 @@
 import sys
 import os
 
+# Exclude Docker-only tests, manual scripts, ML infra tests, and venv from collection
+# - Honeypot tests require Docker compose network (phantomnet_postgres hostname)
+# - ML tests (ml/tests/) require isolated sys.path; run separately: pytest ml/tests/ -v
+collect_ignore_glob = [
+    "backend/honeypots/*/tests/*",
+    "backend/scripts/test_*",
+    "backend/venv/*",
+    "ml/tests/*",
+]
+
 PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
 BACKEND_DIR = os.path.join(PROJECT_ROOT, "backend")
 

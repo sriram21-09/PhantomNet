@@ -7,7 +7,7 @@ from sqlalchemy.orm import Session
 # Add the backend directory to the path so we can import modules
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
-from database.database import SessionLocal, engine
+import database.database
 from database.models import Base, Alert, PacketLog
 from services.alert_manager import AlertManager, alert_manager
 from services.correlation_engine import CorrelationEngine
@@ -18,10 +18,10 @@ class TestSecurityMonitoring(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         # Create tables if they don't exist (specifically the new Alerts table)
-        Base.metadata.create_all(bind=engine)
+        Base.metadata.create_all(bind=database.database.engine)
 
     def setUp(self):
-        self.db: Session = SessionLocal()
+        self.db: Session = database.database.SessionLocal()
         # Clean up alerts before each test
         self.db.query(Alert).delete()
         self.db.query(PacketLog).delete()
@@ -52,6 +52,11 @@ class TestSecurityMonitoring(unittest.TestCase):
         )
         self.assertIsNone(a2)  # Should be deduplicated
 
+        # Close and reopen session to see commits from AlertManager's separate session
+        # (SQLite WAL mode holds a snapshot per-transaction; expire_all alone may not suffice)
+        self.db.close()
+        self.db = database.database.SessionLocal()
+
         # Check database count
         count = self.db.query(Alert).count()
         self.assertEqual(count, 1)
@@ -70,6 +75,10 @@ class TestSecurityMonitoring(unittest.TestCase):
 
         engine = CorrelationEngine()
         engine._correlate_events()
+
+        # Close and reopen session to see commits from CorrelationEngine's separate session
+        self.db.close()
+        self.db = database.database.SessionLocal()
 
         # Verify alert was created
         alert = (
@@ -99,6 +108,10 @@ class TestSecurityMonitoring(unittest.TestCase):
         self.db.commit()
 
         monitor._analyze_baseline()
+
+        # Close and reopen session to see commits from BaselineMonitor's separate session
+        self.db.close()
+        self.db = database.database.SessionLocal()
 
         # Verify alert was created
         alert = self.db.query(Alert).filter(Alert.type == "BASELINE").first()
