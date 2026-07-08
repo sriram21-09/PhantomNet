@@ -65,8 +65,10 @@ class AlertManager:
             try:
                 from .response_executor import response_executor
 
-                response_executor.execute_response(
-                    level, source_ip=source_ip, attack_type=alert_type
+                response_executor.execute(
+                    ip=source_ip or "unknown",
+                    threat_score=0.0,
+                    threat_level=level,
                 )
             except Exception as e:
                 logger.error(f"Failed to execute automated response: {e}")
