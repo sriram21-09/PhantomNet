@@ -38,7 +38,7 @@ class ThreatAnalyzerService:
         self._cache_ttl = 60  # Seconds
         self.running = False
         self.last_inference_ms = 0.0
-        self.last_pattern_scan = datetime.now()
+        self.last_pattern_scan = datetime.utcnow()
         self.pattern_scan_interval = 60  # Run advanced patterns every minute
 
         self._sequence_buffers = {}  # IP -> [buffer of up to 50 feature vectors]
@@ -155,10 +155,10 @@ class ThreatAnalyzerService:
 
                 # Check if it's time to run advanced patterns (Distributed Brute Force, Low & Slow)
                 if (
-                    datetime.now() - self.last_pattern_scan
+                    datetime.utcnow() - self.last_pattern_scan
                 ).total_seconds() >= self.pattern_scan_interval:
                     self._process_advanced_patterns()
-                    self.last_pattern_scan = datetime.now()
+                    self.last_pattern_scan = datetime.utcnow()
 
             except Exception as e:
                 logger.error(f"Error in analysis loop: {e}")
@@ -169,7 +169,7 @@ class ThreatAnalyzerService:
         """Returns cached score if valid."""
         if ip in self._cache:
             data = self._cache[ip]
-            if datetime.now() - data["timestamp"] < timedelta(seconds=self._cache_ttl):
+            if datetime.utcnow() - data["timestamp"] < timedelta(seconds=self._cache_ttl):
                 return data
             else:
                 del self._cache[ip]
@@ -177,7 +177,7 @@ class ThreatAnalyzerService:
 
     def _cache_score(self, ip: str, result):
         """Caches the scoring result."""
-        self._cache[ip] = {"timestamp": datetime.now(), "result": result}
+        self._cache[ip] = {"timestamp": datetime.utcnow(), "result": result}
 
     def _process_advanced_patterns(self):
         db: Session = SessionLocal()
@@ -425,7 +425,7 @@ class ThreatAnalyzerService:
                     db.commit()
                     logger.info(f"[IOC] Stored new IOC: {log.src_ip}")
                 else:
-                    existing.last_seen = datetime.now()
+                    existing.last_seen = datetime.utcnow()
                     existing.threat_level = result.threat_level
                     db.commit()
                 db.close()

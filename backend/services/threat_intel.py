@@ -46,14 +46,14 @@ class ThreatIntelService:
     def _get_cached(self, ip: str) -> Optional[Dict[str, Any]]:
         if ip in self._cache:
             entry = self._cache[ip]
-            if datetime.now() - entry["timestamp"] < timedelta(seconds=self._cache_ttl):
+            if datetime.utcnow() - entry["timestamp"] < timedelta(seconds=self._cache_ttl):
                 return entry["data"]
             else:
                 del self._cache[ip]
         return None
 
     def _set_cached(self, ip: str, data: Dict[str, Any]):
-        self._cache[ip] = {"data": data, "timestamp": datetime.now()}
+        self._cache[ip] = {"data": data, "timestamp": datetime.utcnow()}
 
     async def enrich_ip(self, ip: str) -> Dict[str, Any]:
         """
@@ -83,7 +83,7 @@ class ThreatIntelService:
             "ip": ip,
             "abuse_ipdb": abuse_res,
             "alienvault_otx": otx_res,
-            "timestamp": datetime.now().isoformat(),
+            "timestamp": datetime.utcnow().isoformat(),
         }
 
         self._set_cached(ip, enrichment)
@@ -155,7 +155,7 @@ class ThreatIntelService:
         try:
             event = MISPEvent()
             event.info = (
-                f"PhantomNet Automated Feed - {datetime.now().strftime('%Y-%m-%d')}"
+                f"PhantomNet Automated Feed - {datetime.utcnow().strftime('%Y-%m-%d')}"
             )
             event.published = True
 
@@ -188,7 +188,7 @@ class ThreatIntelService:
 
         # OTX submission payload
         payload = {
-            "description": f"Automated PhantomNet threat indicators for {datetime.now().isoformat()}",
+            "description": f"Automated PhantomNet threat indicators for {datetime.utcnow().isoformat()}",
             "indicators": [
                 {
                     "indicator": i["value"],
@@ -216,7 +216,7 @@ class ThreatIntelService:
         os.makedirs(os.path.dirname(output_path), exist_ok=True)
         report = {
             "metadata": {
-                "generated_at": datetime.now().isoformat(),
+                "generated_at": datetime.utcnow().isoformat(),
                 "source": "PhantomNet AI",
                 "version": "1.0",
             },

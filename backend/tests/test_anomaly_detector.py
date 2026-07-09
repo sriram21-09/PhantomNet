@@ -1,15 +1,14 @@
 import pytest
 import os
-from backend.ml.anomaly_detector import AnomalyDetector
+from backend.ml.anomaly_detector import AnomalyDetector, MODEL_PATH
 
 
 @pytest.fixture
 def detector():
     # Remove old model to ensure fresh test
-    model_path = os.path.join("ml", "model.pkl")
-    if os.path.exists(model_path):
+    if os.path.exists(MODEL_PATH):
         try:
-            os.remove(model_path)
+            os.remove(MODEL_PATH)
         except PermissionError:
             pass  # Ignore if file is locked
     return AnomalyDetector()
@@ -32,7 +31,7 @@ def test_training_flow(detector):
 
     # Check if model saved
     assert detector.is_trained == True
-    assert os.path.exists(os.path.join("ml", "model.pkl"))
+    assert os.path.exists(MODEL_PATH)
 
 
 def test_detection(detector):
