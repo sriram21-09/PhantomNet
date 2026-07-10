@@ -740,7 +740,7 @@ def generate_rules_for_campaign(
     validated_sources = []
     for ip in sources:
         ip_str = str(ip).strip()
-        if validate_ip(ip_str):
+        if validate_ip(ip_str) and ip_str not in validated_sources:
             validated_sources.append(ip_str)
     if not validated_sources:
         validated_sources = ["any"]
@@ -759,7 +759,7 @@ def generate_rules_for_campaign(
     # Filter/validate ports
     validated_ports = []
     for port in ports:
-        if validate_port(port):
+        if validate_port(port) and port not in validated_ports:
             validated_ports.append(port)
     if not validated_ports:
         validated_ports = ["any"]
@@ -779,7 +779,7 @@ def generate_rules_for_campaign(
     snort_supported_protocols = []
     for proto in protocols:
         p_lower = str(proto).lower().strip()
-        if p_lower in ("tcp", "udp", "icmp", "ip"):
+        if p_lower in ("tcp", "udp", "icmp", "ip") and p_lower not in snort_supported_protocols:
             snort_supported_protocols.append(p_lower)
     if not snort_supported_protocols:
         snort_supported_protocols = ["ip"]

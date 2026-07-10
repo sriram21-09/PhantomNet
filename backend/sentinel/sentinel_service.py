@@ -128,6 +128,8 @@ class SentinelService:
         circular-import issues with Jinja2 template discovery).
     """
 
+    _seen_campaigns = {}
+
     def __init__(self, db: Session) -> None:
         """Initialise the SentinelService with a database session.
 
@@ -544,6 +546,12 @@ class SentinelService:
         logger.info("SentinelService.generate_playbook() - START")
 
         logger.info("Campaign data keys: %s", list(campaign_data.keys()))
+        campaign_id = campaign_data.get("campaign_id", "CAMP-UNKNOWN")
+
+        # ΓöÇΓöÇ Deduplication Check ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+        if campaign_id != "CAMP-UNKNOWN" and campaign_id in self.__class__._seen_campaigns:
+            logger.info("Duplicate campaign %s detected - returning existing playbook", campaign_id)
+            return self.__class__._seen_campaigns[campaign_id]
 
         # ΓöÇΓöÇ Extract campaign fields ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
         source_ips = campaign_data.get("source_ips") or []
@@ -553,16 +561,22 @@ class SentinelService:
         time_range = campaign_data.get("time_range")
         campaign_id = campaign_data.get("campaign_id", "CAMP-UNKNOWN")
 
-        # Normalise source_ips to list of strings
+        # Normalise source_ips to list of strings and deduplicate
         if isinstance(source_ips, str):
             source_ips = [source_ips]
-        source_ips = [str(ip) for ip in source_ips if ip]
+        source_ips_dedup = []
+        for ip in source_ips:
+            if ip and str(ip) not in source_ips_dedup:
+                source_ips_dedup.append(str(ip))
+        source_ips = source_ips_dedup
 
-        # Normalise target_ports to list of ints
+        # Normalise target_ports to list of ints and deduplicate
         normalised_ports: List[int] = []
         for p in target_ports:
             try:
-                normalised_ports.append(int(p))
+                p_int = int(p)
+                if p_int not in normalised_ports:
+                    normalised_ports.append(p_int)
             except (TypeError, ValueError):
                 continue
 
@@ -778,7 +792,7 @@ class SentinelService:
             self.db.add(playbook_record)
             self.db.commit()
             self.db.refresh(playbook_record)
-            logger.info("Step 8 - SentinelPlaybook persisted: id=%d, playbook_id=%s",
+            logger.info("Step 8 - SentinelPlaybook persisted: id=%s, playbook_id=%s",
 
                         playbook_record.id, playbook_id)
         except Exception as exc:
@@ -825,5 +839,9 @@ class SentinelService:
             "detected_signatures": signature_names,
             "db_record_id": playbook_record.id,
         }
+
+        # Store in seen campaigns to prevent duplicates
+        if campaign_id != "CAMP-UNKNOWN":
+            self.__class__._seen_campaigns[campaign_id] = playbook_record
 
         return playbook_record
