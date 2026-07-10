@@ -563,6 +563,26 @@ const SORT_COLUMNS = [
   { key: "status", label: "Status" },
 ];
 
+// Map playbooks technique/score to UI severity
+const TECHNIQUE_SEVERITIES = {
+  "T1003.001": "critical",
+  "T1021.002": "high",
+  "T1059.001": "high",
+  "T1071.004": "medium",
+  "T1053.005": "low",
+};
+
+const getPlaybookSeverity = (pb) => {
+  if (pb.technique_id && TECHNIQUE_SEVERITIES[pb.technique_id]) {
+    return TECHNIQUE_SEVERITIES[pb.technique_id];
+  }
+  const score = pb.threat_score || 0;
+  if (score >= 90) return "critical";
+  if (score >= 70) return "high";
+  if (score >= 40) return "medium";
+  return "low";
+};
+
 const SentinelDashboard = () => {
   const [playbooks, setPlaybooks] = useState([]);
   const [stats, setStats] = useState(null);
@@ -664,15 +684,13 @@ const SentinelDashboard = () => {
 
   /* ── Sort toggle handler ── */
   const handleSortClick = useCallback((column) => {
-    setSortColumn((prev) => {
-      if (prev === column) {
-        setSortDirection((d) => (d === "asc" ? "desc" : "asc"));
-        return prev;
-      }
+    if (sortColumn === column) {
+      setSortDirection((d) => (d === "asc" ? "desc" : "asc"));
+    } else {
       setSortDirection(column === "date" ? "desc" : "asc");
-      return column;
-    });
-  }, []);
+      setSortColumn(column);
+    }
+  }, [sortColumn]);
 
   /* ── Sorted playbooks ── */
   const sortedPlaybooks = useMemo(() => {
@@ -723,25 +741,7 @@ const SentinelDashboard = () => {
     };
   }, [playbooks]);
 
-  // Map playbooks technique/score to UI severity
-  const TECHNIQUE_SEVERITIES = {
-    "T1003.001": "critical",
-    "T1021.002": "high",
-    "T1059.001": "high",
-    "T1071.004": "medium",
-    "T1053.005": "low",
-  };
 
-  const getPlaybookSeverity = (pb) => {
-    if (pb.technique_id && TECHNIQUE_SEVERITIES[pb.technique_id]) {
-      return TECHNIQUE_SEVERITIES[pb.technique_id];
-    }
-    const score = pb.threat_score || 0;
-    if (score >= 90) return "critical";
-    if (score >= 70) return "high";
-    if (score >= 40) return "medium";
-    return "low";
-  };
 
   const handleCardClick = async (pb) => {
     // Open immediately with summary props to provide instant response

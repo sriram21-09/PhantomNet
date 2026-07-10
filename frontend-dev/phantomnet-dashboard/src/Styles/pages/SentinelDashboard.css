@@ -76,6 +76,7 @@
     background: rgba(30, 41, 59, 0.4);
     border: 1px solid rgba(139, 92, 246, 0.1);
     border-radius: 0.75rem;
+    -webkit-backdrop-filter: blur(8px);
     backdrop-filter: blur(8px);
     position: relative;
     z-index: 1;
@@ -490,6 +491,7 @@ body[data-theme="light"] .sentinel-error-state h3 {
     background: rgba(30, 41, 59, 0.3);
     border: 1px solid rgba(139, 92, 246, 0.08);
     border-radius: 10px;
+    -webkit-backdrop-filter: blur(6px);
     backdrop-filter: blur(6px);
 }
 

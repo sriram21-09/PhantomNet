@@ -5,6 +5,7 @@
 .rule-preview {
     position: relative;
     background: rgba(15, 23, 42, 0.5);
+    -webkit-backdrop-filter: blur(12px);
     backdrop-filter: blur(12px);
     border: 1px solid rgba(255, 255, 255, 0.05);
     border-radius: 16px;
@@ -148,6 +149,8 @@ body[data-theme="light"] .rule-copy-btn:hover {
     overflow-x: auto;
     max-height: 320px;
     overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(139, 92, 246, 0.3) transparent;
 }
 
 .rule-code-container::-webkit-scrollbar {
