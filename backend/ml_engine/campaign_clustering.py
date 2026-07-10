@@ -120,9 +120,9 @@ class CampaignClusterer:
                     {
                         "campaign_id": c_id,
                         "cluster_id": data["cluster_id"],
-                        "unique_sources": list(data["source_ips"]),
-                        "target_ports": list(data["target_ports"]),
-                        "protocols": list(data["protocols"]),
+                        "unique_sources": sorted(list(data["source_ips"])),
+                        "target_ports": sorted(list(data["target_ports"])),
+                        "protocols": sorted(list(data["protocols"])),
                         "event_count": data["event_count"],
                         "start_time": data["start_time"].isoformat(),
                         "end_time": data["end_time"].isoformat(),
@@ -136,7 +136,7 @@ class CampaignClusterer:
 
             return {
                 "campaign_count": len(response_campaigns),
-                "timestamp_analyzed": datetime.now().isoformat(),
+                "timestamp_analyzed": datetime.utcnow().isoformat(),
                 "campaigns": response_campaigns,
             }
 

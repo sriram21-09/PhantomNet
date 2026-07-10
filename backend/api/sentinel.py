@@ -504,7 +504,7 @@ def approve_playbook(
     try:
         row.status = "approved"
         row.reviewed_by = body.reviewed_by
-        row.reviewed_at = datetime.now(tz=timezone.utc)
+        row.reviewed_at = datetime.utcnow()
         db.commit()
         db.refresh(row)
         logger.info(
@@ -573,7 +573,7 @@ def reject_playbook(
     try:
         row.status = "rejected"
         row.reviewed_by = body.reviewed_by
-        row.reviewed_at = datetime.now(tz=timezone.utc)
+        row.reviewed_at = datetime.utcnow()
         db.commit()
         db.refresh(row)
         logger.info(
@@ -655,7 +655,7 @@ def export_playbook(
 
     elif fmt == "json":
         export_data = _serialize_playbook_detail(row)
-        export_data["exported_at"] = datetime.now(tz=timezone.utc).isoformat()
+        export_data["exported_at"] = datetime.utcnow().isoformat()
         content = json.dumps(export_data, indent=2, default=str)
         media_type = "application/json; charset=utf-8"
         filename = f"{safe_name}.json"
@@ -686,7 +686,7 @@ def export_playbook(
             logger.warning("STIX bundle generation failed for export: %s", exc)
             # Fallback: export the JSON representation
             export_data = _serialize_playbook_detail(row)
-            export_data["exported_at"] = datetime.now(tz=timezone.utc).isoformat()
+            export_data["exported_at"] = datetime.utcnow().isoformat()
             export_data["stix_error"] = str(exc)
             content = json.dumps(export_data, indent=2, default=str)
 
@@ -696,7 +696,7 @@ def export_playbook(
     # ── Update status to exported ─────────────────────────────────────────
     try:
         row.status = "exported"
-        row.updated_at = datetime.now(tz=timezone.utc)
+        row.updated_at = datetime.utcnow()
         db.commit()
     except Exception as exc:
         db.rollback()

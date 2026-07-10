@@ -44,7 +44,7 @@ class RetrainingPipeline:
     def fetch_training_data(self, days=30) -> pd.DataFrame:
         """Extract labeled training events spanning the requested timespan."""
         logger.info(f"Fetching labeled data from the last {days} days...")
-        cutoff = datetime.now() - timedelta(days=days)
+        cutoff = datetime.utcnow() - timedelta(days=days)
 
         with self._get_db() as db:
             # We want rows that have a definitive human/system-confirmed classification.
@@ -115,7 +115,7 @@ class RetrainingPipeline:
         logger.info(f"New model accuracy evaluated at: {score:.4f}")
 
         if score > 0.85:  # Threshold limit to prevent deployment of bad weights
-            timestamp = datetime.now().strftime("%Y-%m-%d_%H%M")
+            timestamp = datetime.utcnow().strftime("%Y-%m-%d_%H%M")
 
             # Keep backup of old model
             if os.path.exists(self.rf_model_path):

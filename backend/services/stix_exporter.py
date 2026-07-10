@@ -107,7 +107,7 @@ class STIXExporter:
                 description=f"Detected via PhantomNet Honeypots. Context: {ioc.get('context', 'N/A')}",
                 pattern=self._get_stix_pattern(ioc["type"], ioc["value"]),
                 pattern_type="stix",
-                valid_from=datetime.now(),
+                valid_from=datetime.utcnow(),
                 labels=[ioc["type"], ioc["threat_type"]],
                 created_by_ref=self.author,
                 confidence=80 if ioc["confidence"] == "HIGH" else 50,
@@ -117,8 +117,8 @@ class STIXExporter:
 
             # 2. Observed Data
             observed = ObservedData(
-                first_observed=datetime.now(),
-                last_observed=datetime.now(),
+                first_observed=datetime.utcnow(),
+                last_observed=datetime.utcnow(),
                 number_observed=1,
                 objects={
                     "0": (

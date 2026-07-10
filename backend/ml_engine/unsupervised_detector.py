@@ -50,7 +50,7 @@ class UnsupervisedAnomalyDetector:
         logger.info(f"Training unsupervised baseline on last {days_back} days.")
         db: Session = SessionLocal()
         try:
-            cutoff = datetime.now() - timedelta(days=days_back)
+            cutoff = datetime.utcnow() - timedelta(days=days_back)
             # Limit to 50,000 to keep memory profile low during training
             logs = (
                 db.query(PacketLog)

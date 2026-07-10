@@ -25,7 +25,7 @@ def check_auth_alerts(ip: str, success: bool):
     if success:
         return
 
-    now = datetime.now()
+    now = datetime.utcnow()
     # Add failure timestamp
     auth_failures[ip].append(now)
 
@@ -61,6 +61,6 @@ def check_config_change_alert(user: str, resource: str):
         data={
             "user": user,
             "resource": resource,
-            "timestamp": datetime.now().isoformat(),
+            "timestamp": datetime.utcnow().isoformat(),
         },
     )
