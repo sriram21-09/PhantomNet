@@ -1,10 +1,6 @@
-﻿<div align="center">
+<div align="center">
 
-<img src="https://raw.githubusercontent.com/sriram21-09/PhantomNet/main/assets/phantomnet-banner.png" alt="PhantomNet Banner" width="100%" onerror="this.style.display='none'"/>
-
-<br/>
-
-# ðŸ›¡ï¸ PhantomNet
+# 🛡️ PhantomNet
 **AI-Powered Honeypot Network with MITRE ATT&CK Mapping, Automated IDS Rule Generation & Incident Response**
 
 *A full-stack cybersecurity platform that deploys deceptive network services, detects attacker behaviour using ML, and automatically generates threat intelligence mapped to the MITRE ATT&CK framework.*
@@ -27,15 +23,15 @@
 </p>
 
 <p align="center">
-  <a href="#-what-is-phantomnet">What is it?</a> â€¢
-  <a href="#-key-features">Features</a> â€¢
-  <a href="#-system-architecture">Architecture</a> â€¢
-  <a href="#-sentinel-layer--mitre-attck">Sentinel Layer</a> â€¢
-  <a href="#-tech-stack">Tech Stack</a> â€¢
-  <a href="#-getting-started">Setup</a> â€¢
-  <a href="#-usage">Usage</a> â€¢
-  <a href="#-project-structure">Structure</a> â€¢
-  <a href="#-roadmap">Roadmap</a> â€¢
+  <a href="#-what-is-phantomnet">What is it?</a> &bull;
+  <a href="#-key-features">Features</a> &bull;
+  <a href="#-system-architecture">Architecture</a> &bull;
+  <a href="#-sentinel-layer--mitre-attck">Sentinel Layer</a> &bull;
+  <a href="#-tech-stack">Tech Stack</a> &bull;
+  <a href="#-getting-started">Setup</a> &bull;
+  <a href="#-usage">Usage</a> &bull;
+  <a href="#-project-structure">Structure</a> &bull;
+  <a href="#-roadmap">Roadmap</a> &bull;
   <a href="#-team">Team</a>
 </p>
 
@@ -43,17 +39,17 @@
 
 ---
 
-## ðŸ“Œ What is PhantomNet?
+## 📌 What is PhantomNet?
 
-Most intrusion detection systems are reactive â€” they log attacks after the damage is done. Honeypots flip this by *intentionally* deploying fake vulnerable services to attract attackers, study their behaviour, and respond automatically.
+Most intrusion detection systems are reactive — they log attacks after the damage is done. Honeypots flip this by *intentionally* deploying fake vulnerable services to attract attackers, study their behaviour, and respond automatically.
 
 **PhantomNet** takes this further. It's a **full-stack active defense platform** built from scratch that:
 
 1. **Deploys containerized honeypots** emulating SSH, HTTP, FTP, and SMTP services that look real to attackers
-2. **Captures every interaction** â€” commands typed, files uploaded, URLs requested, payloads dropped
+2. **Captures every interaction** — commands typed, files uploaded, URLs requested, payloads dropped
 3. **Scores threats in real-time** using an ML ensemble (Isolation Forest + Random Forest + LSTM) with explainable AI (SHAP)
 4. **Clusters attack campaigns** using DBSCAN to group related events from multiple IPs into coordinated attacks
-5. **Maps attacks to MITRE ATT&CK** â€” our Sentinel Layer automatically identifies which ATT&CK techniques an attacker is using
+5. **Maps attacks to MITRE ATT&CK** — our Sentinel Layer automatically identifies which ATT&CK techniques an attacker is using
 6. **Auto-generates Snort & Sigma IDS rules** and incident response playbooks for every detected campaign
 7. **Produces STIX 2.1 threat intelligence** bundles ready for sharing via TAXII feeds
 8. **Provides a React dashboard** for SOC analysts to monitor, review, approve/reject playbooks, and export intelligence
@@ -70,45 +66,45 @@ Most intrusion detection systems are reactive â€” they log attacks after th
 | Single protocol | Multi-protocol mesh (SSH, HTTP, FTP, SMTP) |
 
 ### Design Principles
-- **Zero false positives by design** â€” legitimate traffic never touches the honeypot mesh, so every interaction is suspicious
-- **Isolation-first** â€” traps run in read-only containers with dropped capabilities; if compromised, the backend stays safe
-- **Data-driven** â€” raw packets are vectorized into 23-dimensional feature vectors for ML inference
-- **Intelligence-first** â€” every detection is enriched with ATT&CK context and confidence scoring before any action
+- **Zero false positives by design** — legitimate traffic never touches the honeypot mesh, so every interaction is suspicious
+- **Isolation-first** — traps run in read-only containers with dropped capabilities; if compromised, the backend stays safe
+- **Data-driven** — raw packets are vectorized into 23-dimensional feature vectors for ML inference
+- **Intelligence-first** — every detection is enriched with ATT&CK context and confidence scoring before any action
 
 ---
 
-## ðŸš€ Key Features
+## 🚀 Key Features
 
-### ðŸ•¸ï¸ Honeypot Network (Deception Mesh)
-- **SSH Honeypot** (`:2222`) â€” Paramiko-based interactive shell that logs commands, captures auth attempts, records bash history
-- **HTTP Honeypot** (`:8080`) â€” Flask server that traps path traversal, SQL injection, XSS, and scanner behaviour
-- **FTP Honeypot** (`:2121`) â€” pyftpdlib service that captures uploaded malware and monitors data transfers
-- **SMTP Honeypot** (`:2525`) â€” aiosmtpd sink that collects phishing emails and oversized C2 payloads
+### 🕸️ Honeypot Network (Deception Mesh)
+- **SSH Honeypot** (`:2222`) — Paramiko-based interactive shell that logs commands, captures auth attempts, records bash history
+- **HTTP Honeypot** (`:8080`) — Flask server that traps path traversal, SQL injection, XSS, and scanner behaviour
+- **FTP Honeypot** (`:2121`) — pyftpdlib service that captures uploaded malware and monitors data transfers
+- **SMTP Honeypot** (`:2525`) — aiosmtpd sink that collects phishing emails and oversized C2 payloads
 
-### ðŸ§  ML Threat Detection Engine
-- **Real-time scoring** â€” sub-15ms inference using serialized Isolation Forest + Random Forest ensemble
-- **LSTM forecasting** â€” predicts volumetric attacks (DDoS) by analyzing temporal connection patterns
-- **Campaign clustering** â€” DBSCAN groups disparate alerts from multiple IPs into coordinated attack campaigns
-- **Explainable AI** â€” SHAP values show analysts *why* a packet scored high (e.g., "payload entropy contributed 45%")
+### 🧠 ML Threat Detection Engine
+- **Real-time scoring** — sub-15ms inference using serialized Isolation Forest + Random Forest ensemble
+- **LSTM forecasting** — predicts volumetric attacks (DDoS) by analyzing temporal connection patterns
+- **Campaign clustering** — DBSCAN groups disparate alerts from multiple IPs into coordinated attack campaigns
+- **Explainable AI** — SHAP values show analysts *why* a packet scored high (e.g., "payload entropy contributed 45%")
 
-### ðŸ›¡ï¸ Sentinel Layer (Month 4 â€” MITRE ATT&CK Pipeline)
-- **12 ATT&CK technique mappings** across 8 tactics (Reconnaissance â†’ Impact)
+### 🛡️ Sentinel Layer (Month 4 — MITRE ATT&CK Pipeline)
+- **12 ATT&CK technique mappings** across 8 tactics (Reconnaissance → Impact)
 - **Snort rule auto-generation** with proper classtypes, priorities, MITRE references, and thread-safe SID tracking
 - **Sigma rule auto-generation** with ATT&CK technique + tactic tags, proper detection blocks
 - **Incident response playbooks** rendered from Jinja2 templates with IOC enrichment, containment steps, escalation procedures
 - **STIX 2.1 bundles** with AttackPatterns, Indicators, Relationships, TLP markings
-- **Confidence scoring** â€” 4-signal weighted algorithm (cluster size 35%, ML score 35%, IOC density 20%, multi-protocol bonus 10%)
-- **Sentinel Dashboard** â€” playbook list, approve/reject workflow, multi-format export, pagination, filtering
+- **Confidence scoring** — 4-signal weighted algorithm (cluster size 35%, ML score 35%, IOC density 20%, multi-protocol bonus 10%)
+- **Sentinel Dashboard** — playbook list, approve/reject workflow, multi-format export, pagination, filtering
 
-### ðŸ“Š Dashboard & Operations
-- **Live NOC** â€” React 19 + Vite with WebSocket streaming, auto-scrolling event feed, SHAP tooltips
-- **Threat Analytics** â€” DBSCAN cluster visualization, LSTM forecast charts
-- **Sentinel Console** â€” playbook review, approve/reject with analyst attribution, export as Markdown/JSON/STIX
-- **Role-based access** â€” JWT auth with Admin, Analyst, and Viewer roles
+### 📊 Dashboard & Operations
+- **Live NOC** — React 19 + Vite with WebSocket streaming, auto-scrolling event feed, SHAP tooltips
+- **Threat Analytics** — DBSCAN cluster visualization, LSTM forecast charts
+- **Sentinel Console** — playbook review, approve/reject with analyst attribution, export as Markdown/JSON/STIX
+- **Role-based access** — JWT auth with Admin, Analyst, and Viewer roles
 
 ---
 
-## ðŸ—ï¸ System Architecture
+## 🏗️ System Architecture
 
 The system is split into four isolated layers: the deception mesh (honeypots), the intelligence engine (ML + correlation), the Sentinel pipeline (ATT&CK mapping + rule generation), and the operations layer (API + dashboards).
 
@@ -121,18 +117,24 @@ graph TD
     classDef data fill:#3f3f46,stroke:#a1a1aa,stroke-width:2px,color:#fff;
     classDef sentinel fill:#6b21a8,stroke:#a855f7,stroke-width:2px,color:#fff;
 
-    Attacker[Attacker / Scanner]:::external -->|Recon / Exploits| DMZ
-    
-    subgraph Deception Mesh ["Honeypot Network"]
+    Attacker[Attacker / Scanner]:::external -->|Recon / Exploits| SSH
+    Attacker -->|Recon / Exploits| HTTP
+    Attacker -->|Recon / Exploits| FTP
+    Attacker -->|Recon / Exploits| SMTP
+
+    subgraph DeceptionMesh ["Honeypot Network"]
         SSH(SSH :2222):::honeypot
         HTTP(HTTP :8080):::honeypot
         FTP(FTP :2121):::honeypot
         SMTP(SMTP :2525):::honeypot
     end
 
-    DMZ -->|Write-only API| DB[(PostgreSQL)]:::data
-    
-    subgraph Intelligence Engine ["ML + Correlation Engine"]
+    SSH -->|Write-only API| DB[(PostgreSQL)]:::data
+    HTTP -->|Write-only API| DB
+    FTP -->|Write-only API| DB
+    SMTP -->|Write-only API| DB
+
+    subgraph IntelligenceEngine ["ML + Correlation Engine"]
         DB -->|Batch Poll| Analyzer{Threat Analyzer}:::core
         Analyzer <-->|23D Feature Vector| ML[ML Pipeline]:::core
         ML -->|Score + SHAP| Analyzer
@@ -141,7 +143,7 @@ graph TD
         Correlation -->|Execute| Playbook[Response Executor]:::core
     end
 
-    subgraph Sentinel Pipeline ["Sentinel Layer"]
+    subgraph SentinelPipeline ["Sentinel Layer"]
         SentinelSvc -->|Signatures| MITRE[ATT&CK Mapper]:::sentinel
         MITRE --> RuleGen[Snort + Sigma Gen]:::sentinel
         MITRE --> STIXGen[STIX 2.1 Builder]:::sentinel
@@ -150,9 +152,9 @@ graph TD
         STIXGen --> SentinelDB
         PBGen --> SentinelDB
     end
-    
+
     Playbook -.->|Block / Tarpit| Attacker
-    
+
     subgraph Operations ["API + Dashboards"]
         API[FastAPI Backend]:::core
         DB <-->|REST| API
@@ -170,7 +172,7 @@ graph TD
 2. Honeypot logs session (commands, auth attempts, payloads)
 3. Data written to PostgreSQL via write-only proxy
 4. ThreatAnalyzer polls new logs, extracts 23 features, runs ML inference
-5. Score > 85 â†’ CorrelationEngine groups with related events â†’ Campaign cluster
+5. Score > 85 -> CorrelationEngine groups with related events -> Campaign cluster
 6. Sentinel pipeline activates:
    a. SignatureEngine identifies attack type (e.g., SSH_AUTH_FAILURE)
    b. MitreMapper maps to T1110.001 (Brute Force: Password Guessing)
@@ -179,12 +181,12 @@ graph TD
    e. PlaybookGenerator renders incident response playbook
    f. ConfidenceScorer calculates severity (CRITICAL/HIGH/MEDIUM/LOW)
 7. Everything persisted to sentinel_playbooks table
-8. Analyst reviews on Sentinel Dashboard â†’ approve/reject/export
+8. Analyst reviews on Sentinel Dashboard -> approve/reject/export
 ```
 
 ---
 
-## ðŸ›¡ï¸ Sentinel Layer & MITRE ATT&CK
+## 🛡️ Sentinel Layer & MITRE ATT&CK
 
 The Sentinel Layer is PhantomNet's automated threat intelligence pipeline (built in Month 4). It takes raw honeypot detections and transforms them into structured, actionable intelligence mapped to the MITRE ATT&CK framework.
 
@@ -194,25 +196,25 @@ We map 12 honeypot attack signatures to MITRE ATT&CK techniques across 8 tactics
 
 | Honeypot Signature | ATT&CK ID | Technique | Tactic | Severity |
 | :--- | :---: | :--- | :--- | :---: |
-| `SSH_AUTH_FAILURE` | T1110.001 | Brute Force: Password Guessing | Credential Access | ðŸŸ  HIGH |
-| `SSH_HIGH_ACTIVITY` | T1021.004 | Remote Services: SSH | Lateral Movement | ðŸŸ¡ MEDIUM |
-| `HTTP_SQL_INJECTION` | T1190 | Exploit Public-Facing Application | Initial Access | ðŸ”´ CRITICAL |
-| `HTTP_XSS_ATTEMPT` | T1059.007 | Command & Scripting Interpreter: JS | Execution | ðŸŸ  HIGH |
-| `HTTP_PATH_TRAVERSAL` | T1083 | File and Directory Discovery | Discovery | ðŸŸ  HIGH |
-| `HTTP_SCANNER_BEHAVIOR` | T1046 | Network Service Discovery | Discovery | ðŸŸ¡ MEDIUM |
-| `FTP_DATA_EXFILTRATION` | T1048.003 | Exfiltration Over Unencrypted Protocol | Exfiltration | ðŸ”´ CRITICAL |
-| `SMTP_LARGE_PAYLOAD` | T1071.003 | Application Layer Protocol: Mail | Command & Control | ðŸŸ  HIGH |
-| `DISTRIBUTED_BRUTE_FORCE` | T1110.004 | Brute Force: Credential Stuffing | Credential Access | ðŸ”´ CRITICAL |
-| `LOW_AND_SLOW_SCAN` | T1595.001 | Active Scanning: Scanning IP Blocks | Reconnaissance | ðŸŸ¡ MEDIUM |
-| `MULTI_PROTOCOL_ATTACK` | T1046 | Network Service Discovery | Discovery | ðŸŸ  HIGH |
-| `HIGH_FREQUENCY_ATTACK` | T1498 | Network Denial of Service | Impact | ðŸ”´ CRITICAL |
+| `SSH_AUTH_FAILURE` | T1110.001 | Brute Force: Password Guessing | Credential Access | HIGH |
+| `SSH_HIGH_ACTIVITY` | T1021.004 | Remote Services: SSH | Lateral Movement | MEDIUM |
+| `HTTP_SQL_INJECTION` | T1190 | Exploit Public-Facing Application | Initial Access | CRITICAL |
+| `HTTP_XSS_ATTEMPT` | T1059.007 | Command and Scripting Interpreter: JavaScript | Execution | HIGH |
+| `HTTP_PATH_TRAVERSAL` | T1083 | File and Directory Discovery | Discovery | HIGH |
+| `HTTP_SCANNER_BEHAVIOR` | T1046 | Network Service Discovery | Discovery | MEDIUM |
+| `FTP_DATA_EXFILTRATION` | T1048.003 | Exfiltration Over Unencrypted Non-C2 Protocol | Exfiltration | CRITICAL |
+| `SMTP_LARGE_PAYLOAD` | T1071.003 | Application Layer Protocol: Mail Protocols | Command and Control | HIGH |
+| `DISTRIBUTED_BRUTE_FORCE` | T1110.004 | Brute Force: Credential Stuffing | Credential Access | CRITICAL |
+| `LOW_AND_SLOW_SCAN` | T1595.001 | Active Scanning: Scanning IP Blocks | Reconnaissance | MEDIUM |
+| `MULTI_PROTOCOL_ATTACK` | T1046 | Network Service Discovery | Discovery | HIGH |
+| `HIGH_FREQUENCY_ATTACK` | T1498 | Network Denial of Service | Impact | CRITICAL |
 
 ### Auto-Generated IDS Rules
 
 Every detection automatically produces production-ready rules:
 
-- **Snort rules** â€” with `flow:to_server,established`, rate-limiting thresholds, ATT&CK reference URLs, mapped classtypes, severity-based priorities, and auto-incrementing SIDs
-- **Sigma rules** â€” valid YAML with logsource/detection/condition blocks, ATT&CK technique tags (`attack.t1110.001`), tactic tags (`attack.credential_access`), and severity levels
+- **Snort rules** — with `flow:to_server,established`, rate-limiting thresholds, ATT&CK reference URLs, mapped classtypes, severity-based priorities, and auto-incrementing SIDs
+- **Sigma rules** — valid YAML with logsource/detection/condition blocks, ATT&CK technique tags (`attack.t1110.001`), tactic tags (`attack.credential_access`), and severity levels
 
 ### Incident Response Playbooks
 
@@ -229,24 +231,24 @@ Jinja2-templated Markdown playbooks with full context:
 ### STIX 2.1 Output
 
 Every detection produces a standards-compliant STIX 2.1 bundle containing:
-- `Identity` â€” PhantomNet system anchor
-- `AttackPattern` â€” enriched with ATT&CK ExternalReferences and KillChainPhases
-- `Indicator` â€” one per IOC (IP, domain, URL, hash, email)
-- `Relationship` â€” `indicates` links between Indicators and AttackPatterns
-- `MarkingDefinition` â€” TLP markings (WHITE/GREEN/AMBER/RED)
+- `Identity` — PhantomNet system anchor
+- `AttackPattern` — enriched with ATT&CK ExternalReferences and KillChainPhases
+- `Indicator` — one per IOC (IP, domain, URL, hash, email)
+- `Relationship` — `indicates` links between Indicators and AttackPatterns
+- `MarkingDefinition` — TLP markings (WHITE/GREEN/AMBER/RED)
 
 ### Confidence Scoring
 
-Each playbook gets a composite confidence score (0.0â€“1.0) from four signals:
+Each playbook gets a composite confidence score (0.0-1.0) from four signals:
 
 | Signal | Weight | What It Measures |
 | :--- | :---: | :--- |
-| Cluster Size | 35% | More events in the campaign â†’ higher confidence |
+| Cluster Size | 35% | More events in the campaign = higher confidence |
 | ML Average Score | 35% | Mean threat score from the ML pipeline |
 | IOC Density | 20% | Unique attacker IPs relative to total events |
 | Multi-Protocol Bonus | 10% | Bonus if the attack spans SSH + HTTP + FTP etc. |
 
-**Severity mapping:** â‰¥0.80 â†’ CRITICAL Â· â‰¥0.60 â†’ HIGH Â· â‰¥0.40 â†’ MEDIUM Â· <0.40 â†’ LOW
+**Severity mapping:** >=0.80 = CRITICAL, >=0.60 = HIGH, >=0.40 = MEDIUM, <0.40 = LOW
 
 ### Sentinel REST API (10 Endpoints)
 
@@ -265,7 +267,7 @@ Each playbook gets a composite confidence score (0.0â€“1.0) from four signa
 
 ---
 
-## ðŸ”§ Tech Stack
+## 🔧 Tech Stack
 
 | Layer | Technologies | Why We Chose It |
 | :--- | :--- | :--- |
@@ -280,7 +282,7 @@ Each playbook gets a composite confidence score (0.0â€“1.0) from four signa
 
 ---
 
-## âš¡ Getting Started
+## ⚡ Getting Started
 
 ### Prerequisites
 - Python 3.11+
@@ -344,12 +346,12 @@ npm run dev
 
 ---
 
-## ðŸ“– Usage
+## 📖 Usage
 
 ### Dashboard
-1. **Live NOC** â€” real-time event stream with color-coded threat levels and SHAP tooltips
-2. **Analytics** â€” campaign cluster visualization and LSTM volume forecasts
-3. **Sentinel** â€” review auto-generated playbooks, approve/reject, export intelligence
+1. **Live NOC** — real-time event stream with color-coded threat levels and SHAP tooltips
+2. **Analytics** — campaign cluster visualization and LSTM volume forecasts
+3. **Sentinel** — review auto-generated playbooks, approve/reject, export intelligence
 
 ### API Examples
 
@@ -370,73 +372,73 @@ curl -X POST "http://localhost:8000/api/sentinel/generate" \
 
 ---
 
-## ðŸ“ Project Structure
+## 📁 Project Structure
 
 ```text
 PhantomNet/
-â”œâ”€â”€ backend/                        # FastAPI Backend
-â”‚   â”œâ”€â”€ api/                        # REST + WebSocket controllers
-â”‚   â”‚   â””â”€â”€ sentinel.py             # Sentinel API (10 endpoints)
-â”‚   â”œâ”€â”€ database/                   # SQLAlchemy models & migrations
-â”‚   â”œâ”€â”€ ml_engine/                  # ML inference, SHAP, DBSCAN clustering
-â”‚   â”œâ”€â”€ sentinel/                   # â† Sentinel Intelligence Layer
-â”‚   â”‚   â”œâ”€â”€ mitre_mapper.py         #   12 ATT&CK technique mappings
-â”‚   â”‚   â”œâ”€â”€ rule_generator.py       #   Snort & Sigma rule generation
-â”‚   â”‚   â”œâ”€â”€ playbook_generator.py   #   Jinja2 playbook rendering
-â”‚   â”‚   â”œâ”€â”€ stix_enhanced.py        #   STIX 2.1 bundle builder
-â”‚   â”‚   â”œâ”€â”€ sentinel_service.py     #   Orchestration (full pipeline)
-â”‚   â”‚   â”œâ”€â”€ confidence_scoring.py   #   4-signal confidence scoring
-â”‚   â”‚   â”œâ”€â”€ models.py               #   SentinelPlaybook ORM (23 columns)
-â”‚   â”‚   â””â”€â”€ templates/              #   Jinja2 templates (.md.j2, .yaml.j2)
-â”‚   â”œâ”€â”€ services/                   # ThreatAnalyzer, CorrelationEngine
-â”‚   â”œâ”€â”€ tests/                      # Pytest suites (94% coverage)
-â”‚   â””â”€â”€ main.py                     # ASGI entrypoint
-â”œâ”€â”€ frontend-dev/phantomnet-dashboard/
-â”‚   â””â”€â”€ src/
-â”‚       â”œâ”€â”€ pages/SentinelDashboard.jsx
-â”‚       â””â”€â”€ components/sentinel/    # ApprovalControls, PlaybookViewer
-â”œâ”€â”€ honeypots/                      # Protocol emulation services
-â”‚   â”œâ”€â”€ ssh/   â”œâ”€â”€ http/   â”œâ”€â”€ ftp/   â””â”€â”€ smtp/
-â”œâ”€â”€ ml_models/                      # Serialized .pkl models (Git LFS)
-â”œâ”€â”€ playbooks/                      # YAML response playbooks
-â”œâ”€â”€ docker-compose.prod.yml
-â””â”€â”€ requirements.txt
+├── backend/                        # FastAPI Backend
+│   ├── api/                        # REST + WebSocket controllers
+│   │   └── sentinel.py             # Sentinel API (10 endpoints)
+│   ├── database/                   # SQLAlchemy models & migrations
+│   ├── ml_engine/                  # ML inference, SHAP, DBSCAN clustering
+│   ├── sentinel/                   # <-- Sentinel Intelligence Layer
+│   │   ├── mitre_mapper.py         #   12 ATT&CK technique mappings
+│   │   ├── rule_generator.py       #   Snort & Sigma rule generation
+│   │   ├── playbook_generator.py   #   Jinja2 playbook rendering
+│   │   ├── stix_enhanced.py        #   STIX 2.1 bundle builder
+│   │   ├── sentinel_service.py     #   Orchestration (full pipeline)
+│   │   ├── confidence_scoring.py   #   4-signal confidence scoring
+│   │   ├── models.py               #   SentinelPlaybook ORM (23 columns)
+│   │   └── templates/              #   Jinja2 templates (.md.j2, .yaml.j2)
+│   ├── services/                   # ThreatAnalyzer, CorrelationEngine
+│   ├── tests/                      # Pytest suites (94% coverage)
+│   └── main.py                     # ASGI entrypoint
+├── frontend-dev/phantomnet-dashboard/
+│   └── src/
+│       ├── pages/SentinelDashboard.jsx
+│       └── components/sentinel/    # ApprovalControls, PlaybookViewer
+├── honeypots/                      # Protocol emulation services
+│   ├── ssh/   ├── http/   ├── ftp/   └── smtp/
+├── ml_models/                      # Serialized .pkl models (Git LFS)
+├── playbooks/                      # YAML response playbooks
+├── docker-compose.prod.yml
+└── requirements.txt
 ```
 
 ---
 
-## ðŸ”’ Security Model
+## 🔒 Security Model
 
-- **Container isolation** â€” honeypots run with `--cap-drop=ALL`, `--security-opt=no-new-privileges`, read-only root filesystems
-- **Write-only data diode** â€” traps push logs via restricted API proxy; zero database credentials on the trap side
-- **Input validation** â€” Pydantic v2 schemas reject malformed payloads at the API edge
-- **Secret management** â€” no hardcoded secrets; everything injected via Docker environment variables
-- **RBAC** â€” JWT-based roles: Admin (full access), Analyst (view + review), Viewer (read-only)
+- **Container isolation** — honeypots run with `--cap-drop=ALL`, `--security-opt=no-new-privileges`, read-only root filesystems
+- **Write-only data diode** — traps push logs via restricted API proxy; zero database credentials on the trap side
+- **Input validation** — Pydantic v2 schemas reject malformed payloads at the API edge
+- **Secret management** — no hardcoded secrets; everything injected via Docker environment variables
+- **RBAC** — JWT-based roles: Admin (full access), Analyst (view + review), Viewer (read-only)
 
 ---
 
-## ðŸ—ºï¸ Roadmap
+## 🗺️ Roadmap
 
 | Phase | Period | What We Built | Status |
 | :---: | :--- | :--- | :---: |
-| **Month 1** | Weeks 1â€“4 | Honeypot network, PostgreSQL schemas, FastAPI backend, React dashboard | âœ… Done |
-| **Month 2** | Weeks 5â€“8 | ML pipeline (IF + RF + LSTM), WebSocket streaming, YAML playbooks, SHAP | âœ… Done |
-| **Month 3** | Weeks 9â€“12 | Campaign clustering (DBSCAN), correlation engine, SIEM export | âœ… Done |
-| **Month 4** | Weeks 13â€“16 | **Sentinel Layer** â€” ATT&CK mapping, Snort/Sigma rules, STIX 2.1, playbook generator, Sentinel dashboard, confidence scoring | âœ… Done |
-| **Next** | â€” | Kubernetes scaling, ClickHouse migration, RL-based topology mutation | ðŸ”œ Planned |
+| **Month 1** | Weeks 1-4 | Honeypot network, PostgreSQL schemas, FastAPI backend, React dashboard | Done |
+| **Month 2** | Weeks 5-8 | ML pipeline (IF + RF + LSTM), WebSocket streaming, YAML playbooks, SHAP | Done |
+| **Month 3** | Weeks 9-12 | Campaign clustering (DBSCAN), correlation engine, SIEM export | Done |
+| **Month 4** | Weeks 13-16 | **Sentinel Layer** — ATT&CK mapping, Snort/Sigma rules, STIX 2.1, playbook generator, Sentinel dashboard, confidence scoring | Done |
+| **Next** | — | Kubernetes scaling, ClickHouse migration, RL-based topology mutation | Planned |
 
 ---
 
-## ðŸ“š Documentation
+## 📚 Documentation
 
-- ðŸ—ï¸ [System Architecture & API Specs](docs/system_architecture.md)
-- ðŸ§  [ML Pipeline & Model Tuning Guide](docs/ml_pipeline.md)
-- âš¡ [Response Playbooks Syntax Guide](docs/playbooks.md)
-- ðŸ›¡ï¸ [Vulnerability Disclosure Policy](SECURITY.md)
+- [System Architecture & API Specs](docs/system_architecture.md)
+- [ML Pipeline & Model Tuning Guide](docs/ml_pipeline.md)
+- [Response Playbooks Syntax Guide](docs/playbooks.md)
+- [Vulnerability Disclosure Policy](SECURITY.md)
 
 ---
 
-## ðŸ‘¥ Team
+## 👥 Team
 
 Built by a team of four as a cybersecurity engineering project:
 
@@ -451,6 +453,6 @@ Built by a team of four as a cybersecurity engineering project:
 
 <div align="center">
   <img src="https://img.shields.io/badge/License-MIT-009688?style=for-the-badge&logo=opensourceinitiative&logoColor=white" alt="License" />
-  <p>Copyright Â© 2026 PhantomNet Team</p>
+  <p>Copyright 2026 PhantomNet Team</p>
   <i>"Turn your network into a weapon against the adversary."</i>
 </div>
