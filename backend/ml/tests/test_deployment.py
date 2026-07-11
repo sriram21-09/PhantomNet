@@ -1,6 +1,6 @@
 import mlflow
 import pandas as pd
-from config.mlflow_env import *
+from ml.config.mlflow_env import *
 
 MODEL_NAME = "PhantomNet_Attack_Detector"
 STAGE = "Staging"

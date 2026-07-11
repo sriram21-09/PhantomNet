@@ -6,7 +6,7 @@ from sklearn.ensemble import RandomForestClassifier
 
 # Adjust import based on sys.path set by backend/ml/conftest.py
 try:
-    from config.mlflow_env import MODEL_NAME, TRACKING_URI, DEFAULT_STAGE
+    from ml.config.mlflow_env import MODEL_NAME, TRACKING_URI, DEFAULT_STAGE
 except ImportError:
     # If running from root, python path might behave differently
     from backend.ml.config.mlflow_env import MODEL_NAME, TRACKING_URI, DEFAULT_STAGE

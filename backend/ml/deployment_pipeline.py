@@ -1,7 +1,7 @@
 import mlflow
 import pandas as pd
 from pathlib import Path
-from config.mlflow_env import *
+from ml.config.mlflow_env import *
 
 # 🔒 Force consistent tracking store
 PROJECT_ROOT = Path(__file__).resolve().parents[2]

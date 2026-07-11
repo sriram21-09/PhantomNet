@@ -1,6 +1,6 @@
 import mlflow
 from mlflow.tracking import MlflowClient
-from config.mlflow_env import *
+from ml.config.mlflow_env import *
 
 MODEL_NAME = "PhantomNet_Attack_Detector"
 

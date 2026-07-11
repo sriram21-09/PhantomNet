@@ -4,7 +4,7 @@ import traceback
 import pandas as pd
 from sklearn.ensemble import RandomForestClassifier
 
-from config.mlflow_env import TRACKING_URI, MODEL_NAME, DEFAULT_STAGE
+from ml.config.mlflow_env import TRACKING_URI, MODEL_NAME, DEFAULT_STAGE
 import mlflow
 
 mlflow.set_tracking_uri(TRACKING_URI)

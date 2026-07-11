@@ -1,7 +1,7 @@
 import os
 import mlflow
 from mlflow.tracking import MlflowClient
-from config.mlflow_env import *
+from ml.config.mlflow_env import *
 
 # ======================
 # CONFIG

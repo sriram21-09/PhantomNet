@@ -4,7 +4,8 @@ import os
 import subprocess
 import sys
 import pytest
-from config.mlflow_env import *
+# pyrefly: ignore [missing-import]
+from ml.config.mlflow_env import *
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 PROJECT_ROOT = os.path.abspath(os.path.join(BASE_DIR, "..", "..", ".."))

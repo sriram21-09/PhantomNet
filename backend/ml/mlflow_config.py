@@ -1,7 +1,7 @@
 import mlflow
 import mlflow.sklearn
 from contextlib import contextmanager
-from config.mlflow_env import TRACKING_URI, MODEL_NAME, DEFAULT_STAGE
+from ml.config.mlflow_env import TRACKING_URI, MODEL_NAME, DEFAULT_STAGE
 
 # --------------------------------------------------
 # DO NOT compute paths here
