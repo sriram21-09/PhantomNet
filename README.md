@@ -265,6 +265,31 @@ Each playbook gets a composite confidence score (0.0-1.0) from four signals:
 | `/api/sentinel/rules/snort` | GET | List generated Snort rules |
 | `/api/sentinel/rules/sigma` | GET | List generated Sigma rules |
 
+### Sentinel Dashboard Interface & Workflows
+
+Below are screenshots of the **Sentinel Dashboard** showcasing the interface components, interactive features, rule previews, and incident response approval workflows:
+
+#### 1. Main Dashboard & Stats Widgets
+Shows the aggregate pipeline statistics (total/approved/pending counts, average confidence score) alongside the real-time playbook list:
+![Sentinel Dashboard Main List View](docs/screenshots/sentinel_dashboard.png)
+![Sentinel Dashboard Stats Widgets](docs/screenshots/sentinel_stats_widgets.png)
+
+#### 2. Playbook Viewer & Rule Previews
+Analysts can review the generated Markdown playbooks or inspect the auto-generated detection rules within tabbed views:
+![Playbook Viewer Modal](docs/screenshots/sentinel_playbook_viewer.png)
+![Snort Rule Preview Tab](docs/screenshots/sentinel_rule_preview_snort.png)
+![Sigma Rule Preview Tab](docs/screenshots/sentinel_rule_preview_sigma.png)
+
+#### 3. Approval Workflow (Before / After States)
+The state transition during active analyst review (pending -> approved) with real-time status and color updates:
+| Pending Verification (Before) | Approved State (After) |
+|---|---|
+| ![Workflow Before](docs/screenshots/sentinel_workflow_before.png) | ![Workflow After](docs/screenshots/sentinel_workflow_after.png) |
+
+#### 4. Navigation & Alerting Badges
+The main navigation header features a dynamic notification badge that alerts SOC analysts of pending playbooks waiting for review:
+![Navigation Notification Badge](docs/screenshots/sentinel_nav_badge.png)
+
 ---
 
 ## 🔧 Tech Stack
