@@ -1,0 +1,390 @@
+{
+    "_comment": "PhantomNet Sprint Config — Week 17 (Month 5 Week 1: LLM Integration, Days 21-25)",
+    "week": 17,
+    "milestone_title": "Month 5 – LLM Integration & Advanced Features (Weeks 17–20)",
+    "milestone_description": "Implementation of local LLM narrative integration, TAXII feed server, MITRE ATT&CK visualization, PDF export, and batch operations.",
+    "month_label": "month-5",
+    "extra_labels": [
+        "llm-integration"
+    ],
+    "labels": [
+        {
+            "name": "month-5",
+            "color": "1F6FEB",
+            "description": "Month 5 LLM Integration phase"
+        },
+        {
+            "name": "week-17",
+            "color": "0E8A16",
+            "description": "Week 17 tasks"
+        },
+        {
+            "name": "llm-integration",
+            "color": "D03AAD",
+            "description": "LLM service and prompts"
+        }
+    ],
+    "day_map": {
+        "1": "Mon (Jul 13)",
+        "2": "Tue (Jul 14)",
+        "3": "Wed (Jul 15)",
+        "4": "Thu (Jul 16)",
+        "5": "Fri (Jul 17)"
+    },
+    "tasks": [
+        {
+            "Day": 1,
+            "Role": "Team Lead",
+            "Assignee": "sriram21-09",
+            "Type": "Feature",
+            "Title": "Design LLM Integration Architecture",
+            "Objective": "Design the LLM pipeline architecture, define database schema extensions for playbook narratives, and establish communication contracts.",
+            "Tasks": [
+                "Draft the Ollama local API communications contract (POST `/api/generate`).",
+                "Design the prompt template hierarchy and fallback model mechanism.",
+                "Create database migration plan to add `llm_narrative` column to `sentinel_playbooks` table."
+            ],
+            "Deliverables": [
+                "Architectural design document outlining the LLM ingestion path and async flow.",
+                "Database schema migration script/instructions."
+            ],
+            "Estimate": 4
+        },
+        {
+            "Day": 1,
+            "Role": "AI/ML Developer",
+            "Assignee": "vikranthN101",
+            "Type": "Documentation",
+            "Title": "Research and Document Ollama Installation Steps",
+            "Objective": "Research dockerized Ollama installation, pull the target Mistral 7B model, and document containerized setup steps.",
+            "Tasks": [
+                "Research and test Docker container installation procedures for Ollama server with GPU pass-through.",
+                "Pull the `mistral` model inside the docker container and benchmark initialization and basic inference speed.",
+                "Write a developer bootstrap document detailing system pre-requisites and Docker Compose setup steps."
+            ],
+            "Deliverables": [
+                "Local developer installation guide (`docs/ollama_docker_setup.md`).",
+                "Basic benchmark statistics (latency per token, load times)."
+            ],
+            "Estimate": 4
+        },
+        {
+            "Day": 1,
+            "Role": "Security Developer",
+            "Assignee": "VivekanandaReddy2006",
+            "Type": "Feature",
+            "Title": "Create backend/sentinel/llm_service.py Scaffold",
+            "Objective": "Scaffold the main LLM Service module to encapsulate Ollama interactions and state toggles.",
+            "Tasks": [
+                "Create the `backend/sentinel/llm_service.py` module file.",
+                "Define the `LLMService` class with a stub for `generate_narrative(context_data) -> str`.",
+                "Bind execution controls to the `SENTINEL_LLM_ENABLED` and `SENTINEL_LLM_HOST` environment variables."
+            ],
+            "Deliverables": [
+                "Scaffolded `llm_service.py` file with basic class and configuration validation."
+            ],
+            "Estimate": 4
+        },
+        {
+            "Day": 1,
+            "Role": "Frontend Developer",
+            "Assignee": "sairammanideepreddy2123",
+            "Type": "Feature",
+            "Title": "Add LLM Status Indicator to Dashboard",
+            "Objective": "Integrate an AI service status indicator in the Sentinel dashboard UI.",
+            "Tasks": [
+                "Design a status badge in the dashboard header showing AI online/offline state.",
+                "Wire the badge to fetch status from the frontend state manager.",
+                "Create simple mock states to test status styling."
+            ],
+            "Deliverables": [
+                "Visual badge showing \"AI: Online\" (green) or \"AI: Offline\" (gray) on the frontend dashboard."
+            ],
+            "Estimate": 4
+        },
+        {
+            "Day": 2,
+            "Role": "Team Lead",
+            "Assignee": "sriram21-09",
+            "Type": "Feature",
+            "Title": "Create LLM Status Endpoint /api/sentinel/llm/status",
+            "Objective": "Implement a backend endpoint to expose LLM configuration and health status.",
+            "Tasks": [
+                "Add the `/api/sentinel/llm/status` endpoint in the FastAPI backend.",
+                "Return details such as enabled/disabled state, model name, and host connection status.",
+                "Implement health check checks that verify if the dockerized Ollama daemon (`SENTINEL_LLM_HOST`) is reachable."
+            ],
+            "Deliverables": [
+                "`/api/sentinel/llm/status` API endpoint with JSON response and health check logic."
+            ],
+            "Estimate": 4
+        },
+        {
+            "Day": 2,
+            "Role": "AI/ML Developer",
+            "Assignee": "vikranthN101",
+            "Type": "Feature",
+            "Title": "Install Ollama and Mistral 7B on Development Machines",
+            "Objective": "Configure the local developer environment with a working dockerized Ollama container and Mistral 7B model.",
+            "Tasks": [
+                "Start the `ollama` container (`docker compose up -d ollama`) and confirm it starts correctly on port 11434.",
+                "Run `docker exec -it phantomnet_ollama ollama pull mistral` and verify model availability inside the container.",
+                "Document alternative/smaller fallback models (e.g., `phi3:3.8b` or `gemma:2b`) for resource-constrained systems."
+            ],
+            "Deliverables": [
+                "Verified local installation of Ollama running on port 11434.",
+                "Successfully verified API query to `/api/generate` using curl."
+            ],
+            "Estimate": 4,
+            "Warnings": [
+                "If Mistral 7B exceeds local GPU/CPU resources, pull smaller fallback models like `gemma:2b` or `phi3`."
+            ]
+        },
+        {
+            "Day": 2,
+            "Role": "Security Developer",
+            "Assignee": "VivekanandaReddy2006",
+            "Type": "Feature",
+            "Title": "Build LLM Prompt Template for Playbooks",
+            "Objective": "Create structured prompt templates that safely inject security incident context for narrative summaries.",
+            "Tasks": [
+                "Design the markdown-oriented prompt structure inside the backend templates.",
+                "Include structured sections: Campaign Cluster Metadata, Source IPs/IOCs, MITRE ATT&CK Mapping, and Mitigation Steps.",
+                "Ensure UTC timestamp standardization across prompt inputs."
+            ],
+            "Deliverables": [
+                "Prompt template files or module constants containing instructions for the local LLM."
+            ],
+            "Estimate": 4
+        },
+        {
+            "Day": 2,
+            "Role": "Frontend Developer",
+            "Assignee": "sairammanideepreddy2123",
+            "Type": "Feature",
+            "Title": "Add AI Summary Section to PlaybookViewer",
+            "Objective": "Integrate an expandable section in the Playbook modal to display the AI summary.",
+            "Tasks": [
+                "Create an \"AI Summary\" section inside the PlaybookViewer modal.",
+                "Add toggle buttons to expand or collapse the summary.",
+                "Setup mock loading states and placeholder cards."
+            ],
+            "Deliverables": [
+                "Modal UI updates in PlaybookViewer with the new summary section and accordion toggles."
+            ],
+            "Estimate": 4
+        },
+        {
+            "Day": 3,
+            "Role": "Team Lead",
+            "Assignee": "sriram21-09",
+            "Type": "Feature",
+            "Title": "Add LLM Toggle to SystemConfig API",
+            "Objective": "Integrate the LLM status flag into the global SystemConfig model and admin control endpoints.",
+            "Tasks": [
+                "Add `sentinel_llm_enabled` boolean flag to the SystemConfig database model.",
+                "Update administrative endpoints to allow dynamic updates of this configuration.",
+                "Verify that system settings reflect dynamic toggle adjustments in real-time."
+            ],
+            "Deliverables": [
+                "Database schema modification for SystemConfig.",
+                "Config endpoints supporting dynamic updates of the LLM enable/disable flag."
+            ],
+            "Estimate": 4
+        },
+        {
+            "Day": 3,
+            "Role": "AI/ML Developer",
+            "Assignee": "vikranthN101",
+            "Type": "Testing",
+            "Title": "Verify and Test LLM Output Quality for SSH Campaign",
+            "Objective": "Analyze the quality, reliability, and security compliance of AI-generated summaries for SSH Brute Force attacks.",
+            "Tasks": [
+                "Run raw prompts containing SSH brute force telemetry against local Mistral.",
+                "Evaluate response structure, formatting, and markdown layout correctness.",
+                "Adjust prompt phrasing to eliminate hallucinations and enforce formatting boundaries."
+            ],
+            "Deliverables": [
+                "Quality evaluation report detailing prompt, raw output, and response quality adjustments."
+            ],
+            "Estimate": 4
+        },
+        {
+            "Day": 3,
+            "Role": "Security Developer",
+            "Assignee": "VivekanandaReddy2006",
+            "Type": "Feature",
+            "Title": "Implement Async Ollama HTTP Client in llm_service.py",
+            "Objective": "Build an asynchronous HTTP client to communicate with the dockerized Ollama API via the internal network without blocking the application.",
+            "Tasks": [
+                "Integrate `httpx.AsyncClient` inside `llm_service.py` to target the dynamic `SENTINEL_LLM_HOST` endpoint.",
+                "Configure a strict 60-second connection and read timeout.",
+                "Ensure response streaming or aggregation is parsed correctly into clean markdown text."
+            ],
+            "Deliverables": [
+                "Completed asynchronous HTTP connection logic inside `LLMService`."
+            ],
+            "Estimate": 4,
+            "Warnings": [
+                "Ensure HTTP connection and read timeouts are strictly configured (max 60 seconds) to avoid thread exhaustion."
+            ]
+        },
+        {
+            "Day": 3,
+            "Role": "Frontend Developer",
+            "Assignee": "sairammanideepreddy2123",
+            "Type": "Feature",
+            "Title": "Style AI-Enhanced Summary Narrative on Frontend",
+            "Objective": "Apply custom styling to make the AI narrative visually distinct from standard template text.",
+            "Tasks": [
+                "Design custom borders, glow effects, or icons for the AI summary card.",
+                "Add an \"AI-Enhanced Narrative\" badge to clearly designate it as model output.",
+                "Support dark mode and responsive layout variations."
+            ],
+            "Deliverables": [
+                "Fully styled React components for the AI Summary card with premium borders and badges."
+            ],
+            "Estimate": 4
+        },
+        {
+            "Day": 4,
+            "Role": "Team Lead",
+            "Assignee": "sriram21-09",
+            "Type": "Integration",
+            "Title": "Integrate llm_service Asynchronously into Sentinel Service Orchestrator",
+            "Objective": "Connect the LLM generation task into the main playbook generation pipeline using asynchronous background tasks.",
+            "Tasks": [
+                "Modify `SentinelService.generate_playbook` to call the LLM service when enabled.",
+                "Wrap the LLM call in FastAPI `BackgroundTasks` to prevent database write connection locks.",
+                "Persist the generated markdown summary to the new `llm_narrative` column in `SentinelPlaybook`."
+            ],
+            "Deliverables": [
+                "Refactored `SentinelService` orchestrator with asynchronous background LLM processing."
+            ],
+            "Estimate": 4,
+            "Warnings": [
+                "**Do NOT** block SQLite write transactions — LLM requests must run in asynchronous background tasks to prevent locking."
+            ]
+        },
+        {
+            "Day": 4,
+            "Role": "AI/ML Developer",
+            "Assignee": "vikranthN101",
+            "Type": "Testing",
+            "Title": "Verify and Test LLM Output for SQLi and Port Scan Campaigns",
+            "Objective": "Verify LLM quality, formatting, and correctness for SQL Injection and Port Scanning campaigns.",
+            "Tasks": [
+                "Test prompt output formatting using mock SQLi and Port Scan telemetry.",
+                "Refine prompts to ensure precise mapping of technical indicators.",
+                "Document generation latency for each campaign type."
+            ],
+            "Deliverables": [
+                "Test logs containing prompt inputs and generated outputs for SQLi and Port Scan scenarios."
+            ],
+            "Estimate": 4
+        },
+        {
+            "Day": 4,
+            "Role": "Security Developer",
+            "Assignee": "VivekanandaReddy2006",
+            "Type": "Feature",
+            "Title": "Build Robust Fallback/Mock Mechanisms for Offline LLM",
+            "Objective": "Ensure system stability by creating fallback strategies when the Ollama server is offline or fails.",
+            "Tasks": [
+                "Catch network timeouts, connection errors, and status failures inside `llm_service.py`.",
+                "Implement a fallback to template-only generation with logged warnings (no crashes).",
+                "Support a mock client configuration option in the service for testing."
+            ],
+            "Deliverables": [
+                "Fallback logic implementation with connection validation.",
+                "Mock generator output functionality for test execution."
+            ],
+            "Estimate": 4
+        },
+        {
+            "Day": 4,
+            "Role": "Frontend Developer",
+            "Assignee": "sairammanideepreddy2123",
+            "Type": "Feature",
+            "Title": "Add Regenerate AI Summary Button in PlaybookViewer",
+            "Objective": "Provide admins and analysts the ability to manually trigger AI summary regeneration from the UI.",
+            "Tasks": [
+                "Add a 'Regenerate AI Summary' button to the PlaybookViewer modal.",
+                "Add loading animations and disable states during active regeneration requests.",
+                "Connect the button to trigger the backend regeneration endpoint."
+            ],
+            "Deliverables": [
+                "PlaybookViewer UI with fully functional regeneration button and state management."
+            ],
+            "Estimate": 4
+        },
+        {
+            "Day": 5,
+            "Role": "Team Lead",
+            "Assignee": "sriram21-09",
+            "Type": "Testing",
+            "Title": "Write Integration Tests for llm_service.py",
+            "Objective": "Develop a comprehensive integration test suite for the LLM service.",
+            "Tasks": [
+                "Create `tests/test_llm_service.py` to cover `LLMService` functionality.",
+                "Test toggle behavior (enabled/disabled states) and timeout exception handling.",
+                "Test the graceful fallback mechanism when the Ollama API throws an error."
+            ],
+            "Deliverables": [
+                "Integration test file `tests/test_llm_service.py` with mock response testing."
+            ],
+            "Estimate": 4
+        },
+        {
+            "Day": 5,
+            "Role": "AI/ML Developer",
+            "Assignee": "vikranthN101",
+            "Type": "Testing",
+            "Title": "Fine-tune LLM Prompt Template Based on Output Testing",
+            "Objective": "Apply final refinements and few-shot examples to the prompt templates to lock down performance.",
+            "Tasks": [
+                "Review outputs collected during the week and identify formatting edge-cases.",
+                "Embed few-shot examples to reinforce output constraints and Markdown formatting.",
+                "Confirm that outputs fit cleanly inside the frontend markdown renderer."
+            ],
+            "Deliverables": [
+                "Final locked prompt templates configured in the system."
+            ],
+            "Estimate": 4
+        },
+        {
+            "Day": 5,
+            "Role": "Security Developer",
+            "Assignee": "VivekanandaReddy2006",
+            "Type": "Feature",
+            "Title": "Track and Log LLM API Performance and Latency",
+            "Objective": "Integrate logging mechanisms to trace LLM request duration and resource load.",
+            "Tasks": [
+                "Add response time tracking to the generation logic inside `llm_service.py`.",
+                "Log latency metrics and include them in the `/api/sentinel/llm/status` response data.",
+                "Set up warnings for slow inference requests exceeding 25 seconds."
+            ],
+            "Deliverables": [
+                "Timing logic code changes and API metric tracking integration."
+            ],
+            "Estimate": 4
+        },
+        {
+            "Day": 5,
+            "Role": "Frontend Developer",
+            "Assignee": "sairammanideepreddy2123",
+            "Type": "Testing",
+            "Title": "Conduct Full E2E Pipeline Verification with LLM Enabled",
+            "Objective": "Perform full end-to-end user path testing to verify active LLM playbook enrichment.",
+            "Tasks": [
+                "Simulate a threat campaign (e.g. SSH brute force) in the Docker Compose environment and trigger playbook creation.",
+                "Verify that the backend container runs the background task, queries the ollama container, and updates the database.",
+                "Open the dashboard and check the playbook modal for correct rendering of the AI narrative."
+            ],
+            "Deliverables": [
+                "E2E validation report or video demonstrating active AI-enriched playbooks."
+            ],
+            "Estimate": 4
+        }
+    ]
+}

@@ -81,6 +81,7 @@ class PlaybookDetail(PlaybookSummary):
     sigma_rule: Optional[str] = None
     playbook_content: Optional[str] = None
     template_name: Optional[str] = None
+    llm_narrative: Optional[str] = None
     reviewed_by: Optional[str] = None
     reviewed_at: Optional[str] = None
 
@@ -174,7 +175,7 @@ def _serialize_playbook_detail(row: SentinelPlaybook) -> Dict[str, Any]:
         row: SentinelPlaybook ORM instance.
 
     Returns:
-        Dictionary with all 21 serialised fields.
+        Dictionary with all 22 serialised fields.
     """
     data = _serialize_playbook_summary(row)
     data.update({
@@ -183,6 +184,7 @@ def _serialize_playbook_detail(row: SentinelPlaybook) -> Dict[str, Any]:
         "sigma_rule": row.sigma_rule,
         "playbook_content": row.playbook_content,
         "template_name": row.template_name,
+        "llm_narrative": row.llm_narrative,
         "reviewed_by": row.reviewed_by,
         "reviewed_at": row.reviewed_at.isoformat() if row.reviewed_at else None,
     })
