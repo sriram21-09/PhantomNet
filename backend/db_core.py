@@ -11,6 +11,24 @@ DATABASE_URL = os.getenv("DATABASE_URL")
 if not DATABASE_URL:
     DATABASE_URL = "sqlite:///./phantomnet.db"
 
+# Resolve relative SQLite paths dynamically based on the project structure
+if DATABASE_URL.startswith("sqlite:///"):
+    db_path = DATABASE_URL[10:]
+    if not os.path.isabs(db_path) and not db_path.startswith("/"):
+        db_dir = os.path.dirname(os.path.abspath(__file__))
+        project_root = os.path.dirname(db_dir)
+        
+        if db_path.startswith("backend/"):
+            db_file_clean = db_path[len("backend/"):]
+            absolute_db_path = os.path.abspath(os.path.join(db_dir, db_file_clean))
+        else:
+            absolute_db_path = os.path.abspath(os.path.join(project_root, db_path))
+            
+        # Standardize path separators for SQLAlchemy
+        absolute_db_path = absolute_db_path.replace("\\", "/")
+        DATABASE_URL = f"sqlite:///{absolute_db_path}"
+
+
 # 🛠️ FIX: Only use check_same_thread for SQLite
 connect_args = {}
 if "sqlite" in DATABASE_URL:
