@@ -21,6 +21,20 @@ except Exception as e:
     DB_AVAILABLE = False
 
 
+import socket
+
+def is_healthcheck(src_ip: str) -> bool:
+    if src_ip in ["127.0.0.1", "localhost", "::1"]:
+        return True
+    try:
+        api_ip = socket.gethostbyname("api")
+        if src_ip == api_ip:
+            return True
+    except Exception:
+        pass
+    return False
+
+
 def log_to_database(
     protocol: str,
     src_ip: str,
@@ -32,17 +46,11 @@ def log_to_database(
 ):
     """
     Log honeypot activity to the database.
-
-    Args:
-        protocol: The protocol name (SSH, HTTP, FTP, SMTP)
-        src_ip: Source IP address of the connection
-        event_type: Type of event (connect, login, command, etc.)
-        length: Packet/payload length
-        is_malicious: Whether the activity is detected as malicious
-        threat_score: Threat score (0.0 - 1.0)
-        attack_type: Type of attack if any
     """
     if not DB_AVAILABLE:
+        return False
+
+    if is_healthcheck(src_ip):
         return False
 
     try:

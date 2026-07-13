@@ -798,6 +798,13 @@ class SentinelService:
             logger.info("Step 8 - SentinelPlaybook persisted: id=%s, playbook_id=%s",
 
                         playbook_record.id, playbook_id)
+            
+            # Trigger background LLM narrative summary generation
+            try:
+                from sentinel.llm_service import trigger_llm_summary
+                trigger_llm_summary(playbook_record.id)
+            except Exception as llm_exc:
+                logger.warning("Failed to trigger LLM narrative summary: %s", llm_exc)
         except Exception as exc:
             self.db.rollback()
             logger.error("Failed to persist SentinelPlaybook: %s", exc)

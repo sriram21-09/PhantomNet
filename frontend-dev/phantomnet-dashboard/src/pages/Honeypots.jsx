@@ -2,6 +2,27 @@ import React, { useState, useEffect } from "react";
 import { FaTerminal, FaGlobe, FaDatabase, FaEnvelope, FaServer } from "react-icons/fa";
 import "../Styles/pages/Honeypots.css";
 
+const formatLastSeen = (lastSeen) => {
+  if (!lastSeen || lastSeen === "Never") return "Never";
+  try {
+    const lastSeenDate = new Date(lastSeen);
+    const now = new Date();
+    const diffMs = now.getTime() - lastSeenDate.getTime();
+    const diffSecs = Math.floor(diffMs / 1000);
+    const diffMins = Math.floor(diffSecs / 60);
+    const diffHours = Math.floor(diffMins / 60);
+    const diffDays = Math.floor(diffHours / 24);
+
+    if (diffSecs < 60) return "Just now";
+    if (diffMins < 60) return `${diffMins}m ago`;
+    if (diffHours < 24) return `${diffHours}h ago`;
+    if (diffDays < 7) return `${diffDays}d ago`;
+    return lastSeenDate.toLocaleDateString();
+  } catch (err) {
+    return "Never";
+  }
+};
+
 const HoneypotCard = ({ title, port, status, icon: Icon, description, lastSeen, packetCount }) => (
   <div className={`honeypot-card ${status.toLowerCase()}`}>
     <div className="scan-line"></div>
@@ -67,7 +88,7 @@ const Honeypots = () => {
             status: hp.status === "active" ? "ACTIVE" : "INACTIVE",
             icon: iconMap[hp.name] || FaServer,
             description: descMap[hp.name] || "Deception listening environment.",
-            lastSeen: hp.last_seen || "Never",
+            lastSeen: formatLastSeen(hp.last_seen),
             packetCount: hp.packet_count || 0
           }));
           

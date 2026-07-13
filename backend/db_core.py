@@ -21,14 +21,15 @@ from sqlalchemy.engine import Engine
 
 @event.listens_for(Engine, "connect")
 def set_sqlite_pragma(dbapi_connection, connection_record):
-    cursor = dbapi_connection.cursor()
-    try:
-        cursor.execute("PRAGMA journal_mode=WAL")
-        cursor.execute("PRAGMA synchronous=NORMAL")
-    except Exception:
-        pass
-    finally:
-        cursor.close()
+    if type(dbapi_connection).__module__ in ('sqlite3', 'pysqlite2.dbapi2'):
+        cursor = dbapi_connection.cursor()
+        try:
+            cursor.execute("PRAGMA journal_mode=WAL")
+            cursor.execute("PRAGMA synchronous=NORMAL")
+        except Exception:
+            pass
+        finally:
+            cursor.close()
 
 engine = create_engine(DATABASE_URL, connect_args=connect_args)
 

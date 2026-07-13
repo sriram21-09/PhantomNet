@@ -23,14 +23,15 @@ def set_sqlite_pragma(dbapi_connection, connection_record):
     Globally configures SQLite connections to use WAL mode and normal synchronization,
     resolving the database lock (SQLITE_BUSY) errors under concurrent write workloads.
     """
-    cursor = dbapi_connection.cursor()
-    try:
-        cursor.execute("PRAGMA journal_mode=WAL")
-        cursor.execute("PRAGMA synchronous=NORMAL")
-    except Exception:
-        pass
-    finally:
-        cursor.close()
+    if type(dbapi_connection).__module__ in ('sqlite3', 'pysqlite2.dbapi2'):
+        cursor = dbapi_connection.cursor()
+        try:
+            cursor.execute("PRAGMA journal_mode=WAL")
+            cursor.execute("PRAGMA synchronous=NORMAL")
+        except Exception:
+            pass
+        finally:
+            cursor.close()
 
 
 

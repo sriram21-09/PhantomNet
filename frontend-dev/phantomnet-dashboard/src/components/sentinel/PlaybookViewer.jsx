@@ -17,6 +17,8 @@ import {
   FaCompress,
   FaFileAlt,
   FaCubes,
+  FaRobot,
+  FaMagic,
 } from "react-icons/fa";
 import RulePreview from "./RulePreview";
 import ApprovalControls from "./ApprovalControls";
@@ -498,7 +500,12 @@ const DeferredMarkdownContent = ({ content, components }) => {
    requestAnimationFrame. This eliminates the 200-400ms freeze.
    ═══════════════════════════════════════════════════════════════ */
 
-const MarkdownRenderer = ({ content }) => {
+const MarkdownRenderer = ({
+  content,
+  llm_narrative = "",
+  isRegeneratingLLM = false,
+  onRegenerateLLM
+}) => {
   const { checkedItems, toggleCheckbox, totalCheckboxes, completedCount } =
     useCheckboxTracker(content);
 
@@ -555,6 +562,43 @@ const MarkdownRenderer = ({ content }) => {
 
   return (
     <div className="pbv-markdown-content">
+      {/* AI Threat Summary Panel */}
+      <div className="pbv-llm-narrative-container">
+        <div className="llm-narrative-header">
+          <div className="llm-narrative-title">
+            <FaRobot className="llm-icon" />
+            <span>AI Threat Summary</span>
+            <span className="llm-badge">Mistral</span>
+          </div>
+          {onRegenerateLLM && (
+            <button
+              className={`llm-regenerate-btn ${isRegeneratingLLM ? "loading" : ""}`}
+              onClick={onRegenerateLLM}
+              disabled={isRegeneratingLLM}
+              type="button"
+            >
+              <FaMagic className={`magic-icon ${isRegeneratingLLM ? "spin" : ""}`} />
+              {isRegeneratingLLM ? "Regenerating..." : "Regenerate Summary"}
+            </button>
+          )}
+        </div>
+        <div className="llm-narrative-body">
+          {isReady ? (
+            llm_narrative ? (
+              <Suspense fallback={<div className="pbv-skel-line pbv-skel-text" />}>
+                <DeferredMarkdownContent content={llm_narrative} components={components} />
+              </Suspense>
+            ) : (
+              <div className="llm-narrative-empty">
+                <p>No narrative summary available. Use the button to generate.</p>
+              </div>
+            )
+          ) : (
+            <div className="pbv-skel-line pbv-skel-text" />
+          )}
+        </div>
+      </div>
+
       {/* Containment Progress Tracker */}
       {totalCheckboxes > 0 && (
         <div className="pbv-containment-progress">
@@ -632,12 +676,35 @@ const PlaybookViewer = ({
   snortRule = "",
   sigmaRule = "",
   isLoading = false,
+  llm_narrative = "",
+  onLLMNarrativeUpdate,
 }) => {
   const [activeTab, setActiveTab] = useState("playbook");
   const [isFullscreen, setIsFullscreen] = useState(false);
   const panelRef = useRef(null);
+  const [isRegeneratingLLM, setIsRegeneratingLLM] = useState(false);
 
   const resolvedMarkdown = playbook_content || markdownContent;
+
+  const handleRegenerateLLM = async () => {
+    if (isRegeneratingLLM) return;
+    setIsRegeneratingLLM(true);
+    try {
+      const response = await fetch(`/api/sentinel/playbooks/${id}/regenerate-llm`, {
+        method: "POST",
+      });
+      const data = await response.json();
+      if (response.ok && data.status === "success") {
+        onLLMNarrativeUpdate?.(id, data.llm_narrative);
+      } else {
+        console.error("Failed to regenerate LLM summary:", data.detail);
+      }
+    } catch (err) {
+      console.error("Failed to regenerate LLM summary:", err);
+    } finally {
+      setIsRegeneratingLLM(false);
+    }
+  };
 
   /* ── Close on Escape ── */
   useEffect(() => {
@@ -916,7 +983,13 @@ const PlaybookViewer = ({
                   id="pbv-panel-playbook"
                   aria-labelledby="pbv-tab-playbook"
                 >
-                  <MarkdownRenderer key={resolvedMarkdown} content={resolvedMarkdown} />
+                  <MarkdownRenderer
+                    key={resolvedMarkdown}
+                    content={resolvedMarkdown}
+                    llm_narrative={llm_narrative}
+                    isRegeneratingLLM={isRegeneratingLLM}
+                    onRegenerateLLM={handleRegenerateLLM}
+                  />
                 </div>
               )}
 

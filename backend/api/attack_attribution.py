@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy import func, desc
 from database.database import get_db
 from database.models import PacketLog
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 import random
 
 router = APIRouter(prefix="/api/v1/attribution", tags=["AttackAttribution"])
@@ -110,8 +110,8 @@ def get_attacker_profile(ip: str, db: Session = Depends(get_db)):
             "persistence": len(events) > 15,
         },
         "timeline": {
-            "first_seen": oldest.timestamp.isoformat() if oldest.timestamp else None,
-            "last_seen": latest.timestamp.isoformat() if latest.timestamp else None,
+            "first_seen": oldest.timestamp.replace(tzinfo=timezone.utc).isoformat() if oldest.timestamp else None,
+            "last_seen": latest.timestamp.replace(tzinfo=timezone.utc).isoformat() if latest.timestamp else None,
             "total_events": len(events),
             "avg_threat_score": round(avg_score, 1),
             "max_threat_score": round(max_score, 1),
@@ -152,7 +152,7 @@ def get_top_attackers(limit: int = 10, db: Session = Depends(get_db)):
                 "event_count": row.event_count,
                 "avg_threat_score": round(avg, 1),
                 "max_threat_score": round(mx, 1),
-                "last_seen": row.last_seen.isoformat() if row.last_seen else None,
+                "last_seen": row.last_seen.replace(tzinfo=timezone.utc).isoformat() if row.last_seen else None,
                 "sophistication": soph,
             }
         )

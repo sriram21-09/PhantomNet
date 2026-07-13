@@ -101,6 +101,7 @@ const SentinelDashboard = () => {
   const [loadingDetails, setLoadingDetails] = useState(false);
 
   const [techniques, setTechniques] = useState(sampleTechniques);
+  const [aiStatus, setAiStatus] = useState("checking");
 
   /* ── Pagination State ── */
   const [currentPage, setCurrentPage] = useState(1);
@@ -164,6 +165,20 @@ const SentinelDashboard = () => {
         }
       } catch (techErr) {
         console.warn("Could not fetch MITRE mappings dynamically, using fallback:", techErr);
+      }
+
+      // 4. Fetch LLM pipeline status
+      try {
+        const llmRes = await fetch("/api/sentinel/llm/status");
+        const llmData = await llmRes.json();
+        if (llmRes.ok && llmData.status === "success") {
+          setAiStatus(llmData.llm_status || "offline");
+        } else {
+          setAiStatus("offline");
+        }
+      } catch (llmErr) {
+        console.warn("Could not fetch Sentinel LLM status:", llmErr);
+        setAiStatus("offline");
       }
 
     } catch (err) {
@@ -342,11 +357,39 @@ const SentinelDashboard = () => {
     );
   };
 
+  const handleLLMNarrativeUpdate = (playbookId, newNarrative) => {
+    setPlaybooks((prev) =>
+      prev.map((pb) =>
+        pb.id === playbookId ? { ...pb, llm_narrative: newNarrative } : pb
+      )
+    );
+    setSelectedPlaybook((prev) =>
+      prev && prev.id === playbookId ? { ...prev, llm_narrative: newNarrative } : prev
+    );
+    addToast({
+      type: "success",
+      title: "Narrative Updated",
+      message: "AI narrative summary refreshed successfully.",
+    });
+  };
+
   return (
     <div className="sentinel-wrapper">
       {/* Header */}
       <div className="sentinel-header">
-        <div className="sentinel-badge hud-font">SENTINEL_ENGINE_V1.0</div>
+        <div style={{ display: "flex", gap: "0.75rem", flexWrap: "wrap", marginBottom: "0.75rem" }}>
+          <div className="sentinel-badge hud-font">SENTINEL_ENGINE_V1.0</div>
+          <div 
+            className={`sentinel-badge hud-font sentinel-ai-status-badge ${aiStatus === "online" ? "ai-online" : "ai-offline"}`}
+            style={{ cursor: "pointer", userSelect: "none" }}
+            onClick={() => {
+              setAiStatus(prev => prev === "online" ? "offline" : "online");
+            }}
+            title="Click to toggle mock status"
+          >
+            AI: {aiStatus === "online" ? "Online" : "Offline"}
+          </div>
+        </div>
         <h1 className="sentinel-title">Sentinel Dashboard</h1>
         <p className="sentinel-subtitle">
           AUTONOMOUS THREAT DETECTION &amp; RESPONSE COMMAND CENTER
@@ -359,6 +402,15 @@ const SentinelDashboard = () => {
           <span className="status-dot-live"></span>
           <span className="status-label">ENGINE STATUS:</span>
           <span>ONLINE</span>
+        </div>
+        <div className="status-item">
+          <span className="status-dot-live" style={{
+            background: aiStatus === "online" ? "#10b981" : aiStatus === "checking" ? "#fb923c" : "#ef4444"
+          }}></span>
+          <span className="status-label">AI PIPELINE:</span>
+          <span style={{ color: aiStatus === "online" ? "#34d399" : aiStatus === "checking" ? "#fb923c" : "#f87171" }}>
+            {aiStatus.toUpperCase()}
+          </span>
         </div>
         <div className="status-item">
           <span className="status-label">UPTIME:</span>
@@ -616,6 +668,8 @@ const SentinelDashboard = () => {
           playbook_content={selectedPlaybook.playbook_content}
           snortRule={selectedPlaybook.snort_rule}
           sigmaRule={selectedPlaybook.sigma_rule}
+          llm_narrative={selectedPlaybook.llm_narrative}
+          onLLMNarrativeUpdate={handleLLMNarrativeUpdate}
         />
       )}
 

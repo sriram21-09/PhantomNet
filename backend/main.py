@@ -94,7 +94,7 @@ from api.reports import router as reports_router
 from api.hunting import router as hunting_router
 from api.cases import router as cases_router
 from api.alerts import router as alerts_router
-from api.honeypots import get_honeypot_status
+from api.honeypots import get_honeypot_status, router as honeypots_router
 
 # =========================
 # ENVIRONMENT SETUP
@@ -383,7 +383,7 @@ async def broadcast_live_metrics() -> None:
             stats = service.calculate_stats()
 
             # Enrich with Honeypot Statuses
-            stats["honeypots"] = get_honeypot_status()
+            stats["honeypots"] = get_honeypot_status(db)
 
             # Enrich with system health (use os.getcwd() for Windows compatibility)
             try:
@@ -521,6 +521,7 @@ app.include_router(hunting_router)
 app.include_router(cases_router)
 app.include_router(alerts_router)
 app.include_router(sentinel_router)
+app.include_router(honeypots_router)
 
 
 # =========================
@@ -717,144 +718,6 @@ def get_live_features(db: Session = Depends(get_db)):
         "features": features
     }
 
-
-# =========================
-# HONEYPOT STATUS (MAIN)
-# =========================
-async def check_service_status(host: str, port: int, protocol: str = "TCP") -> str:
-    """
-    Checks if a service is reachable on the given host and port.
-    """
-    try:
-        # Async connection check
-        conn = asyncio.open_connection(host, port)
-        reader, writer = await asyncio.wait_for(conn, timeout=0.5)
-        
-        if protocol == "HTTP":
-            writer.write(b"GET / HTTP/1.1\r\nHost: localhost\r\n\r\n")
-            await writer.drain()
-            
-        writer.close()
-        await writer.wait_closed()
-        return "active"
-    except (asyncio.TimeoutError, Exception):
-        return "inactive"
-
-
-def _get_db_honeypot_metrics(db: Session) -> Tuple[Dict[str, str], Dict[str, int]]:
-    """Helper to query last seen and packet counts from DB."""
-    last_seen_map: Dict[str, str] = {}
-    packet_counts: Dict[str, int] = {}
-    try:
-        results = (
-            db.query(PacketLog.protocol, func.max(PacketLog.timestamp))
-            .group_by(PacketLog.protocol)
-            .all()
-        )
-        for protocol, last_time in results:
-            if last_time:
-                clean_proto = protocol.strip("'\"") if protocol else protocol
-                ts_str = last_time.strftime("%Y-%m-%d %H:%M:%S")
-                last_seen_map[clean_proto] = ts_str
-                last_seen_map[protocol] = ts_str
-
-        count_results = (
-            db.query(PacketLog.protocol, func.count(PacketLog.id))
-            .group_by(PacketLog.protocol)
-            .all()
-        )
-        for protocol, count in count_results:
-            clean_proto = protocol.strip("'\"") if protocol else protocol
-            packet_counts[clean_proto] = count
-            packet_counts[protocol] = count
-    except Exception as e:
-        print(f"Error querying honeypot metrics: {e}")
-    return last_seen_map, packet_counts
-
-
-def _get_last_seen_from_logs(protocol_name: str) -> Optional[str]:
-    """Read last activity timestamp from honeypot log files"""
-    log_files = {
-        "SSH": "logs/ssh.jsonl",
-        "HTTP": "logs/http_logs.jsonl",
-        "FTP": "logs/ftp_logs.jsonl",
-        "SMTP": "logs/smtp_logs.jsonl",
-    }
-    log_file = log_files.get(protocol_name.upper())
-    if not log_file:
-        return None
-
-    log_path = os.path.join(os.path.dirname(__file__), log_file)
-    if not os.path.exists(log_path):
-        return None
-
-    try:
-        with open(log_path, "rb") as f:
-            f.seek(0, 2)
-            size = f.tell()
-            if size == 0:
-                return None
-            f.seek(max(0, size - 2048))
-            lines = f.read().decode("utf-8", errors="ignore").strip().split("\n")
-
-        for line in reversed(lines):
-            if line.strip():
-                try:
-                    entry = json.loads(line.strip())
-                    return entry.get("timestamp")
-                except json.JSONDecodeError:
-                    continue
-    except Exception as e:
-        print(f"Error reading log for {protocol_name}: {e}")
-    return None
-
-
-@app.get("/api/honeypots/status")
-async def honeypot_status(db: Session = Depends(get_db)) -> list:
-    """Returns real-time status of honeypots concurrently."""
-    is_local = any(env in ENVIRONMENT.lower() for env in ["local", "development", "dev"])
-    last_seen_db, packet_counts = _get_db_honeypot_metrics(db)
-
-    services: List[Dict[str, Any]] = [
-        {"name": "SSH", "port": 2222, "proto": "SSH", "host": "phantomnet_ssh"},
-        {"name": "HTTP", "port": 8080, "proto": "HTTP", "host": "phantomnet_http"},
-        {"name": "FTP", "port": 2121, "proto": "FTP", "host": "phantomnet_ftp"},
-        {"name": "SMTP", "port": 2525, "proto": "SMTP", "host": "phantomnet_smtp"},
-    ]
-
-    # Concurrent Status Checks
-    async def get_full_status(svc):
-        host = "127.0.0.1" if is_local else str(svc["host"])
-        status_task = check_service_status(host, int(svc["port"]), str(svc["proto"]))
-        
-        # Resolve Last Seen from Disk (synchronous but IO based, could be improved later)
-        last_seen = _get_last_seen_from_logs(svc["proto"])
-        if last_seen:
-            last_seen = last_seen.replace("T", " ").split(".")[0]
-        else:
-            last_seen = last_seen_db.get(svc["proto"]) or last_seen_db.get(svc["proto"].lower()) or "Never"
-
-        status = await status_task
-        p_count = packet_counts.get(svc["proto"], 0) or packet_counts.get(svc["proto"].lower(), 0)
-        return {
-            "name": svc["name"],
-            "port": svc["port"],
-            "status": status,
-            "last_seen": last_seen,
-            "packet_count": p_count,
-            "total_events": p_count, # Alias for frontend components
-        }
-
-    return await asyncio.gather(*(get_full_status(s) for s in services))
-
-
-# 🔹 ALIAS SO FRONTEND /api/honeypots ALSO WORKS
-@app.get("/api/honeypots")
-async def honeypot_status_alias(db: Session = Depends(get_db)) -> list:
-    """
-    Alias for honeypot status to support multiple frontend paths.
-    """
-    return await honeypot_status(db)
 
 
 # =========================

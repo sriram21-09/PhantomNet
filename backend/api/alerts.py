@@ -5,7 +5,7 @@ from typing import Optional, Dict, Any, List
 from database.database import get_db
 from database.models import Alert
 from pydantic import BaseModel
-from datetime import datetime
+from datetime import datetime, timezone
 
 router = APIRouter(prefix="/api/v1/alerts", tags=["Alerts"])
 
@@ -51,7 +51,7 @@ def list_alerts(
         for alert in alerts:
             formatted_alerts.append({
                 "id": alert.id,
-                "timestamp": alert.timestamp.isoformat() if alert.timestamp else datetime.utcnow().isoformat(),
+                "timestamp": alert.timestamp.replace(tzinfo=timezone.utc).isoformat() if alert.timestamp else datetime.now(timezone.utc).isoformat(),
                 "level": alert.level,
                 "type": alert.type,
                 "source_ip": alert.source_ip,

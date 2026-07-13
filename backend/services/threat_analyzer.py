@@ -330,7 +330,7 @@ class ThreatAnalyzerService:
                     )
 
                 except Exception as e:
-                    logger.error(f"Error in batch processing: {e}")
+                    logger.exception("Error in batch processing")
 
             if updated_count > 0:
                 # Notify Topology Visualization of new activity

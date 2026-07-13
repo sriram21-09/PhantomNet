@@ -18,14 +18,15 @@ DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./phantomnet.db")
 # SQLite WAL mode registration on Engine connect event
 @event.listens_for(Engine, "connect")
 def set_sqlite_pragma(dbapi_connection, connection_record):
-    cursor = dbapi_connection.cursor()
-    try:
-        cursor.execute("PRAGMA journal_mode=WAL")
-        cursor.execute("PRAGMA synchronous=NORMAL")
-    except Exception:
-        pass
-    finally:
-        cursor.close()
+    if type(dbapi_connection).__module__ in ('sqlite3', 'pysqlite2.dbapi2'):
+        cursor = dbapi_connection.cursor()
+        try:
+            cursor.execute("PRAGMA journal_mode=WAL")
+            cursor.execute("PRAGMA synchronous=NORMAL")
+        except Exception:
+            pass
+        finally:
+            cursor.close()
 
 
 

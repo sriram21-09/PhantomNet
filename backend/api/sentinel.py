@@ -869,3 +869,70 @@ def list_sigma_rules(
     except Exception as exc:
         logger.error("Failed to list Sigma rules: %s", exc)
         raise HTTPException(status_code=500, detail=f"Failed to query Sigma rules: {str(exc)}")
+
+
+# ---------------------------------------------------------------------------
+# 11. GET /api/sentinel/llm/status — Check Ollama status
+# ---------------------------------------------------------------------------
+
+@router.get("/llm/status", response_model=Dict[str, Any])
+async def get_llm_status() -> Dict[str, Any]:
+    """
+    Check the status and availability of the Ollama LLM service.
+    """
+    from sentinel.llm_service import SENTINEL_LLM_HOST, SENTINEL_LLM_MODEL
+    import httpx
+    
+    status = "offline"
+    try:
+        # Check connection by calling the base endpoint or tags
+        async with httpx.AsyncClient(timeout=3.0) as client:
+            response = await client.get(SENTINEL_LLM_HOST)
+            if response.status_code == 200:
+                status = "online"
+    except Exception:
+        pass
+        
+    return {
+        "status": "success",
+        "llm_status": status,
+        "model": SENTINEL_LLM_MODEL,
+        "host": SENTINEL_LLM_HOST
+    }
+
+
+# ---------------------------------------------------------------------------
+# 12. POST /api/sentinel/playbooks/{playbook_id}/regenerate-llm — Regenerate summary
+# ---------------------------------------------------------------------------
+
+@router.post("/playbooks/{playbook_id}/regenerate-llm", response_model=Dict[str, Any])
+async def regenerate_playbook_llm(
+    playbook_id: int = Path(..., ge=1, description="Database ID of the playbook"),
+    db: Session = Depends(get_db)
+) -> Dict[str, Any]:
+    """
+    Manually triggers regeneration of the LLM narrative summary for the playbook.
+    """
+    from sentinel.models import SentinelPlaybook
+    from sentinel.llm_service import generate_playbook_summary
+
+    row = db.query(SentinelPlaybook).filter(SentinelPlaybook.id == playbook_id).first()
+    if not row:
+        raise HTTPException(
+            status_code=404,
+            detail=f"Playbook with id={playbook_id} not found",
+        )
+
+    try:
+        narrative = await generate_playbook_summary(playbook_id, db)
+        return {
+            "status": "success",
+            "llm_narrative": narrative
+        }
+    except Exception as exc:
+        logger.error("Failed to regenerate LLM summary: %s", exc)
+        raise HTTPException(
+            status_code=500,
+            detail=f"Failed to regenerate LLM summary: {str(exc)}"
+        )
+

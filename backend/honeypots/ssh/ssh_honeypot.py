@@ -81,25 +81,176 @@ def clean(text):
 def receive_line(client):
     buf = b""
     while True:
-        chunk = client.recv(1)
-        if not chunk:
-            return ""
-        if chunk == b"\r":
-            continue
-        buf += chunk
-        if chunk == b"\n":
-            break
+        try:
+            chunk = client.recv(1)
+            if not chunk:
+                return None
+            if chunk == b"\r":
+                continue
+            buf += chunk
+            if chunk == b"\n":
+                break
+        except Exception:
+            return None
     return buf.decode(errors="ignore").strip()
+
+
+# --------------------------
+# Client Session Handler
+# --------------------------
+def handle_client(client, addr, CORRECT_USER, CORRECT_PASS):
+    ip = addr[0]
+    try:
+        print(f"🔥 Connection from {ip}")
+        log_json(ip, "connect")
+
+        client.send(b"SSH-2.0-OpenSSH_7.4\r\n")
+
+        attempts = 0
+        login_success = False
+
+        while attempts < 3:
+            client.send(b"Username: ")
+            raw_user = receive_line(client)
+            if raw_user is None:
+                log_json(ip, "disconnect")
+                client.close()
+                return
+            username = clean(raw_user)
+
+            client.send(b"Password: ")
+            raw_pass = receive_line(client)
+            if raw_pass is None:
+                log_json(ip, "disconnect")
+                client.close()
+                return
+            password = clean(raw_pass)
+
+            log_json(
+                ip, "login_attempt", {"username": username, "password": password}
+            )
+
+            if username == CORRECT_USER and password == CORRECT_PASS:
+                log_json(ip, "login_success", {"username": username})
+                login_success = True
+                break
+
+            log_json(ip, "login_failed", {"username": username})
+            client.send(b"Invalid credentials\n")
+            attempts += 1
+
+        if not login_success:
+            client.send(b"Access denied\n")
+            client.close()
+            log_json(ip, "disconnect")
+            return
+
+        # Fake shell
+        fs = FakeFilesystem(username)
+        client.send(
+            b"\nWelcome to Ubuntu 20.04.1 LTS (GNU/Linux 5.4.0-42-generic x86_64)\n\n"
+        )
+        cwd = f"/home/{username}"
+
+        while True:
+            try:
+                prompt = fs.get_prompt(username, "phantomnet-server", cwd)
+                client.send(prompt.encode())
+
+                raw_cmd = receive_line(client)
+                if raw_cmd is None:
+                    break
+                cmd_line = clean(raw_cmd)
+                if not cmd_line:
+                    continue
+
+                log_json(ip, "command", {"cmd": cmd_line})
+                parts = cmd_line.split()
+                cmd = parts[0] if parts else ""
+                args = parts[1:] if len(parts) > 1 else []
+
+                if cmd == "ls":
+                    target = args[0] if args else cwd
+                    if not target.startswith("/"):
+                        target = os.path.join(cwd, target)
+                    items = fs.list_dir(target)
+                    if items:
+                        client.send(("  ".join(items) + "\n").encode())
+                    else:
+                        client.send(
+                            b"ls: cannot access '"
+                            + target.encode()
+                            + b"': No such file or directory\n"
+                        )
+
+                elif cmd == "cat":
+                    if not args:
+                        continue
+                    target = args[0]
+                    if not target.startswith("/"):
+                        target = os.path.join(cwd, target)
+                    content = fs.read_file(target)
+                    client.send((content + "\n").encode())
+
+                elif cmd == "pwd":
+                    client.send((cwd + "\n").encode())
+
+                elif cmd == "whoami":
+                    client.send((username + "\n").encode())
+
+                elif cmd == "cd":
+                    if not args:
+                        cwd = f"/home/{username}"
+                        continue
+                    target = args[0]
+                    if target == "~":
+                        cwd = f"/home/{username}"
+                        continue
+                    if not target.startswith("/"):
+                        new_cwd = os.path.join(cwd, target)
+                    else:
+                        new_cwd = target
+
+                    if fs.is_dir(new_cwd):
+                        cwd = new_cwd
+                    else:
+                        client.send(
+                            b"cd: "
+                            + target.encode()
+                            + b": No such file or directory\n"
+                        )
+
+                elif cmd in ("exit", "logout"):
+                    log_json(ip, "session_end")
+                    client.send(b"logout\n")
+                    break
+                else:
+                    client.send(f"{cmd}: command not found\n".encode())
+
+            except Exception as e:
+                log_error(e, "shell error")
+                break
+
+        client.close()
+        log_json(ip, "disconnect")
+
+    except Exception as e:
+        log_error(e, "client error")
+        try:
+            client.close()
+        except Exception:
+            pass
 
 
 # --------------------------
 # SSH Honeypot
 # --------------------------
 def start_ssh():
+    import threading
     server = socket.socket()
     server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     server.bind(("0.0.0.0", 2222))
-    server.listen(5)
+    server.listen(100)
 
     print("[+] SSH Honeypot running on port 2222")
     log_text("SSH Honeypot started")
@@ -110,128 +261,12 @@ def start_ssh():
     while True:
         try:
             client, addr = server.accept()
-            ip = addr[0]
-
-            print(f"🔥 Connection from {ip}")
-            log_json(ip, "connect")
-
-            client.send(b"SSH-2.0-OpenSSH_7.4\r\n")
-
-            attempts = 0
-            login_success = False
-
-            while attempts < 3:
-                client.send(b"Username: ")
-                username = clean(receive_line(client))
-
-                client.send(b"Password: ")
-                password = clean(receive_line(client))
-
-                log_json(
-                    ip, "login_attempt", {"username": username, "password": password}
-                )
-
-                if username == CORRECT_USER and password == CORRECT_PASS:
-                    log_json(ip, "login_success", {"username": username})
-                    login_success = True
-                    break
-
-                log_json(ip, "login_failed", {"username": username})
-                client.send(b"Invalid credentials\n")
-                attempts += 1
-
-            if not login_success:
-                client.send(b"Access denied\n")
-                client.close()
-                log_json(ip, "disconnect")
-                continue
-
-            # Fake shell
-            fs = FakeFilesystem(username)
-            client.send(
-                b"\nWelcome to Ubuntu 20.04.1 LTS (GNU/Linux 5.4.0-42-generic x86_64)\n\n"
+            t = threading.Thread(
+                target=handle_client,
+                args=(client, addr, CORRECT_USER, CORRECT_PASS),
+                daemon=True
             )
-            cwd = f"/home/{username}"
-
-            while True:
-                try:
-                    prompt = fs.get_prompt(username, "phantomnet-server", cwd)
-                    client.send(prompt.encode())
-
-                    cmd_line = clean(receive_line(client))
-                    if not cmd_line:
-                        continue
-
-                    log_json(ip, "command", {"cmd": cmd_line})
-                    parts = cmd_line.split()
-                    cmd = parts[0] if parts else ""
-                    args = parts[1:] if len(parts) > 1 else []
-
-                    if cmd == "ls":
-                        target = args[0] if args else cwd
-                        if not target.startswith("/"):
-                            target = os.path.join(cwd, target)
-                        items = fs.list_dir(target)
-                        if items:
-                            client.send(("  ".join(items) + "\n").encode())
-                        else:
-                            client.send(
-                                b"ls: cannot access '"
-                                + target.encode()
-                                + b"': No such file or directory\n"
-                            )
-
-                    elif cmd == "cat":
-                        if not args:
-                            continue
-                        target = args[0]
-                        if not target.startswith("/"):
-                            target = os.path.join(cwd, target)
-                        content = fs.read_file(target)
-                        client.send((content + "\n").encode())
-
-                    elif cmd == "pwd":
-                        client.send((cwd + "\n").encode())
-
-                    elif cmd == "whoami":
-                        client.send((username + "\n").encode())
-
-                    elif cmd == "cd":
-                        if not args:
-                            cwd = f"/home/{username}"
-                            continue
-                        target = args[0]
-                        if target == "~":
-                            cwd = f"/home/{username}"
-                            continue
-                        if not target.startswith("/"):
-                            new_cwd = os.path.join(cwd, target)
-                        else:
-                            new_cwd = target
-
-                        if fs.is_dir(new_cwd):
-                            cwd = new_cwd
-                        else:
-                            client.send(
-                                b"cd: "
-                                + target.encode()
-                                + b": No such file or directory\n"
-                            )
-
-                    elif cmd in ("exit", "logout"):
-                        log_json(ip, "session_end")
-                        client.send(b"logout\n")
-                        break
-                    else:
-                        client.send(f"{cmd}: command not found\n".encode())
-
-                except Exception as e:
-                    log_error(e, "shell error")
-                    break
-
-            client.close()
-            log_json(ip, "disconnect")
-
+            t.start()
         except Exception as e:
             log_error(e, "server error")
 
@@ -241,3 +276,4 @@ def start_ssh():
 # --------------------------
 if __name__ == "__main__":
     start_ssh()
+
