@@ -165,16 +165,36 @@ services:
       DB_PORT: 5432
       JWT_SECRET: ${JWT_SECRET:-supersecret}
       API_KEY: ${API_KEY:-default_key}
+      SENTINEL_LLM_HOST: ${SENTINEL_LLM_HOST:-http://ollama:11434}
+      SENTINEL_LLM_MODEL: ${SENTINEL_LLM_MODEL:-mistral}
     networks:
       - app_net
       - honeypot_net
     depends_on:
       - postgres
+      - ollama
     deploy:
       resources:
         limits:
           cpus: '1.0'
           memory: 1G
+
+  ollama:
+    image: ollama/ollama:latest
+    container_name: phantomnet_ollama
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_data:/root/.ollama
+    networks:
+      - app_net
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
 
 networks:
   app_net:
@@ -185,3 +205,4 @@ networks:
 
 volumes:
   postgres_data:
+  ollama_data:

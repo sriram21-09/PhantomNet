@@ -248,6 +248,13 @@ class SentinelPlaybook(Base):
         comment="Jinja2 template filename used to render playbook_content",
     )
 
+    llm_narrative = Column(
+        Text,
+        nullable=True,
+        default=None,
+        comment="AI-generated playbook narrative summary (Markdown format)",
+    )
+
     # ΓöÇΓöÇ 6. Lifecycle / Workflow ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
     #   status      : Approval workflow state.
     #                 Values: "pending" | "approved" | "rejected" | "exported"
@@ -321,6 +328,7 @@ class SentinelPlaybook(Base):
             "playbook_name":    self.playbook_name,
             "playbook_content": self.playbook_content,
             "template_name":    self.template_name,
+            "llm_narrative":    self.llm_narrative,
             # Lifecycle
             "status":           self.status,
             "reviewed_by":      self.reviewed_by,

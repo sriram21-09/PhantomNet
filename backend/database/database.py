@@ -89,6 +89,13 @@ def upgrade_db_schema(engine):
                     conn.execute(text("ALTER TABLE packet_logs ADD COLUMN email_subject VARCHAR(512)"))
                 if "body_len" not in columns:
                     conn.execute(text("ALTER TABLE packet_logs ADD COLUMN body_len INTEGER"))
+
+        if "sentinel_playbooks" in inspector.get_table_names():
+            sp_columns = [c["name"] for c in inspector.get_columns("sentinel_playbooks")]
+            with engine.begin() as conn:
+                if "llm_narrative" not in sp_columns:
+                    conn.execute(text("ALTER TABLE sentinel_playbooks ADD COLUMN llm_narrative TEXT"))
+                    logger.info("✅ Database schema migration: added llm_narrative to sentinel_playbooks")
     except Exception as e:
         logger.warning(f"Schema upgrade check failed/skipped: {e}")
 

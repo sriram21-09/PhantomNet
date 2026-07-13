@@ -238,10 +238,10 @@ class TestAll23ColumnsPopulated(unittest.TestCase):
     def test_scan_all_23_columns(self):
         self._check_columns(self.results["Scan"], "Scan")
 
-    def test_to_dict_has_23_keys(self):
+    def test_to_dict_has_24_keys(self):
         for label, r in self.results.items():
             d = r.to_dict()
-            self.assertEqual(len(d), 23, f"{label}: to_dict has {len(d)} keys, expected 23")
+            self.assertEqual(len(d), 24, f"{label}: to_dict has {len(d)} keys, expected 24")
 
 
 class TestDBSaveNoFailures(unittest.TestCase):

@@ -98,14 +98,14 @@ tasks_definition = [
         "role_label": "ai-ml-dev",
         "role_tag": "AIMLDeveloper",
         "title": "Research and Document Ollama Installation Steps",
-        "objective": "Research local Ollama installation, pull the target Mistral 7B model, and document developer setup steps.",
+        "objective": "Research dockerized Ollama installation, pull the target Mistral 7B model, and document containerized setup steps.",
         "tasks": [
-            "- [ ] Research and test Windows/Linux installation procedures for local Ollama server.",
-            "- [ ] Pull the `mistral` model locally and benchmark initialization and basic inference speed.",
-            "- [ ] Write a developer bootstrap document detailing system pre-requisites and setup steps."
+            "- [ ] Research and test Docker container installation procedures for Ollama server with GPU pass-through.",
+            "- [ ] Pull the `mistral` model inside the docker container and benchmark initialization and basic inference speed.",
+            "- [ ] Write a developer bootstrap document detailing system pre-requisites and Docker Compose setup steps."
         ],
         "deliverables": [
-            "- [ ] Local developer installation guide (`docs/ollama_setup.md`).",
+            "- [ ] Local developer installation guide (`docs/ollama_docker_setup.md`).",
             "- [ ] Basic benchmark statistics (latency per token, load times)."
         ],
         "estimate": 4
@@ -120,7 +120,7 @@ tasks_definition = [
         "tasks": [
             "- [ ] Create the `backend/sentinel/llm_service.py` module file.",
             "- [ ] Define the `LLMService` class with a stub for `generate_narrative(context_data) -> str`.",
-            "- [ ] Bind execution controls to the `SENTINEL_LLM_ENABLED` environment variable."
+            "- [ ] Bind execution controls to the `SENTINEL_LLM_ENABLED` and `SENTINEL_LLM_HOST` environment variables."
         ],
         "deliverables": [
             "- [ ] Scaffolded `llm_service.py` file with basic class and configuration validation."
@@ -155,7 +155,7 @@ tasks_definition = [
         "tasks": [
             "- [ ] Add the `/api/sentinel/llm/status` endpoint in the FastAPI backend.",
             "- [ ] Return details such as enabled/disabled state, model name, and host connection status.",
-            "- [ ] Implement health check checks that verify if the local Ollama daemon is reachable."
+            "- [ ] Implement health check checks that verify if the dockerized Ollama daemon (`SENTINEL_LLM_HOST`) is reachable."
         ],
         "deliverables": [
             "- [ ] `/api/sentinel/llm/status` API endpoint with JSON response and health check logic."
@@ -168,10 +168,10 @@ tasks_definition = [
         "role_label": "ai-ml-dev",
         "role_tag": "AIMLDeveloper",
         "title": "Install Ollama and Mistral 7B on Development Machines",
-        "objective": "Configure the local developer environment with a working Ollama server and Mistral 7B model.",
+        "objective": "Configure the local developer environment with a working dockerized Ollama container and Mistral 7B model.",
         "tasks": [
-            "- [ ] Execute local installer and confirm `ollama` daemon starts correctly on port 11434.",
-            "- [ ] Run `ollama pull mistral` and verify model availability.",
+            "- [ ] Start the `ollama` container (`docker compose up -d ollama`) and confirm it starts correctly on port 11434.",
+            "- [ ] Run `docker exec -it phantomnet_ollama ollama pull mistral` and verify model availability inside the container.",
             "- [ ] Document alternative/smaller fallback models (e.g., `phi3:3.8b` or `gemma:2b`) for resource-constrained systems."
         ],
         "deliverables": [
@@ -256,9 +256,9 @@ tasks_definition = [
         "role_label": "security-dev",
         "role_tag": "SecurityDeveloper",
         "title": "Implement Async Ollama HTTP Client in llm_service.py",
-        "objective": "Build an asynchronous HTTP client to communicate with the local Ollama API without blocking the application.",
+        "objective": "Build an asynchronous HTTP client to communicate with the dockerized Ollama API via the internal network without blocking the application.",
         "tasks": [
-            "- [ ] Integrate `httpx.AsyncClient` inside `llm_service.py` to target the Ollama `/api/generate` endpoint.",
+            "- [ ] Integrate `httpx.AsyncClient` inside `llm_service.py` to target the dynamic `SENTINEL_LLM_HOST` endpoint.",
             "- [ ] Configure a strict 60-second connection and read timeout.",
             "- [ ] Ensure response streaming or aggregation is parsed correctly into clean markdown text."
         ],
@@ -414,8 +414,8 @@ tasks_definition = [
         "title": "Conduct Full E2E Pipeline Verification with LLM Enabled",
         "objective": "Perform full end-to-end user path testing to verify active LLM playbook enrichment.",
         "tasks": [
-            "- [ ] Simulate a threat campaign (e.g. SSH brute force) and trigger playbook creation.",
-            "- [ ] Verify that the backend background task runs, fetches the LLM summary, and updates the database.",
+            "- [ ] Simulate a threat campaign (e.g. SSH brute force) in the Docker Compose environment and trigger playbook creation.",
+            "- [ ] Verify that the backend container runs the background task, queries the ollama container, and updates the database.",
             "- [ ] Open the dashboard and check the playbook modal for correct rendering of the AI narrative."
         ],
         "deliverables": [
