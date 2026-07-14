@@ -1,3 +1,6 @@
+import os
+os.environ["ENVIRONMENT"] = "test"
+
 import pytest
 from unittest.mock import patch, AsyncMock, MagicMock
 from sqlalchemy.orm import Session
@@ -84,3 +87,37 @@ async def test_generate_playbook_summary_fallback_on_error(mock_client_cls):
     assert "### AI-Powered Playbook Narrative (Local Fallback)" in result
     assert playbook.llm_narrative == result
     mock_db.commit.assert_called_once()
+
+@pytest.mark.anyio
+async def test_api_get_llm_status():
+    """Verify get_llm_status endpoint function returns configuration and health status."""
+    from api.sentinel import get_llm_status
+    from unittest.mock import patch, AsyncMock, MagicMock
+
+    with patch("httpx.AsyncClient") as mock_client_cls:
+        # Mock client connection success
+        mock_client = AsyncMock()
+        mock_client_cls.return_value.__aenter__.return_value = mock_client
+        mock_response = MagicMock()
+        mock_response.status_code = 200
+        mock_client.get.return_value = mock_response
+
+        data = await get_llm_status()
+        assert data["status"] == "success"
+        assert "enabled" in data
+        assert "model" in data
+        assert "host" in data
+        assert data["host_connection_status"] == "online"
+
+    with patch("httpx.AsyncClient") as mock_client_cls:
+        # Mock client connection failure
+        mock_client = AsyncMock()
+        mock_client_cls.return_value.__aenter__.return_value = mock_client
+        mock_client.get.side_effect = Exception("Ollama connection timed out")
+
+        data = await get_llm_status()
+        assert data["status"] == "success"
+        assert data["host_connection_status"] == "offline"
+
+
+

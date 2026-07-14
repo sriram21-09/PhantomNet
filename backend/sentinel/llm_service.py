@@ -9,6 +9,7 @@ from sentinel.models import SentinelPlaybook
 
 logger = logging.getLogger("sentinel.llm_service")
 
+SENTINEL_LLM_ENABLED = os.getenv("SENTINEL_LLM_ENABLED", "false").lower() == "true"
 SENTINEL_LLM_HOST = os.getenv("SENTINEL_LLM_HOST", "http://ollama:11434")
 SENTINEL_LLM_MODEL = os.getenv("SENTINEL_LLM_MODEL", "mistral")
 

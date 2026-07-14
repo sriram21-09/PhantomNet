@@ -880,7 +880,7 @@ async def get_llm_status() -> Dict[str, Any]:
     """
     Check the status and availability of the Ollama LLM service.
     """
-    from sentinel.llm_service import SENTINEL_LLM_HOST, SENTINEL_LLM_MODEL
+    from sentinel.llm_service import SENTINEL_LLM_ENABLED, SENTINEL_LLM_HOST, SENTINEL_LLM_MODEL
     import httpx
     
     status = "offline"
@@ -895,9 +895,11 @@ async def get_llm_status() -> Dict[str, Any]:
         
     return {
         "status": "success",
-        "llm_status": status,
+        "enabled": SENTINEL_LLM_ENABLED,
         "model": SENTINEL_LLM_MODEL,
-        "host": SENTINEL_LLM_HOST
+        "host": SENTINEL_LLM_HOST,
+        "host_connection_status": status,
+        "llm_status": status
     }
 
 
