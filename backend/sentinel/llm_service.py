@@ -67,11 +67,11 @@ from sentinel.models import SentinelPlaybook
 # ---------------------------------------------------------------------------
 logger = logging.getLogger("sentinel.llm_service")
 
-
 # ---------------------------------------------------------------------------
 # Module-level constants (read at import time so that the existing
 # module-level helpers below keep working unchanged)
 # ---------------------------------------------------------------------------
+SENTINEL_LLM_ENABLED: bool = os.getenv("SENTINEL_LLM_ENABLED", "false").lower() == "true"
 SENTINEL_LLM_HOST: str = os.getenv("SENTINEL_LLM_HOST", "http://ollama:11434")
 SENTINEL_LLM_MODEL: str = os.getenv("SENTINEL_LLM_MODEL", "mistral")
 
