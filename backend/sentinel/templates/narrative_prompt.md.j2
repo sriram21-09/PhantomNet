@@ -1,0 +1,110 @@
+You are a senior cybersecurity incident response analyst. Analyse the following structured security incident context and produce a professional, concise narrative summary suitable for inclusion in an incident response playbook.
+
+The narrative MUST be formatted in Markdown and MUST include the following sections:
+1. **Executive Summary** — 2–3 sentence overview of the threat.
+2. **Attack Narrative** — Description of the attack lifecycle and attacker behaviour.
+3. **Containment & Mitigation Steps** — Numbered, actionable steps for the SOC team.
+4. **Analyst Notes** — Key observations or concerns for follow-up investigation.
+
+Keep the total response under 500 words. Do NOT fabricate IOCs or technique IDs — only use the data provided below.
+
+---
+
+## 1. Campaign Cluster Metadata
+
+| Field              | Value                                           |
+|--------------------|------------------------------------------------|
+| Campaign ID        | {{ campaign_id | default("UNKNOWN") }}         |
+| Generated At (UTC) | {{ generated_at_utc }}                          |
+| Event Count        | {{ event_count | default(0) }}                 |
+| Service Type       | {{ service_type | default("UNKNOWN") }}        |
+| Protocol           | {{ protocol | default("TCP") }}                |
+| Target Ports       | {{ target_ports | join(", ") if target_ports else "N/A" }} |
+| Confidence Score   | {{ "%.4f" | format(confidence_score | default(none) | float) if confidence_score is defined and confidence_score is not none else "N/A" }} |
+| Severity           | {{ severity | default("UNKNOWN") }}            |
+| Time Range Start   | {{ time_range_start | default("N/A") }}        |
+| Time Range End     | {{ time_range_end | default("N/A") }}          |
+
+---
+
+## 2. Source IPs / Indicators of Compromise (IOCs)
+
+{% if source_ips %}
+The following source IPs were identified as part of this campaign cluster:
+
+{% for ip in source_ips %}
+- `{{ ip }}`
+{% endfor %}
+
+{% else %}
+No source IPs were recorded for this campaign.
+{% endif %}
+
+{% if ioc_entries %}
+### Additional IOC Entries
+
+| Type | Value | Threat Level |
+|------|-------|--------------|
+{% for ioc in ioc_entries %}
+| {{ ioc.type | upper }} | `{{ ioc.value }}` | {{ ioc.threat_level | default("Unknown") }} |
+{% endfor %}
+
+{% endif %}
+
+---
+
+## 3. MITRE ATT&CK Mapping
+
+| Field          | Value                                                   |
+|----------------|--------------------------------------------------------|
+| Technique ID   | {{ technique_id | default("N/A") }}                    |
+| Technique Name | {{ technique_name | default("N/A") }}                  |
+| Tactic         | {{ tactic | default("N/A") }}                          |
+| Reference URL  | {{ mitre_url | default("https://attack.mitre.org/") }} |
+| Threat Score   | {{ threat_score | default(0.0) }}                      |
+
+{% if all_techniques %}
+### All Detected Techniques
+
+{% for tech in all_techniques %}
+- **{{ tech.technique_id }}** — {{ tech.technique_name }} (Tactic: {{ tech.tactic }})
+{% endfor %}
+
+{% endif %}
+
+---
+
+## 4. Mitigation Steps
+
+Based on the detected attack pattern and MITRE ATT&CK technique **{{ technique_id | default("N/A") }} — {{ technique_name | default("Unknown") }}**, the following mitigations are recommended:
+
+{% if service_type == "SSH" %}
+1. **Block Source IPs** — Immediately add all identified source IPs to the perimeter firewall deny-list.
+2. **Rotate SSH Credentials** — Force rotation of all SSH keys and passwords for affected honeypot accounts.
+3. **Rate-Limit SSH Connections** — Apply connection-rate limits (e.g., ≤ 3 attempts per minute per IP) at the network boundary.
+4. **Enable SSH MFA** — Enforce multi-factor authentication on all exposed SSH services.
+5. **Review Audit Logs** — Correlate failed SSH authentication logs against the recorded source IPs for lateral movement indicators.
+{% elif service_type == "HTTP" %}
+1. **Block Source IPs** — Deny all HTTP requests from identified attacker IPs at the WAF and perimeter firewall.
+2. **Apply WAF Rules** — Enable SQL injection, XSS, and scanner-pattern blocking rules in the WAF.
+3. **Patch Vulnerable Endpoints** — Review and patch any web application endpoints targeted by the attack.
+4. **Enable Rate Limiting** — Configure HTTP request rate limits to prevent automated scanning.
+5. **Review Access Logs** — Analyse HTTP access logs for evidence of successful exploitation or data exfiltration.
+{% elif service_type == "FTP" %}
+1. **Block Source IPs** — Deny FTP connections from identified attacker source IPs at the firewall.
+2. **Disable Anonymous FTP** — Ensure anonymous FTP access is disabled on all production and honeypot nodes.
+3. **Audit FTP Transfers** — Review FTP transfer logs for unauthorised file uploads or downloads.
+4. **Enforce TLS** — Require FTPS (FTP over TLS) for all FTP communications.
+5. **Rotate FTP Credentials** — Immediately rotate FTP account passwords for affected services.
+{% else %}
+1. **Block Source IPs** — Add all identified source IPs to the perimeter firewall deny-list immediately.
+2. **Segment Network** — Isolate affected network segments to prevent lateral movement.
+3. **Collect Evidence** — Preserve packet captures and log files for forensic analysis.
+4. **Notify Stakeholders** — Escalate the incident to the appropriate security response teams.
+5. **Review Detection Coverage** — Ensure IDS/IPS signatures and SIEM correlation rules cover the detected technique.
+{% endif %}
+
+---
+
+*Prompt generated by PhantomNet Sentinel LLM Service — Week 17, Day 2*
+*UTC Timestamp: {{ generated_at_utc }}*

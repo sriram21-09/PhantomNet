@@ -45,6 +45,7 @@ generate_playbook_summary(playbook_id, db) -> Coroutine[str]
 trigger_llm_summary(playbook_id) -> None
 
 Week 17, Day 1 — LLM Service Scaffolding
+Week 17, Day 2 — Structured Prompt Templates integration
 """
 
 from __future__ import annotations
@@ -55,6 +56,18 @@ import os
 import threading
 from datetime import datetime, timezone
 from typing import Any, Dict, Optional
+
+# Week 17, Day 2: structured prompt templates
+try:
+    from sentinel.prompt_templates import (
+        build_narrative_prompt,
+        render_narrative_prompt_jinja,
+        normalise_utc_timestamp,
+    )
+    _PROMPT_TEMPLATES_AVAILABLE = True
+except ImportError:  # pragma: no cover
+    _PROMPT_TEMPLATES_AVAILABLE = False
+    normalise_utc_timestamp = None  # type: ignore[assignment]
 
 import httpx
 from sqlalchemy.orm import Session
@@ -245,23 +258,70 @@ class LLMService:
         return ""
 
     def _build_context_prompt(self, context_data: Dict[str, Any]) -> str:
-        """Build a prompt from a generic context dictionary.
+        """Build a structured prompt from a generic context dictionary.
 
-        Constructs a concise, analyst-oriented prompt from arbitrary key/value
-        pairs provided by the pipeline.  Unknown keys are appended as a
-        supplementary data block so no information is silently dropped.
+        Week 17, Day 2: delegates to ``prompt_templates.build_narrative_prompt``
+        when available, which produces the full 4-section structured prompt
+        with UTC timestamp standardisation.  Falls back to the legacy
+        inline prompt when the module is unavailable.
+
+        The structured prompt includes:
+        1. Campaign Cluster Metadata
+        2. Source IPs / IOCs
+        3. MITRE ATT&CK Mapping
+        4. Mitigation Steps
 
         Parameters
         ----------
         context_data:
             Arbitrary dictionary of attack/campaign context values.
+            Well-known keys (all optional):
+            ``campaign_id``, ``event_count``, ``service_type``, ``protocol``,
+            ``target_ports``, ``source_ips``, ``ioc_entries``,
+            ``technique_id``, ``technique_name``, ``tactic``, ``mitre_url``,
+            ``threat_score``, ``all_techniques``, ``confidence_score``,
+            ``severity``, ``generated_at``, ``time_range_start``,
+            ``time_range_end``.
 
         Returns
         -------
         str
-            A formatted prompt string ready to send to Ollama.
+            A fully structured Markdown prompt string ready for Ollama.
         """
-        # Well-known keys rendered with labels
+        # --- Week 17 Day 2: use structured prompt templates module ---
+        if _PROMPT_TEMPLATES_AVAILABLE:
+            try:
+                # Bridge legacy single-IP keys to structured multi-IP format
+                enriched = dict(context_data)
+                if "src_ip" in enriched and "source_ips" not in enriched:
+                    enriched["source_ips"] = [enriched["src_ip"]]
+                if "attack_type" in enriched and "service_type" not in enriched:
+                    # Map attack_type to a plausible service_type
+                    attack_map = {
+                        "SSH_AUTH_FAILURE": "SSH",
+                        "HTTP_SCANNER_BEHAVIOR": "HTTP",
+                        "FTP_DATA_EXFILTRATION": "FTP",
+                        "SMTP_LARGE_PAYLOAD": "SMTP",
+                    }
+                    enriched["service_type"] = attack_map.get(
+                        str(enriched["attack_type"]).upper(), "UNKNOWN"
+                    )
+                if "generated_at" not in enriched:
+                    enriched["generated_at"] = datetime.now(timezone.utc)
+
+                prompt = render_narrative_prompt_jinja(enriched)
+                logger.debug(
+                    "_build_context_prompt: used structured Jinja2 prompt (%d chars)",
+                    len(prompt),
+                )
+                return prompt
+            except Exception as exc:  # noqa: BLE001
+                logger.warning(
+                    "_build_context_prompt: structured prompt failed (%s) — "
+                    "falling back to legacy prompt builder.", exc
+                )
+
+        # --- Legacy fallback (preserved for backward compatibility) ---
         known_keys = [
             ("attack_type",    "Attack Type"),
             ("severity",       "Severity"),
@@ -291,7 +351,6 @@ class LLMService:
                 lines.append(f"- **{label}**: {value}")
                 rendered_keys.add(key)
 
-        # Append any extra keys the caller provides
         extras = {k: v for k, v in context_data.items() if k not in rendered_keys}
         if extras:
             lines.append("")
@@ -304,7 +363,6 @@ class LLMService:
             "Describe the threat activity, highlight key containment/mitigation "
             "steps, and keep the narrative professional and brief."
         )
-
         return "\n".join(lines)
 
     def generate_narrative(self, context_data: Dict[str, Any]) -> str:
