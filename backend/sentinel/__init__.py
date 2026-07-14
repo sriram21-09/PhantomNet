@@ -13,6 +13,12 @@ This package implements the Sentinel threat intelligence pipeline:
                               Populates PacketLog.detected_signatures by
                               inferring service type from dst_port and
                               querying the events table for raw payloads.
+  - llm_service.py          : LLM Service Module (Week 17, Day 1)
+                              Encapsulates Ollama interactions and state
+                              toggles via SENTINEL_LLM_ENABLED /
+                              SENTINEL_LLM_HOST environment variables.
+                              Exposes LLMService class with
+                              generate_narrative(context_data) -> str.
 
 Sub-packages
 ------------

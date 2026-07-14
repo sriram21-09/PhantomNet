@@ -1,7 +1,7 @@
 # Sentinel Rule Generation Documentation
 
 ## Overview
-The PhantomNet Sentinel pipeline dynamically translates raw attacker traffic captured by honeypot instances into actionable, production-ready SIEM detection rules. The `rule_generator.py` module handles the transformation of MITRE ATT&CK mappings, incident payloads, and event clusters into standard **Snort** and **Sigma** rule formats. 
+The PhantomNet Sentinel pipeline dynamically translates raw attacker traffic captured by honeypot instances into actionable, production-ready SIEM detection rules. The `rule_generator.py` module handles the transformation of MITRE ATT&CK mappings, incident payloads, and event clusters into standard **Snort** and **Sigma** rule formats.
 
 These rules are embedded into the generated Playbooks, enabling analysts to rapidly deploy network blocks and SIEM alerting logic.
 
@@ -32,7 +32,7 @@ alert {protocol} {src_ip} any -> $HOME_NET {dst_port} (msg:"{attack_desc}"; flow
 To prevent SID collisions across pipeline restarts and distributed generation:
 1.  **Base SID**: Rule generation starts at SID `1000001`.
 2.  **Persistence**: The current SID counter is stored on disk in `data/last_sid.txt`.
-3.  **Thread Safety**: A `threading.Lock()` encapsulates the SID incrementer. When a rule is requested, the application locks the thread, assigns the current `_NEXT_SID`, increments the counter, flushes the new value to `last_sid.txt`, and releases the lock. 
+3.  **Thread Safety**: A `threading.Lock()` encapsulates the SID incrementer. When a rule is requested, the application locks the thread, assigns the current `_NEXT_SID`, increments the counter, flushes the new value to `last_sid.txt`, and releases the lock.
 4.  **Resilience**: If the file is corrupted or missing, the generator gracefully falls back to the Base SID of `1000001`.
 
 ---
