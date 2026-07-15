@@ -118,12 +118,17 @@ body[data-theme="light"] .approval-status-label {
 /* ─── Confirmation Modal ─── */
 .confirm-modal-overlay {
     position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
     inset: 0;
     z-index: 9900;
     display: flex;
     align-items: center;
     justify-content: center;
     background: rgba(2, 6, 23, 0.8);
+    -webkit-backdrop-filter: blur(8px);
     backdrop-filter: blur(8px);
     animation: confirmFadeIn 0.2s ease-out;
 }

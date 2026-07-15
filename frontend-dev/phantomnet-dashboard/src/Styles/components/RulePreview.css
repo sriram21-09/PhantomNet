@@ -149,8 +149,9 @@ body[data-theme="light"] .rule-copy-btn:hover {
     overflow-x: auto;
     max-height: 320px;
     overflow-y: auto;
+    /* Firefox scrollbar styling */
     scrollbar-width: thin;
-    scrollbar-color: rgba(139, 92, 246, 0.3) transparent;
+    scrollbar-color: rgba(139, 92, 246, 0.15) transparent;
 }
 
 .rule-code-container::-webkit-scrollbar {

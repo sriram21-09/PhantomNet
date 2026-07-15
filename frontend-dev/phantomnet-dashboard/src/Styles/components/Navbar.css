@@ -6,6 +6,7 @@
     position: sticky;
     top: 0;
     z-index: 100;
+    -webkit-backdrop-filter: blur(20px);
     backdrop-filter: blur(20px);
     transition: all 0.3s ease;
 }
@@ -266,6 +267,7 @@ body[data-theme="light"] .toggle-label {
 body[data-theme="dark"] .submenu-dropdown {
     background: rgba(15, 23, 42, 0.95);
     border: 1px solid rgba(255, 255, 255, 0.08);
+    -webkit-backdrop-filter: blur(12px);
     backdrop-filter: blur(12px);
 }
 
@@ -354,6 +356,10 @@ body[data-theme="light"] .submenu-link.active {
     margin-left: 6px;
     box-shadow: 0 0 8px rgba(239, 68, 68, 0.5);
     animation: sentinel-badge-pulse 2s ease-in-out infinite;
+    /* Cross-browser: ensure consistent box model for pill shape */
+    box-sizing: border-box;
+    /* Performance: promote to composite layer for smooth animation */
+    will-change: box-shadow;
 }
 
 body[data-theme="light"] .sentinel-nav-badge {

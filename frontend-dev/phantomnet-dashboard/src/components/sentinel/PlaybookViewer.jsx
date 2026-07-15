@@ -19,6 +19,8 @@ import {
   FaCubes,
   FaRobot,
   FaMagic,
+  FaChevronDown,
+  FaChevronUp,
 } from "react-icons/fa";
 import RulePreview from "./RulePreview";
 import ApprovalControls from "./ApprovalControls";
@@ -500,17 +502,59 @@ const DeferredMarkdownContent = ({ content, components }) => {
    requestAnimationFrame. This eliminates the 200-400ms freeze.
    ═══════════════════════════════════════════════════════════════ */
 
+/* ─── LlmNarrativeSkeleton ─── */
+const LlmNarrativeSkeleton = () => (
+  <div className="llm-narrative-skeleton" aria-label="Synthesizing AI Summary">
+    <div className="llm-skel-header">
+      <div className="llm-skel-avatar" />
+      <div className="llm-skel-title" />
+    </div>
+    <div className="llm-skel-body">
+      <div className="llm-skel-line w-100" />
+      <div className="llm-skel-line w-95" />
+      <div className="llm-skel-line w-85" />
+      <div className="llm-skel-line w-90" />
+    </div>
+  </div>
+);
+
+/* ─── LlmNarrativePlaceholder ─── */
+const LlmNarrativePlaceholder = ({ onGenerate, isGenerating }) => (
+  <div className="llm-narrative-placeholder-card">
+    <div className="llm-placeholder-icon-wrapper">
+      <FaRobot className="llm-placeholder-icon" />
+    </div>
+    <h4 className="llm-placeholder-title">AI Threat Summary Ready</h4>
+    <p className="llm-placeholder-desc">
+      Leverage local LLMs to generate a natural language narrative of this threat campaign, highlighting attack patterns and key impact assessments.
+    </p>
+    {onGenerate && (
+      <button
+        className="llm-placeholder-generate-btn"
+        onClick={onGenerate}
+        disabled={isGenerating}
+        type="button"
+      >
+        <FaMagic className={isGenerating ? "spin" : ""} />
+        {isGenerating ? "Synthesizing Summary..." : "Generate AI Summary"}
+      </button>
+    )}
+  </div>
+);
+
 const MarkdownRenderer = ({
   content,
   llm_narrative = "",
   isRegeneratingLLM = false,
-  onRegenerateLLM
+  onRegenerateLLM,
+  llmModel = "Mistral"
 }) => {
   const { checkedItems, toggleCheckbox, totalCheckboxes, completedCount } =
     useCheckboxTracker(content);
 
   // Deferred mount: don't render markdown on the same frame as modal open
   const [isReady, setIsReady] = useState(false);
+  const [isLlmExpanded, setIsLlmExpanded] = useState(Boolean(llm_narrative));
 
   useEffect(() => {
     if (!content) return;
@@ -523,6 +567,13 @@ const MarkdownRenderer = ({
       setIsReady(false);
     };
   }, [content]);
+
+  // Keep expanded state in sync when a narrative gets generated
+  useEffect(() => {
+    if (llm_narrative) {
+      setIsLlmExpanded(true);
+    }
+  }, [llm_narrative]);
 
   // Pre-calculate checkbox offsets to avoid accessing refs during render
   const checkboxOffsets = useMemo(() => {
@@ -563,17 +614,35 @@ const MarkdownRenderer = ({
   return (
     <div className="pbv-markdown-content">
       {/* AI Threat Summary Panel */}
-      <div className="pbv-llm-narrative-container">
-        <div className="llm-narrative-header">
+      <div className={`pbv-llm-narrative-container premium-glow ${isLlmExpanded ? "expanded" : "collapsed"}`}>
+        <div
+          className="llm-narrative-header"
+          onClick={() => setIsLlmExpanded(prev => !prev)}
+          style={{ cursor: "pointer" }}
+        >
           <div className="llm-narrative-title">
-            <FaRobot className="llm-icon" />
-            <span>AI Threat Summary</span>
-            <span className="llm-badge">Mistral</span>
+            <div className="llm-title-icon-wrapper">
+              <FaRobot className="llm-icon" />
+            </div>
+            <span className="llm-title-text">AI Threat Summary</span>
+            <span className="ai-enhanced-badge">
+              <span className="badge-glowing-dot"></span>
+              <FaMagic className="badge-magic-icon" />
+              <span>AI-Enhanced Narrative</span>
+              <span className="badge-model-divider">│</span>
+              <span className="badge-model-name">{llmModel}</span>
+            </span>
+            <span className="llm-chevron-toggle">
+              {isLlmExpanded ? <FaChevronUp /> : <FaChevronDown />}
+            </span>
           </div>
-          {onRegenerateLLM && (
+          {onRegenerateLLM && llm_narrative && (
             <button
               className={`llm-regenerate-btn ${isRegeneratingLLM ? "loading" : ""}`}
-              onClick={onRegenerateLLM}
+              onClick={(e) => {
+                e.stopPropagation();
+                onRegenerateLLM();
+              }}
               disabled={isRegeneratingLLM}
               type="button"
             >
@@ -582,21 +651,26 @@ const MarkdownRenderer = ({
             </button>
           )}
         </div>
-        <div className="llm-narrative-body">
-          {isReady ? (
-            llm_narrative ? (
-              <Suspense fallback={<div className="pbv-skel-line pbv-skel-text" />}>
-                <DeferredMarkdownContent content={llm_narrative} components={components} />
-              </Suspense>
-            ) : (
-              <div className="llm-narrative-empty">
-                <p>No narrative summary available. Use the button to generate.</p>
+        
+        {isLlmExpanded && (
+          <div className="llm-narrative-body">
+            {isRegeneratingLLM ? (
+              <LlmNarrativeSkeleton />
+            ) : llm_narrative ? (
+              <div className="llm-narrative-text premium-narrative-style">
+                {isReady ? (
+                  <Suspense fallback={<div className="pbv-skel-line pbv-skel-text" />}>
+                    <DeferredMarkdownContent content={llm_narrative} components={components} />
+                  </Suspense>
+                ) : (
+                  <div className="pbv-skel-line pbv-skel-text" />
+                )}
               </div>
-            )
-          ) : (
-            <div className="pbv-skel-line pbv-skel-text" />
-          )}
-        </div>
+            ) : (
+              <LlmNarrativePlaceholder onGenerate={onRegenerateLLM} isGenerating={isRegeneratingLLM} />
+            )}
+          </div>
+        )}
       </div>
 
       {/* Containment Progress Tracker */}
@@ -683,6 +757,23 @@ const PlaybookViewer = ({
   const [isFullscreen, setIsFullscreen] = useState(false);
   const panelRef = useRef(null);
   const [isRegeneratingLLM, setIsRegeneratingLLM] = useState(false);
+  const [llmModel, setLlmModel] = useState("Mistral");
+
+  useEffect(() => {
+    let cancelled = false;
+    fetch("/api/sentinel/llm/status")
+      .then((res) => res.json())
+      .then((data) => {
+        if (!cancelled && data && data.model) {
+          const modelName = data.model.charAt(0).toUpperCase() + data.model.slice(1);
+          setLlmModel(modelName);
+        }
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const resolvedMarkdown = playbook_content || markdownContent;
 
@@ -755,7 +846,9 @@ const PlaybookViewer = ({
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
-    URL.revokeObjectURL(url);
+    // Firefox needs a small delay before revoking the object URL,
+    // otherwise the download may be interrupted or fail silently.
+    setTimeout(() => URL.revokeObjectURL(url), 150);
   }, []);
 
   const safeTitle = title.replace(/\s+/g, "_");
@@ -777,9 +870,20 @@ const PlaybookViewer = ({
   }, [sigmaRule, safeTitle, triggerDownload]);
 
   const handleDownloadSTIX = useCallback(() => {
+    const generateUUID = () => {
+      if (typeof crypto !== "undefined" && crypto.randomUUID) {
+        return crypto.randomUUID();
+      }
+      // RFC 4122 v4 UUID fallback for browsers without crypto.randomUUID
+      return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
+        const r = (Math.random() * 16) | 0;
+        const v = c === 'x' ? r : (r & 0x3) | 0x8;
+        return v.toString(16);
+      });
+    };
     const stixBundle = JSON.stringify({
       type: "bundle",
-      id: `bundle--${crypto.randomUUID ? crypto.randomUUID() : Date.now()}`,
+      id: `bundle--${generateUUID()}`,
       spec_version: "2.1",
       created: new Date().toISOString(),
       objects: [
@@ -989,6 +1093,7 @@ const PlaybookViewer = ({
                     llm_narrative={llm_narrative}
                     isRegeneratingLLM={isRegeneratingLLM}
                     onRegenerateLLM={handleRegenerateLLM}
+                    llmModel={llmModel}
                   />
                 </div>
               )}

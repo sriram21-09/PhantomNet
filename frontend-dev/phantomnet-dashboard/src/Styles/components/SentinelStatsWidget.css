@@ -49,6 +49,7 @@ body[data-theme="dark"] .sentinel-header-title {
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+  color: transparent;
 }
 
 body[data-theme="light"] .sentinel-header-title {
@@ -56,6 +57,7 @@ body[data-theme="light"] .sentinel-header-title {
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+  color: transparent;
 }
 
 .sentinel-header-subtitle {
@@ -100,6 +102,7 @@ body[data-theme="light"] .sentinel-header-subtitle {
   padding: 20px;
   overflow: hidden;
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  -webkit-backdrop-filter: blur(12px);
   backdrop-filter: blur(12px);
   animation: sentinelFadeIn 0.5s ease-out both;
 }

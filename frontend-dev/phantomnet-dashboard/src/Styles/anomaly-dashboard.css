@@ -1,221 +1,580 @@
-/* =================================
-   ANOMALY DASHBOARD – SOC STYLE
-================================= */
+/* ==========================================================================
+   ANOMALY DASHBOARD – Premium Cyber HUD Design System
+   ========================================================================== */
 
-.anomaly-dashboard {
-  max-width: 1200px;
+.anomaly-dashboard-wrapper {
+  max-width: 1400px;
   margin: 0 auto;
-  padding: 48px 24px;
+  padding: 2rem;
+  color: #e2e8f0;
+  position: relative;
+  animation: anomaly-fadein 0.6s ease-out both;
 }
 
-/* =================================
+@keyframes anomaly-fadein {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ==========================================================================
    HEADER
-================================= */
+   ========================================================================== */
 
 .anomaly-header {
-  text-align: center;
-  margin-bottom: 48px;
+  margin-bottom: 2.5rem;
+  border-left: 4px solid #3b82f6;
+  padding-left: 1.5rem;
+  position: relative;
+  z-index: 1;
 }
 
-.anomaly-header h1 {
-  font-size: 2.4rem;
+.anomaly-badge {
+  display: inline-block;
+  font-size: 0.7rem;
   font-weight: 700;
-  margin-bottom: 10px;
+  letter-spacing: 0.15em;
+  color: #3b82f6;
+  background: rgba(59, 130, 246, 0.1);
+  border: 1px solid rgba(59, 130, 246, 0.2);
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  margin-bottom: 0.75rem;
+  font-family: 'JetBrains Mono', monospace;
 }
 
-.anomaly-header p {
-  color: var(--muted-text);
-  font-size: 1.05rem;
+.anomaly-title {
+  font-size: 2.5rem;
+  font-weight: 800;
+  letter-spacing: -0.025em;
+  background: linear-gradient(135deg, #60a5fa, #3b82f6, #1d4ed8);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin: 0;
+  line-height: 1.2;
 }
 
-/* =================================
-   SUMMARY GRID
-================================= */
+.anomaly-subtitle {
+  font-size: 0.875rem;
+  color: #94a3b8;
+  margin-top: 0.5rem;
+  font-family: 'JetBrains Mono', monospace;
+  letter-spacing: 0.05em;
+}
 
-.anomaly-summary {
+/* Light Theme Overrides */
+body[data-theme="light"] .anomaly-header {
+  border-left-color: #2563eb;
+}
+body[data-theme="light"] .anomaly-badge {
+  color: #2563eb;
+  background: rgba(37, 99, 235, 0.08);
+  border-color: rgba(37, 99, 235, 0.15);
+}
+body[data-theme="light"] .anomaly-title {
+  background: linear-gradient(135deg, #2563eb, #1d4ed8, #1e3a8a);
+  -webkit-background-clip: text;
+  background-clip: text;
+}
+body[data-theme="light"] .anomaly-subtitle {
+  color: #5b6f95;
+}
+
+/* ==========================================================================
+   SUMMARY GRID & PREMIUM CARDS
+   ========================================================================== */
+
+.anomaly-summary-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 24px;
-  margin-bottom: 48px;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 3rem;
 }
 
-.anomaly-summary-card {
-  background-color: var(--card-bg);
-  border: 1px solid var(--border-color);
-  border-radius: 16px;
-  padding: 20px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
-}
-
-body[data-theme="light"] .anomaly-summary-card {
-  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.08);
-}
-
-.anomaly-summary-card .label {
-  font-size: 0.9rem;
-  color: var(--muted-text);
-}
-
-.anomaly-summary-card .value {
-  font-size: 1.9rem;
-  font-weight: 700;
-  margin-top: 6px;
-}
-
-/* =================================
-   SEVERITY COLORS
-================================= */
-
-.severity-high {
-  border-left: 4px solid #ef4444;
-}
-
-.severity-medium {
-  border-left: 4px solid #f59e0b;
-}
-
-/* =================================
-   SCORE BAR
-================================= */
-
-.score-bar {
-  width: 100%;
-  height: 8px;
-  background-color: rgba(148, 163, 184, 0.25);
-  border-radius: 8px;
-  margin-top: 10px;
+/* Base Card Styles (Scoped under .anomaly-card to prevent global leaks) */
+.anomaly-card {
+  position: relative;
+  background: rgba(15, 23, 42, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 18px;
+  padding: 1.5rem;
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 1.25rem;
+  min-height: 175px;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
 }
 
-.score-fill {
-  height: 100%;
-  background: linear-gradient(90deg, #3b82f6, #2563eb);
-  border-radius: 8px;
+.anomaly-card:hover {
+  transform: translateY(-6px);
 }
 
-.score-value {
-  display: block;
-  margin-top: 6px;
-  font-size: 0.9rem;
-  color: var(--muted-text);
+/* Light Theme Support */
+body[data-theme="light"] .anomaly-card {
+  background: rgba(255, 255, 255, 0.85);
+  border-color: rgba(0, 0, 0, 0.06);
+  box-shadow: 0 4px 20px rgba(15, 23, 42, 0.04);
 }
 
-/* =================================
-   ALERTS SECTION
-================================= */
-
-.anomaly-section {
-  margin-top: 32px;
+body[data-theme="light"] .anomaly-card:hover {
+  background: #ffffff;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.06);
 }
 
-.section-header {
+/* HUD Corners */
+.anomaly-card .hud-corner {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  border-width: 2px;
+  opacity: 0.3;
+  transition: all 0.3s ease;
+  pointer-events: none;
+}
+
+.anomaly-card .hud-corner.top-left {
+  top: 10px;
+  left: 10px;
+  border-top-style: solid;
+  border-left-style: solid;
+}
+
+.anomaly-card .hud-corner.bottom-right {
+  bottom: 10px;
+  right: 10px;
+  border-bottom-style: solid;
+  border-right-style: solid;
+}
+
+.anomaly-card:hover .hud-corner {
+  opacity: 0.8;
+  width: 14px;
+  height: 14px;
+}
+
+/* Card Header Top Row */
+.anomaly-card .card-top {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 20px;
+  width: 100%;
 }
 
-.section-header h2 {
-  font-size: 1.5rem;
+.anomaly-card .card-subtitle {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: #475569;
+  text-transform: uppercase;
 }
 
-/* =================================
-   ALERT LIST
-================================= */
+body[data-theme="light"] .anomaly-card .card-subtitle {
+  color: #94a3b8;
+}
+
+/* Icon Box Wrapper */
+.anomaly-card .icon-wrap {
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  transition: all 0.3s ease;
+}
+
+.anomaly-card:hover .icon-wrap {
+  transform: scale(1.1);
+}
+
+/* Info Section Layout (Stack Label & Value Vertically) */
+.anomaly-card .card-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  width: 100%;
+}
+
+.anomaly-card .label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #94a3b8;
+  display: block;
+}
+
+body[data-theme="light"] .anomaly-card .label {
+  color: #64748b;
+}
+
+.anomaly-card .value {
+  font-size: 2.4rem;
+  font-weight: 800;
+  line-height: 1.1;
+  color: #f1f5f9;
+  display: block;
+  letter-spacing: -0.02em;
+}
+
+body[data-theme="light"] .anomaly-card .value {
+  color: #0f172a;
+}
+
+/* Accents and bottom color bars */
+.anomaly-card .card-bar {
+  width: 100%;
+  height: 4px;
+  background: rgba(148, 163, 184, 0.08);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+body[data-theme="light"] .anomaly-card .card-bar {
+  background: rgba(0, 0, 0, 0.04);
+}
+
+.anomaly-card .card-bar-fill {
+  height: 100%;
+  border-radius: 2px;
+  transition: width 1s ease;
+}
+
+/* Card Glow Overlay */
+.anomaly-card .card-glow {
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.anomaly-card:hover .card-glow {
+  opacity: 1;
+}
+
+/* ==========================================
+   VARIANT 1: Total Anomalies (Blue/Cyan Accent)
+   ========================================== */
+
+.anomaly-card.card-total {
+  border-top: 3px solid #3b82f6;
+}
+
+.anomaly-card.card-total .hud-corner {
+  border-color: #3b82f6;
+}
+
+.anomaly-card.card-total .icon-wrap {
+  background: rgba(59, 130, 246, 0.12);
+  color: #60a5fa;
+}
+
+body[data-theme="light"] .anomaly-card.card-total .icon-wrap {
+  background: rgba(59, 130, 246, 0.08);
+  color: #2563eb;
+}
+
+.anomaly-card.card-total .card-bar-fill {
+  background: linear-gradient(90deg, #3b82f6, #60a5fa);
+  box-shadow: 0 0 8px rgba(59, 130, 246, 0.3);
+}
+
+.anomaly-card.card-total .card-glow {
+  background: radial-gradient(circle, rgba(59, 130, 246, 0.05) 0%, transparent 70%);
+}
+
+/* ==========================================
+   VARIANT 2: High Severity (Red Accent)
+   ========================================== */
+
+.anomaly-card.card-high {
+  border-top: 3px solid #ef4444;
+}
+
+.anomaly-card.card-high .hud-corner {
+  border-color: #ef4444;
+}
+
+.anomaly-card.card-high .icon-wrap {
+  background: rgba(239, 68, 68, 0.12);
+  color: #f87171;
+}
+
+body[data-theme="light"] .anomaly-card.card-high .icon-wrap {
+  background: rgba(239, 68, 68, 0.08);
+  color: #dc2626;
+}
+
+.anomaly-card.card-high .card-bar-fill {
+  background: linear-gradient(90deg, #ef4444, #f87171);
+  box-shadow: 0 0 8px rgba(239, 68, 68, 0.3);
+}
+
+.anomaly-card.card-high .card-glow {
+  background: radial-gradient(circle, rgba(239, 68, 68, 0.05) 0%, transparent 70%);
+}
+
+/* ==========================================
+   VARIANT 3: Medium Severity (Orange/Amber Accent)
+   ========================================== */
+
+.anomaly-card.card-medium {
+  border-top: 3px solid #f59e0b;
+}
+
+.anomaly-card.card-medium .hud-corner {
+  border-color: #f59e0b;
+}
+
+.anomaly-card.card-medium .icon-wrap {
+  background: rgba(245, 158, 11, 0.12);
+  color: #fbbf24;
+}
+
+body[data-theme="light"] .anomaly-card.card-medium .icon-wrap {
+  background: rgba(245, 158, 11, 0.08);
+  color: #d97706;
+}
+
+.anomaly-card.card-medium .card-bar-fill {
+  background: linear-gradient(90deg, #f59e0b, #fbbf24);
+  box-shadow: 0 0 8px rgba(245, 158, 11, 0.3);
+}
+
+.anomaly-card.card-medium .card-glow {
+  background: radial-gradient(circle, rgba(245, 158, 11, 0.05) 0%, transparent 70%);
+}
+
+/* ==========================================
+   VARIANT 4: Avg Score (Purple/Indigo Accent)
+   ========================================== */
+
+.anomaly-card.card-avg {
+  border-top: 3px solid #a78bfa;
+}
+
+.anomaly-card.card-avg .hud-corner {
+  border-color: #a78bfa;
+}
+
+.anomaly-card.card-avg .icon-wrap {
+  background: rgba(167, 139, 250, 0.12);
+  color: #c084fc;
+}
+
+body[data-theme="light"] .anomaly-card.card-avg .icon-wrap {
+  background: rgba(167, 139, 250, 0.08);
+  color: #7c3aed;
+}
+
+.anomaly-card.card-avg .card-glow {
+  background: radial-gradient(circle, rgba(167, 139, 250, 0.05) 0%, transparent 70%);
+}
+
+.anomaly-card.card-avg .score-bar {
+  width: 100%;
+  height: 6px;
+  background: rgba(148, 163, 184, 0.08);
+  border-radius: 4px;
+  overflow: hidden;
+  margin-top: 0.25rem;
+}
+
+body[data-theme="light"] .anomaly-card.card-avg .score-bar {
+  background: rgba(0, 0, 0, 0.04);
+}
+
+.anomaly-card.card-avg .score-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #3b82f6, #a78bfa);
+  border-radius: 4px;
+}
+
+.anomaly-card.card-avg .score-value {
+  display: block;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #cbd5e1;
+  margin-top: 0.25rem;
+}
+
+body[data-theme="light"] .anomaly-card.card-avg .score-value {
+  color: #475569;
+}
+
+/* ==========================================================================
+   ALERTS FEED SECTION
+   ========================================================================== */
+
+.anomaly-section {
+  margin-top: 2rem;
+}
+
+.anomaly-section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.section-title-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.section-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #f1f5f9;
+  margin: 0;
+}
+
+body[data-theme="light"] .section-title {
+  color: #0f172a;
+}
+
+.section-count {
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: #3b82f6;
+}
+
+/* Go to Threat Analysis CTA Button */
+.go-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: 0.6rem 1.25rem;
+  background: rgba(59, 130, 246, 0.1);
+  color: #60a5fa;
+  border: 1px solid rgba(59, 130, 246, 0.25);
+  border-radius: 8px;
+  transition: all 0.25s ease;
+}
+
+.go-btn:hover {
+  background: linear-gradient(135deg, #3b82f6, #2563eb);
+  color: #ffffff;
+  box-shadow: 0 0 15px rgba(59, 130, 246, 0.35);
+  transform: translateY(-1px);
+}
+
+.go-btn:active {
+  transform: translateY(0);
+}
+
+.btn-arrow {
+  font-size: 0.7rem;
+  transition: transform 0.2s ease;
+}
+
+.go-btn:hover .btn-arrow {
+  transform: translateX(4px);
+}
+
+body[data-theme="light"] .go-btn {
+  background: rgba(37, 99, 235, 0.06);
+  color: #2563eb;
+  border-color: rgba(37, 99, 235, 0.2);
+}
+
+body[data-theme="light"] .go-btn:hover {
+  background: linear-gradient(135deg, #2563eb, #1d4ed8);
+  color: #ffffff;
+  box-shadow: 0 0 15px rgba(37, 99, 235, 0.25);
+}
+
+/* ==========================================================================
+   ALERTS LIST (Component Leak Prevention & Premium Overrides)
+   ========================================================================== */
 
 .anomaly-alerts {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 1rem;
 }
 
 .anomaly-alert-card {
   display: flex;
   align-items: center;
-  background-color: var(--card-bg);
-  border: 1px solid var(--border-color);
+  background: rgba(15, 23, 42, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.04);
   border-radius: 14px;
-  padding: 16px;
-  gap: 14px;
-  transition: background-color 0.2s ease;
+  padding: 1rem;
+  gap: 1rem;
+  transition: all 0.2s ease;
+  position: relative;
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+}
+
+body[data-theme="light"] .anomaly-alert-card {
+  background: rgba(255, 255, 255, 0.7);
+  border-color: rgba(0, 0, 0, 0.04);
 }
 
 .anomaly-alert-card:hover {
-  background-color: rgba(59, 130, 246, 0.06);
+  background: rgba(59, 130, 246, 0.05);
+  border-color: rgba(59, 130, 246, 0.2);
+  transform: translateX(4px);
 }
 
-/* =================================
-   SEVERITY DOT
-================================= */
-
-.severity-dot {
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
+body[data-theme="light"] .anomaly-alert-card:hover {
+  background: rgba(37, 99, 235, 0.04);
+  border-color: rgba(37, 99, 235, 0.15);
 }
 
-.severity-high {
-  background-color: #ef4444;
+/* Left Indicator Strip */
+.anomaly-alert-card::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 12px;
+  bottom: 12px;
+  width: 3px;
+  border-radius: 0 3px 3px 0;
+  background: transparent;
 }
 
-.severity-medium {
-  background-color: #f59e0b;
+.anomaly-alert-card.high::before,
+.anomaly-alert-card.critical::before {
+  background: #ef4444;
 }
 
-.severity-low {
-  background-color: #22c55e;
+.anomaly-alert-card.medium::before {
+  background: #f59e0b;
 }
 
-/* =================================
-   ALERT CONTENT
-================================= */
-
-.alert-content {
-  flex: 1;
+.anomaly-alert-card.low::before {
+  background: #22c55e;
 }
 
-.alert-title {
-  font-size: 1rem;
-  font-weight: 600;
-  margin-bottom: 2px;
-}
-
-.alert-description {
-  font-size: 0.95rem;
-  color: var(--muted-text);
-}
-
-.alert-meta {
-  display: flex;
-  gap: 16px;
-  margin-top: 6px;
-  font-size: 0.85rem;
-  color: var(--muted-text);
-}
-
-/* =================================
-   SEVERITY LABEL
-================================= */
-
-.alert-severity-label {
-  font-size: 0.75rem;
-  font-weight: 700;
-  padding: 4px 10px;
-  border-radius: 999px;
-  border: 1px solid transparent;
-}
-
-.alert-severity-label.severity-high {
-  color: #ef4444;
-  border-color: rgba(239, 68, 68, 0.4);
-}
-
-.alert-severity-label.severity-medium {
-  color: #f59e0b;
-  border-color: rgba(245, 158, 11, 0.4);
-}
-
-.alert-severity-label.severity-low {
-  color: #22c55e;
-  border-color: rgba(34, 197, 94, 0.4);
-}

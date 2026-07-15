@@ -167,6 +167,7 @@ services:
       API_KEY: ${API_KEY:-default_key}
       SENTINEL_LLM_HOST: ${SENTINEL_LLM_HOST:-http://ollama:11434}
       SENTINEL_LLM_MODEL: ${SENTINEL_LLM_MODEL:-mistral}
+      SENTINEL_LLM_ENABLED: ${SENTINEL_LLM_ENABLED:-false}
     networks:
       - app_net
       - honeypot_net
@@ -188,13 +189,13 @@ services:
       - ollama_data:/root/.ollama
     networks:
       - app_net
-    deploy:
-      resources:
-        reservations:
-          devices:
-            - driver: nvidia
-              count: all
-              capabilities: [gpu]
+    # deploy:
+    #   resources:
+    #     reservations:
+    #       devices:
+    #         - driver: nvidia
+    #           count: all
+    #           capabilities: [gpu]
     restart: unless-stopped
     healthcheck:
       test: ["CMD-SHELL", "curl -sf http://localhost:11434/ || exit 1"]

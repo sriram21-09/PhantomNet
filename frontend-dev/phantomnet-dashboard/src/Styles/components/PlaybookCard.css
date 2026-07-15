@@ -112,6 +112,7 @@ body[data-theme="light"] .playbook-title {
     border: 1px solid rgba(139, 92, 246, 0.15);
     padding: 0.15rem 0.5rem;
     border-radius: 4px;
+    width: -moz-fit-content;
     width: fit-content;
 }
 

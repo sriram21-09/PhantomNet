@@ -69,6 +69,7 @@ body[data-theme="dark"] {
    ========================================== */
 .pro-card {
   background: var(--bg-hud);
+  -webkit-backdrop-filter: blur(12px);
   backdrop-filter: blur(12px);
   border: 1px solid var(--border-hud);
   border-radius: 12px;
@@ -167,6 +168,10 @@ body {
 body[data-theme="dark"]::before {
   content: '';
   position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
   inset: 0;
   background:
     radial-gradient(ellipse at 50% 0%, rgba(56, 189, 248, 0.08) 0%, transparent 50%),
@@ -180,6 +185,10 @@ body[data-theme="dark"]::before {
 body[data-theme="light"]::before {
   content: '';
   position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
   inset: 0;
   background:
     radial-gradient(ellipse at 0% 0%, rgba(59, 130, 246, 0.15) 0%, transparent 50%),
@@ -207,6 +216,12 @@ body[data-theme="light"]::before {
 
 ::-webkit-scrollbar-thumb:hover {
   background: var(--text-secondary);
+}
+
+/* Firefox scrollbar styling */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--text-muted) transparent;
 }
 
 /* Selection */
@@ -314,6 +329,7 @@ a:hover {
 /* Utility Classes */
 .glassmorphism {
   background: var(--bg-card);
+  -webkit-backdrop-filter: blur(20px);
   backdrop-filter: blur(20px);
   border: 1px solid var(--border-subtle);
   border-radius: 16px;
@@ -324,6 +340,7 @@ a:hover {
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+  color: transparent;
 }
 
 /* Animations */
