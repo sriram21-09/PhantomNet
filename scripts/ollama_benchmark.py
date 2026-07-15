@@ -28,11 +28,20 @@ import sys
 import time
 from typing import Any, Dict, List, Optional
 
+import codecs
+import io
+
 try:
     import requests
 except ImportError:
     print("ERROR: 'requests' package is required. Install with: pip install requests")
     sys.exit(1)
+
+# Ensure UTF-8 output on Windows terminals to prevent charmap encoding errors with emojis
+if hasattr(sys.stdout, "buffer"):
+    sys.stdout = codecs.getwriter("utf-8")(sys.stdout.buffer, "replace")
+if hasattr(sys.stderr, "buffer"):
+    sys.stderr = codecs.getwriter("utf-8")(sys.stderr.buffer, "replace")
 
 
 # ---------------------------------------------------------------------------
