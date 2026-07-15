@@ -614,16 +614,24 @@ const MarkdownRenderer = ({
   return (
     <div className="pbv-markdown-content">
       {/* AI Threat Summary Panel */}
-      <div className={`pbv-llm-narrative-container ${isLlmExpanded ? "expanded" : "collapsed"}`}>
+      <div className={`pbv-llm-narrative-container premium-glow ${isLlmExpanded ? "expanded" : "collapsed"}`}>
         <div
           className="llm-narrative-header"
           onClick={() => setIsLlmExpanded(prev => !prev)}
           style={{ cursor: "pointer" }}
         >
           <div className="llm-narrative-title">
-            <FaRobot className="llm-icon" />
-            <span>AI Threat Summary</span>
-            <span className="llm-badge">{llmModel}</span>
+            <div className="llm-title-icon-wrapper">
+              <FaRobot className="llm-icon" />
+            </div>
+            <span className="llm-title-text">AI Threat Summary</span>
+            <span className="ai-enhanced-badge">
+              <span className="badge-glowing-dot"></span>
+              <FaMagic className="badge-magic-icon" />
+              <span>AI-Enhanced Narrative</span>
+              <span className="badge-model-divider">│</span>
+              <span className="badge-model-name">{llmModel}</span>
+            </span>
             <span className="llm-chevron-toggle">
               {isLlmExpanded ? <FaChevronUp /> : <FaChevronDown />}
             </span>
@@ -649,7 +657,7 @@ const MarkdownRenderer = ({
             {isRegeneratingLLM ? (
               <LlmNarrativeSkeleton />
             ) : llm_narrative ? (
-              <div className="llm-narrative-text">
+              <div className="llm-narrative-text premium-narrative-style">
                 {isReady ? (
                   <Suspense fallback={<div className="pbv-skel-line pbv-skel-text" />}>
                     <DeferredMarkdownContent content={llm_narrative} components={components} />

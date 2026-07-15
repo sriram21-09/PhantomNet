@@ -1718,9 +1718,19 @@ body[data-theme="light"] .pbv-download-btn-ext {
     animation: pbvOverlayIn 0.35s ease-out;
 }
 
+.pbv-llm-narrative-container.premium-glow {
+    border-color: rgba(139, 92, 246, 0.35);
+    box-shadow: 0 0 25px rgba(139, 92, 246, 0.15), inset 0 0 12px rgba(139, 92, 246, 0.04);
+}
+
 body[data-theme="light"] .pbv-llm-narrative-container {
     background: linear-gradient(135deg, rgba(139, 92, 246, 0.06) 0%, rgba(248, 250, 252, 0.95) 100%);
     border-color: rgba(139, 92, 246, 0.15);
+}
+
+body[data-theme="light"] .pbv-llm-narrative-container.premium-glow {
+    border-color: rgba(139, 92, 246, 0.25);
+    box-shadow: 0 4px 16px rgba(139, 92, 246, 0.08);
 }
 
 .llm-narrative-header {
@@ -1730,14 +1740,14 @@ body[data-theme="light"] .pbv-llm-narrative-container {
     margin-bottom: 0.85rem;
     flex-wrap: wrap;
     gap: 0.75rem;
-    border-bottom: 1px solid rgba(139, 92, 246, 0.1);
+    border-bottom: 1px solid rgba(139, 92, 246, 0.15);
     padding-bottom: 0.5rem;
 }
 
 .llm-narrative-title {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
+    gap: 0.65rem;
     font-family: 'JetBrains Mono', monospace;
     font-size: 0.75rem;
     font-weight: 700;
@@ -1750,8 +1760,18 @@ body[data-theme="light"] .llm-narrative-title {
     color: #7c3aed;
 }
 
+.llm-title-icon-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(139, 92, 246, 0.12);
+    border-radius: 6px;
+    padding: 5px;
+    border: 1px solid rgba(139, 92, 246, 0.2);
+}
+
 .llm-icon {
-    font-size: 0.9rem;
+    font-size: 0.85rem;
     color: #a78bfa;
     filter: drop-shadow(0 0 4px rgba(139, 92, 246, 0.4));
 }
@@ -1760,19 +1780,71 @@ body[data-theme="light"] .llm-icon {
     color: #7c3aed;
 }
 
-.llm-badge {
+/* ─── Premium AI Narrative Badge ─── */
+.ai-enhanced-badge {
+    font-family: 'JetBrains Mono', monospace;
     font-size: 0.55rem;
-    font-weight: 800;
-    padding: 0.1rem 0.45rem;
-    background: rgba(139, 92, 246, 0.15);
-    border: 1px solid rgba(139, 92, 246, 0.25);
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    padding: 0.2rem 0.75rem;
+    background: linear-gradient(90deg, rgba(139, 92, 246, 0.16) 0%, rgba(139, 92, 246, 0.06) 100%);
+    border: 1px solid rgba(139, 92, 246, 0.3);
     border-radius: 9999px;
+    color: #c4b5fd;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    box-shadow: 0 0 10px rgba(139, 92, 246, 0.08);
+}
+
+body[data-theme="light"] .ai-enhanced-badge {
+    background: linear-gradient(90deg, rgba(139, 92, 246, 0.08) 0%, rgba(139, 92, 246, 0.02) 100%);
+    border-color: rgba(139, 92, 246, 0.2);
+    color: #6d28d9;
+    box-shadow: none;
+}
+
+.badge-glowing-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background-color: #a78bfa;
+    box-shadow: 0 0 8px #a78bfa;
+    animation: dotPulse 1.8s infinite ease-in-out;
+}
+
+body[data-theme="light"] .badge-glowing-dot {
+    background-color: #7c3aed;
+    box-shadow: 0 0 6px #7c3aed;
+}
+
+@keyframes dotPulse {
+    0%, 100% { opacity: 0.4; transform: scale(0.9); }
+    50% { opacity: 1; transform: scale(1.15); }
+}
+
+.badge-magic-icon {
+    font-size: 0.6rem;
     color: #c4b5fd;
 }
 
-body[data-theme="light"] .llm-badge {
-    background: rgba(139, 92, 246, 0.08);
+body[data-theme="light"] .badge-magic-icon {
     color: #7c3aed;
+}
+
+.badge-model-divider {
+    opacity: 0.35;
+    margin: 0 0.1rem;
+}
+
+.badge-model-name {
+    font-weight: 800;
+    text-transform: uppercase;
+    color: #e9d5ff;
+}
+
+body[data-theme="light"] .badge-model-name {
+    color: #5b21b6;
 }
 
 .llm-regenerate-btn {
@@ -1829,6 +1901,30 @@ body[data-theme="light"] .llm-narrative-body {
     font-size: 0.65rem;
     color: #64748b;
     padding: 0.5rem 0;
+}
+
+/* ─── Premium Narrative Text Formatting ─── */
+.premium-narrative-style {
+    border-left: 3px solid rgba(139, 92, 246, 0.35);
+    padding: 0.5rem 0 0.5rem 1rem;
+    background: rgba(139, 92, 246, 0.02);
+    border-radius: 0 8px 8px 0;
+}
+
+body[data-theme="light"] .premium-narrative-style {
+    border-left-color: rgba(139, 92, 246, 0.25);
+    background: rgba(139, 92, 246, 0.01);
+}
+
+.premium-narrative-style p {
+    font-size: 0.775rem;
+    line-height: 1.7;
+    color: #cbd5e1;
+    margin: 0.5rem 0;
+}
+
+body[data-theme="light"] .premium-narrative-style p {
+    color: #334155;
 }
 
 /* ─── Collapsible Toggles ─── */
