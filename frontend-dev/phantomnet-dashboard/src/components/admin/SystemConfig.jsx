@@ -11,6 +11,7 @@ const CONFIG_SCHEMA = {
         fields: [
             { key: 'ml_threshold', label: 'ML Detection Threshold', type: 'range', min: 0, max: 1, step: 0.05 },
             { key: 'auto_response', label: 'Auto-Response', type: 'toggle' },
+            { key: 'sentinel_llm_enabled', label: 'LLM Playbook Narrative', type: 'toggle' },
             { key: 'alert_email', label: 'Alert Email', type: 'text' },
             { key: 'alert_severity_filter', label: 'Min Alert Severity', type: 'select', options: ['LOW', 'MEDIUM', 'HIGH', 'CRITICAL'] },
         ],

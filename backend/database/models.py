@@ -285,4 +285,5 @@ class SystemConfig(Base):
     category = Column(
         String, index=True
     )  # threat_detection, honeypot, siem, performance
+    sentinel_llm_enabled = Column(Boolean, default=False, nullable=True)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)

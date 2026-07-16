@@ -114,6 +114,13 @@ def upgrade_db_schema(engine):
                 if "llm_narrative" not in sp_columns:
                     conn.execute(text("ALTER TABLE sentinel_playbooks ADD COLUMN llm_narrative TEXT"))
                     logger.info("✅ Database schema migration: added llm_narrative to sentinel_playbooks")
+
+        if "system_config" in inspector.get_table_names():
+            sc_columns = [c["name"] for c in inspector.get_columns("system_config")]
+            with engine.begin() as conn:
+                if "sentinel_llm_enabled" not in sc_columns:
+                    conn.execute(text("ALTER TABLE system_config ADD COLUMN sentinel_llm_enabled BOOLEAN DEFAULT 0"))
+                    logger.info("✅ Database schema migration: added sentinel_llm_enabled to system_config")
     except Exception as e:
         logger.warning(f"Schema upgrade check failed/skipped: {e}")
 

@@ -191,6 +191,12 @@ DEFAULT_CONFIG = [
         "category": "threat_detection",
     },
     {"key": "alert_severity_filter", "value": "MEDIUM", "category": "threat_detection"},
+    {
+        "key": "sentinel_llm_enabled",
+        "value": "false",
+        "category": "threat_detection",
+        "sentinel_llm_enabled": False,
+    },
     # Honeypot
     {"key": "deception_mode", "value": "balanced", "category": "honeypot"},
     {"key": "ssh_banner", "value": "OpenSSH_8.9", "category": "honeypot"},
@@ -238,12 +244,19 @@ def update_config(
     _user: User = Depends(require_role("Admin")),
 ):
     cfg = db.query(SystemConfig).filter(SystemConfig.key == req.key).first()
+    is_llm_toggle = req.key == "sentinel_llm_enabled"
+    llm_val = req.value.strip().lower() in ("1", "true", "yes", "on") if is_llm_toggle else False
+
     if cfg:
         cfg.value = req.value
         cfg.category = req.category
         cfg.updated_at = datetime.utcnow()
+        if is_llm_toggle:
+            cfg.sentinel_llm_enabled = llm_val
     else:
         cfg = SystemConfig(key=req.key, value=req.value, category=req.category)
+        if is_llm_toggle:
+            cfg.sentinel_llm_enabled = llm_val
         db.add(cfg)
 
     db.commit()

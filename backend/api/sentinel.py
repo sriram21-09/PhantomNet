@@ -880,14 +880,15 @@ async def get_llm_status() -> Dict[str, Any]:
     """
     Check the status and availability of the Ollama LLM service.
     """
-    from sentinel.llm_service import SENTINEL_LLM_ENABLED, SENTINEL_LLM_HOST, SENTINEL_LLM_MODEL
+    from sentinel.llm_service import LLMService
     import httpx
     
+    svc = LLMService()
     status = "offline"
     try:
         # Check connection by calling the base endpoint or tags
         async with httpx.AsyncClient(timeout=3.0) as client:
-            response = await client.get(SENTINEL_LLM_HOST)
+            response = await client.get(svc.host)
             if response.status_code == 200:
                 status = "online"
     except Exception:
@@ -895,9 +896,9 @@ async def get_llm_status() -> Dict[str, Any]:
         
     return {
         "status": "success",
-        "enabled": SENTINEL_LLM_ENABLED,
-        "model": SENTINEL_LLM_MODEL,
-        "host": SENTINEL_LLM_HOST,
+        "enabled": svc.enabled,
+        "model": svc.model,
+        "host": svc.host,
         "host_connection_status": status,
         "llm_status": status
     }
