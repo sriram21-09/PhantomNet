@@ -40,10 +40,13 @@ Phase 5, Week 2 (Week 14), Day 1 ΓÇö Integration & API
 
 from __future__ import annotations
 
+import asyncio
 import logging
+import threading
 from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional
 
+from fastapi import BackgroundTasks
 from sqlalchemy.orm import Session
 
 # Sentinel sub-modules
@@ -103,6 +106,50 @@ def _generate_playbook_id() -> str:
     suffix = uuid.uuid4().hex[:6].upper()
     return f"PB-{now.strftime('%Y%m%d')}-{now.strftime('%H%M%S')}-{suffix}"
 
+
+def _run_llm_narrative_bg(playbook_id: int) -> None:
+    """Generate and persist the LLM narrative for a playbook in a separate session.
+
+    This runs in a background thread or task, avoiding database write contention
+    on the main request thread's session.
+    """
+    from database.database import SessionLocal
+    from sentinel.models import SentinelPlaybook
+    from sentinel.llm_service import LLMService
+
+    db = SessionLocal()
+    try:
+        playbook = db.query(SentinelPlaybook).filter(SentinelPlaybook.id == playbook_id).first()
+        if not playbook:
+            logger.error("Playbook %d not found for background LLM narrative generation.", playbook_id)
+            return
+
+        context_data = {
+            "attack_type": playbook.attack_type,
+            "severity": playbook.severity,
+            "src_ip": playbook.src_ip,
+            "dst_port": playbook.dst_port,
+            "protocol": playbook.protocol,
+            "technique_id": playbook.technique_id,
+            "technique_name": playbook.technique_name,
+            "tactic": playbook.tactic,
+            "threat_score": playbook.threat_score,
+            "playbook_name": playbook.playbook_name,
+        }
+
+        llm_svc = LLMService()
+        narrative = llm_svc.generate_narrative(context_data)
+        if narrative:
+            playbook.llm_narrative = narrative
+            playbook.updated_at = datetime.utcnow()
+            db.commit()
+            logger.info("Successfully persisted LLM narrative for playbook %d in background.", playbook_id)
+        else:
+            logger.warning("LLMService returned empty narrative for playbook %d in background.", playbook_id)
+    except Exception as exc:
+        logger.error("Failed to generate background LLM narrative for playbook %d: %s", playbook_id, exc)
+    finally:
+        db.close()
 
 
 # ---------------------------------------------------------------------------
@@ -516,7 +563,11 @@ class SentinelService:
     # ------------------------------------------------------------------
     # Core public API: generate_playbook()
     # ------------------------------------------------------------------
-    def generate_playbook(self, campaign_data: Dict[str, Any]) -> SentinelPlaybook:
+    def generate_playbook(
+        self,
+        campaign_data: Dict[str, Any],
+        background_tasks: Optional[BackgroundTasks] = None,
+    ) -> SentinelPlaybook:
         """Full Sentinel pipeline for a single campaign cluster.
 
         Performs the complete inference and generation process:
@@ -799,12 +850,16 @@ class SentinelService:
 
                         playbook_record.id, playbook_id)
             
-            # Trigger background LLM narrative summary generation
+            # ── Step 8b: Trigger background LLM narrative generation ─────
+            # Offloads LLM generation asynchronously using FastAPI BackgroundTasks
+            # (or thread/event loop fallbacks) to prevent database write connection locks.
             try:
-                from sentinel.llm_service import trigger_llm_summary
-                trigger_llm_summary(playbook_record.id)
+                self.trigger_llm_narrative(playbook_record.id, background_tasks)
             except Exception as llm_exc:
-                logger.warning("Failed to trigger LLM narrative summary: %s", llm_exc)
+                logger.warning(
+                    "Step 8b - Failed to trigger LLM narrative summary: %s",
+                    llm_exc,
+                )
         except Exception as exc:
             self.db.rollback()
             logger.error("Failed to persist SentinelPlaybook: %s", exc)
@@ -855,3 +910,42 @@ class SentinelService:
             self.__class__._seen_campaigns[campaign_id] = playbook_record
 
         return playbook_record
+
+    def trigger_llm_narrative(
+        self,
+        playbook_id: int,
+        background_tasks: Optional[BackgroundTasks] = None
+    ) -> None:
+        """Trigger background LLM narrative generation.
+
+        Uses FastAPI BackgroundTasks if provided, otherwise schedules via event
+        loop executor or a daemon thread to prevent database write connection locks.
+        """
+        if background_tasks is not None:
+            background_tasks.add_task(_run_llm_narrative_bg, playbook_id)
+            logger.info(
+                "Scheduled LLM narrative generation via FastAPI BackgroundTasks "
+                "for playbook %d.", playbook_id
+            )
+        else:
+            # Fallback: schedule asynchronously via event loop or background thread
+            try:
+                loop = asyncio.get_running_loop()
+                if loop.is_running():
+                    loop.run_in_executor(None, _run_llm_narrative_bg, playbook_id)
+                    logger.info(
+                        "Scheduled LLM narrative generation in running event loop "
+                        "executor for playbook %d.", playbook_id
+                    )
+                    return
+            except RuntimeError:
+                pass
+
+            def _run_in_thread() -> None:
+                _run_llm_narrative_bg(playbook_id)
+
+            threading.Thread(target=_run_in_thread, daemon=True).start()
+            logger.info(
+                "Started background thread for LLM narrative generation "
+                "for playbook %d.", playbook_id
+            )
