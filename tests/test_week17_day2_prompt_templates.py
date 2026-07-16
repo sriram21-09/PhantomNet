@@ -152,7 +152,7 @@ class TestModuleConstants(unittest.TestCase):
         self.assertIn("cybersecurity", SYSTEM_INSTRUCTION_HEADER.lower())
 
     def test_mitigation_presets_cover_all_services(self):
-        for service in ("SSH", "HTTP", "FTP", "SMTP", "UNKNOWN"):
+        for service in ("SSH", "HTTP", "FTP", "SMTP", "PORT_SCAN", "UNKNOWN"):
             self.assertIn(service, _MITIGATION_PRESETS)
 
     def test_full_template_contains_all_four_sections(self):
@@ -295,6 +295,14 @@ class TestBuildNarrativePrompt(unittest.TestCase):
         ctx = dict(SAMPLE_CONTEXT, service_type="FTP")
         prompt = build_narrative_prompt(ctx)
         self.assertIn("Anonymous FTP", prompt)
+
+    def test_port_scan_mitigation_for_port_scan_service(self):
+        ctx = dict(SAMPLE_CONTEXT, service_type="PORT_SCAN")
+        prompt = build_narrative_prompt(ctx)
+        self.assertIn("Deception Honeypots", prompt)
+        
+        prompt_jinja = render_narrative_prompt_jinja(ctx)
+        self.assertIn("Deception Honeypots", prompt_jinja)
 
 
 # ===========================================================================

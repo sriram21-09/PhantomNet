@@ -265,6 +265,13 @@ _MITIGATION_PRESETS: Dict[str, str] = {
         "5. **Review Mail Logs** — Audit SMTP logs for anomalous relay "
         "patterns or bulk sending behaviour."
     ),
+    "PORT_SCAN": (
+        "1. **Block Source IPs** — Immediately block all scanning IPs at the boundary firewalls.\n"
+        "2. **Deploy Deception Honeypots** — Deploy active deception honeypots in the targeted subnet to capture scanner behavior.\n"
+        "3. **Capture Traffic** — Initiate packet capture (tcpdump) on target interfaces to analyze scanner fingerprinting attempts.\n"
+        "4. **Harden Banners** — Harden exposed service banners to reduce information leakage to scanning probes.\n"
+        "5. **Update IDS/IPS Signatures** — Deploy active Snort or WAF rules to detect port sweeps dynamically."
+    ),
     "UNKNOWN": (
         "1. **Block Source IPs** — Add all identified source IPs to the "
         "perimeter firewall deny-list immediately.\n"
