@@ -530,6 +530,7 @@ const LlmNarrativePlaceholder = ({ onGenerate, isGenerating }) => (
     </p>
     {onGenerate && (
       <button
+        id="playbook-viewer-generate-btn"
         className="llm-placeholder-generate-btn"
         onClick={onGenerate}
         disabled={isGenerating}
@@ -638,6 +639,7 @@ const MarkdownRenderer = ({
           </div>
           {onRegenerateLLM && llm_narrative && (
             <button
+              id="playbook-viewer-regenerate-btn"
               className={`llm-regenerate-btn ${isRegeneratingLLM ? "loading" : ""}`}
               onClick={(e) => {
                 e.stopPropagation();
@@ -647,7 +649,7 @@ const MarkdownRenderer = ({
               type="button"
             >
               <FaMagic className={`magic-icon ${isRegeneratingLLM ? "spin" : ""}`} />
-              {isRegeneratingLLM ? "Regenerating..." : "Regenerate Summary"}
+              {isRegeneratingLLM ? "Regenerating..." : "Regenerate AI Summary"}
             </button>
           )}
         </div>
@@ -758,6 +760,24 @@ const PlaybookViewer = ({
   const panelRef = useRef(null);
   const [isRegeneratingLLM, setIsRegeneratingLLM] = useState(false);
   const [llmModel, setLlmModel] = useState("Mistral");
+  const [userRole, setUserRole] = useState("Viewer");
+
+  // Read current logged-in user role from localStorage
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem("admin_user");
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (parsed.role) {
+          setUserRole(parsed.role);
+        }
+      }
+    } catch (err) {
+      console.warn("Failed to load admin user from localStorage", err);
+    }
+  }, []);
+
+  const isAdminOrAnalyst = userRole.toLowerCase() === "admin" || userRole.toLowerCase() === "analyst";
 
   useEffect(() => {
     let cancelled = false;
@@ -779,6 +799,10 @@ const PlaybookViewer = ({
 
   const handleRegenerateLLM = async () => {
     if (isRegeneratingLLM) return;
+    if (!isAdminOrAnalyst) {
+      console.warn("Unauthorized: Only admins and analysts can regenerate AI Summary.");
+      return;
+    }
     setIsRegeneratingLLM(true);
     try {
       const response = await fetch(`/api/sentinel/playbooks/${id}/regenerate-llm`, {
@@ -1092,7 +1116,7 @@ const PlaybookViewer = ({
                     content={resolvedMarkdown}
                     llm_narrative={llm_narrative}
                     isRegeneratingLLM={isRegeneratingLLM}
-                    onRegenerateLLM={handleRegenerateLLM}
+                    onRegenerateLLM={isAdminOrAnalyst ? handleRegenerateLLM : undefined}
                     llmModel={llmModel}
                   />
                 </div>
