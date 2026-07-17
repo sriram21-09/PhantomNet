@@ -38,6 +38,7 @@ render_narrative_prompt_jinja(context) -> str
     Render the prompt via the Jinja2 template file (preferred path).
 
 Week 17, Day 2 — Structured Prompt Templates
+Week 17, Day 5 — Few-shot examples & anti-hallucination refinements
 """
 
 from __future__ import annotations
@@ -307,7 +308,7 @@ def get_mitigation_steps(service_type: str) -> str:
 
 
 # ---------------------------------------------------------------------------
-# System Instruction Header
+# System Instruction Header (refined Week 17, Day 5)
 # ---------------------------------------------------------------------------
 
 SYSTEM_INSTRUCTION_HEADER: str = """\
@@ -316,14 +317,97 @@ following structured security incident context and produce a professional,
 concise narrative summary suitable for inclusion in an incident response
 playbook.
 
+STRICT OUTPUT RULES:
+- Output ONLY valid Markdown. No HTML tags (no <div>, <span>, etc.).
+- Start DIRECTLY with the first Markdown heading. No conversational
+  preamble (e.g. do NOT begin with "Sure, here is…" or "Below is…").
+- Do NOT invent or fabricate IPs, ports, timestamps, technique IDs, or
+  metrics that are not present in the telemetry context below.
+- Keep the total response under 500 words.
+
 The narrative MUST be formatted in Markdown and MUST include:
 1. **Executive Summary** — 2–3 sentence overview of the threat.
 2. **Attack Narrative** — Description of the attack lifecycle and behaviour.
-3. **Containment & Mitigation Steps** — Numbered actionable steps.
+3. **Containment & Mitigation Steps** — Numbered actionable steps (use
+   bold labels with em-dash separators, e.g. **Action** — Description).
 4. **Analyst Notes** — Key observations or concerns for follow-up.
 
-Keep the total response under 500 words. Do NOT fabricate IOCs or technique
-IDs — only use the data provided below.
+For IOC data, use a Markdown table with columns:
+``Indicator | Type | Context``
+
+For MITRE ATT&CK mappings, use a Markdown table with columns:
+``Field | Value``
+
+---
+"""
+
+# ---------------------------------------------------------------------------
+# Few-Shot Example (Week 17, Day 5)
+# ---------------------------------------------------------------------------
+# A canonical SSH Brute Force output that demonstrates the exact format the
+# LLM should follow. This locks down section structure, IOC table layout,
+# MITRE mapping table, and numbered containment steps — all patterns the
+# frontend react-markdown + remark-gfm renderer is optimised to display.
+
+FEW_SHOT_EXAMPLE: str = """\
+
+### ✅ EXAMPLE OUTPUT (follow this format exactly)
+
+## Executive Summary
+
+A **CRITICAL** severity SSH brute-force campaign (Campaign: CAMP-DEMO-001)
+targeted port **22/TCP** between 2026-07-10T02:00:00Z and
+2026-07-10T02:45:00Z. A total of **4,312 authentication failures** were
+recorded from **2 source IPs** with a threat score of **88.5** and a
+confidence score of **0.9200**.
+
+## Attack Narrative
+
+The threat campaign used rapid credential-stuffing attempts against
+the SSH honeypot service on port 22. The attacker cycled through common
+username/password dictionaries at a rate of approximately 96 attempts per
+minute per source IP. The activity aligns with MITRE ATT&CK technique
+**T1110.001 — Brute Force: Password Guessing** under the
+**Credential Access** tactic.
+
+## Indicators of Compromise
+
+| Indicator | Type | Context |
+|---|---|---|
+| 10.0.0.15 | IP | Source Attacker IP |
+| 10.0.0.16 | IP | Source Attacker IP |
+| 22 | Port | Target SSH Port |
+
+## MITRE ATT&CK Mapping
+
+| Field | Value |
+|---|---|
+| Technique ID | T1110.001 |
+| Technique Name | Brute Force: Password Guessing |
+| Tactic | Credential Access |
+| Reference URL | https://attack.mitre.org/techniques/T1110/001/ |
+
+## Containment & Mitigation Steps
+
+1. **Block Source IPs** — Immediately add `10.0.0.15` and `10.0.0.16`
+   to the perimeter firewall deny-list.
+2. **Rotate SSH Credentials** — Force rotation of all SSH keys and
+   passwords for affected honeypot accounts.
+3. **Rate-Limit SSH** — Apply connection-rate limits (≤ 3 attempts/min/IP)
+   at the network boundary.
+4. **Enable MFA** — Enforce multi-factor authentication on all exposed
+   SSH services.
+5. **Review Audit Logs** — Correlate failed authentication logs against
+   the recorded source IPs for lateral movement indicators.
+
+## Analyst Notes
+
+The sustained 45-minute brute-force window suggests automated tooling
+(likely Hydra or Medusa). The threat score of 88.5 places this campaign
+in the **HIGH** risk tier. Recommend deploying Snort IDS signatures and
+monitoring for post-compromise lateral movement.
+
+### END EXAMPLE — Now generate the summary for the campaign below.
 
 ---
 """
@@ -334,6 +418,7 @@ IDs — only use the data provided below.
 
 FULL_NARRATIVE_PROMPT_TEMPLATE: str = (
     SYSTEM_INSTRUCTION_HEADER
+    + FEW_SHOT_EXAMPLE
     + "\n"
     + SECTION_CAMPAIGN_CLUSTER_METADATA
     + "\n"
@@ -343,7 +428,7 @@ FULL_NARRATIVE_PROMPT_TEMPLATE: str = (
     + "\n"
     + SECTION_MITIGATION_STEPS
     + "\n---\n"
-    + "*Prompt generated by PhantomNet Sentinel LLM Service — Week 17, Day 2*\n"
+    + "*Prompt generated by PhantomNet Sentinel LLM Service — Week 17, Day 5*\n"
     + "*UTC Timestamp: {generated_at_utc}*\n"
 )
 
@@ -530,12 +615,13 @@ def build_narrative_prompt(context: Dict[str, Any]) -> str:
 
     footer = (
         "\n---\n"
-        "*Prompt generated by PhantomNet Sentinel LLM Service — Week 17, Day 2*\n"
+        "*Prompt generated by PhantomNet Sentinel LLM Service — Week 17, Day 5*\n"
         f"*UTC Timestamp: {generated_at_utc}*\n"
     )
 
     prompt = (
         SYSTEM_INSTRUCTION_HEADER
+        + FEW_SHOT_EXAMPLE
         + "\n"
         + section1
         + "\n"
