@@ -54,6 +54,7 @@ import asyncio
 import logging
 import os
 import threading
+import time
 from datetime import datetime, timezone
 from typing import Any, Dict, Optional
 
@@ -87,6 +88,8 @@ logger = logging.getLogger("sentinel.llm_service")
 SENTINEL_LLM_ENABLED: bool = os.getenv("SENTINEL_LLM_ENABLED", "false").lower() == "true"
 SENTINEL_LLM_HOST: str = os.getenv("SENTINEL_LLM_HOST", "http://ollama:11434")
 SENTINEL_LLM_MODEL: str = os.getenv("SENTINEL_LLM_MODEL", "mistral")
+
+last_generation_time_ms: float = 0.0
 
 
 # ===========================================================================
@@ -259,6 +262,7 @@ class LLMService:
             return "MOCK_NARRATIVE_OUTPUT"
 
         try:
+            start_time = time.time()
             async with httpx.AsyncClient(timeout=30.0) as client:
                 response = await client.post(
                     f"{self.host}/api/generate",
@@ -269,11 +273,19 @@ class LLMService:
                     },
                 )
                 response.raise_for_status()
+                
+                latency_ms = (time.time() - start_time) * 1000
+                global last_generation_time_ms
+                last_generation_time_ms = latency_ms
+                
+                if latency_ms > 25000:
+                    logger.warning("Slow inference request detected: %.2f ms", latency_ms)
+                
                 result = response.json()
                 text = result.get("response", "").strip()
                 logger.info(
-                    "LLMService: Ollama response received (%d chars, model=%s)",
-                    len(text), self.model,
+                    "LLMService: Ollama response received (%d chars, model=%s) in %.2f ms",
+                    len(text), self.model, latency_ms
                 )
                 return text
         except httpx.TimeoutException as exc:
@@ -685,6 +697,7 @@ async def generate_playbook_summary(
             )
         if llm_enabled:
             try:
+                start_time = time.time()
                 async with httpx.AsyncClient(timeout=10.0) as client:
                     response = await client.post(
                         f"{SENTINEL_LLM_HOST}/api/generate",
@@ -695,11 +708,18 @@ async def generate_playbook_summary(
                         },
                     )
                     if response.status_code == 200:
+                        latency_ms = (time.time() - start_time) * 1000
+                        global last_generation_time_ms
+                        last_generation_time_ms = latency_ms
+                        
+                        if latency_ms > 25000:
+                            logger.warning("Slow inference request detected: %.2f ms", latency_ms)
+                            
                         result = response.json()
                         narrative = result.get("response", "").strip()
                         logger.info(
-                            "Successfully generated LLM narrative using model %s",
-                            SENTINEL_LLM_MODEL,
+                            "Successfully generated LLM narrative using model %s in %.2f ms",
+                            SENTINEL_LLM_MODEL, latency_ms
                         )
                     else:
                         logger.warning(
