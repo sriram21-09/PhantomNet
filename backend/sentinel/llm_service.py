@@ -57,6 +57,7 @@ import logging
 import os
 import re
 import threading
+import time
 from datetime import datetime, timezone
 from typing import Any, Dict, Optional
 
@@ -91,6 +92,8 @@ logger = logging.getLogger("sentinel.llm_service")
 SENTINEL_LLM_ENABLED: bool = os.getenv("SENTINEL_LLM_ENABLED", "false").lower() == "true"
 SENTINEL_LLM_HOST: str = os.getenv("SENTINEL_LLM_HOST", "http://ollama:11434")
 SENTINEL_LLM_MODEL: str = os.getenv("SENTINEL_LLM_MODEL", "mistral")
+
+last_generation_time_ms: float = 0.0
 
 # ---------------------------------------------------------------------------
 # Week 17, Day 3: Strict timeout configuration for the async HTTP client
@@ -324,6 +327,7 @@ class LLMService:
         str
             The model's response as clean Markdown text, or ``""`` on failure.
         """
+        global last_generation_time_ms
         if getattr(self, "mock_client", False):
             logger.info("LLMService: using mock client, returning mock response.")
             return "MOCK_NARRATIVE_OUTPUT"
@@ -336,6 +340,7 @@ class LLMService:
         }
 
         try:
+            start_time = time.time()
             async with httpx.AsyncClient(timeout=_OLLAMA_TIMEOUT) as client:
                 if stream:
                     # ---- Streaming path: aggregate NDJSON chunks ----
@@ -367,10 +372,16 @@ class LLMService:
                                 break
 
                     raw_text = "".join(collected_tokens)
+                    latency_ms = (time.time() - start_time) * 1000
+                    last_generation_time_ms = latency_ms
+
+                    if latency_ms > 25000:
+                        logger.warning("Slow inference request detected: %.2f ms", latency_ms)
+
                     logger.info(
                         "LLMService._call_ollama (stream): aggregated %d chars "
-                        "from %d chunks (model=%s)",
-                        len(raw_text), len(collected_tokens), self.model,
+                        "from %d chunks (model=%s) in %.2f ms",
+                        len(raw_text), len(collected_tokens), self.model, latency_ms
                     )
 
                 else:
@@ -385,14 +396,19 @@ class LLMService:
                         return ""
                     result = response.json()
                     raw_text = result.get("response", "")
+                    latency_ms = (time.time() - start_time) * 1000
+                    last_generation_time_ms = latency_ms
+
+                    if latency_ms > 25000:
+                        logger.warning("Slow inference request detected: %.2f ms", latency_ms)
+
                     logger.info(
-                        "LLMService._call_ollama: received %d chars (model=%s)",
-                        len(raw_text), self.model,
+                        "LLMService._call_ollama: received %d chars (model=%s) in %.2f ms",
+                        len(raw_text), self.model, latency_ms
                     )
 
                 clean_text = self._clean_markdown(raw_text)
                 return clean_text
-
         except httpx.TimeoutException as exc:
             logger.warning(
                 "LLMService._call_ollama: timeout after 60 s reaching Ollama "
@@ -834,6 +850,7 @@ async def generate_playbook_summary(
     str
         Narrative Markdown string (LLM or local fallback).
     """
+    global last_generation_time_ms
     local_session = False
     if db is None:
         db = SessionLocal()
@@ -871,6 +888,7 @@ async def generate_playbook_summary(
             )
         if llm_enabled:
             try:
+                start_time = time.time()
                 # Week 17 Day 3: strict 60-second connect + read timeout
                 async with httpx.AsyncClient(timeout=_OLLAMA_TIMEOUT) as client:
                     response = await client.post(
@@ -882,14 +900,20 @@ async def generate_playbook_summary(
                         },
                     )
                     if response.status_code == 200:
+                        latency_ms = (time.time() - start_time) * 1000
+                        last_generation_time_ms = latency_ms
+                        
+                        if latency_ms > 25000:
+                            logger.warning("Slow inference request detected: %.2f ms", latency_ms)
+                            
                         result = response.json()
                         raw_text = result.get("response", "")
                         # Apply clean Markdown post-processing
                         narrative = LLMService._clean_markdown(raw_text)
                         logger.info(
                             "Successfully generated LLM narrative using model %s "
-                            "(%d chars after cleaning)",
-                            SENTINEL_LLM_MODEL, len(narrative),
+                            "(%d chars after cleaning) in %.2f ms",
+                            SENTINEL_LLM_MODEL, len(narrative), latency_ms
                         )
                     else:
                         logger.warning(
