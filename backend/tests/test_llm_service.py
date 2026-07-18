@@ -95,8 +95,8 @@ async def test_generate_playbook_summary_success(mock_client_cls):
     with patch.dict(os.environ, {"SENTINEL_LLM_ENABLED": "true"}):
         result = await generate_playbook_summary(1, mock_db)
 
-    assert result == "Custom LLM Summary Text"
-    assert playbook.llm_narrative == "Custom LLM Summary Text"
+    assert result == "Custom LLM Summary Text\n"
+    assert playbook.llm_narrative == "Custom LLM Summary Text\n"
     mock_db.commit.assert_called_once()
 
 
@@ -312,7 +312,7 @@ class TestLLMServiceGenerateNarrative:
             svc = LLMService()
             result = svc.generate_narrative({"attack_type": "Port Scan", "severity": "HIGH"})
 
-        assert result == "AI narrative text"
+        assert result == "AI narrative text\n"
 
     @patch("sentinel.llm_service.httpx.AsyncClient")
     def test_generate_narrative_ollama_offline(self, mock_client_cls):
@@ -437,7 +437,7 @@ class TestLLMServiceDynamicDatabaseToggle:
         # Run with TEST_DB_TOGGLE=true so it doesn't fall back to test env defaults
         with patch.dict(os.environ, {"TEST_DB_TOGGLE": "true", "SENTINEL_LLM_ENABLED": "false"}):
             res = await generate_playbook_summary(1, db=mock_db)
-            assert res == "DB-enabled AI narrative"
+            assert res == "DB-enabled AI narrative\n"
 
     @pytest.mark.anyio
     @patch("sentinel.llm_service.httpx.AsyncClient")

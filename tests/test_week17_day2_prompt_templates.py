@@ -2,6 +2,7 @@
 tests/test_week17_day2_prompt_templates.py
 -------------------------------------------
 Week 17, Day 2 — Unit Tests for Structured Prompt Templates
+Week 17, Day 5 — Few-shot example and anti-hallucination tests
 
 Validates:
   1. normalise_utc_timestamp()  — UTC timestamp standardisation
@@ -10,6 +11,7 @@ Validates:
   4. get_mitigation_steps()     — service-specific mitigation presets
   5. LLMService._build_context_prompt() — integration with structured prompts
   6. All four required sections present in generated prompts
+  7. FEW_SHOT_EXAMPLE embedding and anti-hallucination guardrails
 """
 
 import os
@@ -31,6 +33,7 @@ from sentinel.prompt_templates import (
     SECTION_MITIGATION_STEPS,
     FULL_NARRATIVE_PROMPT_TEMPLATE,
     SYSTEM_INSTRUCTION_HEADER,
+    FEW_SHOT_EXAMPLE,
     _MITIGATION_PRESETS,
 )
 
@@ -152,7 +155,7 @@ class TestModuleConstants(unittest.TestCase):
         self.assertIn("cybersecurity", SYSTEM_INSTRUCTION_HEADER.lower())
 
     def test_mitigation_presets_cover_all_services(self):
-        for service in ("SSH", "HTTP", "FTP", "SMTP", "UNKNOWN"):
+        for service in ("SSH", "HTTP", "FTP", "SMTP", "PORT_SCAN", "UNKNOWN"):
             self.assertIn(service, _MITIGATION_PRESETS)
 
     def test_full_template_contains_all_four_sections(self):
@@ -262,8 +265,8 @@ class TestBuildNarrativePrompt(unittest.TestCase):
     def test_event_count_present(self):
         self.assertIn("150", self.prompt)
 
-    def test_footer_contains_week17_day2(self):
-        self.assertIn("Week 17, Day 2", self.prompt)
+    def test_footer_contains_week17_day5(self):
+        self.assertIn("Week 17, Day 5", self.prompt)
 
     def test_empty_source_ips_handled(self):
         ctx = dict(SAMPLE_CONTEXT, source_ips=[])
@@ -295,6 +298,14 @@ class TestBuildNarrativePrompt(unittest.TestCase):
         ctx = dict(SAMPLE_CONTEXT, service_type="FTP")
         prompt = build_narrative_prompt(ctx)
         self.assertIn("Anonymous FTP", prompt)
+
+    def test_port_scan_mitigation_for_port_scan_service(self):
+        ctx = dict(SAMPLE_CONTEXT, service_type="PORT_SCAN")
+        prompt = build_narrative_prompt(ctx)
+        self.assertIn("Deception Honeypots", prompt)
+        
+        prompt_jinja = render_narrative_prompt_jinja(ctx)
+        self.assertIn("Deception Honeypots", prompt_jinja)
 
 
 # ===========================================================================
@@ -461,6 +472,94 @@ class TestUTCTimestampStandardisation(unittest.TestCase):
         dt = datetime(2026, 7, 14, 12, 0, 0, tzinfo=timezone.utc)
         ts = normalise_utc_timestamp(dt)
         self.assertEqual(ts, "2026-07-14T12:00:00Z")
+
+
+# ===========================================================================
+# 8. Few-Shot Example & Anti-Hallucination Guardrails (Week 17, Day 5)
+# ===========================================================================
+
+class TestFewShotExample(unittest.TestCase):
+    """Verify FEW_SHOT_EXAMPLE constant and its embedding in prompts."""
+
+    def test_few_shot_example_is_non_empty_string(self):
+        self.assertIsInstance(FEW_SHOT_EXAMPLE, str)
+        self.assertGreater(len(FEW_SHOT_EXAMPLE), 200)
+
+    def test_few_shot_contains_example_header(self):
+        self.assertIn("EXAMPLE OUTPUT", FEW_SHOT_EXAMPLE)
+
+    def test_few_shot_contains_end_marker(self):
+        self.assertIn("END EXAMPLE", FEW_SHOT_EXAMPLE)
+
+    def test_few_shot_contains_executive_summary_section(self):
+        self.assertIn("## Executive Summary", FEW_SHOT_EXAMPLE)
+
+    def test_few_shot_contains_attack_narrative_section(self):
+        self.assertIn("## Attack Narrative", FEW_SHOT_EXAMPLE)
+
+    def test_few_shot_contains_ioc_table(self):
+        self.assertIn("| Indicator | Type | Context |", FEW_SHOT_EXAMPLE)
+
+    def test_few_shot_contains_mitre_mapping_table(self):
+        self.assertIn("| Field | Value |", FEW_SHOT_EXAMPLE)
+
+    def test_few_shot_contains_containment_section(self):
+        self.assertIn("## Containment", FEW_SHOT_EXAMPLE)
+
+    def test_few_shot_contains_analyst_notes_section(self):
+        self.assertIn("## Analyst Notes", FEW_SHOT_EXAMPLE)
+
+    def test_few_shot_uses_bold_em_dash_format(self):
+        self.assertIn("**Block Source IPs**", FEW_SHOT_EXAMPLE)
+        self.assertIn("\u2014", FEW_SHOT_EXAMPLE)  # em-dash
+
+    def test_few_shot_uses_numbered_containment_steps(self):
+        for i in range(1, 6):
+            self.assertIn(f"{i}.", FEW_SHOT_EXAMPLE)
+
+    def test_few_shot_contains_no_html(self):
+        self.assertNotIn("<div", FEW_SHOT_EXAMPLE)
+        self.assertNotIn("<span", FEW_SHOT_EXAMPLE)
+
+    def test_few_shot_embedded_in_full_template(self):
+        self.assertIn("EXAMPLE OUTPUT", FULL_NARRATIVE_PROMPT_TEMPLATE)
+
+    def test_few_shot_embedded_in_build_narrative_prompt(self):
+        prompt = build_narrative_prompt(SAMPLE_CONTEXT)
+        self.assertIn("EXAMPLE OUTPUT", prompt)
+        self.assertIn("END EXAMPLE", prompt)
+
+    def test_few_shot_embedded_in_jinja_render(self):
+        prompt = render_narrative_prompt_jinja(SAMPLE_CONTEXT)
+        self.assertIn("EXAMPLE OUTPUT", prompt)
+
+
+class TestAntiHallucinationGuardrails(unittest.TestCase):
+    """Verify system instruction header contains anti-hallucination rules."""
+
+    def test_strict_output_rules_present(self):
+        self.assertIn("STRICT OUTPUT RULES", SYSTEM_INSTRUCTION_HEADER)
+
+    def test_no_html_rule_present(self):
+        self.assertIn("No HTML tags", SYSTEM_INSTRUCTION_HEADER)
+
+    def test_no_preamble_rule_present(self):
+        self.assertIn("No conversational", SYSTEM_INSTRUCTION_HEADER)
+
+    def test_no_fabrication_rule_present(self):
+        self.assertIn("Do NOT invent or fabricate", SYSTEM_INSTRUCTION_HEADER)
+
+    def test_word_limit_rule_present(self):
+        self.assertIn("500 words", SYSTEM_INSTRUCTION_HEADER)
+
+    def test_ioc_table_format_instruction_present(self):
+        self.assertIn("Indicator | Type | Context", SYSTEM_INSTRUCTION_HEADER)
+
+    def test_mitre_table_format_instruction_present(self):
+        self.assertIn("Field | Value", SYSTEM_INSTRUCTION_HEADER)
+
+    def test_bold_em_dash_format_instruction_present(self):
+        self.assertIn("bold labels with em-dash", SYSTEM_INSTRUCTION_HEADER)
 
 
 if __name__ == "__main__":

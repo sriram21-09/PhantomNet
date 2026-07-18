@@ -1,0 +1,406 @@
+{
+  "metadata": {
+    "evaluation_timestamp": "2026-07-16T13:04:41.218668+00:00",
+    "model": "mistral",
+    "ollama_host": "http://localhost:11434",
+    "mocked_execution": true,
+    "telemetry_contexts": {
+      "sqli": {
+        "campaign_id": "CAMP-W17-SQLI-001",
+        "attack_type": "SQL Injection",
+        "source_ips": [
+          "203.0.113.101",
+          "203.0.113.102"
+        ],
+        "destination_port": 8080,
+        "protocol": "TCP",
+        "event_count": 320,
+        "target_url": "/api/v1/users/login",
+        "http_method": "POST",
+        "injected_payloads": [
+          "' OR '1'='1",
+          "UNION SELECT username, password FROM users"
+        ],
+        "first_seen": "2026-07-16T08:00:00Z",
+        "last_seen": "2026-07-16T08:10:00Z",
+        "threat_score": 92.0,
+        "confidence_score": 0.95,
+        "mitre_technique_id": "T1190",
+        "mitre_technique_name": "Exploit Public-Facing Application",
+        "mitre_tactic": "Initial Access",
+        "mitre_url": "https://attack.mitre.org/techniques/T1190/",
+        "snort_rule": "alert tcp any any -> $HTTP_SERVERS 8080 (msg:\"SQL Injection Attempt Detected\"; content:\"UNION\"; nocase; reference:url,attack.mitre.org/techniques/T1190/; sid:1000002; rev:1;)",
+        "sigma_rule_level": "high"
+      },
+      "port_scan": {
+        "campaign_id": "CAMP-W17-PORT-SCAN-001",
+        "attack_type": "Port Scan",
+        "source_ips": [
+          "198.51.100.50"
+        ],
+        "destination_port": 0,
+        "protocol": "TCP",
+        "event_count": 1500,
+        "scan_type": "SYN Scan",
+        "unique_ports_scanned": 85,
+        "first_seen": "2026-07-16T09:00:00Z",
+        "last_seen": "2026-07-16T09:05:00Z",
+        "threat_score": 78.5,
+        "confidence_score": 0.88,
+        "mitre_technique_id": "T1595.001",
+        "mitre_technique_name": "Active Scanning: Scanning IP Blocks",
+        "mitre_tactic": "Reconnaissance",
+        "mitre_url": "https://attack.mitre.org/techniques/T1595/001/",
+        "snort_rule": "alert tcp $EXTERNAL_NET any -> $HOME_NET any (msg:\"SYN Port Scan Detected\"; flags:S; threshold:type limit, track by_src, count 20, seconds 10; reference:url,attack.mitre.org/techniques/T1595/001/; sid:1000003; rev:1;)",
+        "sigma_rule_level": "medium"
+      }
+    }
+  },
+  "evaluations": [
+    {
+      "campaign_type": "sqli",
+      "prompt_name": "V1 \u2014 Raw Telemetry (Baseline)",
+      "variant": "v1",
+      "status": "SUCCESS",
+      "prompt_text": "You are an expert incident response and threat intelligence analyst. Write a highly technical, professional, and clear executive summary of the threat campaign. Use strict Markdown format. Start directly with the markdown header. Do NOT output HTML tags. Do NOT use conversational prefixes (such as 'Sure, here is your playbook summary:'). Do NOT invent or fabricate data not present in the provided telemetry. Only reference IPs, ports, timestamps, and metrics explicitly given below.\n\nCampaign ID: CAMP-W17-SQLI-001\nAttack Type: SQL Injection\nSource IPs: 203.0.113.101, 203.0.113.102\nDestination Port: 8080\nProtocol: TCP\nEvent Count: 320\nTarget URL: /api/v1/users/login\nHTTP Method: POST\nInjected Payloads: ' OR '1'='1, UNION SELECT username, password FROM users\nFirst Seen: 2026-07-16T08:00:00Z\nLast Seen: 2026-07-16T08:10:00Z\nThreat Score: 92.0\nConfidence Score: 0.95\nMITRE Technique: T1190 \u2014 Exploit Public-Facing Application\nMITRE Tactic: Initial Access\n\nWrite a security incident summary in Markdown.",
+      "raw_output": "Sure, here is your playbook summary for SQL Injection:\n\n<div>The SQL Injection attack was detected from IP 203.0.113.101 and also we noticed a connection from 192.168.1.50 which was malicious.</div>\nThe attacker targeted port 8080 on /api/v1/users/login with payload UNION SELECT username, password FROM users.\nWe recommend blocking the IP and checking log files.",
+      "inference_metrics": {
+        "eval_count": 68,
+        "tokens_per_sec": 21.53,
+        "wall_time_s": 3.2,
+        "total_duration_ms": 3200.0
+      },
+      "quality_checks": {
+        "structure": {
+          "starts_with_header": false,
+          "has_no_html": false,
+          "has_no_preamble": false,
+          "sections_found": [],
+          "sections_missing": [
+            "Incident Overview",
+            "Attack Analysis",
+            "Indicators of Compromise",
+            "MITRE ATT&CK Mapping",
+            "Recommended Containment"
+          ],
+          "section_coverage": 0.0,
+          "has_markdown_table": false,
+          "has_bullet_points": false,
+          "has_bold_text": false,
+          "word_count": 53
+        },
+        "factual_accuracy": {
+          "known_ips_referenced": [
+            "203.0.113.101"
+          ],
+          "known_ips_coverage": 0.5,
+          "fabricated_ips": [
+            "192.168.1.50"
+          ],
+          "has_fabricated_ips": true,
+          "correct_port_referenced": true,
+          "correct_technique_referenced": false,
+          "correct_url_referenced": true,
+          "correct_event_count": false
+        },
+        "security_compliance": {
+          "mentions_containment": true,
+          "mentions_monitoring": false,
+          "mentions_credential_or_app_hygiene": false,
+          "mentions_mitre_tactic": false,
+          "references_snort_or_ids": false
+        }
+      },
+      "composite_score": 17.0,
+      "grade": "F"
+    },
+    {
+      "campaign_type": "sqli",
+      "prompt_name": "V2 \u2014 Structured Sections",
+      "variant": "v2",
+      "status": "SUCCESS",
+      "prompt_text": "You are an expert incident response and threat intelligence analyst. Write a highly technical, professional, and clear executive summary of the threat campaign. Use strict Markdown format. Start directly with the markdown header. Do NOT output HTML tags. Do NOT use conversational prefixes (such as 'Sure, here is your playbook summary:'). Do NOT invent or fabricate data not present in the provided telemetry. Only reference IPs, ports, timestamps, and metrics explicitly given below.\n\n--- BEGIN TELEMETRY ---\nCampaign ID: CAMP-W17-SQLI-001\nAttack Type: SQL Injection\nSource IPs: 203.0.113.101, 203.0.113.102\nDestination Port: 8080\nProtocol: TCP\nEvent Count: 320 SQLi requests\nTarget URL: /api/v1/users/login (POST)\nPayloads: ' OR '1'='1, UNION SELECT username, password FROM users\nTime Window: 2026-07-16T08:00:00Z to 2026-07-16T08:10:00Z\nThreat Score: 92.0 / 100\nConfidence: 0.95\nMITRE ATT&CK: T1190 (Exploit Public-Facing Application)\nTactic: Initial Access\nSnort Rule: alert tcp any any -> $HTTP_SERVERS 8080 (msg:\"SQL Injection Attempt Detected\"; content:\"UNION\"; nocase; reference:url,attack.mitre.org/techniques/T1190/; sid:1000002; rev:1;)\n--- END TELEMETRY ---\n\nGenerate a Markdown incident summary with EXACTLY these sections:\n1. ## Incident Overview\n2. ## Attack Analysis\n3. ## Indicators of Compromise\n4. ## MITRE ATT&CK Mapping\n5. ## Recommended Containment\nDo NOT add sections beyond these five. Do NOT fabricate data.",
+      "raw_output": "## Incident Overview\nA SQL Injection attack campaign was detected.\n\n## Attack Analysis\nWe detected 320 SQLi requests attempts targeting /api/v1/users/login using TCP protocol.\n\n## Indicators of Compromise\nThe attacker source IPs are: 203.0.113.101, 203.0.113.102.\n\n## MITRE ATT&CK Mapping\nThe attack maps to T1190 (Exploit Public-Facing Application) under Initial Access.\n\n## Recommended Containment\n- Block source IPs at WAF.\n- Review database logs.",
+      "inference_metrics": {
+        "eval_count": 81,
+        "tokens_per_sec": 18.2,
+        "wall_time_s": 4.5,
+        "total_duration_ms": 4500.0
+      },
+      "quality_checks": {
+        "structure": {
+          "starts_with_header": true,
+          "has_no_html": true,
+          "has_no_preamble": true,
+          "sections_found": [
+            "Incident Overview",
+            "Attack Analysis",
+            "Indicators of Compromise",
+            "MITRE ATT&CK Mapping",
+            "Recommended Containment"
+          ],
+          "sections_missing": [],
+          "section_coverage": 1.0,
+          "has_markdown_table": false,
+          "has_bullet_points": true,
+          "has_bold_text": false,
+          "word_count": 63
+        },
+        "factual_accuracy": {
+          "known_ips_referenced": [
+            "203.0.113.102",
+            "203.0.113.101"
+          ],
+          "known_ips_coverage": 1.0,
+          "fabricated_ips": [],
+          "has_fabricated_ips": false,
+          "correct_port_referenced": false,
+          "correct_technique_referenced": true,
+          "correct_url_referenced": true,
+          "correct_event_count": true
+        },
+        "security_compliance": {
+          "mentions_containment": true,
+          "mentions_monitoring": false,
+          "mentions_credential_or_app_hygiene": false,
+          "mentions_mitre_tactic": true,
+          "references_snort_or_ids": false
+        }
+      },
+      "composite_score": 73.0,
+      "grade": "C"
+    },
+    {
+      "campaign_type": "sqli",
+      "prompt_name": "V3 \u2014 Hardened Anti-Hallucination",
+      "variant": "v3",
+      "status": "SUCCESS",
+      "prompt_text": "You are an expert incident response and threat intelligence analyst. Write a highly technical, professional, and clear executive summary of the threat campaign. Use strict Markdown format. Start directly with the markdown header. Do NOT output HTML tags. Do NOT use conversational prefixes (such as 'Sure, here is your playbook summary:'). Do NOT invent or fabricate data not present in the provided telemetry. Only reference IPs, ports, timestamps, and metrics explicitly given below.\n\nSTRICT RULES:\n- Output ONLY valid Markdown. No HTML.\n- Start with '## Incident Overview'. No preamble.\n- Include EXACTLY 5 sections in this order:\n  1. ## Incident Overview\n  2. ## Attack Analysis\n  3. ## Indicators of Compromise\n  4. ## MITRE ATT&CK Mapping\n  5. ## Recommended Containment\n- In the IOC section, use a Markdown table with columns: Indicator | Type | Context\n- Reference ONLY the data provided below. Do NOT invent IPs, timestamps, or metrics.\n- Do NOT exceed 500 words.\n\n--- BEGIN TELEMETRY ---\nCampaign: CAMP-W17-SQLI-001\nType: SQL Injection\nSources: 203.0.113.101, 203.0.113.102\nTarget URL: /api/v1/users/login on port 8080 (TCP)\nEvents: 320 SQL injection events\nPayloads used: ' OR '1'='1, UNION SELECT username, password FROM users\nWindow: 2026-07-16T08:00:00Z \u2014 2026-07-16T08:10:00Z\nThreat Score: 92.0/100 | Confidence: 0.95\nMITRE: T1190 \u2014 Exploit Public-Facing Application (Initial Access)\nReference: https://attack.mitre.org/techniques/T1190/\nSnort Signature: alert tcp any any -> $HTTP_SERVERS 8080 (msg:\"SQL Injection Attempt Detected\"; content:\"UNION\"; nocase; reference:url,attack.mitre.org/techniques/T1190/; sid:1000002; rev:1;)\n--- END TELEMETRY ---",
+      "raw_output": "## Incident Overview\nA critical SQL Injection (SQLi) threat campaign (Campaign ID: CAMP-W17-SQLI-001) has been detected targeting port 8080. The threat scoring engine has assigned a threat score of 92.0 with a confidence score of 0.9500. The activity occurred between 2026-07-16T08:00:00Z and 2026-07-16T08:10:00Z, with 320 events recorded.\n\n## Attack Analysis\nThe threat campaign involved SQL Injection attempts targeting the endpoint `/api/v1/users/login` using the TCP protocol. The attacker utilized payload patterns including `' OR '1'='1` and `UNION SELECT username, password FROM users` to bypass authentication and extract database content.\n\n## Indicators of Compromise\nThe following indicators of compromise (IOCs) were identified:\n\n| Indicator | Type | Context |\n|---|---|---|\n| 203.0.113.101 | IP | Source Attacker IP |\n| 203.0.113.102 | IP | Source Attacker IP |\n| /api/v1/users/login | URL | Target Web Endpoint |\n\n## MITRE ATT&CK Mapping\nThe campaign maps to the following MITRE ATT&CK matrix:\n\n| Field | Value |\n|---|---|\n| Technique ID | T1190 |\n| Technique Name | Exploit Public-Facing Application |\n| Tactic | Initial Access |\n| Reference URL | https://attack.mitre.org/techniques/T1190/ |\n\n## Recommended Containment\n1. **Block Source IPs** \u2014 Immediately deny HTTP traffic from `203.0.113.101` and `203.0.113.102` at the perimeter firewall and WAF.\n2. **Apply WAF Rules** \u2014 Enable signature blocks for SQL keywords such as `UNION` and `SELECT` to block active injection patterns using the Snort signature.\n3. **Prepared Statements** \u2014 Update the target endpoint code to use parameterized queries and input validation to eliminate SQL injection vulnerabilities.\n4. **Deploy Snort IDS Signature** \u2014 Deploy Snort rules targeting SQLi signatures.\n5. **Review Audit Logs** \u2014 Analyze database session logs to verify if any unauthorized queries executed successfully.",
+      "inference_metrics": {
+        "eval_count": 360,
+        "tokens_per_sec": 52.96,
+        "wall_time_s": 6.8,
+        "total_duration_ms": 6800.0
+      },
+      "quality_checks": {
+        "structure": {
+          "starts_with_header": true,
+          "has_no_html": true,
+          "has_no_preamble": true,
+          "sections_found": [
+            "Incident Overview",
+            "Attack Analysis",
+            "Indicators of Compromise",
+            "MITRE ATT&CK Mapping",
+            "Recommended Containment"
+          ],
+          "sections_missing": [],
+          "section_coverage": 1.0,
+          "has_markdown_table": true,
+          "has_bullet_points": false,
+          "has_bold_text": true,
+          "word_count": 277
+        },
+        "factual_accuracy": {
+          "known_ips_referenced": [
+            "203.0.113.102",
+            "203.0.113.101"
+          ],
+          "known_ips_coverage": 1.0,
+          "fabricated_ips": [],
+          "has_fabricated_ips": false,
+          "correct_port_referenced": true,
+          "correct_technique_referenced": true,
+          "correct_url_referenced": true,
+          "correct_event_count": true
+        },
+        "security_compliance": {
+          "mentions_containment": true,
+          "mentions_monitoring": true,
+          "mentions_credential_or_app_hygiene": true,
+          "mentions_mitre_tactic": true,
+          "references_snort_or_ids": true
+        }
+      },
+      "composite_score": 97.0,
+      "grade": "A"
+    },
+    {
+      "campaign_type": "portscan",
+      "prompt_name": "V1 \u2014 Raw Telemetry (Baseline)",
+      "variant": "v1",
+      "status": "SUCCESS",
+      "prompt_text": "You are an expert incident response and threat intelligence analyst. Write a highly technical, professional, and clear executive summary of the threat campaign. Use strict Markdown format. Start directly with the markdown header. Do NOT output HTML tags. Do NOT use conversational prefixes (such as 'Sure, here is your playbook summary:'). Do NOT invent or fabricate data not present in the provided telemetry. Only reference IPs, ports, timestamps, and metrics explicitly given below.\n\nCampaign ID: CAMP-W17-PORT-SCAN-001\nAttack Type: Port Scan\nSource IPs: 198.51.100.50\nDestination Port: 0\nProtocol: TCP\nEvent Count: 1500\nScan Type: SYN Scan\nUnique Ports Scanned: 85\nFirst Seen: 2026-07-16T09:00:00Z\nLast Seen: 2026-07-16T09:05:00Z\nThreat Score: 78.5\nConfidence Score: 0.88\nMITRE Technique: T1595.001 \u2014 Active Scanning: Scanning IP Blocks\nMITRE Tactic: Reconnaissance\n\nWrite a security incident summary in Markdown.",
+      "raw_output": "Below is the summary of the port scan:\nThe attack from 198.51.100.50 targeted port 22 and also probed 10.0.0.99.\nThere were 1500 SYN scan probes across 85 ports.",
+      "inference_metrics": {
+        "eval_count": 36,
+        "tokens_per_sec": 11.37,
+        "wall_time_s": 3.2,
+        "total_duration_ms": 3200.0
+      },
+      "quality_checks": {
+        "structure": {
+          "starts_with_header": false,
+          "has_no_html": true,
+          "has_no_preamble": false,
+          "sections_found": [],
+          "sections_missing": [
+            "Incident Overview",
+            "Attack Analysis",
+            "Indicators of Compromise",
+            "MITRE ATT&CK Mapping",
+            "Recommended Containment"
+          ],
+          "section_coverage": 0.0,
+          "has_markdown_table": false,
+          "has_bullet_points": false,
+          "has_bold_text": false,
+          "word_count": 28
+        },
+        "factual_accuracy": {
+          "known_ips_referenced": [
+            "198.51.100.50"
+          ],
+          "known_ips_coverage": 1.0,
+          "fabricated_ips": [
+            "10.0.0.99"
+          ],
+          "has_fabricated_ips": true,
+          "correct_port_referenced": true,
+          "correct_technique_referenced": false,
+          "correct_url_referenced": true,
+          "correct_event_count": true
+        },
+        "security_compliance": {
+          "mentions_containment": false,
+          "mentions_monitoring": false,
+          "mentions_credential_or_app_hygiene": false,
+          "mentions_mitre_tactic": false,
+          "references_snort_or_ids": false
+        }
+      },
+      "composite_score": 25.0,
+      "grade": "F"
+    },
+    {
+      "campaign_type": "portscan",
+      "prompt_name": "V2 \u2014 Structured Sections",
+      "variant": "v2",
+      "status": "SUCCESS",
+      "prompt_text": "You are an expert incident response and threat intelligence analyst. Write a highly technical, professional, and clear executive summary of the threat campaign. Use strict Markdown format. Start directly with the markdown header. Do NOT output HTML tags. Do NOT use conversational prefixes (such as 'Sure, here is your playbook summary:'). Do NOT invent or fabricate data not present in the provided telemetry. Only reference IPs, ports, timestamps, and metrics explicitly given below.\n\n--- BEGIN TELEMETRY ---\nCampaign ID: CAMP-W17-PORT-SCAN-001\nAttack Type: Port Scan\nSource IPs: 198.51.100.50\nProtocol: TCP\nEvent Count: 1500 scanning events\nScan Type: SYN Scan\nPorts Scanned: 85 unique ports\nTime Window: 2026-07-16T09:00:00Z to 2026-07-16T09:05:00Z\nThreat Score: 78.5 / 100\nConfidence: 0.88\nMITRE ATT&CK: T1595.001 (Active Scanning: Scanning IP Blocks)\nTactic: Reconnaissance\nSnort Rule: alert tcp $EXTERNAL_NET any -> $HOME_NET any (msg:\"SYN Port Scan Detected\"; flags:S; threshold:type limit, track by_src, count 20, seconds 10; reference:url,attack.mitre.org/techniques/T1595/001/; sid:1000003; rev:1;)\n--- END TELEMETRY ---\n\nGenerate a Markdown incident summary with EXACTLY these sections:\n1. ## Incident Overview\n2. ## Attack Analysis\n3. ## Indicators of Compromise\n4. ## MITRE ATT&CK Mapping\n5. ## Recommended Containment\nDo NOT add sections beyond these five. Do NOT fabricate data.",
+      "raw_output": "## Incident Overview\nA port scan campaign was detected.\n\n## Attack Analysis\nThe scanner probed 85 unique ports with 1500 SYN scan events.\n\n## Indicators of Compromise\nSource IP: 198.51.100.50.\n\n## MITRE ATT&CK Mapping\nTechnique: T1595.001 (Active Scanning). Tactic: Reconnaissance.\n\n## Recommended Containment\n- Block scanner IP.\n- Deploy honeypots.",
+      "inference_metrics": {
+        "eval_count": 65,
+        "tokens_per_sec": 14.44,
+        "wall_time_s": 4.5,
+        "total_duration_ms": 4500.0
+      },
+      "quality_checks": {
+        "structure": {
+          "starts_with_header": true,
+          "has_no_html": true,
+          "has_no_preamble": true,
+          "sections_found": [
+            "Incident Overview",
+            "Attack Analysis",
+            "Indicators of Compromise",
+            "MITRE ATT&CK Mapping",
+            "Recommended Containment"
+          ],
+          "sections_missing": [],
+          "section_coverage": 1.0,
+          "has_markdown_table": false,
+          "has_bullet_points": true,
+          "has_bold_text": false,
+          "word_count": 50
+        },
+        "factual_accuracy": {
+          "known_ips_referenced": [
+            "198.51.100.50"
+          ],
+          "known_ips_coverage": 1.0,
+          "fabricated_ips": [],
+          "has_fabricated_ips": false,
+          "correct_port_referenced": true,
+          "correct_technique_referenced": true,
+          "correct_url_referenced": true,
+          "correct_event_count": true
+        },
+        "security_compliance": {
+          "mentions_containment": true,
+          "mentions_monitoring": false,
+          "mentions_credential_or_app_hygiene": true,
+          "mentions_mitre_tactic": true,
+          "references_snort_or_ids": false
+        }
+      },
+      "composite_score": 83.0,
+      "grade": "B"
+    },
+    {
+      "campaign_type": "portscan",
+      "prompt_name": "V3 \u2014 Hardened Anti-Hallucination",
+      "variant": "v3",
+      "status": "SUCCESS",
+      "prompt_text": "You are an expert incident response and threat intelligence analyst. Write a highly technical, professional, and clear executive summary of the threat campaign. Use strict Markdown format. Start directly with the markdown header. Do NOT output HTML tags. Do NOT use conversational prefixes (such as 'Sure, here is your playbook summary:'). Do NOT invent or fabricate data not present in the provided telemetry. Only reference IPs, ports, timestamps, and metrics explicitly given below.\n\nSTRICT RULES:\n- Output ONLY valid Markdown. No HTML.\n- Start with '## Incident Overview'. No preamble.\n- Include EXACTLY 5 sections in this order:\n  1. ## Incident Overview\n  2. ## Attack Analysis\n  3. ## Indicators of Compromise\n  4. ## MITRE ATT&CK Mapping\n  5. ## Recommended Containment\n- In the IOC section, use a Markdown table with columns: Indicator | Type | Context\n- Reference ONLY the data provided below. Do NOT invent IPs, timestamps, or metrics.\n- Do NOT exceed 500 words.\n\n--- BEGIN TELEMETRY ---\nCampaign: CAMP-W17-PORT-SCAN-001\nType: Port Scan\nSources: 198.51.100.50\nProtocol: TCP\nEvents: 1500 scan probes using SYN Scan\nPorts targeted: 85 unique ports\nWindow: 2026-07-16T09:00:00Z \u2014 2026-07-16T09:05:00Z\nThreat Score: 78.5/100 | Confidence: 0.88\nMITRE: T1595.001 \u2014 Active Scanning: Scanning IP Blocks (Reconnaissance)\nReference: https://attack.mitre.org/techniques/T1595/001/\nSnort Signature: alert tcp $EXTERNAL_NET any -> $HOME_NET any (msg:\"SYN Port Scan Detected\"; flags:S; threshold:type limit, track by_src, count 20, seconds 10; reference:url,attack.mitre.org/techniques/T1595/001/; sid:1000003; rev:1;)\n--- END TELEMETRY ---",
+      "raw_output": "## Incident Overview\nA high-severity active network scanning campaign (Campaign ID: CAMP-W17-PORT-SCAN-001) has been identified targeting network ports. The threat scoring engine assigned a threat score of 78.5 with a confidence score of 0.8800. The scanning activity was recorded between 2026-07-16T09:00:00Z and 2026-07-16T09:05:00Z, with 1500 probe events.\n\n## Attack Analysis\nThe campaign utilized SYN port scan probes from a single scanner IP targeting 85 unique ports. The scan was designed to perform network reconnaissance and discover open services across the subnets.\n\n## Indicators of Compromise\nThe following indicators of compromise (IOCs) were identified:\n\n| Indicator | Type | Context |\n|---|---|---|\n| 198.51.100.50 | IP | Attacker Scanner IP |\n| TCP | Protocol | Protocol used for scanning |\n\n## MITRE ATT&CK Mapping\nThe campaign maps to the MITRE ATT&CK framework as follows:\n\n| Field | Value |\n|---|---|\n| Technique ID | T1595.001 |\n| Technique Name | Active Scanning: Scanning IP Blocks |\n| Tactic | Reconnaissance |\n| Reference URL | https://attack.mitre.org/techniques/T1595/001/ |\n\n## Recommended Containment\n1. **Block Source IP** \u2014 Deny all connections from scanner IP `198.51.100.50` at the boundary firewalls.\n2. **Deploy Deception Honeypots** \u2014 Deploy active deception honeypots in the targeted subnet to capture scanner behavior and feed threat intelligence.\n3. **Capture Traffic** \u2014 Initiate packet capture (tcpdump) on target interfaces to analyze scanner fingerprinting attempts using the Snort signature.\n4. **Harden Banners** \u2014 Harden exposed service banners to reduce information leakage to scanning probes.\n5. **Update IDS/IPS Signatures** \u2014 Deploy active signatures (e.g. Snort rule) to detect port sweeps and SYN scans dynamically.",
+      "inference_metrics": {
+        "eval_count": 339,
+        "tokens_per_sec": 49.9,
+        "wall_time_s": 6.8,
+        "total_duration_ms": 6800.0
+      },
+      "quality_checks": {
+        "structure": {
+          "starts_with_header": true,
+          "has_no_html": true,
+          "has_no_preamble": true,
+          "sections_found": [
+            "Incident Overview",
+            "Attack Analysis",
+            "Indicators of Compromise",
+            "MITRE ATT&CK Mapping",
+            "Recommended Containment"
+          ],
+          "sections_missing": [],
+          "section_coverage": 1.0,
+          "has_markdown_table": true,
+          "has_bullet_points": false,
+          "has_bold_text": true,
+          "word_count": 261
+        },
+        "factual_accuracy": {
+          "known_ips_referenced": [
+            "198.51.100.50"
+          ],
+          "known_ips_coverage": 1.0,
+          "fabricated_ips": [],
+          "has_fabricated_ips": false,
+          "correct_port_referenced": true,
+          "correct_technique_referenced": true,
+          "correct_url_referenced": true,
+          "correct_event_count": true
+        },
+        "security_compliance": {
+          "mentions_containment": true,
+          "mentions_monitoring": true,
+          "mentions_credential_or_app_hygiene": true,
+          "mentions_mitre_tactic": true,
+          "references_snort_or_ids": true
+        }
+      },
+      "composite_score": 97.0,
+      "grade": "A"
+    }
+  ],
+  "summary": {
+    "total_variants_tested": 6,
+    "sqli_best_prompt": "V3 \u2014 Hardened Anti-Hallucination",
+    "sqli_best_score": 97.0,
+    "sqli_best_grade": "A",
+    "portscan_best_prompt": "V3 \u2014 Hardened Anti-Hallucination",
+    "portscan_best_score": 97.0,
+    "portscan_best_grade": "A"
+  }
+}

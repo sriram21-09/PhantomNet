@@ -30,7 +30,7 @@ import logging
 from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional
 
-from fastapi import APIRouter, Depends, HTTPException, Path, Query
+from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Path, Query
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, Field, field_validator
 from sqlalchemy import func
@@ -406,10 +406,10 @@ def get_mitre_mappings() -> Dict[str, Any]:
 # ---------------------------------------------------------------------------
 # 5. POST /api/sentinel/generate — Trigger manual playbook generation
 # ---------------------------------------------------------------------------
-
 @router.post("/generate", response_model=Dict[str, Any])
 def generate_playbook(
     request: GenerateRequest,
+    background_tasks: BackgroundTasks,
     db: Session = Depends(get_db),
 ) -> Dict[str, Any]:
     """
@@ -420,6 +420,7 @@ def generate_playbook(
 
     Args:
         request: GenerateRequest with source_ips, target_ports, etc.
+        background_tasks: Injected background tasks manager.
         db: Injected database session.
 
     Returns:
@@ -440,8 +441,7 @@ def generate_playbook(
         }
 
         svc = SentinelService(db)
-        playbook = svc.generate_playbook(campaign_data)
-
+        playbook = svc.generate_playbook(campaign_data, background_tasks=background_tasks)
         result = playbook.result_dict
 
         return {
