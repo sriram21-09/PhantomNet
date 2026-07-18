@@ -1,0 +1,400 @@
+{
+    "_comment": "PhantomNet Sprint Config — Week 18 (Month 5 Week 2: TAXII Feed & MITRE ATT&CK Visualization, Days 26-30)",
+    "week": 18,
+    "milestone_title": "Month 5 – LLM Integration & Advanced Features (Weeks 17–20)",
+    "milestone_description": "Implementation of local LLM narrative integration, TAXII feed server, MITRE ATT&CK visualization, PDF export, and batch operations.",
+    "month_label": "month-5",
+    "extra_labels": [
+        "taxii-feed",
+        "mitre-visualization"
+    ],
+    "labels": [
+        {
+            "name": "month-5",
+            "color": "1F6FEB",
+            "description": "Month 5 LLM Integration phase"
+        },
+        {
+            "name": "week-18",
+            "color": "0E8A16",
+            "description": "Week 18 tasks"
+        },
+        {
+            "name": "taxii-feed",
+            "color": "FBCA04",
+            "description": "TAXII feed server"
+        },
+        {
+            "name": "mitre-visualization",
+            "color": "BFD4F2",
+            "description": "MITRE ATT&CK dashboard visualization"
+        }
+    ],
+    "day_map": {
+        "1": "Mon (Jul 20)",
+        "2": "Tue (Jul 21)",
+        "3": "Wed (Jul 22)",
+        "4": "Thu (Jul 23)",
+        "5": "Fri (Jul 24)"
+    },
+    "tasks": [
+        {
+            "Day": 1,
+            "Role": "Team Lead",
+            "Assignee": "sriram21-09",
+            "Type": "Feature",
+            "Title": "Design TAXII 2.1 Feed Endpoint Architecture",
+            "Objective": "Design the API endpoints, schemas, and data access layer for exposing Sentinel STIX 2.1 playbooks via a custom TAXII 2.1 server in the FastAPI backend.",
+            "Tasks": [
+                "Define the FastAPI endpoint routes matching TAXII 2.1 specifications (Discovery, Collections, Objects).",
+                "Specify response and request JSON schemas matching the TAXII 2.1 standards using Pydantic models.",
+                "Plan the query logic to retrieve approved SentinelPlaybook records and convert them to compliant STIX 2.1 bundles."
+            ],
+            "Deliverables": [
+                "Detailed API contract and design spec documenting TAXII 2.1 server endpoints, routing, and database retrieval."
+            ],
+            "Estimate": 4
+        },
+        {
+            "Day": 1,
+            "Role": "AI/ML Developer",
+            "Assignee": "vikranthN101",
+            "Type": "Feature",
+            "Title": "Create api/taxii.py — TAXII Discovery Endpoint",
+            "Objective": "Implement the initial `/taxii2/` discovery endpoint to return the TAXII 2.1 discovery document containing system-wide api_roots.",
+            "Tasks": [
+                "Create the new backend file `backend/api/taxii.py` and register the router in `backend/main.py`.",
+                "Implement `GET /taxii2/` to return discovery metadata including title, description, and contact info.",
+                "Ensure discovery responses use custom media type `application/taxii+json;version=2.1`."
+            ],
+            "Deliverables": [
+                "FastAPI route `/taxii2/` returning discovery document with correct headers and structure."
+            ],
+            "Warnings": [
+                "Note that this is building a TAXII SERVER (serving our STIX data). Do not confuse this with using a client library to parse external feeds."
+            ],
+            "Estimate": 4
+        },
+        {
+            "Day": 1,
+            "Role": "Security Developer",
+            "Assignee": "VivekanandaReddy2006",
+            "Type": "Feature",
+            "Title": "Research MITRE ATT&CK Matrix Visualization Libraries",
+            "Objective": "Evaluate front-end options (custom CSS grid, D3, table components) for rendering the 12-tactic MITRE ATT&CK matrix in a responsive and performant dashboard widget.",
+            "Tasks": [
+                "Compare rendering methods (CSS Grid, HTML Table, SVG/D3) based on layout complexity and performance.",
+                "Document browser compatibility and responsiveness considerations for a 12-column layout.",
+                "Draft CSS rules and utility components needed to support dark mode dynamic styling."
+            ],
+            "Deliverables": [
+                "Research report (`docs/mitre_visualization_research.md`) documenting styling choice and structural requirements."
+            ],
+            "Estimate": 4
+        },
+        {
+            "Day": 1,
+            "Role": "Frontend Developer",
+            "Assignee": "sairammanideepreddy2123",
+            "Type": "Feature",
+            "Title": "Build src/components/sentinel/MitreMatrix.jsx Scaffold",
+            "Objective": "Create the layout scaffold of the MITRE ATT&CK Matrix component containing all 12 tactics as column headers.",
+            "Tasks": [
+                "Create frontend component `frontend-dev/src/components/sentinel/MitreMatrix.jsx`.",
+                "Define CSS/JSX structure mapping 12 standard tactics (Initial Access, Execution, etc.) as headers.",
+                "Set up empty technique cell placeholders under each tactic to prepare for dynamic rendering."
+            ],
+            "Deliverables": [
+                "React component scaffold `MitreMatrix.jsx` displaying the 12-tactic headers in a clean grid/table layout."
+            ],
+            "Warnings": [
+                "Ensure you use CSS variables matching the existing ThemeProvider variables. Do NOT hardcode colors."
+            ],
+            "Estimate": 4
+        },
+        {
+            "Day": 2,
+            "Role": "Team Lead",
+            "Assignee": "sriram21-09",
+            "Type": "Feature",
+            "Title": "Build TAXII Collections Endpoint",
+            "Objective": "Implement the TAXII collections metadata endpoint `GET /taxii2/phantomnet/collections/` to expose collections information.",
+            "Tasks": [
+                "Implement `GET /taxii2/phantomnet/collections/` returning list of STIX collection resources.",
+                "Define Pydantic schema for Collections responses according to the TAXII 2.1 standard.",
+                "Query database to determine available collection mappings (e.g. honeypot source, campaign types)."
+            ],
+            "Deliverables": [
+                "FastAPI endpoint `/taxii2/phantomnet/collections/` returning list of collections."
+            ],
+            "Estimate": 4
+        },
+        {
+            "Day": 2,
+            "Role": "AI/ML Developer",
+            "Assignee": "vikranthN101",
+            "Type": "Feature",
+            "Title": "Build TAXII Objects Endpoint",
+            "Objective": "Implement the TAXII objects retrieval endpoint `GET /taxii2/phantomnet/collections/{id}/objects/` returning STIX bundles.",
+            "Tasks": [
+                "Implement collections objects endpoint to query SentinelPlaybook database entries.",
+                "Map stored playbooks and corresponding STIX structures into a single STIX 2.1 bundle object.",
+                "Handle request errors such as missing collection IDs or invalid path parameters."
+            ],
+            "Deliverables": [
+                "FastAPI endpoint `/taxii2/phantomnet/collections/{id}/objects/` serving valid STIX bundle JSON."
+            ],
+            "Estimate": 4
+        },
+        {
+            "Day": 2,
+            "Role": "Security Developer",
+            "Assignee": "VivekanandaReddy2006",
+            "Type": "Feature",
+            "Title": "Create MITRE ATT&CK Matrix Data Structure",
+            "Objective": "Define the mapping between playbooks and the 12 tactics/techniques, and implement aggregation queries to feed the heatmap.",
+            "Tasks": [
+                "Map all 12 techniques to their respective tactics in a structured config or JSON mapping.",
+                "Write db helper logic to count playbooks grouped by technique ID.",
+                "Validate data aggregation output against database records."
+            ],
+            "Deliverables": [
+                "Data model configuration and playbook count aggregation helper methods."
+            ],
+            "Estimate": 4
+        },
+        {
+            "Day": 2,
+            "Role": "Frontend Developer",
+            "Assignee": "sairammanideepreddy2123",
+            "Type": "Feature",
+            "Title": "Build MitreMatrix with Color-Coded Heatmap",
+            "Objective": "Implement dynamic cell rendering in the MitreMatrix based on frequency counts to create a heatmap.",
+            "Tasks": [
+                "Update `MitreMatrix.jsx` to receive dynamic data list of technique frequencies.",
+                "Map frequencies to heat colors (e.g., none -> transparent/gray, low -> pale yellow, high -> dark red).",
+                "Apply clean CSS transitions for cell highlight states."
+            ],
+            "Deliverables": [
+                "Updated `MitreMatrix.jsx` showing styled heat colors matching technique counts."
+            ],
+            "Estimate": 4
+        },
+        {
+            "Day": 3,
+            "Role": "Team Lead",
+            "Assignee": "sriram21-09",
+            "Type": "Feature",
+            "Title": "Add Content-Type Negotiation to TAXII Endpoints",
+            "Objective": "Enforce content-type negotiation on TAXII endpoints to strictly adhere to the TAXII 2.1 protocol.",
+            "Tasks": [
+                "Add middleware or dependency checks to inspect the `Accept` and `Content-Type` headers.",
+                "Return HTTP status code `406 Not Acceptable` if requested header is not `application/stix+json;version=2.1` or `application/taxii+json;version=2.1`.",
+                "Verify header validation rules in FastAPI."
+            ],
+            "Deliverables": [
+                "Enforced headers checks on `/taxii2/` and collections routes returning 406 on mismatch."
+            ],
+            "Warnings": [
+                "TAXII 2.1 requires the content-type response header `application/stix+json;version=2.1`. Ensure this negotiation is strictly checked."
+            ],
+            "Estimate": 4
+        },
+        {
+            "Day": 3,
+            "Role": "AI/ML Developer",
+            "Assignee": "vikranthN101",
+            "Type": "Testing",
+            "Title": "Test TAXII Endpoints with taxii2-client Library",
+            "Objective": "Establish automated testing using the official `taxii2-client` python package to consume our local TAXII server.",
+            "Tasks": [
+                "Ensure `taxii2-client` package is installed and documented in `requirements.txt`.",
+                "Write a test client script that queries the discovery root and pulls STIX bundles.",
+                "Verify compatibility and fix any response formatting issues."
+            ],
+            "Deliverables": [
+                "Automated script verifying endpoint discovery and bundle retrieval via `taxii2-client`."
+            ],
+            "Warnings": [
+                "Use the `taxii2-client` pip package for verifying discovery and collections. Handle potential authentication or connection errors gracefully."
+            ],
+            "Estimate": 4
+        },
+        {
+            "Day": 3,
+            "Role": "Security Developer",
+            "Assignee": "VivekanandaReddy2006",
+            "Type": "Feature",
+            "Title": "Add /api/sentinel/mitre/matrix API Endpoint",
+            "Objective": "Expose the aggregated MITRE ATT&CK counts and metadata through a dedicated dashboard API endpoint.",
+            "Tasks": [
+                "Create FastAPI endpoint `/api/sentinel/mitre/matrix`.",
+                "Query playbook database records and format payload into tactic -> technique arrays with counts, names, and IDs.",
+                "Verify endpoint output schema against frontend requirements."
+            ],
+            "Deliverables": [
+                "FastAPI endpoint `/api/sentinel/mitre/matrix` yielding aggregated JSON data."
+            ],
+            "Estimate": 4
+        },
+        {
+            "Day": 3,
+            "Role": "Frontend Developer",
+            "Assignee": "sairammanideepreddy2123",
+            "Type": "Feature",
+            "Title": "Add MitreMatrix to SentinelDashboard as a Tab/Section",
+            "Objective": "Integrate the MitreMatrix component into the Sentinel Dashboard UI using a navigation tab.",
+            "Tasks": [
+                "Modify SentinelDashboard page to support a tab selection (Playbooks List vs. ATT&CK Coverage).",
+                "Fetch live matrix data from `/api/sentinel/mitre/matrix` on component mount.",
+                "Add loading indicators and handle empty/error states."
+            ],
+            "Deliverables": [
+                "Dashboard UI integration featuring the live ATT&CK matrix view tab."
+            ],
+            "Estimate": 4
+        },
+        {
+            "Day": 4,
+            "Role": "Team Lead",
+            "Assignee": "sriram21-09",
+            "Type": "Feature",
+            "Title": "Add Filtering to TAXII Objects Endpoint",
+            "Objective": "Support URL query parameter filtering (`?added_after=`) on the TAXII objects endpoint.",
+            "Tasks": [
+                "Add `added_after` timestamp query parameter to `/taxii2/phantomnet/collections/{id}/objects/`.",
+                "Filter query results from SentinelPlaybook database table based on timestamp.",
+                "Validate timestamp formatting matching ISO 8601/RFC 3339."
+            ],
+            "Deliverables": [
+                "Updated objects endpoint accepting `added_after` parameter and filtering playbooks correctly."
+            ],
+            "Warnings": [
+                "Filter playbooks based on the `added_after` parameter. Ensure date parsing is robust against various formats and handles invalid timezone offsets gracefully."
+            ],
+            "Estimate": 4
+        },
+        {
+            "Day": 4,
+            "Role": "AI/ML Developer",
+            "Assignee": "vikranthN101",
+            "Type": "Testing",
+            "Title": "Write tests/test_taxii.py",
+            "Objective": "Develop comprehensive unit and integration tests for the new TAXII endpoints.",
+            "Tasks": [
+                "Create backend test file `backend/tests/test_taxii.py`.",
+                "Test Discovery, Collections, and Objects endpoints with mock database states.",
+                "Verify HTTP responses, content negotation errors, and query filtering."
+            ],
+            "Deliverables": [
+                "Fully passing test suite `test_taxii.py` running in pytest."
+            ],
+            "Warnings": [
+                "Ensure to cover all HTTP status codes, invalid paths, and content negotiation headers. Run tests with pytest."
+            ],
+            "Estimate": 4
+        },
+        {
+            "Day": 4,
+            "Role": "Security Developer",
+            "Assignee": "VivekanandaReddy2006",
+            "Type": "Feature",
+            "Title": "Add Click Interaction to MitreMatrix",
+            "Objective": "Enable click interactions on technique cells in the MitreMatrix to trigger filtered views.",
+            "Tasks": [
+                "Update technique cells in `MitreMatrix.jsx` to render click handlers.",
+                "Define state variables to store the selected technique ID on click.",
+                "Pass selected technique up to the dashboard layout to trigger detail popup/filter."
+            ],
+            "Deliverables": [
+                "Interactive matrix component with functional onClick callbacks."
+            ],
+            "Estimate": 4
+        },
+        {
+            "Day": 4,
+            "Role": "Frontend Developer",
+            "Assignee": "sairammanideepreddy2123",
+            "Type": "Feature",
+            "Title": "Build Technique Detail Popup/Panel",
+            "Objective": "Develop a slide-out panel or detail modal showing specific information for the clicked MITRE technique.",
+            "Tasks": [
+                "Create component `TechniqueDetailPanel.jsx` (or inline detail view).",
+                "Render technique descriptions, detection counts, and list of associated playbooks.",
+                "Add external link targeting the official MITRE ATT&CK page for the technique."
+            ],
+            "Deliverables": [
+                "Technique detail UI displaying lists of relevant playbooks when technique is selected."
+            ],
+            "Estimate": 4
+        },
+        {
+            "Day": 5,
+            "Role": "Team Lead",
+            "Assignee": "sriram21-09",
+            "Type": "Testing",
+            "Title": "Verify TAXII Interoperability and End-to-End Feed Integration",
+            "Objective": "Perform full system E2E verification of the TAXII server integration and document the interoperability contract.",
+            "Tasks": [
+                "Test the discovery, collections, and objects endpoints in a production-like staging environment.",
+                "Write the interoperability guide `docs/taxii_interoperability.md` describing routing, media-types, and headers.",
+                "Participate in the team-wide end-to-end integration verification."
+            ],
+            "Deliverables": [
+                "Comprehensive integration test sign-off and documentation file `docs/taxii_interoperability.md`."
+            ],
+            "Estimate": 4
+        },
+        {
+            "Day": 5,
+            "Role": "AI/ML Developer",
+            "Assignee": "vikranthN101",
+            "Type": "Testing",
+            "Title": "Test TAXII Server and Validate STIX Bundles",
+            "Objective": "Run validations against the STIX bundles served by the TAXII server to verify schema compliance.",
+            "Tasks": [
+                "Perform schema validation using python stix2 validation tools if available, or compare against STIX 2.1 schema specifications.",
+                "Document compliance verification results and fix any anomalies.",
+                "Participate in the team-wide end-to-end integration verification."
+            ],
+            "Deliverables": [
+                "Validation report verifying that STIX bundles parsed match STIX 2.1 syntax."
+            ],
+            "Estimate": 4
+        },
+        {
+            "Day": 5,
+            "Role": "Security Developer",
+            "Assignee": "VivekanandaReddy2006",
+            "Type": "Testing",
+            "Title": "Verify Real-Time ATT&CK Matrix Updates and Generation Pipeline",
+            "Objective": "Verify that generating new playbook incidents dynamically updates the MITRE ATT&CK matrix heatmap in real-time.",
+            "Tasks": [
+                "Trigger new simulated campaigns (e.g. SSH brute force, SQL injection) in the pipeline.",
+                "Verify that detection counts increment correctly in the database and the `/api/sentinel/mitre/matrix` API response.",
+                "Participate in the team-wide end-to-end integration verification."
+            ],
+            "Deliverables": [
+                "Real-time update verification report or script output showing matrix sync correctness."
+            ],
+            "Estimate": 4
+        },
+        {
+            "Day": 5,
+            "Role": "Frontend Developer",
+            "Assignee": "sairammanideepreddy2123",
+            "Type": "Testing",
+            "Title": "Polish MitreMatrix Layout, Tooltips, and Responsiveness",
+            "Objective": "Apply final aesthetic polish, add interactive tooltips, and verify responsiveness of the MitreMatrix component.",
+            "Tasks": [
+                "Apply final styles to the MitreMatrix component (glow effects, premium borders, responsive CSS layout).",
+                "Add tooltips displaying technique details (ID, name, description, playbook count) on hover.",
+                "Participate in the team-wide end-to-end integration verification."
+            ],
+            "Deliverables": [
+                "Polished, responsive `MitreMatrix.jsx` UI component with active tooltips and state validation."
+            ],
+            "Estimate": 4
+        }
+    ]
+}
