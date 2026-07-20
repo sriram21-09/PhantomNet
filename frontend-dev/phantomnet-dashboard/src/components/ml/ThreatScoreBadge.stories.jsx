@@ -1,5 +1,5 @@
 import React from 'react';
-import ThreatScoreBadge from '../phantomnet-dashboard/src/components/ml/ThreatScoreBadge';
+import ThreatScoreBadge from './ThreatScoreBadge';
 
 export default {
   title: 'ML/ThreatScoreBadge',
