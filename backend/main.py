@@ -53,7 +53,6 @@ from services.firewall import FirewallService
 from services.threat_analyzer import threat_analyzer
 from services.scheduler_service import scheduler_service
 from services.pcap_analyzer import pcap_analyzer
-from services.geo import GeoService
 from services.geoip_service import geoip_service
 from services.response_executor import response_executor
 
@@ -560,7 +559,7 @@ def get_real_traffic(db: Session = Depends(get_db)) -> dict:
                 location = batch_geo_cache[log.src_ip]
             else:
                 try:
-                    geo_info = GeoService.get_geo_info(log.src_ip)
+                    geo_info = geoip_service.lookup(log.src_ip)
                     location = geo_info.get("flag", "🌐") + " " + geo_info.get("country", "Unknown")
                     batch_geo_cache[log.src_ip] = location
                 except Exception:

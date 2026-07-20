@@ -11,7 +11,7 @@ import os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../backend")))
 
 from database.database import Base, SessionLocal
-from app_models import PacketLog
+from database.models import PacketLog
 from services.threat_analyzer import ThreatAnalyzerService
 
 

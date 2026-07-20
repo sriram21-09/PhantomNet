@@ -13,7 +13,7 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")
 try:
     from database import SessionLocal
     from database.models import PacketLog
-    from services.geo import GeoService
+    from services.geoip_service import geoip_service
 
     DB_AVAILABLE = True
 except Exception as e:
@@ -57,7 +57,7 @@ def log_to_database(
         db = SessionLocal()
 
         # GeoIP Enrichment
-        geo = GeoService.get_geo_info(src_ip)
+        geo = geoip_service.lookup(src_ip)
 
         log_entry = PacketLog(
             timestamp=datetime.utcnow(),

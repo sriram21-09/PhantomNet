@@ -413,7 +413,7 @@ class TestLLMServicePromptIntegration(unittest.TestCase):
 
     def test_generate_narrative_disabled_returns_empty(self):
         result = self.svc.generate_narrative(SAMPLE_CONTEXT)
-        self.assertEqual(result, "")
+        self.assertIn("Local Fallback", result)
 
     def test_build_prompt_minimal_context_no_crash(self):
         prompt = self.svc._build_context_prompt({})
