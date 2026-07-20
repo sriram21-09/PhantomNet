@@ -1,5 +1,5 @@
 import React from 'react';
-import ModelMetricsDashboard from '../phantomnet-dashboard/src/components/ml/ModelMetricsDashboard';
+import ModelMetricsDashboard from './ModelMetricsDashboard';
 
 export default {
   title: 'ML/ModelMetricsDashboard',

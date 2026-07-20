@@ -1,5 +1,5 @@
 import React from 'react';
-import FeatureImportanceChart from '../phantomnet-dashboard/src/components/ml/FeatureImportanceChart';
+import FeatureImportanceChart from './FeatureImportanceChart';
 
 export default {
   title: 'ML/FeatureImportanceChart',
