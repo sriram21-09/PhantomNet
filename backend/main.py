@@ -94,12 +94,14 @@ from api.hunting import router as hunting_router
 from api.cases import router as cases_router
 from api.alerts import router as alerts_router
 from api.honeypots import get_honeypot_status, router as honeypots_router
+from api.taxii import router as taxii_router
 
 # =========================
 # ENVIRONMENT SETUP
 # =========================
+_env_preset = os.getenv("ENVIRONMENT")
 load_dotenv()
-ENVIRONMENT = os.getenv("ENVIRONMENT", "local")
+ENVIRONMENT = _env_preset or os.getenv("ENVIRONMENT", "local")
 
 # =========================
 # DATABASE SETUP
@@ -521,6 +523,7 @@ app.include_router(cases_router)
 app.include_router(alerts_router)
 app.include_router(sentinel_router)
 app.include_router(honeypots_router)
+app.include_router(taxii_router)
 
 
 # =========================
