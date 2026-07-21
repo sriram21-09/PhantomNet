@@ -12,10 +12,14 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
+import os
+
+
 class SchedulerService:
     def __init__(self):
         self.scheduler = BackgroundScheduler()
-        self.scheduler.start()
+        if os.getenv("ENVIRONMENT") not in ("test", "ci"):
+            self.scheduler.start()
 
     def load_schedules(self):
         db = SessionLocal()

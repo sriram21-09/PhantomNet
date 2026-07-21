@@ -99,8 +99,9 @@ from api.taxii import router as taxii_router
 # =========================
 # ENVIRONMENT SETUP
 # =========================
+_env_preset = os.getenv("ENVIRONMENT")
 load_dotenv()
-ENVIRONMENT = os.getenv("ENVIRONMENT", "local")
+ENVIRONMENT = _env_preset or os.getenv("ENVIRONMENT", "local")
 
 # =========================
 # DATABASE SETUP
