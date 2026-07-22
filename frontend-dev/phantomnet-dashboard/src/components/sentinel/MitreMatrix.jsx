@@ -169,6 +169,20 @@ const MitreMatrix = ({
       Object.entries(rawData).forEach(([key, val]) => {
         if (typeof val === "number") {
           acc[key] = val;
+        } else if (Array.isArray(val)) {
+          // Case 3: Tactic-grouped nested arrays of technique objects (e.g. { Tactic: [ { technique_id: 'T1059', count: 12 } ] })
+          val.forEach((tech) => {
+            const id = tech.technique_id || tech.id || tech.techniqueId;
+            const count = tech.count ?? tech.frequency ?? tech.hits ?? 0;
+            if (id) {
+              acc[id] = count;
+              // Sum counts of sub-techniques to parent technique IDs
+              if (typeof id === "string" && id.includes(".")) {
+                const baseId = id.split(".")[0];
+                acc[baseId] = (acc[baseId] || 0) + count;
+              }
+            }
+          });
         } else if (val && typeof val === "object") {
           acc[key] = val.count ?? val.frequency ?? val.hits ?? 0;
         }

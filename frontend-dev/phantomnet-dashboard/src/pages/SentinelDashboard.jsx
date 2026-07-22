@@ -5,7 +5,6 @@ import MitreTag from "../components/sentinel/MitreTag";
 import MitreMatrix from "../components/sentinel/MitreMatrix";
 import RulePreview from "../components/sentinel/RulePreview";
 import PlaybookViewer from "../components/sentinel/PlaybookViewer";
-import MitreMatrix from "../components/sentinel/MitreMatrix";
 import ToastContainer, { useToast } from "../components/ui/ToastNotification";
 import "../Styles/pages/SentinelDashboard.css";
 
@@ -103,7 +102,6 @@ const SentinelDashboard = () => {
   const [loadingDetails, setLoadingDetails] = useState(false);
 
   const [techniques, setTechniques] = useState(sampleTechniques);
-  const [matrixData, setMatrixData] = useState(null);
   const [aiStatus, setAiStatus] = useState("checking");
 
   /* ── Navigation Tab State ── */
