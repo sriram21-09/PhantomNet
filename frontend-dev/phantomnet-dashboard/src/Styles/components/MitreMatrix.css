@@ -182,3 +182,219 @@ body[data-theme="light"] .technique-placeholder {
 .technique-placeholder-pulse {
     animation: placeholderPulse 3s ease-in-out infinite;
 }
+
+/* ==========================================
+   MITRE ATT&CK HEATMAP CELLS & DYNAMIC STYLING
+   ========================================== */
+
+/* Base Technique Cell */
+.technique-cell {
+    position: relative;
+    min-height: 56px;
+    border: 1px solid var(--border-hud);
+    background: rgba(255, 255, 255, 0.02);
+    border-radius: 6px;
+    padding: 0.5rem 0.6rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: flex-start;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    cursor: pointer;
+    overflow: hidden;
+    user-select: none;
+}
+
+body[data-theme="light"] .technique-cell {
+    background: rgba(0, 0, 0, 0.02);
+}
+
+.technique-cell-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    gap: 0.25rem;
+}
+
+.technique-id {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    color: var(--text-hud);
+}
+
+.technique-name {
+    font-size: 0.65rem;
+    color: var(--text-muted);
+    line-height: 1.25;
+    margin-top: 0.25rem;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-align: left;
+}
+
+/* Frequency Chip / Badge */
+.heat-count-chip {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.6rem;
+    font-weight: 700;
+    padding: 0.1rem 0.35rem;
+    border-radius: 4px;
+    line-height: 1;
+    transition: all 0.25s ease;
+}
+
+/* --- HEATMAP COLOR MAPS --- */
+
+/* Heat Level: None (0 events) */
+.technique-cell.heat-none {
+    background: rgba(255, 255, 255, 0.02);
+    border-color: rgba(255, 255, 255, 0.08);
+    opacity: 0.75;
+}
+
+body[data-theme="light"] .technique-cell.heat-none {
+    background: rgba(0, 0, 0, 0.02);
+    border-color: rgba(0, 0, 0, 0.08);
+    opacity: 0.8;
+}
+
+.technique-cell.heat-none .technique-id {
+    color: var(--text-muted);
+}
+
+.technique-cell.heat-none .heat-count-chip {
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--text-dim);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Heat Level: Low (1 - 3 events) -> Pale Yellow / Amber */
+.technique-cell.heat-low {
+    background: rgba(245, 158, 11, 0.12);
+    border-color: rgba(245, 158, 11, 0.4);
+    box-shadow: inset 0 0 12px rgba(245, 158, 11, 0.08);
+}
+
+body[data-theme="light"] .technique-cell.heat-low {
+    background: rgba(245, 158, 11, 0.15);
+    border-color: rgba(217, 119, 6, 0.5);
+}
+
+.technique-cell.heat-low .technique-id {
+    color: #fef08a;
+}
+
+body[data-theme="light"] .technique-cell.heat-low .technique-id {
+    color: #b45309;
+}
+
+.technique-cell.heat-low .heat-count-chip {
+    background: rgba(245, 158, 11, 0.25);
+    color: #fef08a;
+    border: 1px solid rgba(245, 158, 11, 0.5);
+}
+
+body[data-theme="light"] .technique-cell.heat-low .heat-count-chip {
+    background: rgba(245, 158, 11, 0.2);
+    color: #92400e;
+}
+
+/* Heat Level: Medium (4 - 8 events) -> Vibrant Orange */
+.technique-cell.heat-medium {
+    background: rgba(249, 115, 22, 0.22);
+    border-color: rgba(249, 115, 22, 0.6);
+    box-shadow: inset 0 0 15px rgba(249, 115, 22, 0.15);
+}
+
+body[data-theme="light"] .technique-cell.heat-medium {
+    background: rgba(249, 115, 22, 0.25);
+    border-color: rgba(234, 88, 12, 0.7);
+}
+
+.technique-cell.heat-medium .technique-id {
+    color: #ffedd5;
+}
+
+body[data-theme="light"] .technique-cell.heat-medium .technique-id {
+    color: #c2410c;
+}
+
+.technique-cell.heat-medium .heat-count-chip {
+    background: rgba(249, 115, 22, 0.35);
+    color: #ffedd5;
+    border: 1px solid rgba(249, 115, 22, 0.7);
+}
+
+body[data-theme="light"] .technique-cell.heat-medium .heat-count-chip {
+    background: rgba(249, 115, 22, 0.25);
+    color: #9a3412;
+}
+
+/* Heat Level: High (> 8 events) -> Dark Crimson / Red */
+.technique-cell.heat-high {
+    background: rgba(225, 29, 72, 0.3);
+    border-color: rgba(244, 63, 94, 0.8);
+    box-shadow: 0 0 12px rgba(225, 29, 72, 0.25), inset 0 0 18px rgba(225, 29, 72, 0.2);
+}
+
+body[data-theme="light"] .technique-cell.heat-high {
+    background: rgba(225, 29, 72, 0.2);
+    border-color: rgba(225, 29, 72, 0.8);
+    box-shadow: 0 0 10px rgba(225, 29, 72, 0.2);
+}
+
+.technique-cell.heat-high .technique-id {
+    color: #ffe4e6;
+    font-weight: 800;
+}
+
+body[data-theme="light"] .technique-cell.heat-high .technique-id {
+    color: #9f1239;
+    font-weight: 800;
+}
+
+.technique-cell.heat-high .heat-count-chip {
+    background: rgba(225, 29, 72, 0.45);
+    color: #ffffff;
+    border: 1px solid rgba(244, 63, 94, 0.9);
+    box-shadow: 0 0 8px rgba(225, 29, 72, 0.4);
+}
+
+/* --- HOVER & TRANSITION EFFECTS --- */
+
+.technique-cell:hover {
+    transform: translateY(-2px) scale(1.02);
+    z-index: 2;
+    border-color: var(--border-bright);
+}
+
+.technique-cell.heat-none:hover {
+    background: rgba(255, 255, 255, 0.06);
+    opacity: 1;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.technique-cell.heat-low:hover {
+    background: rgba(245, 158, 11, 0.22);
+    box-shadow: 0 4px 16px rgba(245, 158, 11, 0.25);
+}
+
+.technique-cell.heat-medium:hover {
+    background: rgba(249, 115, 22, 0.32);
+    box-shadow: 0 4px 20px rgba(249, 115, 22, 0.35);
+}
+
+.technique-cell.heat-high:hover {
+    background: rgba(225, 29, 72, 0.42);
+    box-shadow: 0 4px 24px rgba(225, 29, 72, 0.45);
+}
+
+.technique-cell:active {
+    transform: translateY(0) scale(0.99);
+}
