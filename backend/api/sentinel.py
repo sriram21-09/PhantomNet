@@ -3,23 +3,27 @@ backend/api/sentinel.py
 -------------------------
 PhantomNet Sentinel Layer — REST API Endpoints
 
-Provides 10 endpoints for the Sentinel Dashboard:
+Provides 13 endpoints for the Sentinel Dashboard:
 
   GET   /api/sentinel/playbooks              — List all playbooks (paginated)
   GET   /api/sentinel/playbooks/{id}         — Get single playbook by ID
   GET   /api/sentinel/stats                  — Playbook pipeline statistics
   GET   /api/sentinel/mitre/mapping          — All 12 ATT&CK technique mappings
+  GET   /api/sentinel/mitre/matrix           — Aggregated ATT&CK heatmap matrix with counts
   POST  /api/sentinel/generate               — Trigger manual playbook generation
   PATCH /api/sentinel/playbooks/{id}/approve — Approve a playbook
   PATCH /api/sentinel/playbooks/{id}/reject  — Reject a playbook
   POST  /api/sentinel/playbooks/{id}/export  — Export playbook as file download
   GET   /api/sentinel/rules/snort            — List all Snort rules
   GET   /api/sentinel/rules/sigma            — List all Sigma rules
+  GET   /api/sentinel/llm/status             — Check Ollama LLM service status
+  POST  /api/sentinel/playbooks/{id}/regenerate-llm — Regenerate LLM narrative
 
 Router prefix: /api/sentinel
 Tags: ['Sentinel']
 
 Week 14, Day 2 + Day 3 — Integration & API
+Week 18, Day 3 — MITRE ATT&CK Matrix endpoint
 """
 
 from __future__ import annotations
@@ -942,6 +946,7 @@ async def regenerate_playbook_llm(
         )
 
 
+
 # ---------------------------------------------------------------------------
 # 13. GET /api/sentinel/mitre/matrix — Aggregated MITRE ATT&CK Heatmap Data
 # ---------------------------------------------------------------------------
@@ -949,16 +954,66 @@ async def regenerate_playbook_llm(
 @router.get("/mitre/matrix", response_model=Dict[str, Any])
 def get_mitre_matrix(db: Session = Depends(get_db)) -> Dict[str, Any]:
     """
-    Returns aggregated MITRE ATT&CK technique matrix with live playbook count per technique.
-    Used by the MitreMatrix dashboard component.
+    Return the aggregated MITRE ATT&CK technique matrix with live playbook counts.
+
+    Queries the ``sentinel_playbooks`` table to compute per-technique hit counts
+    and overlays them onto the full static technique catalogue.  The result is
+    formatted for the MitreMatrix dashboard component.
+
+    Response Schema
+    ---------------
+    {
+      "status":           "success",
+      "generated_at":     "<ISO-8601 UTC>",
+      "total_tactics":    <int>,          // number of distinct tactics
+      "total_techniques": <int>,          // total unique techniques across all tactics
+      "matrix": {
+        "<Tactic Name>": [                // e.g. "Credential Access"
+          {
+            "technique_id":   "T1110.001",
+            "technique_name": "Brute Force: Password Guessing",
+            "tactic_id":      "TA0006",
+            "severity":       "HIGH",
+            "url":            "https://attack.mitre.org/techniques/T1110/001/",
+            "description":    "...",
+            "count":          <int>       // live playbook hit count
+          },
+          ...
+        ],
+        ...
+      },
+      "frequency_map": {
+        "T1110": <int>,   // base technique ID → aggregated count
+        "T1046": <int>,   // (sub-techniques are rolled up: T1110.001 + T1110.004 → T1110)
+        ...
+      }
+    }
+
+    The ``frequency_map`` is keyed by the *base* technique ID (e.g. ``T1110``
+    instead of ``T1110.001``) so the frontend MitreMatrix component can perform
+    direct lookups using its standard 12-tactic TACTIC_TECHNIQUES catalogue.
+
+    Args:
+        db: Injected SQLAlchemy database session.
+
+    Returns:
+        Structured JSON response as described above.
+
+    Raises:
+        HTTPException 500: On unexpected database or aggregation errors.
     """
-    from sentinel.mitre_matrix import get_aggregated_matrix_data
+    from sentinel.mitre_matrix import build_matrix_response
     try:
-        return get_aggregated_matrix_data(db)
+        response = build_matrix_response(db)
+        logger.info(
+            "MITRE matrix built: %d tactics, %d techniques",
+            response["total_tactics"],
+            response["total_techniques"],
+        )
+        return response
     except Exception as exc:
-        logger.error("Failed to get MITRE ATT&CK matrix data: %s", exc)
+        logger.error("Failed to build MITRE ATT&CK matrix: %s", exc, exc_info=True)
         raise HTTPException(
             status_code=500,
-            detail=f"Failed to fetch MITRE matrix data: {str(exc)}"
+            detail=f"Failed to fetch MITRE matrix data: {str(exc)}",
         )
-
