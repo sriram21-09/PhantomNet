@@ -75,3 +75,19 @@ def test_aggregated_matrix_data(db_session: Session):
     lm_techs = data["Lateral Movement"]
     t1021_004 = next(t for t in lm_techs if t["technique_id"] == "T1021.004")
     assert t1021_004["count"] == 0
+
+
+def test_mitre_matrix_endpoint(db_session: Session):
+    from fastapi import FastAPI
+    from fastapi.testclient import TestClient
+    from api.sentinel import router as sentinel_router
+
+    app = FastAPI()
+    app.include_router(sentinel_router)
+
+    with TestClient(app) as client:
+        res = client.get("/api/sentinel/mitre/matrix")
+        assert res.status_code == 200
+        data = res.json()
+        assert "Credential Access" in data
+        assert "Initial Access" in data

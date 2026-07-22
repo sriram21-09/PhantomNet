@@ -155,6 +155,54 @@ def test_taxii_invalid_accept_header_406(client):
     headers = {"Accept": "text/html"}
     res = client.get("/taxii2/phantomnet/collections/", headers=headers)
     assert res.status_code == 406
+    assert "application/taxii+json;version=2.1" in res.headers.get("content-type", "")
+
+    data = res.json()
+    assert data["title"] == "Not Acceptable"
+    assert data["http_status"] == "406"
+
+
+def test_taxii_unsupported_version_accept_header_406(client):
+    """Verify 406 Not Acceptable when an unsupported TAXII version is explicitly requested."""
+    headers = {"Accept": "application/taxii+json;version=2.0"}
+    res = client.get("/taxii2/phantomnet/collections/", headers=headers)
+    assert res.status_code == 406
+    assert "application/taxii+json;version=2.1" in res.headers.get("content-type", "")
+
+    data = res.json()
+    assert data["title"] == "Not Acceptable"
+    assert data["http_status"] == "406"
+
+
+def test_taxii_invalid_content_type_header_406(client):
+    """Verify 406 Not Acceptable when request includes an unsupported Content-Type header."""
+    headers = {"Content-Type": "application/xml"}
+    res = client.get("/taxii2/phantomnet/collections/", headers=headers)
+    assert res.status_code == 406
+    assert "application/taxii+json;version=2.1" in res.headers.get("content-type", "")
+
+
+def test_taxii_stix_accept_header_on_objects_endpoint(client):
+    """Verify STIX 2.1 accept header is accepted on objects endpoint."""
+    headers = {"Accept": "application/stix+json;version=2.1"}
+    res = client.get("/taxii2/phantomnet/collections/sentinel-playbooks-approved/objects/", headers=headers)
+    assert res.status_code == 200
+    assert "application/stix+json;version=2.1" in res.headers.get("content-type", "")
+
+
+def test_taxii_stix_accept_header_on_metadata_endpoint_406(client):
+    """Verify STIX accept header on metadata endpoint returns 406 Not Acceptable."""
+    headers = {"Accept": "application/stix+json;version=2.1"}
+    res = client.get("/taxii2/phantomnet/collections/", headers=headers)
+    assert res.status_code == 406
+
+
+def test_taxii_wildcard_accept_header(client):
+    """Verify wildcard accept header is accepted on metadata endpoints."""
+    headers = {"Accept": "*/*"}
+    res = client.get("/taxii2/phantomnet/collections/", headers=headers)
+    assert res.status_code == 200
+    assert "application/taxii+json;version=2.1" in res.headers.get("content-type", "")
 
 
 def test_taxii_collection_objects(client):
@@ -187,6 +235,16 @@ if __name__ == "__main__":
     test_taxii_collection_detail_not_found(test_client)
     print("Running test_taxii_invalid_accept_header_406...")
     test_taxii_invalid_accept_header_406(test_client)
+    print("Running test_taxii_unsupported_version_accept_header_406...")
+    test_taxii_unsupported_version_accept_header_406(test_client)
+    print("Running test_taxii_invalid_content_type_header_406...")
+    test_taxii_invalid_content_type_header_406(test_client)
+    print("Running test_taxii_stix_accept_header_on_objects_endpoint...")
+    test_taxii_stix_accept_header_on_objects_endpoint(test_client)
+    print("Running test_taxii_stix_accept_header_on_metadata_endpoint_406...")
+    test_taxii_stix_accept_header_on_metadata_endpoint_406(test_client)
+    print("Running test_taxii_wildcard_accept_header...")
+    test_taxii_wildcard_accept_header(test_client)
     print("Running test_taxii_collection_objects...")
     test_taxii_collection_objects(test_client)
-    print("\nSUCCESS: All 9 TAXII 2.1 Server tests passed successfully!")
+    print("\nSUCCESS: All 14 TAXII 2.1 Server tests passed successfully!")

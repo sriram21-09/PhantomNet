@@ -39,6 +39,9 @@ from schemas.taxii import (
     TaxiiErrorResponse,
 )
 
+from starlette.middleware.base import BaseHTTPMiddleware
+from starlette.requests import Request
+
 logger = logging.getLogger("api.taxii")
 
 TAXII_MEDIA_TYPE = "application/taxii+json;version=2.1"
@@ -47,42 +50,159 @@ STIX_MEDIA_TYPE = "application/stix+json;version=2.1"
 router = APIRouter(prefix="/taxii2", tags=["TAXII 2.1 Feed"])
 
 
-def _validate_accept_header(accept: Optional[str]) -> None:
+def check_taxii_headers(
+    accept: Optional[str] = None,
+    content_type: Optional[str] = None,
+    is_objects_endpoint: bool = False,
+) -> Optional[Dict[str, Any]]:
     """
-    Validate the client Accept header per TAXII 2.1 spec.
-    If an explicit Accept header is provided that demands an unsupported format,
-    raises HTTP 406 Not Acceptable.
-    """
-    if not accept:
-        return
+    Validate incoming request Accept and Content-Type headers per TAXII 2.1 specification.
 
-    valid_patterns = [
+    Returns:
+        Dict representing TaxiiErrorResponse if validation fails, or None if valid.
+    """
+    # 1. Inspect Content-Type header if present in request
+    if content_type and content_type.strip():
+        ct_clean = content_type.strip().lower()
+        valid_ct_patterns = [
+            "application/taxii+json",
+            "application/stix+json",
+            "application/json",
+        ]
+        has_valid_ct = any(pat in ct_clean for pat in valid_ct_patterns)
+
+        # Check explicit version requirement in Content-Type if specified
+        if "version=" in ct_clean and "version=2.1" not in ct_clean:
+            has_valid_ct = False
+
+        if not has_valid_ct:
+            err = TaxiiErrorResponse(
+                title="Not Acceptable",
+                description=(
+                    f"The Content-Type header '{content_type}' is not supported by TAXII 2.1. "
+                    f"Expected '{TAXII_MEDIA_TYPE}' or '{STIX_MEDIA_TYPE}'."
+                ),
+                http_status="406",
+            )
+            return err.model_dump()
+
+    # 2. Inspect Accept header if present in request
+    if not accept or not accept.strip():
+        return None
+
+    parts = [p.strip().lower() for p in accept.split(",")]
+
+    # Check for wildcards
+    if any(p == "*/*" or p == "application/*" for p in parts):
+        return None
+
+    valid_base_patterns = [
         "application/taxii+json",
         "application/stix+json",
         "application/json",
-        "*/*",
-        "application/*",
     ]
 
-    parts = [p.strip().lower() for p in accept.split(",")]
-    is_valid = any(
-        any(pattern in part for pattern in valid_patterns)
-        for part in parts
-    )
+    has_acceptable_media = False
+    for part in parts:
+        # Must match a valid base media type
+        if not any(base in part for base in valid_base_patterns):
+            continue
 
-    if not is_valid:
+        # If metadata endpoint and part ONLY specifies application/stix+json, reject
+        if not is_objects_endpoint and "application/stix+json" in part and "application/taxii+json" not in part and "application/json" not in part:
+            continue
+
+        # If explicit version parameter is specified, it MUST be version=2.1
+        if "version=" in part and "version=2.1" not in part:
+            continue
+
+        has_acceptable_media = True
+        break
+
+    if not has_acceptable_media:
+        expected = STIX_MEDIA_TYPE if is_objects_endpoint else TAXII_MEDIA_TYPE
         err = TaxiiErrorResponse(
             title="Not Acceptable",
             description=(
                 f"The requested Accept header '{accept}' is not supported by TAXII 2.1. "
-                f"Expected '{TAXII_MEDIA_TYPE}' or '{STIX_MEDIA_TYPE}'."
+                f"Expected '{expected}'."
             ),
             http_status="406",
         )
+        return err.model_dump()
+
+    return None
+
+
+def validate_taxii_headers(
+    accept: Optional[str] = None,
+    content_type: Optional[str] = None,
+    is_objects_endpoint: bool = False,
+) -> Optional[JSONResponse]:
+    """
+    Validation helper to be invoked directly inside TAXII endpoint route handlers.
+    Raises HTTP 406 or returns JSONResponse with 406 status on header negotiation failure.
+    """
+    err_dict = check_taxii_headers(accept, content_type, is_objects_endpoint=is_objects_endpoint)
+    if err_dict:
+        return JSONResponse(
+            content=err_dict,
+            status_code=406,
+            headers={"Content-Type": TAXII_MEDIA_TYPE},
+        )
+    return None
+
+
+def _validate_accept_header(accept: Optional[str]) -> None:
+    """Legacy helper maintained for backward compatibility."""
+    err_dict = check_taxii_headers(accept, is_objects_endpoint=False)
+    if err_dict:
         raise HTTPException(
             status_code=406,
-            detail=err.model_dump(),
+            detail=err_dict,
         )
+
+
+class TaxiiContentNegotiationMiddleware(BaseHTTPMiddleware):
+    """
+    FastAPI Middleware enforcing strict TAXII 2.1 Content-Type header negotiation
+    on all requests routed to /taxii2/ prefix.
+    """
+
+    async def dispatch(self, request: Request, call_next):
+        if request.url.path.startswith("/taxii2"):
+            accept = request.headers.get("accept")
+            content_type = request.headers.get("content-type")
+            is_objects = "/objects" in request.url.path
+
+            err_dict = check_taxii_headers(accept, content_type, is_objects_endpoint=is_objects)
+            if err_dict:
+                return JSONResponse(
+                    content=err_dict,
+                    status_code=406,
+                    headers={"Content-Type": TAXII_MEDIA_TYPE},
+                )
+
+            response = await call_next(request)
+
+            # Ensure proper Content-Type response header is set
+            if is_objects:
+                if accept and "application/taxii+json" in accept.lower() and "application/stix+json" not in accept.lower():
+                    expected_ct = TAXII_MEDIA_TYPE
+                else:
+                    expected_ct = STIX_MEDIA_TYPE
+            else:
+                expected_ct = TAXII_MEDIA_TYPE
+
+            if response.status_code < 400:
+                response.headers["Content-Type"] = expected_ct
+            else:
+                if "content-type" not in response.headers or response.headers["content-type"] == "application/json":
+                    response.headers["Content-Type"] = TAXII_MEDIA_TYPE
+
+            return response
+
+        return await call_next(request)
 
 
 def get_taxii_collections(db: Session) -> List[TaxiiCollectionResource]:
@@ -188,8 +308,13 @@ def get_taxii_collections(db: Session) -> List[TaxiiCollectionResource]:
     response_model=TaxiiDiscoveryResponse,
     include_in_schema=False,
 )
-def taxii_discovery(accept: Optional[str] = Header(None)) -> JSONResponse:
-    _validate_accept_header(accept)
+def taxii_discovery(
+    accept: Optional[str] = Header(None),
+    content_type: Optional[str] = Header(None),
+) -> JSONResponse:
+    err_resp = validate_taxii_headers(accept, content_type, is_objects_endpoint=False)
+    if err_resp:
+        return err_resp
     data = TaxiiDiscoveryResponse()
     return JSONResponse(
         content=data.model_dump(),
@@ -213,8 +338,13 @@ def taxii_discovery(accept: Optional[str] = Header(None)) -> JSONResponse:
     response_model=TaxiiApiRootResponse,
     include_in_schema=False,
 )
-def taxii_api_root(accept: Optional[str] = Header(None)) -> JSONResponse:
-    _validate_accept_header(accept)
+def taxii_api_root(
+    accept: Optional[str] = Header(None),
+    content_type: Optional[str] = Header(None),
+) -> JSONResponse:
+    err_resp = validate_taxii_headers(accept, content_type, is_objects_endpoint=False)
+    if err_resp:
+        return err_resp
     data = TaxiiApiRootResponse()
     return JSONResponse(
         content=data.model_dump(),
@@ -241,8 +371,11 @@ def taxii_api_root(accept: Optional[str] = Header(None)) -> JSONResponse:
 def list_collections(
     db: Session = Depends(get_db),
     accept: Optional[str] = Header(None),
+    content_type: Optional[str] = Header(None),
 ) -> JSONResponse:
-    _validate_accept_header(accept)
+    err_resp = validate_taxii_headers(accept, content_type, is_objects_endpoint=False)
+    if err_resp:
+        return err_resp
     cols = get_taxii_collections(db)
     res = TaxiiCollectionsResponse(collections=cols)
     return JSONResponse(
@@ -271,8 +404,11 @@ def get_collection_detail(
     collection_id: str,
     db: Session = Depends(get_db),
     accept: Optional[str] = Header(None),
+    content_type: Optional[str] = Header(None),
 ) -> JSONResponse:
-    _validate_accept_header(accept)
+    err_resp = validate_taxii_headers(accept, content_type, is_objects_endpoint=False)
+    if err_resp:
+        return err_resp
     cols = get_taxii_collections(db)
 
     matched: Optional[TaxiiCollectionResource] = None
@@ -317,8 +453,11 @@ def get_collection_objects(
     id: str = Path(..., description="The ID or alias of the collection"),
     db: Session = Depends(get_db),
     accept: Optional[str] = Header(None),
+    content_type: Optional[str] = Header(None),
 ) -> JSONResponse:
-    _validate_accept_header(accept)
+    err_resp = validate_taxii_headers(accept, content_type, is_objects_endpoint=True)
+    if err_resp:
+        return err_resp
 
     if not id or id.strip() == "":
         err = TaxiiErrorResponse(
@@ -416,8 +555,12 @@ def get_collection_objects(
         "objects": stix_objects,
     }
 
+    res_ct = STIX_MEDIA_TYPE
+    if accept and "application/taxii+json" in accept.lower() and "application/stix+json" not in accept.lower():
+        res_ct = TAXII_MEDIA_TYPE
+
     return JSONResponse(
         content=bundle,
         status_code=200,
-        headers={"Content-Type": STIX_MEDIA_TYPE},
+        headers={"Content-Type": res_ct},
     )

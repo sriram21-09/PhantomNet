@@ -94,7 +94,7 @@ from api.hunting import router as hunting_router
 from api.cases import router as cases_router
 from api.alerts import router as alerts_router
 from api.honeypots import get_honeypot_status, router as honeypots_router
-from api.taxii import router as taxii_router
+from api.taxii import router as taxii_router, TaxiiContentNegotiationMiddleware
 
 # =========================
 # ENVIRONMENT SETUP
@@ -500,6 +500,7 @@ app.add_middleware(MetricsMiddleware)
 
 # Security & Audit Logging
 app.add_middleware(SecurityLoggingMiddleware)
+app.add_middleware(TaxiiContentNegotiationMiddleware)
 
 
 # Register Routers

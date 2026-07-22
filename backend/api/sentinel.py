@@ -941,3 +941,24 @@ async def regenerate_playbook_llm(
             detail=f"Failed to regenerate LLM summary: {str(exc)}"
         )
 
+
+# ---------------------------------------------------------------------------
+# 13. GET /api/sentinel/mitre/matrix — Aggregated MITRE ATT&CK Heatmap Data
+# ---------------------------------------------------------------------------
+
+@router.get("/mitre/matrix", response_model=Dict[str, Any])
+def get_mitre_matrix(db: Session = Depends(get_db)) -> Dict[str, Any]:
+    """
+    Returns aggregated MITRE ATT&CK technique matrix with live playbook count per technique.
+    Used by the MitreMatrix dashboard component.
+    """
+    from sentinel.mitre_matrix import get_aggregated_matrix_data
+    try:
+        return get_aggregated_matrix_data(db)
+    except Exception as exc:
+        logger.error("Failed to get MITRE ATT&CK matrix data: %s", exc)
+        raise HTTPException(
+            status_code=500,
+            detail=f"Failed to fetch MITRE matrix data: {str(exc)}"
+        )
+
