@@ -805,3 +805,70 @@ body[data-theme="light"] .sentinel-pagination-container .pagination-size-selecto
     border-color: #8b5cf6;
     box-shadow: 0 0 8px rgba(139, 92, 246, 0.3);
 }
+
+/* --- Dashboard Sub-Navigation Tabs --- */
+.sentinel-nav-tabs {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    border-bottom: 1px solid rgba(139, 92, 246, 0.15);
+    padding-bottom: 0.75rem;
+    position: relative;
+    z-index: 1;
+}
+
+body[data-theme="light"] .sentinel-nav-tabs {
+    border-bottom-color: rgba(139, 92, 246, 0.1);
+}
+
+.nav-tab-btn {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.85rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    padding: 0.75rem 1.5rem;
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: 8px;
+    color: #64748b;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+}
+
+.nav-tab-btn:hover {
+    color: #e2e8f0;
+    background: rgba(139, 92, 246, 0.06);
+}
+
+body[data-theme="light"] .nav-tab-btn:hover {
+    color: #1e293b;
+    background: rgba(139, 92, 246, 0.04);
+}
+
+.nav-tab-btn.active {
+    background: linear-gradient(135deg, rgba(139, 92, 246, 0.18), rgba(139, 92, 246, 0.08));
+    color: #a78bfa;
+    border: 1px solid rgba(139, 92, 246, 0.3);
+    box-shadow: 0 0 15px rgba(139, 92, 246, 0.15);
+}
+
+body[data-theme="light"] .nav-tab-btn.active {
+    background: rgba(139, 92, 246, 0.08);
+    color: #7c3aed;
+    border-color: rgba(139, 92, 246, 0.2);
+}
+
+.nav-tab-icon {
+    font-size: 1rem;
+    transition: transform 0.3s ease;
+}
+
+.nav-tab-btn:hover .nav-tab-icon {
+    transform: translateY(-1px);
+}
+

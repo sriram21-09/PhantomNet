@@ -941,3 +941,46 @@ async def regenerate_playbook_llm(
             detail=f"Failed to regenerate LLM summary: {str(exc)}"
         )
 
+
+# ---------------------------------------------------------------------------
+# 13. GET /api/sentinel/mitre/matrix — MITRE ATT&CK Matrix frequency data
+# ---------------------------------------------------------------------------
+
+@router.get("/mitre/matrix", response_model=Dict[str, Any])
+def get_mitre_matrix(db: Session = Depends(get_db)) -> Dict[str, Any]:
+    """
+    Return frequency counts of playbooks mapped to MITRE ATT&CK techniques.
+
+    Returns a dictionary of technique_id -> count, summing counts for
+    both sub-techniques and base techniques.
+    """
+    try:
+        # Query counts grouped by technique_id
+        results = (
+            db.query(SentinelPlaybook.technique_id, func.count(SentinelPlaybook.id))
+            .filter(SentinelPlaybook.technique_id.isnot(None))
+            .group_by(SentinelPlaybook.technique_id)
+            .all()
+        )
+
+        matrix_data = {}
+        for tech_id, count in results:
+            if not tech_id:
+                continue
+            # Increment raw technique count
+            matrix_data[tech_id] = matrix_data.get(tech_id, 0) + count
+
+            # If it's a sub-technique (e.g. T1110.001), also increment the base technique (e.g. T1110)
+            if "." in tech_id:
+                base_id = tech_id.split(".")[0]
+                matrix_data[base_id] = matrix_data.get(base_id, 0) + count
+
+        return {
+            "status": "success",
+            "matrix": matrix_data
+        }
+    except Exception as exc:
+        logger.error("Failed to compute MITRE matrix: %s", exc)
+        raise HTTPException(status_code=500, detail=f"Failed to compute MITRE matrix: {str(exc)}")
+
+
