@@ -10,22 +10,27 @@ Provides TAXII 2.1 protocol compliant endpoints:
   GET /taxii2/phantomnet/collections/{collection_id}/   — Specific Collection Detail
   GET /taxii2/phantomnet/collections/{collection_id}/objects/ — STIX Objects Retrieval
 
+Query Parameter Filtering:
+  - ?added_after=<ISO 8601 timestamp>  — Filter objects by creation date (strict >)
+
 Spec Compliance:
   - Enforces OASIS TAXII 2.1 media type negotiation (Content-Type: application/taxii+json;version=2.1 and application/stix+json;version=2.1)
   - Rejects unsupported explicit Accept headers with 406 Not Acceptable
   - Queries SQLite database for dynamic collection mappings (tactics, honeypot sources) and builds STIX 2.1 bundles.
 
 Week 18, Day 1 & Day 2 — TAXII Server Architecture & Collections Endpoint
+Week 18, Day 4 — Add Filtering to TAXII Objects Endpoint (added_after)
 """
 
 from __future__ import annotations
 
 import logging
+import re
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone, timedelta
 from typing import Any, Dict, List, Optional
 
-from fastapi import APIRouter, Depends, Header, HTTPException, Path, Response
+from fastapi import APIRouter, Depends, Header, HTTPException, Path, Query, Response
 from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
 
@@ -437,7 +442,74 @@ def get_collection_detail(
 
 
 # ---------------------------------------------------------------------------
-# 5. GET /taxii2/phantomnet/collections/{id}/objects/ — Collection Objects Endpoint
+# 5. Timestamp Parsing Helper for added_after Filtering
+# ---------------------------------------------------------------------------
+
+def parse_added_after(
+    added_after: Optional[str],
+) -> tuple[Optional[datetime], Optional[JSONResponse]]:
+    """
+    Parse and validate an ISO 8601 / RFC 3339 timestamp string from the
+    ``added_after`` query parameter.
+
+    Supports formats:
+      - Full datetime with Z suffix:     2026-07-01T00:00:00Z
+      - Full datetime with offset:       2026-07-01T00:00:00+05:30
+      - Full datetime without timezone:  2026-07-01T00:00:00 (treated as UTC)
+      - Date only:                       2026-07-01 (treated as midnight UTC)
+      - Microsecond precision:           2026-07-01T12:30:00.123456Z
+
+    Args:
+        added_after: Raw query parameter value, may be None or empty string.
+
+    Returns:
+        Tuple of (parsed_datetime, error_response).
+        On success: (datetime, None)  — datetime is always UTC-aware.
+        On skip:    (None, None)      — parameter was absent or empty.
+        On error:   (None, JSONResponse) — 400 response with TAXII error body.
+    """
+    if not added_after or not added_after.strip():
+        return None, None
+
+    raw = added_after.strip()
+
+    try:
+        # Replace trailing 'Z' with '+00:00' for fromisoformat compatibility
+        normalized = raw
+        if normalized.upper().endswith("Z"):
+            normalized = normalized[:-1] + "+00:00"
+
+        dt = datetime.fromisoformat(normalized)
+
+        # If the parsed datetime is naive (no timezone info), assume UTC
+        if dt.tzinfo is None:
+            dt = dt.replace(tzinfo=timezone.utc)
+
+        # Normalize to UTC for consistent DB comparison
+        dt = dt.astimezone(timezone.utc)
+
+        return dt, None
+
+    except (ValueError, TypeError) as exc:
+        logger.warning("Invalid added_after timestamp '%s': %s", raw, exc)
+        err = TaxiiErrorResponse(
+            title="Invalid Timestamp",
+            description=(
+                f"The 'added_after' parameter value '{raw}' is not a valid "
+                f"ISO 8601 / RFC 3339 timestamp. "
+                f"Expected format: YYYY-MM-DDTHH:MM:SSZ or YYYY-MM-DDTHH:MM:SS±HH:MM"
+            ),
+            http_status="400",
+        )
+        return None, JSONResponse(
+            content=err.model_dump(),
+            status_code=400,
+            headers={"Content-Type": TAXII_MEDIA_TYPE},
+        )
+
+
+# ---------------------------------------------------------------------------
+# 6. GET /taxii2/phantomnet/collections/{id}/objects/ — Collection Objects Endpoint
 # ---------------------------------------------------------------------------
 
 @router.get(
@@ -451,6 +523,14 @@ def get_collection_detail(
 )
 def get_collection_objects(
     id: str = Path(..., description="The ID or alias of the collection"),
+    added_after: Optional[str] = Query(
+        None,
+        description=(
+            "ISO 8601 / RFC 3339 timestamp. Only objects with a created_at "
+            "date strictly after this value will be returned. "
+            "Example: 2026-07-01T00:00:00Z"
+        ),
+    ),
     db: Session = Depends(get_db),
     accept: Optional[str] = Header(None),
     content_type: Optional[str] = Header(None),
@@ -477,9 +557,21 @@ def get_collection_objects(
         (c for c in cols if c.id == id or c.alias == id), None
     )
 
+    # Parse and validate added_after filter parameter
+    added_after_dt, added_after_err = parse_added_after(added_after)
+    if added_after_err:
+        return added_after_err
+
     # Fetch playbooks from DB
     try:
         query = db.query(SentinelPlaybook)
+
+        # Apply added_after timestamp filter (strict greater-than per TAXII 2.1 §5.4)
+        if added_after_dt is not None:
+            # Strip timezone info for comparison with naive DB timestamps
+            filter_dt = added_after_dt.replace(tzinfo=None)
+            query = query.filter(SentinelPlaybook.created_at > filter_dt)
+
         if matched_col and matched_col.id.startswith("tactic-"):
             tactic_slug = matched_col.id.replace("tactic-", "")
             playbooks = [
