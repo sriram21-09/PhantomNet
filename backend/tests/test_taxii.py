@@ -217,6 +217,129 @@ def test_taxii_collection_objects(client):
     assert isinstance(data["objects"], list)
 
 
+# ---------------------------------------------------------------------------
+# Week 18-Day 4: added_after Query Parameter Filtering Tests
+# ---------------------------------------------------------------------------
+
+
+def test_objects_added_after_filters_correctly(client):
+    """Verify added_after correctly filters playbooks — only newer ones returned."""
+    db = SessionLocal()
+    try:
+        old_pb = SentinelPlaybook(
+            playbook_id="PB-TEST-FILTER-OLD",
+            status="approved",
+            tactic="Initial Access",
+            src_ip="10.0.0.1",
+            dst_port=22,
+            created_at=datetime(2025, 1, 1, 0, 0, 0),
+            updated_at=datetime(2025, 1, 1, 0, 0, 0),
+        )
+        new_pb = SentinelPlaybook(
+            playbook_id="PB-TEST-FILTER-NEW",
+            status="approved",
+            tactic="Initial Access",
+            src_ip="10.0.0.2",
+            dst_port=22,
+            created_at=datetime(2026, 6, 15, 12, 0, 0),
+            updated_at=datetime(2026, 6, 15, 12, 0, 0),
+        )
+        db.add_all([old_pb, new_pb])
+        db.commit()
+
+        # Query with added_after between the two — only new_pb should appear
+        res = client.get(
+            "/taxii2/phantomnet/collections/sentinel-playbooks-approved/objects/",
+            params={"added_after": "2026-01-01T00:00:00Z"},
+        )
+        assert res.status_code == 200
+        data = res.json()
+        assert data["type"] == "bundle"
+
+        # The new playbook's report object should be present
+        report_names = [
+            obj.get("name", "") for obj in data["objects"] if obj.get("type") == "report"
+        ]
+        has_new = any("PB-TEST-FILTER-NEW" in name for name in report_names)
+        has_old = any("PB-TEST-FILTER-OLD" in name for name in report_names)
+        assert has_new, "Expected new playbook to be present after filtering"
+        assert not has_old, "Expected old playbook to be excluded by added_after filter"
+
+    finally:
+        db.query(SentinelPlaybook).filter(
+            SentinelPlaybook.playbook_id.in_(["PB-TEST-FILTER-OLD", "PB-TEST-FILTER-NEW"])
+        ).delete(synchronize_session=False)
+        db.commit()
+        db.close()
+
+
+def test_objects_added_after_no_param(client):
+    """Verify no added_after parameter returns all objects (backward compatibility)."""
+    res = client.get("/taxii2/phantomnet/collections/sentinel-playbooks-approved/objects/")
+    assert res.status_code == 200
+    data = res.json()
+    assert data["type"] == "bundle"
+    assert "objects" in data
+
+
+def test_objects_added_after_empty_string(client):
+    """Verify empty added_after parameter is treated as no filter."""
+    res = client.get(
+        "/taxii2/phantomnet/collections/sentinel-playbooks-approved/objects/",
+        params={"added_after": ""},
+    )
+    assert res.status_code == 200
+    data = res.json()
+    assert data["type"] == "bundle"
+
+
+def test_objects_added_after_invalid_format(client):
+    """Verify invalid added_after timestamp returns 400 with TAXII error body."""
+    res = client.get(
+        "/taxii2/phantomnet/collections/sentinel-playbooks-approved/objects/",
+        params={"added_after": "not-a-date"},
+    )
+    assert res.status_code == 400
+    data = res.json()
+    assert data["title"] == "Invalid Timestamp"
+    assert data["http_status"] == "400"
+    assert "not-a-date" in data.get("description", "")
+
+
+def test_objects_added_after_with_timezone(client):
+    """Verify added_after with timezone offset is correctly parsed."""
+    res = client.get(
+        "/taxii2/phantomnet/collections/sentinel-playbooks-approved/objects/",
+        params={"added_after": "2026-01-01T00:00:00+05:30"},
+    )
+    assert res.status_code == 200
+    data = res.json()
+    assert data["type"] == "bundle"
+
+
+def test_objects_added_after_date_only(client):
+    """Verify added_after with date-only format is treated as midnight UTC."""
+    res = client.get(
+        "/taxii2/phantomnet/collections/sentinel-playbooks-approved/objects/",
+        params={"added_after": "2026-01-01"},
+    )
+    assert res.status_code == 200
+    data = res.json()
+    assert data["type"] == "bundle"
+
+
+def test_objects_added_after_future_date(client):
+    """Verify added_after with future timestamp returns empty bundle."""
+    res = client.get(
+        "/taxii2/phantomnet/collections/sentinel-playbooks-approved/objects/",
+        params={"added_after": "2099-12-31T23:59:59Z"},
+    )
+    assert res.status_code == 200
+    data = res.json()
+    assert data["type"] == "bundle"
+    assert len(data["objects"]) == 0
+
+
 if __name__ == "__main__":
     test_client = TestClient(app)
     print("Running test_taxii_discovery...")
@@ -247,4 +370,18 @@ if __name__ == "__main__":
     test_taxii_wildcard_accept_header(test_client)
     print("Running test_taxii_collection_objects...")
     test_taxii_collection_objects(test_client)
-    print("\nSUCCESS: All 14 TAXII 2.1 Server tests passed successfully!")
+    print("Running test_objects_added_after_filters_correctly...")
+    test_objects_added_after_filters_correctly(test_client)
+    print("Running test_objects_added_after_no_param...")
+    test_objects_added_after_no_param(test_client)
+    print("Running test_objects_added_after_empty_string...")
+    test_objects_added_after_empty_string(test_client)
+    print("Running test_objects_added_after_invalid_format...")
+    test_objects_added_after_invalid_format(test_client)
+    print("Running test_objects_added_after_with_timezone...")
+    test_objects_added_after_with_timezone(test_client)
+    print("Running test_objects_added_after_date_only...")
+    test_objects_added_after_date_only(test_client)
+    print("Running test_objects_added_after_future_date...")
+    test_objects_added_after_future_date(test_client)
+    print("\nSUCCESS: All 21 TAXII 2.1 Server tests passed successfully!")
