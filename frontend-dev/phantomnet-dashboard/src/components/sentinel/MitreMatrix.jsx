@@ -146,7 +146,16 @@ const MitreMatrix = ({
   placeholderCount = 6,
   onCellClick = null,
   onTechniqueClick = null,
+  selectedTechniqueId = null,
 }) => {
+  // State variable to store selected technique ID internally if not strictly controlled
+  const [internalSelectedId, setInternalSelectedId] = React.useState(null);
+
+  // Active technique ID resolves prop first, then internal state
+  const activeSelectedId = selectedTechniqueId !== null && selectedTechniqueId !== undefined
+    ? selectedTechniqueId
+    : internalSelectedId;
+
   // Normalize incoming frequency data into a fast lookup map: { [techniqueId]: count }
   const rawData = techniqueFrequencies || techniquesData || data;
 
@@ -194,12 +203,31 @@ const MitreMatrix = ({
   }, [rawData]);
 
   const handleCellClick = (tacticId, technique, count, heatLevel) => {
-    const detailPayload = { tacticId, ...technique, count, heatLevel };
+    const isAlreadySelected = activeSelectedId === technique.id;
+    const nextSelectedId = isAlreadySelected ? null : technique.id;
+
+    setInternalSelectedId(nextSelectedId);
+
+    const detailPayload = {
+      tacticId,
+      ...technique,
+      count,
+      heatLevel,
+      isSelected: !isAlreadySelected,
+    };
+
     if (onTechniqueClick) {
-      onTechniqueClick(detailPayload);
+      onTechniqueClick(isAlreadySelected ? null : detailPayload);
     }
     if (onCellClick) {
-      onCellClick(tacticId, detailPayload);
+      onCellClick(tacticId, isAlreadySelected ? null : detailPayload);
+    }
+  };
+
+  const handleKeyDown = (e, tacticId, technique, count, heatLevel) => {
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      handleCellClick(tacticId, technique, count, heatLevel);
     }
   };
 
@@ -238,13 +266,18 @@ const MitreMatrix = ({
               {displayTechniques.map((technique) => {
                 const count = frequencyMap[technique.id] || 0;
                 const heatLevel = getHeatLevel(count);
+                const isSelected = activeSelectedId === technique.id;
 
                 return (
                   <div
                     key={technique.id}
-                    className={`technique-cell heat-${heatLevel}`}
+                    className={`technique-cell heat-${heatLevel} ${isSelected ? "selected" : ""}`}
                     onClick={() => handleCellClick(tactic.id, technique, count, heatLevel)}
-                    title={`${technique.id} - ${technique.name} (${count} detection${count === 1 ? "" : "s"})`}
+                    onKeyDown={(e) => handleKeyDown(e, tactic.id, technique, count, heatLevel)}
+                    role="button"
+                    tabIndex={0}
+                    aria-pressed={isSelected}
+                    title={`${technique.id} - ${technique.name} (${count} detection${count === 1 ? "" : "s"})${isSelected ? " [SELECTED]" : ""}`}
                   >
                     <div className="technique-cell-top">
                       <span className="technique-id">{technique.id}</span>
@@ -269,6 +302,7 @@ MitreMatrix.propTypes = {
   placeholderCount: PropTypes.number,
   onCellClick: PropTypes.func,
   onTechniqueClick: PropTypes.func,
+  selectedTechniqueId: PropTypes.string,
 };
 
 export default MitreMatrix;

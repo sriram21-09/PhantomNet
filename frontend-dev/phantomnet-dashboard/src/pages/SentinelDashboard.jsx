@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo, useCallback } from "react";
-import { FaShieldAlt, FaTerminal, FaSortAmountDown, FaSortAmountUp, FaPlus, FaSync } from "react-icons/fa";
+import { FaShieldAlt, FaTerminal, FaSortAmountDown, FaSortAmountUp, FaPlus, FaSync, FaExternalLinkAlt, FaTimes, FaFilter } from "react-icons/fa";
 import PlaybookCard from "../components/sentinel/PlaybookCard";
 import MitreTag from "../components/sentinel/MitreTag";
 import MitreMatrix from "../components/sentinel/MitreMatrix";
@@ -102,6 +102,7 @@ const SentinelDashboard = () => {
   const [loadingDetails, setLoadingDetails] = useState(false);
 
   const [techniques, setTechniques] = useState(sampleTechniques);
+  const [selectedMatrixTechnique, setSelectedMatrixTechnique] = useState(null);
   const [aiStatus, setAiStatus] = useState("checking");
 
   /* ── Navigation Tab State ── */
@@ -255,10 +256,29 @@ const SentinelDashboard = () => {
     return s; // "approved" or "rejected"
   };
 
-  // Filter playbooks based on tab selection
+  const handleTechniqueClick = useCallback((payload) => {
+    if (!payload) {
+      setSelectedMatrixTechnique(null);
+    } else {
+      setSelectedMatrixTechnique(payload);
+      addToast({
+        type: "info",
+        title: `Technique Filter: ${payload.id}`,
+        message: `Filtering view by ${payload.name} (${payload.count || 0} detections)`,
+        duration: 4000,
+      });
+    }
+  }, [addToast]);
+
+  // Filter playbooks based on tab selection & MITRE technique matrix selection
   const filteredPlaybooks = useMemo(() => {
-    return playbooks;
-  }, [playbooks]);
+    if (!selectedMatrixTechnique) return playbooks;
+    const targetId = selectedMatrixTechnique.id;
+    return playbooks.filter((pb) => {
+      if (!pb.technique_id) return false;
+      return pb.technique_id === targetId || pb.technique_id.startsWith(targetId);
+    });
+  }, [playbooks, selectedMatrixTechnique]);
 
   /* ── Sort toggle handler ── */
   const handleSortClick = useCallback((column) => {
@@ -525,6 +545,49 @@ const SentinelDashboard = () => {
               </span>
             </div>
 
+            {/* Selected Technique Detail Banner / Popup */}
+            {selectedMatrixTechnique && (
+              <div className="technique-filter-banner">
+                <div className="technique-filter-left">
+                  <div className="technique-filter-badge-row">
+                    <span className="technique-filter-badge">
+                      <FaFilter style={{ marginRight: "0.25rem" }} />
+                      {selectedMatrixTechnique.id}
+                    </span>
+                    {selectedMatrixTechnique.tacticId && (
+                      <span className="technique-filter-tactic">
+                        TACTIC: {selectedMatrixTechnique.tacticId.replace(/-/g, " ")}
+                      </span>
+                    )}
+                    <span className="heat-count-chip">
+                      {selectedMatrixTechnique.count || 0} Detections
+                    </span>
+                  </div>
+                  <h3 className="technique-filter-title">
+                    {selectedMatrixTechnique.name}
+                  </h3>
+                </div>
+                <div className="technique-filter-actions">
+                  <a
+                    href={`https://attack.mitre.org/techniques/${selectedMatrixTechnique.id.replace(/\./g, "/")}/`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="technique-mitre-link"
+                    title="Open official MITRE ATT&CK definition"
+                  >
+                    <FaExternalLinkAlt /> MITRE ATT&amp;CK Spec
+                  </a>
+                  <button
+                    className="technique-clear-btn"
+                    onClick={() => setSelectedMatrixTechnique(null)}
+                    title="Clear technique filter"
+                  >
+                    <FaTimes /> Clear Filter
+                  </button>
+                </div>
+              </div>
+            )}
+
             {/* Filter Tabs */}
             <div className="sentinel-tabs-container hud-font">
               <button
@@ -760,7 +823,12 @@ const SentinelDashboard = () => {
             </div>
           ) : (
             /* MitreMatrix Heatmap Component */
-            <MitreMatrix techniqueFrequencies={matrixData} />
+            <MitreMatrix
+              techniqueFrequencies={matrixData}
+              techniquesData={matrixData}
+              selectedTechniqueId={selectedMatrixTechnique?.id || null}
+              onTechniqueClick={handleTechniqueClick}
+            />
           )}
         </div>
       )}
