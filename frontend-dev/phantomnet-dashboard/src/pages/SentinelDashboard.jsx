@@ -5,6 +5,7 @@ import MitreTag from "../components/sentinel/MitreTag";
 import MitreMatrix from "../components/sentinel/MitreMatrix";
 import RulePreview from "../components/sentinel/RulePreview";
 import PlaybookViewer from "../components/sentinel/PlaybookViewer";
+import TechniqueDetailPanel from "../components/sentinel/TechniqueDetailPanel";
 import ToastContainer, { useToast } from "../components/ui/ToastNotification";
 import "../Styles/pages/SentinelDashboard.css";
 
@@ -110,6 +111,38 @@ const SentinelDashboard = () => {
   const [matrixData, setMatrixData] = useState(null);
   const [matrixLoading, setMatrixLoading] = useState(true);
   const [matrixError, setMatrixError] = useState(null);
+
+  // Mapped technique details resolver
+  const selectedTechniqueDetails = useMemo(() => {
+    if (!selectedMatrixTechnique || !matrixData) return null;
+    const targetId = selectedMatrixTechnique.id;
+    for (const tacticName of Object.keys(matrixData)) {
+      const techniquesList = matrixData[tacticName];
+      if (Array.isArray(techniquesList)) {
+        const found = techniquesList.find(
+          (t) => t.technique_id === targetId || t.technique_id.startsWith(targetId) || targetId.startsWith(t.technique_id)
+        );
+        if (found) {
+          return {
+            ...found,
+            id: found.technique_id,
+            name: found.technique_name,
+            tactic: found.tactic_id || selectedMatrixTechnique.tacticId,
+            count: found.count ?? selectedMatrixTechnique.count ?? 0,
+          };
+        }
+      }
+    }
+    return {
+      id: selectedMatrixTechnique.id,
+      name: selectedMatrixTechnique.name,
+      count: selectedMatrixTechnique.count || 0,
+      tactic: selectedMatrixTechnique.tacticId || "",
+      severity: "MEDIUM",
+      description: "No details available for this technique.",
+      url: `https://attack.mitre.org/techniques/${selectedMatrixTechnique.id.replace(/\./g, "/")}/`,
+    };
+  }, [selectedMatrixTechnique, matrixData]);
 
   /* ── Pagination State ── */
   const [currentPage, setCurrentPage] = useState(1);
@@ -854,6 +887,14 @@ const SentinelDashboard = () => {
           onLLMNarrativeUpdate={handleLLMNarrativeUpdate}
         />
       )}
+
+      {/* MITRE Technique Detail Panel */}
+      <TechniqueDetailPanel
+        isOpen={!!selectedMatrixTechnique}
+        onClose={() => setSelectedMatrixTechnique(null)}
+        technique={selectedTechniqueDetails}
+        onPlaybookClick={handleCardClick}
+      />
 
       {/* ── Toast Notifications ── */}
       <ToastContainer toasts={toasts} onDismiss={removeToast} />
