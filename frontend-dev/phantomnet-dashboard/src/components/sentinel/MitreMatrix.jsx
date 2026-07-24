@@ -202,6 +202,45 @@ const MitreMatrix = ({
     return {};
   }, [rawData]);
 
+  // Pre-calculate a lookup map of all detailed techniques from matrixData / techniquesData / rawData
+  const detailedTechniquesMap = React.useMemo(() => {
+    const map = {};
+    if (!rawData) return map;
+
+    // Case 1: If rawData is an array of technique objects
+    if (Array.isArray(rawData)) {
+      rawData.forEach((tech) => {
+        const id = tech.id || tech.technique_id || tech.techniqueId;
+        if (id) {
+          map[id] = tech;
+        }
+      });
+    } else if (typeof rawData === "object") {
+      // Case 2: Object grouping lists of techniques by tactic name (e.g. backend response matrix)
+      Object.values(rawData).forEach((val) => {
+        if (Array.isArray(val)) {
+          val.forEach((tech) => {
+            const id = tech.technique_id || tech.id || tech.techniqueId;
+            if (id) {
+              map[id] = tech;
+              // Map base ID without suffix as well
+              const baseId = id.split(".")[0];
+              if (!map[baseId]) {
+                map[baseId] = tech;
+              }
+            }
+          });
+        } else if (val && typeof val === "object") {
+          const id = val.id || val.technique_id || val.techniqueId;
+          if (id) {
+            map[id] = val;
+          }
+        }
+      });
+    }
+    return map;
+  }, [rawData]);
+
   const handleCellClick = (tacticId, technique, count, heatLevel) => {
     const isAlreadySelected = activeSelectedId === technique.id;
     const nextSelectedId = isAlreadySelected ? null : technique.id;
@@ -263,10 +302,23 @@ const MitreMatrix = ({
               </div>
 
               {/* Technique Heatmap Cells */}
-              {displayTechniques.map((technique) => {
+              {displayTechniques.map((technique, idx) => {
                 const count = frequencyMap[technique.id] || 0;
                 const heatLevel = getHeatLevel(count);
                 const isSelected = activeSelectedId === technique.id;
+
+                const details = detailedTechniquesMap[technique.id] || {};
+                const description = details.description || "No description available for this technique.";
+                const severity = details.severity || "MEDIUM";
+
+                // Tooltip responsiveness positioning
+                const tooltipPosClass = idx < 3 ? "pos-bottom" : "pos-top";
+                let tooltipAlignClass = "align-center";
+                if (tactic.id === TACTICS[0].id) {
+                  tooltipAlignClass = "align-left";
+                } else if (tactic.id === TACTICS[TACTICS.length - 1].id) {
+                  tooltipAlignClass = "align-right";
+                }
 
                 return (
                   <div
@@ -277,13 +329,29 @@ const MitreMatrix = ({
                     role="button"
                     tabIndex={0}
                     aria-pressed={isSelected}
-                    title={`${technique.id} - ${technique.name} (${count} detection${count === 1 ? "" : "s"})${isSelected ? " [SELECTED]" : ""}`}
+                    title=""
                   >
                     <div className="technique-cell-top">
                       <span className="technique-id">{technique.id}</span>
                       <span className="heat-count-chip">{count}</span>
                     </div>
                     <span className="technique-name">{technique.name}</span>
+
+                    {/* Premium Custom Cyber Tooltip */}
+                    <div className={`technique-tooltip ${tooltipPosClass} ${tooltipAlignClass}`} onClick={(e) => e.stopPropagation()}>
+                      <div className="tech-tooltip-header">
+                        <span className="tech-tooltip-id">{technique.id}</span>
+                        <span className={`tech-tooltip-severity ${severity.toLowerCase()}`}>
+                          {severity}
+                        </span>
+                      </div>
+                      <div className="tech-tooltip-name">{technique.name}</div>
+                      <p className="tech-tooltip-desc">{description}</p>
+                      <div className="tech-tooltip-footer">
+                        <span className="tech-tooltip-stat">Playbooks: <strong>{count}</strong></span>
+                        <span className="tech-tooltip-stat">Tactic: <strong>{tactic.label}</strong></span>
+                      </div>
+                    </div>
                   </div>
                 );
               })}
