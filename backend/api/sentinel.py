@@ -205,6 +205,7 @@ def list_playbooks(
     per_page: int = Query(default=20, ge=1, le=100, description="Results per page (1–100, default 20)"),
     status: Optional[str] = Query(default=None, description="Filter by status: pending|approved|rejected|exported"),
     attack_type: Optional[str] = Query(default=None, description="Filter by attack type"),
+    technique_id: Optional[str] = Query(default=None, description="Filter by MITRE technique ID"),
     db: Session = Depends(get_db),
 ) -> Dict[str, Any]:
     """
@@ -215,6 +216,7 @@ def list_playbooks(
         per_page: Results per page, 1-100 (default 20).
         status: Filter by workflow status (pending|approved|rejected|exported).
         attack_type: Filter by attack classification label.
+        technique_id: Filter by MITRE technique ID.
         db: Injected database session.
 
     Returns:
@@ -234,6 +236,12 @@ def list_playbooks(
                 query = query.filter(SentinelPlaybook.status == status_val)
         if attack_type is not None and attack_type.strip():
             query = query.filter(SentinelPlaybook.attack_type == attack_type.strip())
+        if technique_id is not None and technique_id.strip():
+            tech_val = technique_id.strip()
+            query = query.filter(
+                (SentinelPlaybook.technique_id == tech_val) |
+                (SentinelPlaybook.technique_id.like(f"{tech_val}.%"))
+            )
 
         total = query.count()
 

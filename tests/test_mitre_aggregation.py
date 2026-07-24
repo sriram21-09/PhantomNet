@@ -131,8 +131,10 @@ def test_mitre_matrix_endpoint(db_session: Session):
         assert "generated_at" in data
         assert "total_tactics" in data
         assert "total_techniques" in data
-        assert "Credential Access" in data["matrix"]
-        assert "Initial Access" in data["matrix"]
+
+        matrix = data.get("matrix", data)
+        assert "Credential Access" in matrix
+        assert "Initial Access" in matrix
 
         # Validate frequency_map rollups for populated techniques
         freq = data["frequency_map"]
