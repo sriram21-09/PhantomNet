@@ -155,17 +155,23 @@ const GeoDashboard = () => {
                             <FaHistory /> RECENT ACTIVITY
                         </div>
                         <div className="feed-list no-scrollbar">
-                            {attacks.map(attack => (
-                                <div key={attack.id} className={`feed-item ${attack.severity}`}>
-                                    <div className="feed-item-header">
-                                        <span className="feed-ip">{attack.source_ip}</span>
-                                        <span className="feed-time">{new Date(attack.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}</span>
-                                    </div>
-                                    <div className="feed-item-detail">
-                                        {attack.source_country} ➔ {attack.dest_region}
-                                    </div>
+                            {attacks.length === 0 ? (
+                                <div className="empty-feed-state hud-font" style={{ padding: '1.5rem 1rem', color: '#64748b', fontSize: '0.8rem', textAlign: 'center' }}>
+                                    NO RECENT ATTACK ACTIVITY RECORDED
                                 </div>
-                            ))}
+                            ) : (
+                                attacks.map(attack => (
+                                    <div key={attack.id} className={`feed-item ${attack.severity}`}>
+                                        <div className="feed-item-header">
+                                            <span className="feed-ip">{attack.source_ip}</span>
+                                            <span className="feed-time">{new Date(attack.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}</span>
+                                        </div>
+                                        <div className="feed-item-detail">
+                                            {attack.source_country} ➔ {attack.dest_region}
+                                        </div>
+                                    </div>
+                                ))
+                            )}
                         </div>
                     </div>
                 </div>

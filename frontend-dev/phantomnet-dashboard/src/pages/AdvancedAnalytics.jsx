@@ -47,15 +47,15 @@ const AdvancedAnalytics = () => {
                         resolved: Math.max(0, Math.floor(t.count * 0.85)) // simulated resolution curve
                     })));
                 } else {
-                    // Fallback baseline trend data
+                    // Empty database trend baseline
                     setTrends([
-                        { time: 'Mon', incidents: 12, resolved: 10 },
-                        { time: 'Tue', incidents: 19, resolved: 15 },
-                        { time: 'Wed', incidents: 3, resolved: 2 },
-                        { time: 'Thu', incidents: 5, resolved: 4 },
-                        { time: 'Fri', incidents: 24, resolved: 20 },
-                        { time: 'Sat', incidents: 15, resolved: 12 },
-                        { time: 'Sun', incidents: 8, resolved: 8 }
+                        { time: 'Mon', incidents: 0, resolved: 0 },
+                        { time: 'Tue', incidents: 0, resolved: 0 },
+                        { time: 'Wed', incidents: 0, resolved: 0 },
+                        { time: 'Thu', incidents: 0, resolved: 0 },
+                        { time: 'Fri', incidents: 0, resolved: 0 },
+                        { time: 'Sat', incidents: 0, resolved: 0 },
+                        { time: 'Sun', incidents: 0, resolved: 0 }
                     ]);
                 }
 
@@ -86,11 +86,11 @@ const AdvancedAnalytics = () => {
                 }
 
                 const radarData = [
-                    { type: 'Brute Force', count: counts["Brute Force"] || 5, fullMark: 20 },
-                    { type: 'Malware', count: counts["Malware"] || 2, fullMark: 20 },
-                    { type: 'DDoS', count: counts["DDoS"] || 4, fullMark: 20 },
-                    { type: 'Phishing', count: counts["Phishing"] || 1, fullMark: 20 },
-                    { type: 'SQLi', count: counts["SQLi"] || 3, fullMark: 20 },
+                    { type: 'Brute Force', count: counts["Brute Force"] ?? 0, fullMark: 20 },
+                    { type: 'Malware', count: counts["Malware"] ?? 0, fullMark: 20 },
+                    { type: 'DDoS', count: counts["DDoS"] ?? 0, fullMark: 20 },
+                    { type: 'Phishing', count: counts["Phishing"] ?? 0, fullMark: 20 },
+                    { type: 'SQLi', count: counts["SQLi"] ?? 0, fullMark: 20 },
                 ];
                 setTypeData(radarData);
 
