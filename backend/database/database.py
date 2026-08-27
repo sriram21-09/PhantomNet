@@ -60,8 +60,8 @@ def get_db_engine():
             engine = create_engine(
                 DATABASE_URL,
                 pool_pre_ping=True,  # Auto-detect broken connections
-                pool_size=10,
-                max_overflow=20,
+                pool_size=50,
+                max_overflow=100,
                 connect_args=(
                     {"check_same_thread": False, "timeout": 30}
                     if "sqlite" in DATABASE_URL

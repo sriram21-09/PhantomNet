@@ -13,6 +13,8 @@ from stix2 import (
     ObservedData,
     ThreatActor,
     AttackPattern,
+    IPv4Address,
+    DomainName,
 )
 
 # Setup Logger
@@ -116,17 +118,17 @@ class STIXExporter:
             objects.append(indicator)
 
             # 2. Observed Data
+            if ioc["type"] == "ips":
+                sco = IPv4Address(value=ioc["value"])
+            else:
+                sco = DomainName(value=ioc["value"])
+            objects.append(sco)
+
             observed = ObservedData(
                 first_observed=datetime.utcnow(),
                 last_observed=datetime.utcnow(),
                 number_observed=1,
-                objects={
-                    "0": (
-                        {"type": "ipv4-addr", "value": ioc["value"]}
-                        if ioc["type"] == "ips"
-                        else {"type": "domain-name", "value": ioc["value"]}
-                    )
-                },
+                object_refs=[sco.id]
             )
             objects.append(observed)
 

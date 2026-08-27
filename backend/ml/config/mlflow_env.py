@@ -8,10 +8,10 @@ import pathlib
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 PROJECT_ROOT = os.path.abspath(os.path.join(BASE_DIR, "..", "..", ".."))
 
-MLRUNS_DIR = os.path.join(PROJECT_ROOT, "mlruns")
-os.makedirs(MLRUNS_DIR, exist_ok=True)
+# MLRUNS_DIR = os.path.join(PROJECT_ROOT, "mlruns")
+# os.makedirs(MLRUNS_DIR, exist_ok=True)
 
-TRACKING_URI = f"sqlite:///{os.path.join(PROJECT_ROOT, 'mlruns.db').replace(chr(92), '/')}"
+TRACKING_URI = f"sqlite:///{os.path.join(PROJECT_ROOT, 'mlflow.db').replace(chr(92), '/')}"
 
 MODEL_NAME = "PhantomNet_Attack_Detector"
 DEFAULT_STAGE = "Staging"

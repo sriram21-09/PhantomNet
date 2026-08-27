@@ -12,7 +12,7 @@ EXPERIMENT_NAME = "PhantomNet-ML"
 
 def main():
     print("[REGISTRY] Connecting to MLflow...")
-    mlflow.set_tracking_uri(f"file:///{MLRUNS_PATH}")
+    mlflow.set_tracking_uri(TRACKING_URI)
     mlflow.set_experiment(EXPERIMENT_NAME)
 
     client = MlflowClient()

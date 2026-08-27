@@ -25,7 +25,7 @@ DATA_DIR = os.path.join(PROJECT_ROOT, "data")
 MLFLOW_DIR = os.path.join(PROJECT_ROOT, "mlruns")
 
 # Force same MLflow tracking DB as training
-mlflow.set_tracking_uri(f"file:///{MLFLOW_DIR}")
+mlflow.set_tracking_uri(TRACKING_URI)
 
 CSV_PATH = os.path.join(DATA_DIR, "week6_test_events.csv")
 FEATURE_COLUMNS = ["payload_length"]

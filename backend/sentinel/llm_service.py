@@ -553,6 +553,7 @@ class LLMService:
                         "FTP_DATA_EXFILTRATION": "FTP",
                         "SMTP_LARGE_PAYLOAD": "SMTP",
                         "DISTRIBUTED_BRUTE_FORCE": "SSH",
+                        "DISTRIBUTED_BRUTE_FORCE": "SSH", # Commonly against SSH/HTTP
                         "LOW_AND_SLOW_SCAN": "NETWORK",
                         "MULTI_PROTOCOL_ATTACK": "NETWORK",
                         "HIGH_FREQUENCY_ATTACK": "NETWORK",

@@ -20,7 +20,7 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 PROJECT_ROOT = os.path.abspath(os.path.join(BASE_DIR, "..", ".."))
 MLFLOW_DIR = os.path.join(PROJECT_ROOT, "mlruns")
 
-mlflow.set_tracking_uri(f"file:///{MLFLOW_DIR}")
+mlflow.set_tracking_uri(TRACKING_URI)
 
 
 def main():
