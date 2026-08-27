@@ -20,12 +20,15 @@ import json
 import contextlib
 import socket
 import asyncio
+import ipaddress
+import logging
 from datetime import datetime, timedelta
 from typing import Dict, List, Any, Optional, Set, Union, Tuple
 
 import psutil
 from dotenv import load_dotenv
-from fastapi import FastAPI, Depends, HTTPException
+from fastapi import FastAPI, Depends, HTTPException, Query, Path, Request
+from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import text, func
 from sqlalchemy.orm import Session
@@ -520,6 +523,26 @@ app.add_middleware(SecurityLoggingMiddleware)
 app.add_middleware(TaxiiContentNegotiationMiddleware)
 
 
+# Global Exception Handler (prevents stack trace / backend info leakage on unhandled errors)
+@app.exception_handler(Exception)
+async def global_exception_handler(request: Request, exc: Exception):
+    # Pass through standard HTTPExceptions
+    if isinstance(exc, HTTPException):
+        return JSONResponse(
+            status_code=exc.status_code,
+            content={"detail": exc.detail},
+            headers=getattr(exc, "headers", None),
+        )
+    logging.getLogger("main").error(
+        f"Unhandled server error on {request.method} {request.url.path}: {exc}",
+        exc_info=True,
+    )
+    return JSONResponse(
+        status_code=500,
+        content={"status": "error", "message": "An internal server error occurred."},
+    )
+
+
 # Register Routers
 app.include_router(model_metrics_router)
 app.include_router(threat_intel_router)
@@ -662,7 +685,7 @@ def cache_stats() -> dict:
 def get_events(
     threat: str = "ALL",
     protocol: str = "ALL",
-    limit: int = 100,
+    limit: int = Query(100, ge=1, le=1000, description="Max events to return (1-1000)"),
     db: Session = Depends(get_db),
 ) -> list:
     """
@@ -757,7 +780,9 @@ def get_live_features(db: Session = Depends(get_db)):
 # ACTIVE DEFENSE
 # =========================
 @app.post("/active-defense/block/{ip}")
-def block_ip_address(ip: str) -> dict:
+def block_ip_address(
+    ip: str = Path(..., min_length=1, max_length=50, description="IP address to block")
+) -> dict:
     """
     Blocks a specific IP address using the firewall service.
 
@@ -767,12 +792,19 @@ def block_ip_address(ip: str) -> dict:
     Returns:
         dict: The result of the blocking operation.
     """
-    if ip in ["127.0.0.1", "phantomnet_postgres", "::1"]:
-        return {"status": "error", "message": "Cannot block phantomnet_postgres"}
+    ip_clean = ip.strip()
+    if ip_clean in ["127.0.0.1", "phantomnet_postgres", "::1", "localhost"]:
+        return {"status": "error", "message": "Cannot block protected host or loopback"}
 
-    result = FirewallService.block_ip(ip)
+    try:
+        ipaddress.ip_address(ip_clean)
+    except ValueError:
+        raise HTTPException(status_code=400, detail=f"Invalid IP address format: {ip}")
+
+    result = FirewallService.block_ip(ip_clean)
     if result["status"] == "error":
-        raise HTTPException(status_code=500, detail=result["message"])
+        logging.getLogger("main").error(f"Firewall block error: {result.get('message')}")
+        raise HTTPException(status_code=500, detail="Firewall block operation failed.")
 
     return result
 
@@ -843,7 +875,10 @@ def _process_attack_map_logs(logs: List[PacketLog]) -> Tuple[List[Dict[str, Any]
 
 
 @app.get("/api/analytics/attack-map")
-def get_attack_map(limit: int = 200, db: Session = Depends(get_db)) -> dict:
+def get_attack_map(
+    limit: int = Query(200, ge=1, le=1000, description="Max events to analyze"),
+    db: Session = Depends(get_db)
+) -> dict:
     """Returns geo-enriched attack data for map visualization."""
     logs = db.query(PacketLog).filter(PacketLog.src_ip.isnot(None))\
              .order_by(PacketLog.timestamp.desc()).limit(limit).all()
@@ -862,10 +897,19 @@ def get_attack_map(limit: int = 200, db: Session = Depends(get_db)) -> dict:
 
 
 @app.get("/api/geoip/lookup/{ip}")
-def geoip_lookup(ip: str) -> dict:
+def geoip_lookup(
+    ip: str = Path(..., min_length=1, max_length=50, description="IP address to lookup")
+) -> dict:
     """Look up geolocation for a single IP address."""
-    result = geoip_service.lookup(ip)
-    return {"ip": ip, "geo": result}
+    ip_clean = ip.strip()
+    if ip_clean not in ["127.0.0.1", "::1", "localhost", "phantomnet_postgres"]:
+        try:
+            ipaddress.ip_address(ip_clean)
+        except ValueError:
+            raise HTTPException(status_code=400, detail=f"Invalid IP address format: {ip}")
+
+    result = geoip_service.lookup(ip_clean)
+    return {"ip": ip_clean, "geo": result}
 
 
 @app.get("/api/geoip/status")
@@ -878,7 +922,9 @@ def geoip_status() -> dict:
 # AUTOMATED RESPONSE
 # =========================
 @app.get("/api/response/history")
-def response_history(limit: int = 50) -> dict:
+def response_history(
+    limit: int = Query(50, ge=1, le=500, description="Max history records to return")
+) -> dict:
     """View response action audit log."""
     return {
         "status": "success",
@@ -899,11 +945,20 @@ def blocked_ips() -> dict:
 
 
 @app.post("/api/response/unblock/{ip}")
-def unblock_ip(ip: str) -> dict:
+def unblock_ip(
+    ip: str = Path(..., min_length=1, max_length=50, description="IP address to unblock")
+) -> dict:
     """Manually unblock an IP address."""
-    result = response_executor.unblock_ip(ip)
+    ip_clean = ip.strip()
+    if ip_clean not in ["127.0.0.1", "::1", "localhost", "phantomnet_postgres"]:
+        try:
+            ipaddress.ip_address(ip_clean)
+        except ValueError:
+            raise HTTPException(status_code=400, detail=f"Invalid IP address format: {ip}")
+
+    result = response_executor.unblock_ip(ip_clean)
     if result["status"] == "not_found":
-        raise HTTPException(status_code=404, detail=f"IP {ip} is not blocked")
+        raise HTTPException(status_code=404, detail=f"IP {ip_clean} is not blocked")
     return result
 
 
@@ -919,11 +974,17 @@ def get_response_policy() -> dict:
 @app.put("/api/response/policy")
 def update_response_policy(updates: dict) -> dict:
     """Update response policy thresholds."""
-    updated = response_executor.update_policy(updates)
-    return {
-        "status": "success",
-        "policy": updated,
-    }
+    if not isinstance(updates, dict):
+        raise HTTPException(status_code=400, detail="Policy updates must be a JSON dictionary")
+    try:
+        updated = response_executor.update_policy(updates)
+        return {
+            "status": "success",
+            "policy": updated,
+        }
+    except Exception as e:
+        logging.getLogger("main").error(f"Failed to update policy: {e}")
+        raise HTTPException(status_code=500, detail="Failed to update response policy.")
 
 
 @app.get("/api/response/stats")
@@ -936,16 +997,29 @@ def response_stats() -> dict:
 # ADVANCED ML ENDPOINTS
 # =========================
 @app.get("/api/v1/advanced/campaigns", tags=["Advanced ML"])
-def get_attack_campaigns(hours_back: int = 24, db: Session = Depends(get_db)) -> dict:
+def get_attack_campaigns(
+    hours_back: int = Query(24, ge=1, le=168, description="Time window in hours (1-168)"),
+    db: Session = Depends(get_db)
+) -> dict:
     """Analyze recent threats and cluster coordinated attack campaigns."""
-    result = campaign_clusterer.identify_campaigns(hours_back)
-    if "error" in result:
-        raise HTTPException(status_code=500, detail=result["error"])
-    return result
+    try:
+        result = campaign_clusterer.identify_campaigns(hours_back)
+        if "error" in result:
+            logging.getLogger("main").error(f"Campaign clustering error: {result['error']}")
+            raise HTTPException(status_code=500, detail="Failed to cluster attack campaigns.")
+        return result
+    except HTTPException:
+        raise
+    except Exception as e:
+        logging.getLogger("main").error(f"Error clustering campaigns: {e}")
+        raise HTTPException(status_code=500, detail="Failed to cluster attack campaigns.")
 
 
 @app.get("/api/v1/events/{event_id}/explanation", tags=["Advanced ML"])
-def explain_threat_score(event_id: int, db: Session = Depends(get_db)) -> dict:
+def explain_threat_score(
+    event_id: int = Path(..., ge=1, description="Event database ID"),
+    db: Session = Depends(get_db)
+) -> dict:
     """Generate SHAP feature explanations for a specific scored event."""
     log = db.query(PacketLog).filter(PacketLog.id == event_id).first()
     if not log:
@@ -959,16 +1033,23 @@ def explain_threat_score(event_id: int, db: Session = Depends(get_db)) -> dict:
         "length": log.length or 0,
     }
 
-    explanation = explainer_service.explain_prediction(event_data)
-    if "error" in explanation:
-        raise HTTPException(status_code=500, detail=explanation["error"])
+    try:
+        explanation = explainer_service.explain_prediction(event_data)
+        if "error" in explanation:
+            logging.getLogger("main").error(f"SHAP explanation error: {explanation['error']}")
+            raise HTTPException(status_code=500, detail="Failed to generate threat score explanation.")
 
-    return {
-        "event_id": event_id,
-        "threat_level": log.threat_level,
-        "score": log.threat_score,
-        "explanation": explanation,
-    }
+        return {
+            "event_id": event_id,
+            "threat_level": log.threat_level,
+            "score": log.threat_score,
+            "explanation": explanation,
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        logging.getLogger("main").error(f"Error generating explanation for event {event_id}: {e}")
+        raise HTTPException(status_code=500, detail="Failed to generate threat score explanation.")
 
 
 if __name__ == "__main__":

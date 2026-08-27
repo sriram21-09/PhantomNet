@@ -8,6 +8,11 @@ from database.models import HoneypotNode, Policy
 from services.node_manager import NodeManager
 from services.policy_engine import PolicyEngine
 
+import hmac
+import ipaddress
+import re
+from pydantic import BaseModel, Field, field_validator
+
 from database.database import get_db
 
 router = APIRouter(prefix="/api/v1/management", tags=["Management"])
@@ -17,31 +22,53 @@ api_key_header = APIKeyHeader(name=API_KEY_NAME, auto_error=False)
 
 
 def get_api_key(api_key: str = Security(api_key_header)):
+    if not api_key:
+        raise HTTPException(
+            status_code=401, detail="Missing API Key header (X-API-Key)"
+        )
     expected_key = os.getenv("API_KEY", "default_key")
-    if api_key == expected_key:
-        return api_key
-    raise HTTPException(status_code=403, detail="Could not validate API Key")
+    if not hmac.compare_digest(api_key.encode("utf-8"), expected_key.encode("utf-8")):
+        raise HTTPException(status_code=403, detail="Invalid API Key")
+    return api_key
 
 
 class NodeRegisterRequest(BaseModel):
-    hostname: str
-    ip_address: str
-    honeypot_type: str
+    hostname: str = Field(..., min_length=1, max_length=255)
+    ip_address: str = Field(..., min_length=1, max_length=45)
+    honeypot_type: str = Field(..., min_length=1, max_length=50)
+
+    @field_validator("hostname")
+    @classmethod
+    def validate_hostname(cls, v: str) -> str:
+        v = v.strip()
+        if not v:
+            raise ValueError("Hostname cannot be empty or whitespace")
+        return v
+
+    @field_validator("ip_address")
+    @classmethod
+    def validate_ip(cls, v: str) -> str:
+        v = v.strip()
+        try:
+            ipaddress.ip_address(v)
+        except ValueError:
+            raise ValueError(f"Invalid IP address format: {v}")
+        return v
 
 
 class NodeHeartbeatRequest(BaseModel):
-    node_id: str
+    node_id: str = Field(..., min_length=1, max_length=100)
 
 
 class PolicyCreateRequest(BaseModel):
-    name: str
-    description: str
+    name: str = Field(..., min_length=1, max_length=100)
+    description: str = Field(..., max_length=1000)
     config: dict
 
 
 class PolicyAssignRequest(BaseModel):
-    node_id: str
-    policy_id: int
+    node_id: str = Field(..., min_length=1, max_length=100)
+    policy_id: int = Field(..., ge=1)
 
 
 @router.post("/register")

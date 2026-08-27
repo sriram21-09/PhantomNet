@@ -115,6 +115,21 @@ async def get_current_user(
     return user
 
 
+async def get_optional_current_user(
+    credentials: Optional[HTTPAuthorizationCredentials] = Depends(security),
+    db: Session = Depends(get_db),
+) -> Optional[User]:
+    if not credentials:
+        return None
+    token_data = decode_token(credentials.credentials)
+    if not token_data:
+        return None
+    user = db.query(User).filter(User.username == token_data.get("sub")).first()
+    if not user or user.status != "active":
+        return None
+    return user
+
+
 def require_role(*roles):
     """Dependency factory: require user has one of the given roles."""
 

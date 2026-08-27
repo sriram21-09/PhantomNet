@@ -1,3 +1,4 @@
+import logging
 from fastapi import APIRouter, Depends, HTTPException, Query
 from typing import List, Dict, Any
 from sqlalchemy.orm import Session
@@ -8,6 +9,7 @@ from database.database import get_db
 from services.attack_detection import AttackDetectionService
 from database.models import PacketLog
 
+logger = logging.getLogger("api.protocol_analytics")
 router = APIRouter(prefix="/api/v1/analytics", tags=["Analytics"])
 
 
@@ -29,7 +31,8 @@ async def get_ssh_analytics(db: Session = Depends(get_db)):
             "brute_force_suspects": brute_force,
         }
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        logger.error("Error retrieving SSH analytics: %s", e)
+        raise HTTPException(status_code=500, detail="Failed to retrieve SSH analytics.")
 
 
 @router.get("/http", response_model=Dict[str, Any])
@@ -52,12 +55,14 @@ async def get_http_analytics(db: Session = Depends(get_db)):
             "potential_flooders": flood_suspects,
         }
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        logger.error("Error retrieving HTTP analytics: %s", e)
+        raise HTTPException(status_code=500, detail="Failed to retrieve HTTP analytics.")
 
 
 @router.get("/trends", response_model=List[Dict[str, Any]])
 async def get_attack_trends(
-    days: int = Query(7, ge=1, le=30), db: Session = Depends(get_db)
+    days: int = Query(7, ge=1, le=30, description="Trend window in days (1-30)"),
+    db: Session = Depends(get_db)
 ):
     """
     Returns daily attack volume for the last N days.
@@ -66,4 +71,5 @@ async def get_attack_trends(
     try:
         return service.get_global_trends(days=days)
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        logger.error("Error retrieving attack trends: %s", e)
+        raise HTTPException(status_code=500, detail="Failed to retrieve attack trends.")

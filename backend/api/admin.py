@@ -14,13 +14,17 @@ from middleware.auth import (
     get_current_user,
     require_role,
 )
-from pydantic import BaseModel
+from pydantic import BaseModel, Field, field_validator
 from typing import Optional
 from datetime import datetime, timedelta
 import os
 import shutil
 import json
+import re
+import logging
 import psutil
+
+logger = logging.getLogger("api.admin")
 
 router = APIRouter(prefix="/api/v1/admin", tags=["Admin"])
 
@@ -29,28 +33,53 @@ router = APIRouter(prefix="/api/v1/admin", tags=["Admin"])
 
 
 class LoginRequest(BaseModel):
-    username: str
-    password: str
+    username: str = Field(..., min_length=1, max_length=100)
+    password: str = Field(..., min_length=1, max_length=128)
 
 
 class UserCreate(BaseModel):
-    username: str
-    email: str
-    password: str
+    username: str = Field(..., min_length=3, max_length=50)
+    email: str = Field(..., min_length=5, max_length=100)
+    password: str = Field(..., min_length=6, max_length=128)
     role: str = "Viewer"
+
+    @field_validator("email")
+    @classmethod
+    def validate_email(cls, v: str) -> str:
+        v = v.strip()
+        if not re.match(r"^[^@\s]+@[^@\s]+\.[^@\s]+$", v):
+            raise ValueError("Invalid email address format")
+        return v
+
+    @field_validator("username")
+    @classmethod
+    def validate_username(cls, v: str) -> str:
+        v = v.strip()
+        if not re.match(r"^[a-zA-Z0-9_\-\.]+$", v):
+            raise ValueError("Username can only contain alphanumeric characters, underscores, hyphens, and dots")
+        return v
 
 
 class UserUpdate(BaseModel):
-    email: Optional[str] = None
-    password: Optional[str] = None
+    email: Optional[str] = Field(None, min_length=5, max_length=100)
+    password: Optional[str] = Field(None, min_length=6, max_length=128)
     role: Optional[str] = None
     status: Optional[str] = None
 
+    @field_validator("email")
+    @classmethod
+    def validate_email(cls, v: Optional[str]) -> Optional[str]:
+        if v is not None:
+            v = v.strip()
+            if not re.match(r"^[^@\s]+@[^@\s]+\.[^@\s]+$", v):
+                raise ValueError("Invalid email address format")
+        return v
+
 
 class ConfigUpdate(BaseModel):
-    key: str
-    value: str
-    category: str
+    key: str = Field(..., min_length=1, max_length=100)
+    value: str = Field(..., max_length=2000)
+    category: str = Field(..., min_length=1, max_length=50)
 
 
 # ================== Auth ==================
@@ -395,7 +424,8 @@ def create_backup(db: Session = Depends(get_db), _user: User = Depends(require_r
                 "created_at": datetime.utcnow().isoformat(),
             }
         except Exception as e:
-            raise HTTPException(status_code=500, detail=f"PostgreSQL backup failed: {str(e)}")
+            logger.error("PostgreSQL backup failed: %s", e)
+            raise HTTPException(status_code=500, detail="Database backup failed due to an internal error.")
     else:
         db_path = os.path.abspath("phantomnet.db")
         if not os.path.exists(db_path):
@@ -403,15 +433,18 @@ def create_backup(db: Session = Depends(get_db), _user: User = Depends(require_r
 
         backup_file = f"phantomnet_backup_{timestamp}.db"
         backup_path = os.path.join(backup_dir, backup_file)
-        shutil.copy2(db_path, backup_path)
-
-        size_mb = round(os.path.getsize(backup_path) / (1024 * 1024), 2)
-        return {
-            "status": "success",
-            "backup_file": backup_file,
-            "size_mb": size_mb,
-            "created_at": datetime.utcnow().isoformat(),
-        }
+        try:
+            shutil.copy2(db_path, backup_path)
+            size_mb = round(os.path.getsize(backup_path) / (1024 * 1024), 2)
+            return {
+                "status": "success",
+                "backup_file": backup_file,
+                "size_mb": size_mb,
+                "created_at": datetime.utcnow().isoformat(),
+            }
+        except Exception as e:
+            logger.error("SQLite backup copy failed: %s", e)
+            raise HTTPException(status_code=500, detail="Database backup failed due to an internal error.")
 
 
 @router.get("/backups")
@@ -422,7 +455,7 @@ def list_backups(_user: User = Depends(require_role("Admin"))):
 
     backups = []
     for f in sorted(os.listdir(backup_dir), reverse=True):
-        if f.endswith(".db") or f.endswith(".json"):
+        if (f.endswith(".db") or f.endswith(".json")) and not f.startswith("."):
             fp = os.path.join(backup_dir, f)
             backups.append(
                 {
@@ -456,7 +489,8 @@ def vacuum_db(
                 conn.execute(text("VACUUM"))
         return {"status": "success", "message": "Database vacuumed and optimized"}
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        logger.error("Database vacuum failed: %s", e)
+        raise HTTPException(status_code=500, detail="Database vacuum operation failed.")
 
 
 @router.delete("/events/old")
@@ -465,6 +499,8 @@ def delete_old_events(
     db: Session = Depends(get_db),
     _user: User = Depends(require_role("Admin")),
 ):
+    if days < 1 or days > 3650:
+        raise HTTPException(status_code=400, detail="Retention days must be between 1 and 3650")
     cutoff = datetime.utcnow() - timedelta(days=days)
 
     deleted_packets = db.query(PacketLog).filter(PacketLog.timestamp < cutoff).delete()
