@@ -15,22 +15,22 @@ import {
  * FeatureImportanceChart component
  * Visualizes the weights of features using a horizontal bar chart.
  */
+const CustomTooltip = ({ active, payload, label }) => {
+  if (active && payload && payload.length) {
+    return (
+      <div className="bg-slate-900/90 border border-blue-500/20 p-3 rounded-lg backdrop-blur-md shadow-xl">
+        <p className="text-white font-bold text-sm mb-1">{label}</p>
+        <p className="text-blue-400 text-xs">
+          Importance: <span className="font-mono">{(payload[0].value * 100).toFixed(1)}%</span>
+        </p>
+      </div>
+    );
+  }
+  return null;
+};
+
 const FeatureImportanceChart = ({ data = [], height = 300, className = '' }) => {
   const sortedData = [...data].sort((a, b) => b.value - a.value);
-
-  const CustomTooltip = ({ active, payload, label }) => {
-    if (active && payload && payload.length) {
-      return (
-        <div className="bg-slate-900/90 border border-blue-500/20 p-3 rounded-lg backdrop-blur-md shadow-xl">
-          <p className="text-white font-bold text-sm mb-1">{label}</p>
-          <p className="text-blue-400 text-xs">
-            Importance: <span className="font-mono">{(payload[0].value * 100).toFixed(1)}%</span>
-          </p>
-        </div>
-      );
-    }
-    return null;
-  };
 
   return (
     <div className={`feature-importance-container pro-card p-4 ${className}`} style={{ height }}>

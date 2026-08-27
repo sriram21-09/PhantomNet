@@ -9,6 +9,7 @@ export const RealTimeProvider = ({ children }) => {
     const [reconnectCount, setReconnectCount] = useState(0);
     const ws = useRef(null);
     const reconnectTimer = useRef(null);
+    const connectRef = useRef(null);
 
     const connect = useCallback(() => {
         const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
@@ -40,7 +41,9 @@ export const RealTimeProvider = ({ children }) => {
                 console.log('❌ Real-time WebSocket disconnected. Retrying...');
                 setIsConnected(false);
                 setReconnectCount(prev => prev + 1);
-                reconnectTimer.current = setTimeout(connect, 3000);
+                reconnectTimer.current = setTimeout(() => {
+                    if (connectRef.current) connectRef.current();
+                }, 3000);
             };
 
             ws.current.onerror = (err) => {
@@ -50,9 +53,15 @@ export const RealTimeProvider = ({ children }) => {
         } catch (err) {
             console.error('WebSocket connection failed:', err);
             setIsConnected(false);
-            reconnectTimer.current = setTimeout(connect, 3000);
+            reconnectTimer.current = setTimeout(() => {
+                if (connectRef.current) connectRef.current();
+            }, 3000);
         }
     }, []);
+
+    useEffect(() => {
+        connectRef.current = connect;
+    }, [connect]);
 
     useEffect(() => {
         connect();

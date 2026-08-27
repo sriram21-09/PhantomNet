@@ -489,17 +489,32 @@ const SentinelDashboard = () => {
     }
   };
 
-  const handleStatusChange = (newStatus) => {
+  const handleStatusChange = (targetIdOrStatus, possibleNewStatus) => {
+    let targetId = null;
+    let newStatus = "";
+
+    if (possibleNewStatus !== undefined) {
+      targetId = targetIdOrStatus;
+      newStatus = possibleNewStatus;
+    } else {
+      targetId = selectedPlaybook ? selectedPlaybook.id : null;
+      newStatus = targetIdOrStatus;
+    }
+
+    if (!targetId || !newStatus) return;
+
     // 1. Update playbooks list
     setPlaybooks((prev) =>
       prev.map((pb) =>
-        pb.id === selectedPlaybook.id ? { ...pb, status: newStatus } : pb
+        pb.id === targetId ? { ...pb, status: newStatus } : pb
       )
     );
+
     // 2. Update stats count
     setStats((prev) => {
       if (!prev) return prev;
-      const oldStatus = selectedPlaybook.status;
+      const targetPb = playbooks.find((p) => p.id === targetId) || (selectedPlaybook?.id === targetId ? selectedPlaybook : null);
+      const oldStatus = targetPb ? targetPb.status : "";
       const countsUpdate = { ...prev };
       
       const oldNorm = getNormalizedStatus(oldStatus);
@@ -516,9 +531,10 @@ const SentinelDashboard = () => {
       }
       return countsUpdate;
     });
+
     // 3. Update selectedPlaybook details status so modal re-renders
     setSelectedPlaybook((prev) =>
-      prev ? { ...prev, status: newStatus } : null
+      prev && prev.id === targetId ? { ...prev, status: newStatus } : prev
     );
   };
 

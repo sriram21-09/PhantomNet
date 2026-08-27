@@ -18,17 +18,17 @@ const formatLastSeen = (lastSeen) => {
     if (diffHours < 24) return `${diffHours}h ago`;
     if (diffDays < 7) return `${diffDays}d ago`;
     return lastSeenDate.toLocaleDateString();
-  } catch (err) {
+  } catch {
     return "Never";
   }
 };
 
-const HoneypotCard = ({ title, port, status, icon: Icon, description, lastSeen, packetCount }) => (
+const HoneypotCard = ({ title, port, status, icon: IconComponent, description, lastSeen, packetCount }) => (
   <div className={`honeypot-card ${status.toLowerCase()}`}>
     <div className="scan-line"></div>
     <div className="card-header">
       <div className="icon-box">
-        <Icon />
+        {IconComponent ? <IconComponent /> : null}
       </div>
       <div className="status-indicator">
         <div className="status-dot"></div>
@@ -62,7 +62,7 @@ const Honeypots = () => {
   useEffect(() => {
     const fetchHoneypotStatus = async () => {
       try {
-        const res = await fetch("http://localhost:8000/api/honeypots");
+        const res = await fetch("/api/honeypots");
         const data = await res.json();
 
         // Icon map
@@ -105,8 +105,8 @@ const Honeypots = () => {
 
           setHoneypots(mapped);
         }
-      } catch (err) {
-        console.error("Failed to load honeypots status:", err);
+      } catch {
+        console.error("Failed to load honeypots status");
       } finally {
         setIsLoading(false);
       }

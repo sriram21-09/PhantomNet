@@ -14,14 +14,13 @@ import "../Styles/pages/ThreatAnalysis.css";
 
 const API = "";
 
+const ALERT_ICONS = { high: FaSkull, medium: FaCrosshairs, low: FaUserSecret };
+
 const ThreatAnalysis = () => {
   const [summary, setSummary] = useState({ active: 0, high: 0, medium: 0, low: 0 });
   const [recentThreats, setRecentThreats] = useState([]);
   const [liveAlerts, setLiveAlerts] = useState([]);
-  const [loading, setLoading] = useState(true);
   const [lastUpdated, setLastUpdated] = useState(null);
-
-  const alertIcons = { high: FaSkull, medium: FaCrosshairs, low: FaUserSecret };
 
   const fetchThreatData = useCallback(async () => {
     try {
@@ -87,17 +86,15 @@ const ThreatAnalysis = () => {
           const severity = severityFromThreat(e.threat).toLowerCase();
           return {
             severity,
-            icon: alertIcons[severity] || FaWifi,
+            icon: ALERT_ICONS[severity] || FaWifi,
             message: `${(e.threat || "TRAFFIC").toUpperCase()}: ${e.type || "Activity"} from ${e.ip || "unknown"} — ${e.details || ""}`.trim(),
           };
         });
       if (alerts.length > 0) setLiveAlerts(alerts);
 
       setLastUpdated(new Date());
-      setLoading(false);
     } catch (err) {
       console.error("Threat fetch error:", err);
-      setLoading(false);
     }
   }, []);
 

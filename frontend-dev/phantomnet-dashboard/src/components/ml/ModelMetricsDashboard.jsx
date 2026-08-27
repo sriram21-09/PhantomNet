@@ -26,7 +26,7 @@ const ModelMetricsDashboard = () => {
   const [error, setError] = useState(null);
   const [isLive, setIsLive] = useState(true);
 
-  const fetchMLData = async () => {
+  const fetchMLData = useCallback(async () => {
     try {
       const baseUrl = '/api/v1/model';
       
@@ -64,9 +64,9 @@ const ModelMetricsDashboard = () => {
       console.error('ML API Error:', err);
       setError('Connection to ML Engine failed. Verify backend container is online.');
     } finally {
-      if (loading) setLoading(false);
+      setLoading((prev) => (prev ? false : prev));
     }
-  };
+  }, []);
 
   useEffect(() => {
     fetchMLData();
@@ -77,7 +77,7 @@ const ModelMetricsDashboard = () => {
     }
     
     return () => clearInterval(interval);
-  }, [isLive]);
+  }, [fetchMLData, isLive]);
 
   if (loading) {
     return (

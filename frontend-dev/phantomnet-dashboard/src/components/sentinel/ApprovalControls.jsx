@@ -156,12 +156,16 @@ const ApprovalControls = ({ playbookId, status, onStatusChange }) => {
     return `status-${status}`;
   };
 
-  const isPending = status === "pending";
   const isApproved = status === "approved" || status === "exported";
   const isRejected = status === "rejected";
 
   return (
     <div className="approval-controls-container hud-font">
+      {error && (
+        <div className="approval-error-banner" style={{ color: '#ef4444', fontSize: '0.8rem', marginBottom: '0.5rem' }}>
+          {error}
+        </div>
+      )}
       {/* ── Status Indicator ── */}
       <div className="approval-status-group">
         <span className="approval-status-label">CURRENT STATUS</span>

@@ -34,7 +34,6 @@ const ReportBuilder = () => {
     const [dateRange, setDateRange] = useState('24h');
     const [honeypotFilter, setHoneypotFilter] = useState('ALL');
     const [threatLevelFilter, setThreatLevelFilter] = useState('ALL');
-    const [protocolFilter, setProtocolFilter] = useState('ALL');
     const [includeSections, setIncludeSections] = useState(ALL_SECTIONS);
     const [reportTitle, setReportTitle] = useState('');
     const [loading, setLoading] = useState(false);

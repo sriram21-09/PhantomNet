@@ -18,8 +18,6 @@ const SentinelStatsPanel = ({ stats, loading }) => {
   const pending = stats?.pending || 0;
   const rejected = stats?.rejected || 0;
   const approvalRate = stats?.approval_rate !== undefined ? stats.approval_rate : 0;
-  const avgThreat = stats?.avg_threat_score || 0;
-  const avgConfidence = stats?.avg_confidence_score || 0;
 
   // 2. Summary Card configurations
   const summaryCards = [
@@ -109,8 +107,8 @@ const SentinelStatsPanel = ({ stats, loading }) => {
     const hasData = trends.length > 0;
 
     const rawData = trends;
-
-    const maxCount = Math.max(...rawData.map((d) => d.count), 4);
+    const counts = rawData.map((d) => Number(d.count) || 0);
+    const maxCount = counts.length > 0 ? Math.max(...counts, 4) : 4;
     const width = 500;
     const height = 200;
     const paddingLeft = 40;
@@ -122,12 +120,14 @@ const SentinelStatsPanel = ({ stats, loading }) => {
     const chartHeight = height - paddingTop - paddingBottom;
 
     const points = rawData.map((d, i) => {
-      const x = paddingLeft + (i / (rawData.length - 1 || 1)) * chartWidth;
-      const y = height - paddingBottom - (d.count / maxCount) * chartHeight;
+      const denom = (rawData.length - 1) > 0 ? (rawData.length - 1) : 1;
+      const x = paddingLeft + (i / denom) * chartWidth;
+      const cnt = Number(d.count) || 0;
+      const y = height - paddingBottom - (cnt / maxCount) * chartHeight;
 
       // Extract brief date string e.g. "2026-07-28" -> "07/28"
-      let dateLabel = d.date;
-      if (d.date && d.date.includes("-")) {
+      let dateLabel = d.date || "";
+      if (d.date && typeof d.date === "string" && d.date.includes("-")) {
         const parts = d.date.split("-");
         if (parts.length >= 3) {
           dateLabel = `${parts[1]}/${parts[2]}`;
@@ -139,15 +139,17 @@ const SentinelStatsPanel = ({ stats, loading }) => {
         y,
         date: d.date,
         label: dateLabel,
-        count: d.count,
+        count: cnt,
       };
     });
 
     // Construct line SVG path
-    const linePath = points.reduce(
-      (path, pt, i) => (i === 0 ? `M ${pt.x},${pt.y}` : `${path} L ${pt.x},${pt.y}`),
-      ""
-    );
+    const linePath = points.length > 0
+      ? points.reduce(
+          (path, pt, i) => (i === 0 ? `M ${pt.x},${pt.y}` : `${path} L ${pt.x},${pt.y}`),
+          ""
+        )
+      : "";
 
     // Construct area closed path
     const areaPath = points.length > 0

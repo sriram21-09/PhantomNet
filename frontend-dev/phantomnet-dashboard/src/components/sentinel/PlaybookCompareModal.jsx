@@ -56,8 +56,6 @@ export default function PlaybookCompareModal({
   playbook1: initialPb1 = null,
   playbook2: initialPb2 = null,
   onApprove,
-  onReject,
-  addToast,
 }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);

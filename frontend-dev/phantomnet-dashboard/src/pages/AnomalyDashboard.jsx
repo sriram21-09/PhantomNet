@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import "../Styles/anomaly-dashboard.css";
 import AnomalyAlerts from "../components/AnomalyAlerts";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   FaListAlt,
   FaExclamationCircle,
@@ -18,7 +18,7 @@ const AnomalyDashboard = () => {
     avgAnomalyScore: 0,
   });
 
-  const fetchSummary = async () => {
+  const fetchSummary = useCallback(async () => {
     try {
       const res = await fetch('/api/v1/alerts?limit=100');
       if (res.ok) {
@@ -31,7 +31,7 @@ const AnomalyDashboard = () => {
         
         let scoreSum = 0;
         alertsList.forEach(a => {
-          const l = a.level.toUpperCase();
+          const l = a.level ? a.level.toUpperCase() : '';
           if (l === 'CRITICAL') scoreSum += 92;
           else if (l === 'HIGH') scoreSum += 78;
           else if (l === 'MEDIUM') scoreSum += 55;
@@ -49,13 +49,13 @@ const AnomalyDashboard = () => {
     } catch (err) {
       console.error("Failed to fetch anomaly summary:", err);
     }
-  };
+  }, []);
 
   useEffect(() => {
     fetchSummary();
     const interval = setInterval(fetchSummary, 5000);
     return () => clearInterval(interval);
-  }, []);
+  }, [fetchSummary]);
 
   return (
     <div className="page-container anomaly-dashboard-wrapper">
