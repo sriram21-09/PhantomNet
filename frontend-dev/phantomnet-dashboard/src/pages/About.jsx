@@ -392,6 +392,12 @@ const PROJECT_MILESTONES = [
 ];
 
 /* ───────────────────── Component ───────────────────── */
+const PARTICLE_STYLES = Array.from({ length: 20 }, (_, i) => ({
+  left: `${((i * 37) % 95) + 2}%`,
+  animationDelay: `${((i * 13) % 50) / 10}s`,
+  animationDuration: `${6 + ((i * 7) % 80) / 10}s`,
+}));
+
 const About = () => {
   const [activeArch, setActiveArch] = useState(0);
   const [activePipeline, setActivePipeline] = useState(0);
@@ -421,15 +427,11 @@ const About = () => {
           <div className="hero-gradient"></div>
           <div className="hero-grid"></div>
           <div className="hero-particles">
-            {[...Array(20)].map((_, i) => (
+            {PARTICLE_STYLES.map((style, i) => (
               <span
                 key={i}
                 className="particle"
-                style={{
-                  left: `${Math.random() * 100}%`,
-                  animationDelay: `${Math.random() * 5}s`,
-                  animationDuration: `${6 + Math.random() * 8}s`,
-                }}
+                style={style}
               />
             ))}
           </div>

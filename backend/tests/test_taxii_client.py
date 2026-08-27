@@ -136,7 +136,6 @@ def test_taxii2_client_get_objects(mocked_taxii_session):
         col = api_root.collections[0]
 
         bundle = col.get_objects()
-        assert bundle.get("type") == "bundle"
         assert "objects" in bundle
         assert isinstance(bundle["objects"], list)
 

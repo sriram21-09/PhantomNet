@@ -1,7 +1,11 @@
 import fs from "fs"
 import path from "path"
+import { fileURLToPath } from "url"
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // Read API_PORT dynamically from the root .env file if it exists, fallback to 8000
 let apiPort = 8000;

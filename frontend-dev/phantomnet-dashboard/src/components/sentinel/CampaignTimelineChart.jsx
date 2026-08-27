@@ -153,13 +153,11 @@ export default function CampaignTimelineChart({
 }) {
   const [data, setData] = useState(timelineData || []);
   const [isLoading, setIsLoading] = useState(!timelineData || timelineData.length === 0);
-  const [error, setError] = useState(null);
   const [timeFilter, setTimeFilter] = useState("ALL");
 
   const fetchTimelineData = useCallback(async () => {
     try {
       setIsLoading(true);
-      setError(null);
       const res = await axios.get(`/api/sentinel/campaigns/${campaignId}/timeline`);
       if (res.data && res.data.timeline) {
         setData(res.data.timeline);

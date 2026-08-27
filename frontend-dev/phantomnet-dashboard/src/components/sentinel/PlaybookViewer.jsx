@@ -578,7 +578,8 @@ const MarkdownRenderer = ({
   // Keep expanded state in sync when a narrative gets generated
   useEffect(() => {
     if (llm_narrative) {
-      setIsLlmExpanded(true);
+      const timer = setTimeout(() => setIsLlmExpanded(true), 0);
+      return () => clearTimeout(timer);
     }
   }, [llm_narrative]);
 

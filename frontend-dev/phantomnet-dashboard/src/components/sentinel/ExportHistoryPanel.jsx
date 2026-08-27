@@ -20,7 +20,7 @@ const parseDetails = (details) => {
   if (typeof details === "object") return details;
   try {
     return JSON.parse(details);
-  } catch (e) {
+  } catch {
     return { raw: details };
   }
 };

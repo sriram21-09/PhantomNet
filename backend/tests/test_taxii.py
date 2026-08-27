@@ -67,7 +67,7 @@ def seeded_db():
             src_ip="192.168.1.100",
             threat_score=85.0,
             severity="HIGH",
-            playbook_name="SSH Brute Force Response",
+            playbook_name="TAXII-TEST-SSH Brute Force Response",
             playbook_content="## Playbook: SSH Brute Force\nBlock source IP.",
             created_at=datetime(2026, 3, 15, 10, 0, 0),
             updated_at=datetime(2026, 3, 15, 10, 0, 0),
@@ -456,7 +456,7 @@ class TestAddedAfterFiltering:
         # Only PB-002 (2026-06-20) should appear
         report_names = [r.get("name", "") for r in reports]
         has_002 = any("Web Exploit" in n or "PB-TEST-COMPREHENSIVE-002" in n for n in report_names)
-        has_001 = any("SSH Brute" in n or "PB-TEST-COMPREHENSIVE-001" in n for n in report_names)
+        has_001 = any("TAXII-TEST-SSH Brute" in n or "PB-TEST-COMPREHENSIVE-001" in n for n in report_names)
         assert has_002, "Expected PB-002 (after 2026-06-01) to be present"
         assert not has_001, "Expected PB-001 (before 2026-06-01) to be excluded"
 

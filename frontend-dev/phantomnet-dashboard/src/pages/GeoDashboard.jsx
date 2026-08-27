@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import AttackMap from '../components/AttackMap';
 import '../Styles/pages/GeoDashboard.css';
 import { FaChartBar, FaGlobeAmericas, FaFilter, FaHistory, FaDownload } from 'react-icons/fa';
@@ -44,9 +44,9 @@ const GeoDashboard = () => {
         }
     };
 
-    const fetchGeoData = async () => {
+    const fetchGeoData = useCallback(async () => {
         try {
-            const res = await fetch('http://localhost:8000/api/analytics/attack-map?limit=100');
+            const res = await fetch('/api/analytics/attack-map?limit=100');
             if (res.ok) {
                 const data = await res.json();
                 
@@ -85,13 +85,13 @@ const GeoDashboard = () => {
         } catch (err) {
             console.error("Failed to fetch geospatial analytics:", err);
         }
-    };
+    }, []);
 
     useEffect(() => {
         fetchGeoData();
         const interval = setInterval(fetchGeoData, 5000);
         return () => clearInterval(interval);
-    }, []);
+    }, [fetchGeoData]);
 
     return (
         <div className="geo-dashboard-wrapper dashboard-wrapper">

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Settings, Save, RotateCcw, CheckCircle, XCircle, Shield, Server, BarChart3, Cpu } from 'lucide-react';
-import { adminFetch } from '../../pages/AdminPanel';
+import { adminFetch } from '../../utils/adminFetch';
 
 const API_BASE = '/api/v1/admin';
 

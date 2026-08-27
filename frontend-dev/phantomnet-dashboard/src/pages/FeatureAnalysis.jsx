@@ -1,4 +1,4 @@
-import { useContext, useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import FeatureVector from "../components/FeatureVector";
 import ThreatIndicator from "../components/ThreatIndicator";
 import {
@@ -10,7 +10,6 @@ import { FaBrain, FaCheck, FaExclamationTriangle, FaSatelliteDish, FaSpinner } f
 import "../Styles/pages/FeatureAnalysis.css";
 
 const FeatureAnalysis = () => {
-  const { theme } = useContext(ThemeContext);
   const [mode, setMode] = useState("live"); // 'live', 'normal', 'anomalous'
   const [liveEvent, setLiveEvent] = useState(null);
   const [isFetching, setIsFetching] = useState(false);
