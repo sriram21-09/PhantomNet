@@ -545,9 +545,17 @@ class LLMService:
                     # Map attack_type to a plausible service_type
                     attack_map = {
                         "SSH_AUTH_FAILURE": "SSH",
+                        "SSH_HIGH_ACTIVITY": "SSH",
+                        "HTTP_SQL_INJECTION": "HTTP",
+                        "HTTP_XSS_ATTEMPT": "HTTP",
+                        "HTTP_PATH_TRAVERSAL": "HTTP",
                         "HTTP_SCANNER_BEHAVIOR": "HTTP",
                         "FTP_DATA_EXFILTRATION": "FTP",
                         "SMTP_LARGE_PAYLOAD": "SMTP",
+                        "DISTRIBUTED_BRUTE_FORCE": "SSH", # Commonly against SSH/HTTP
+                        "LOW_AND_SLOW_SCAN": "NETWORK",
+                        "MULTI_PROTOCOL_ATTACK": "NETWORK",
+                        "HIGH_FREQUENCY_ATTACK": "NETWORK",
                     }
                     enriched["service_type"] = attack_map.get(
                         str(enriched["attack_type"]).upper(), "UNKNOWN"

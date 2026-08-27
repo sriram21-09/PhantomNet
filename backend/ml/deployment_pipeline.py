@@ -15,7 +15,7 @@ from ml.config.mlflow_env import *
 # 🔒 Force consistent tracking store
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 MLRUNS_PATH = PROJECT_ROOT / "mlruns"
-mlflow.set_tracking_uri(f"file:///{MLRUNS_PATH}")
+mlflow.set_tracking_uri(TRACKING_URI)
 
 MODEL_NAME = "PhantomNet_Attack_Detector"
 MODEL_STAGE = "Staging"  # or "Production" later
