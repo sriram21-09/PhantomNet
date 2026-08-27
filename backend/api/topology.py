@@ -57,13 +57,16 @@ async def topology_ws_endpoint(websocket: WebSocket):
         edges = []
 
         for idx, hp in enumerate(honeypots):
-            hp_id = hp["name"].lower().replace(" ", "_")
+            hp_name = hp["name"] if isinstance(hp, dict) else getattr(hp, "name", "Honeypot")
+            hp_port = hp["port"] if isinstance(hp, dict) else getattr(hp, "port", 0)
+            hp_status = hp["status"] if isinstance(hp, dict) else getattr(hp, "status", "unknown")
+            hp_id = str(hp_name).lower().replace(" ", "_")
             nodes.append(
                 {
                     "id": hp_id,
                     "type": "honeypot",
                     "position": {"x": 200 + (idx * 200), "y": 250},
-                    "data": {"label": hp["name"], "port": hp["port"], "status": hp["status"]},
+                    "data": {"label": hp_name, "port": hp_port, "status": hp_status},
                 }
             )
             edges.append(

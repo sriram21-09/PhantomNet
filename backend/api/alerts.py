@@ -1,4 +1,5 @@
-from fastapi import APIRouter, Depends, HTTPException
+import logging
+from fastapi import APIRouter, Depends, HTTPException, Query, Path
 from sqlalchemy.orm import Session
 from sqlalchemy import func
 from typing import Optional, Dict, Any, List
@@ -7,6 +8,7 @@ from database.models import Alert
 from pydantic import BaseModel
 from datetime import datetime, timezone
 
+logger = logging.getLogger("api.alerts")
 router = APIRouter(prefix="/api/v1/alerts", tags=["Alerts"])
 
 class AlertResponse(BaseModel):
@@ -20,15 +22,15 @@ class AlertResponse(BaseModel):
     is_resolved: bool
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 @router.get("", response_model=Dict[str, Any])
 def list_alerts(
-    limit: int = 100,
-    offset: int = 0,
-    level: Optional[str] = None,
-    type: Optional[str] = None,
-    resolved: Optional[bool] = None,
+    limit: int = Query(100, ge=1, le=1000, description="Max alerts to return (1-1000)"),
+    offset: int = Query(0, ge=0, description="Pagination offset"),
+    level: Optional[str] = Query(None, max_length=50),
+    type: Optional[str] = Query(None, max_length=50),
+    resolved: Optional[bool] = Query(None),
     db: Session = Depends(get_db)
 ):
     """
@@ -38,9 +40,9 @@ def list_alerts(
         query = db.query(Alert)
         
         if level is not None and level != "ALL":
-            query = query.filter(Alert.level == level)
+            query = query.filter(Alert.level == level.strip().upper())
         if type is not None and type != "ALL":
-            query = query.filter(Alert.type == type)
+            query = query.filter(Alert.type == type.strip())
         if resolved is not None:
             query = query.filter(Alert.is_resolved == resolved)
             
@@ -68,10 +70,14 @@ def list_alerts(
             "alerts": formatted_alerts
         }
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to query alerts: {str(e)}")
+        logger.error("Failed to query alerts: %s", e)
+        raise HTTPException(status_code=500, detail="Failed to query security alerts.")
 
 @router.patch("/{alert_id}/resolve")
-def resolve_alert(alert_id: int, db: Session = Depends(get_db)):
+def resolve_alert(
+    alert_id: int = Path(..., ge=1, description="Alert ID to resolve"),
+    db: Session = Depends(get_db)
+):
     """
     Mark a security alert as resolved.
     """
@@ -85,4 +91,5 @@ def resolve_alert(alert_id: int, db: Session = Depends(get_db)):
         return {"status": "success", "message": f"Alert {alert_id} resolved"}
     except Exception as e:
         db.rollback()
-        raise HTTPException(status_code=500, detail=f"Failed to resolve alert: {str(e)}")
+        logger.error("Failed to resolve alert %d: %s", alert_id, e)
+        raise HTTPException(status_code=500, detail="Failed to resolve security alert.")

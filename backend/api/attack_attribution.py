@@ -1,4 +1,6 @@
-from fastapi import APIRouter, Depends
+import ipaddress
+import logging
+from fastapi import APIRouter, Depends, HTTPException, Path, Query
 from sqlalchemy.orm import Session
 from sqlalchemy import func, desc
 from database.database import get_db
@@ -6,6 +8,7 @@ from database.models import PacketLog
 from datetime import datetime, timedelta, timezone
 import random
 
+logger = logging.getLogger("api.attack_attribution")
 router = APIRouter(prefix="/api/v1/attribution", tags=["AttackAttribution"])
 
 
@@ -69,18 +72,27 @@ def _attack_progression(events):
 
 
 @router.get("/profile/{ip}")
-def get_attacker_profile(ip: str, db: Session = Depends(get_db)):
+def get_attacker_profile(
+    ip: str = Path(..., min_length=1, max_length=50, description="IP address to profile"),
+    db: Session = Depends(get_db)
+):
     """Full attacker profile for a given IP address."""
+    ip_clean = ip.strip()
+    try:
+        ipaddress.ip_address(ip_clean)
+    except ValueError:
+        raise HTTPException(status_code=400, detail=f"Invalid IP address format: {ip}")
+
     events = (
         db.query(PacketLog)
-        .filter(PacketLog.src_ip == ip)
+        .filter(PacketLog.src_ip == ip_clean)
         .order_by(PacketLog.timestamp.desc())
         .limit(200)
         .all()
     )
 
     if not events:
-        return {"status": "not_found", "ip": ip}
+        return {"status": "not_found", "ip": ip_clean}
 
     latest = events[0]
     oldest = events[-1]
@@ -100,7 +112,7 @@ def get_attacker_profile(ip: str, db: Session = Depends(get_db)):
 
     return {
         "status": "success",
-        "ip": ip,
+        "ip": ip_clean,
         "profile": {
             "sophistication": soph,
             "tools_detected": tools,
@@ -122,7 +134,10 @@ def get_attacker_profile(ip: str, db: Session = Depends(get_db)):
 
 
 @router.get("/top-attackers")
-def get_top_attackers(limit: int = 10, db: Session = Depends(get_db)):
+def get_top_attackers(
+    limit: int = Query(10, ge=1, le=100, description="Max top attackers to return"),
+    db: Session = Depends(get_db)
+):
     """Return top attackers ranked by event count and threat score."""
     since = datetime.utcnow() - timedelta(hours=24)
 

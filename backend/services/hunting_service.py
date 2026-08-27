@@ -13,6 +13,24 @@ import re
 import json
 
 
+ALLOWED_SEARCH_FIELDS = {
+    "id",
+    "timestamp",
+    "src_ip",
+    "dst_ip",
+    "src_port",
+    "dst_port",
+    "protocol",
+    "length",
+    "threat_score",
+    "threat_level",
+    "attack_type",
+    "is_malicious",
+    "country",
+    "city",
+}
+
+
 class HuntingService:
     def __init__(self, db: Session):
         self.db = db
@@ -78,7 +96,7 @@ class HuntingService:
         operator = cond.get("operator")
         value = cond.get("value")
 
-        if not hasattr(model, field_name):
+        if not field_name or field_name not in ALLOWED_SEARCH_FIELDS or not hasattr(model, field_name):
             return None
 
         column = getattr(model, field_name)

@@ -395,7 +395,7 @@ def list_playbooks(
         }
     except Exception as exc:
         logger.error("Failed to list playbooks: %s", exc)
-        raise HTTPException(status_code=500, detail=f"Failed to query playbooks: {str(exc)}")
+        raise HTTPException(status_code=500, detail="Failed to query playbooks.")
 
 
 # ---------------------------------------------------------------------------
@@ -489,7 +489,7 @@ def get_playbook(
         raise
     except Exception as exc:
         logger.error("Failed to retrieve playbook id=%d: %s", playbook_id, exc)
-        raise HTTPException(status_code=500, detail=f"Failed to retrieve playbook: {str(exc)}")
+        raise HTTPException(status_code=500, detail="Failed to retrieve playbook.")
 
 
 # ---------------------------------------------------------------------------
@@ -602,7 +602,7 @@ def get_sentinel_stats(
         }
     except Exception as exc:
         logger.error("Failed to compute sentinel stats: %s", exc)
-        raise HTTPException(status_code=500, detail=f"Failed to compute stats: {str(exc)}")
+        raise HTTPException(status_code=500, detail="Failed to compute Sentinel statistics.")
 
 
 # ---------------------------------------------------------------------------
@@ -632,7 +632,7 @@ def get_mitre_mappings() -> Dict[str, Any]:
         }
     except Exception as exc:
         logger.error("Failed to retrieve MITRE mappings: %s", exc)
-        raise HTTPException(status_code=500, detail=f"Failed to retrieve mappings: {str(exc)}")
+        raise HTTPException(status_code=500, detail="Failed to retrieve MITRE technique mappings.")
 
 
 # ---------------------------------------------------------------------------
@@ -715,7 +715,7 @@ def generate_playbook(
         }
     except Exception as exc:
         logger.error("Playbook generation failed: %s", exc)
-        raise HTTPException(status_code=500, detail=f"Playbook generation failed: {str(exc)}")
+        raise HTTPException(status_code=500, detail="Playbook generation failed due to an internal pipeline error.")
 
 
 # ---------------------------------------------------------------------------
@@ -794,7 +794,7 @@ def approve_playbook(
         logger.error("Failed to approve playbook id=%d: %s", playbook_id, exc)
         raise HTTPException(
             status_code=500,
-            detail=f"Failed to approve playbook: {str(exc)}",
+            detail="Failed to approve playbook due to a database error.",
         )
 
     return {
@@ -875,7 +875,7 @@ def reject_playbook(
         logger.error("Failed to reject playbook id=%d: %s", playbook_id, exc)
         raise HTTPException(
             status_code=500,
-            detail=f"Failed to reject playbook: {str(exc)}",
+            detail="Failed to reject playbook due to a database error.",
         )
 
     return {
@@ -956,7 +956,7 @@ def export_playbook(
         logger.error("Database error fetching playbook id=%d: %s", playbook_id, exc)
         raise HTTPException(
             status_code=500,
-            detail=f"Database error while retrieving playbook: {str(exc)}",
+            detail="Failed to retrieve playbook for export.",
         )
 
     if not row:
@@ -1001,7 +1001,7 @@ def export_playbook(
             )
             raise HTTPException(
                 status_code=500,
-                detail=f"PDF generation failed unexpectedly: {str(exc)}",
+                detail="PDF generation encountered an unexpected error.",
             )
 
         media_type = "application/pdf"
@@ -1164,7 +1164,7 @@ def export_playbook_pdf(
         )
         raise HTTPException(
             status_code=500,
-            detail=f"Database error while retrieving playbook: {str(exc)}",
+            detail="Failed to retrieve playbook for PDF generation.",
         )
 
     if not row:
@@ -1315,7 +1315,7 @@ def list_snort_rules(
         }
     except Exception as exc:
         logger.error("Failed to list Snort rules: %s", exc)
-        raise HTTPException(status_code=500, detail=f"Failed to query Snort rules: {str(exc)}")
+        raise HTTPException(status_code=500, detail="Failed to query Snort rules.")
 
 
 # ---------------------------------------------------------------------------
@@ -1389,7 +1389,7 @@ def list_sigma_rules(
         }
     except Exception as exc:
         logger.error("Failed to list Sigma rules: %s", exc)
-        raise HTTPException(status_code=500, detail=f"Failed to query Sigma rules: {str(exc)}")
+        raise HTTPException(status_code=500, detail="Failed to query Sigma rules.")
 
 
 # ---------------------------------------------------------------------------
@@ -1468,7 +1468,7 @@ async def regenerate_playbook_llm(
         logger.error("Failed to regenerate LLM summary: %s", exc)
         raise HTTPException(
             status_code=500,
-            detail=f"Failed to regenerate LLM summary: {str(exc)}"
+            detail="Failed to regenerate LLM summary.",
         )
 
 
@@ -1542,7 +1542,7 @@ def get_mitre_matrix(db: Session = Depends(get_db)) -> Dict[str, Any]:
         logger.error("Failed to build MITRE ATT&CK matrix: %s", exc, exc_info=True)
         raise HTTPException(
             status_code=500,
-            detail=f"Failed to fetch MITRE matrix data: {str(exc)}",
+            detail="Failed to fetch MITRE matrix data.",
         )
 
 
@@ -1755,7 +1755,7 @@ def regenerate_playbook(
         logger.error("Playbook regeneration failed for id=%d: %s", playbook_id, exc)
         raise HTTPException(
             status_code=500,
-            detail=f"Playbook regeneration failed: {str(exc)}",
+            detail="Playbook regeneration failed due to a pipeline error.",
         )
 
 
@@ -1830,7 +1830,7 @@ def get_playbook_versions(
         logger.error("Failed to retrieve version history for id=%d: %s", playbook_id, exc)
         raise HTTPException(
             status_code=500,
-            detail=f"Failed to retrieve version history: {str(exc)}",
+            detail="Failed to retrieve playbook version history.",
         )
 
 
@@ -1992,7 +1992,7 @@ def get_campaign_timeline(
         raise
     except Exception as exc:
         logger.error("Failed to fetch campaign timeline for %s: %s", campaign_id, exc)
-        raise HTTPException(status_code=500, detail=f"Failed to fetch campaign timeline: {str(exc)}")
+        raise HTTPException(status_code=500, detail="Failed to fetch campaign timeline data.")
 
 
 # ---------------------------------------------------------------------------
@@ -2054,6 +2054,7 @@ def get_v1_audit_logs(
     user: Optional[str] = Query(None, description="Filter by username"),
     playbook_id: Optional[str] = Query(None, description="Filter by playbook ID"),
     db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
 ) -> Dict[str, Any]:
     """
     GET /api/v1/sentinel/audit-logs - Compliance tracking endpoint for audit logs.
@@ -2065,6 +2066,7 @@ def get_v1_audit_logs(
         user=user,
         playbook_id=playbook_id,
         db=db,
+        current_user=current_user,
     )
 
 

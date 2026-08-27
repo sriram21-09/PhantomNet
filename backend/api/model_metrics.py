@@ -1,3 +1,4 @@
+import logging
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from sqlalchemy import func
@@ -7,6 +8,7 @@ import json
 from database.database import get_db
 from database.models import PacketLog
 
+logger = logging.getLogger("api.model_metrics")
 router = APIRouter(prefix="/api/v1/model", tags=["Model Metrics"])
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -35,11 +37,12 @@ def get_model_metrics():
             "timestamp": data.get("timestamp"),
             "best_f1_score": data.get("best_f1_score"),
             "best_params": data.get("best_params"),
-            "details": "For full history, check models/hyperparameter_results.json",
+            "details": "Model hyperparameter results summary",
         }
         return response
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error reading metrics: {str(e)}")
+        logger.error("Error reading model metrics: %s", e)
+        raise HTTPException(status_code=500, detail="Failed to load model metrics.")
 
 
 @router.get("/config")
@@ -55,7 +58,8 @@ def get_training_config():
             config = json.load(f)
         return config
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error reading config: {str(e)}")
+        logger.error("Error reading training config: %s", e)
+        raise HTTPException(status_code=500, detail="Failed to load training configuration.")
 
 
 @router.get("/stats")
