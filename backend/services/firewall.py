@@ -1,56 +1,113 @@
-import subprocess
+import ipaddress
+import logging
 import platform
-import re
+import subprocess
+
+logger = logging.getLogger("firewall_service")
 
 
 class FirewallService:
     @staticmethod
-    def block_ip(ip_address: str):
+    def block_ip(ip_address: str) -> dict:
         """
-        Executes a Windows 'netsh' command to block an IP via the Firewall.
+        Executes a platform-specific firewall command to block an IP address.
+        Supports Windows (netsh) and Linux (iptables).
         """
-        # Strict IP validation to prevent command injection
-        ip_pattern = r"^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$"
-        if not re.match(ip_pattern, ip_address):
+        ip_clean = ip_address.strip()
+        try:
+            ipaddress.ip_address(ip_clean)
+        except ValueError:
             return {"status": "error", "message": "Invalid IP address format."}
 
         system = platform.system()
-
-        # Simple check to ensure we are on Windows
-        if system != "Windows":
-            return {
-                "status": "error",
-                "message": "Active Defense only works on Windows.",
-            }
-
-        rule_name = f"PhantomNet_Block_{ip_address}"
-
-        # The Windows Command:
-        # netsh advfirewall firewall add rule name="..." dir=in action=block remoteip=...
-        command = [
-            "netsh",
-            "advfirewall",
-            "firewall",
-            "add",
-            "rule",
-            f"name={rule_name}",
-            "dir=in",
-            "action=block",
-            f"remoteip={ip_address}",
-        ]
+        rule_name = f"PhantomNet_Block_{ip_clean}"
 
         try:
-            # Run the command silently
-            subprocess.run(command, capture_output=True, text=True, check=True)
+            if system == "Windows":
+                command = [
+                    "netsh",
+                    "advfirewall",
+                    "firewall",
+                    "add",
+                    "rule",
+                    f"name={rule_name}",
+                    "dir=in",
+                    "action=block",
+                    f"remoteip={ip_clean}",
+                ]
+                subprocess.run(command, capture_output=True, text=True, check=True, timeout=10)
+            elif system == "Linux":
+                command = ["sudo", "iptables", "-A", "INPUT", "-s", ip_clean, "-j", "DROP"]
+                subprocess.run(command, capture_output=True, text=True, check=True, timeout=10)
+            else:
+                return {
+                    "status": "error",
+                    "message": f"Unsupported platform: {system}",
+                }
+
             return {
                 "status": "success",
-                "message": f"Target {ip_address} successfully neutralized.",
+                "message": f"Target {ip_clean} successfully neutralized.",
             }
         except subprocess.CalledProcessError as e:
-            # If it fails, usually means 'Run as Admin' is needed
+            logger.error("Firewall block error: %s", e.stderr)
             return {
                 "status": "error",
-                "message": f"Access Denied: Run terminal as Administrator. ({e.stderr})",
+                "message": f"Firewall command failed: Administrator / root privileges required. ({e.stderr.strip()})",
             }
+        except subprocess.TimeoutExpired:
+            return {"status": "error", "message": "Firewall command timed out."}
         except Exception as e:
+            logger.error("Unexpected error in FirewallService.block_ip: %s", e)
+            return {"status": "error", "message": str(e)}
+
+    @staticmethod
+    def unblock_ip(ip_address: str) -> dict:
+        """
+        Executes a platform-specific firewall command to unblock an IP address.
+        Supports Windows (netsh) and Linux (iptables).
+        """
+        ip_clean = ip_address.strip()
+        try:
+            ipaddress.ip_address(ip_clean)
+        except ValueError:
+            return {"status": "error", "message": "Invalid IP address format."}
+
+        system = platform.system()
+        rule_name = f"PhantomNet_Block_{ip_clean}"
+
+        try:
+            if system == "Windows":
+                command = [
+                    "netsh",
+                    "advfirewall",
+                    "firewall",
+                    "delete",
+                    "rule",
+                    f"name={rule_name}",
+                ]
+                subprocess.run(command, capture_output=True, text=True, check=True, timeout=10)
+            elif system == "Linux":
+                command = ["sudo", "iptables", "-D", "INPUT", "-s", ip_clean, "-j", "DROP"]
+                subprocess.run(command, capture_output=True, text=True, check=True, timeout=10)
+            else:
+                return {
+                    "status": "error",
+                    "message": f"Unsupported platform: {system}",
+                }
+
+            return {
+                "status": "success",
+                "message": f"Target {ip_clean} successfully unblocked.",
+            }
+        except subprocess.CalledProcessError as e:
+            logger.warning("Firewall unblock warning: %s", e.stderr)
+            return {
+                "status": "error",
+                "message": f"Firewall unblock command failed: ({e.stderr.strip()})",
+            }
+        except subprocess.TimeoutExpired:
+            return {"status": "error", "message": "Firewall unblock command timed out."}
+        except Exception as e:
+            logger.error("Unexpected error in FirewallService.unblock_ip: %s", e)
             return {"status": "error", "message": str(e)}

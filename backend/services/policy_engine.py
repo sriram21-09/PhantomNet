@@ -41,6 +41,9 @@ class PolicyEngine:
         )
         if node and node.policy_id:
             policy = self.db.query(Policy).filter(Policy.id == node.policy_id).first()
-            if policy:
-                return json.loads(policy.config)
+            if policy and policy.config:
+                try:
+                    return json.loads(policy.config)
+                except Exception:
+                    return {"raw_config": policy.config}
         return None

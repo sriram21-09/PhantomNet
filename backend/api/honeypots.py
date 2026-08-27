@@ -19,7 +19,7 @@ class HoneypotResponse(BaseModel):
     total_events: int
 
 
-def check_port_status(host: str, port: int, fallback_host: str = "localhost", timeout: float = 1.0) -> str:
+def check_port_status(host: str, port: int, fallback_host: str = "localhost", timeout: float = 0.2) -> str:
     """Checks if a port is open. Returns 'active' or 'inactive'."""
     try:
         with socket.create_connection((host, port), timeout=timeout):
