@@ -654,10 +654,16 @@ def get_collection_objects(
         if next_token is not None:
             query = query.offset(next_token)
 
-        # If a limit is provided, we limit the query. If not, use a default safe limit
+        # If a limit is provided, we fetch one extra to determine if there are more results
         safe_limit = limit if limit is not None else 100
         
-        playbooks = query.limit(safe_limit).all()
+        playbooks = query.limit(safe_limit + 1).all()
+        
+        more_results = len(playbooks) > safe_limit
+        if more_results:
+            playbooks = playbooks[:safe_limit]
+            
+
 
     except Exception as e:
         logger.error("Failed to query playbooks for collection objects: %s", e)
@@ -764,18 +770,28 @@ def get_collection_objects(
         }
         stix_objects.append(report_obj)
 
-    bundle = {
-        "type": "bundle",
-        "id": f"bundle--{uuid.uuid4()}",
-        "objects": stix_objects,
-    }
-
     res_ct = STIX_MEDIA_TYPE
     if accept and "application/taxii+json" in accept.lower() and "application/stix+json" not in accept.lower():
         res_ct = TAXII_MEDIA_TYPE
 
+    if res_ct == TAXII_MEDIA_TYPE:
+        next_token_out = (next_token or 0) + safe_limit if more_results else None
+        response_content = {
+            "more": more_results,
+            "next": str(next_token_out) if next_token_out is not None else None,
+            "objects": stix_objects,
+        }
+        # Filter out None values
+        response_content = {k: v for k, v in response_content.items() if v is not None}
+    else:
+        response_content = {
+            "type": "bundle",
+            "id": f"bundle--{uuid.uuid4()}",
+            "objects": stix_objects,
+        }
+
     return JSONResponse(
-        content=bundle,
+        content=response_content,
         status_code=200,
         headers={"Content-Type": res_ct},
     )
