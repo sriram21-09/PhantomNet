@@ -112,6 +112,16 @@ def upgrade_db_schema(engine):
 
             if "sentinel_playbooks" in tables:
                 sp_columns = [c["name"] for c in inspector.get_columns("sentinel_playbooks")]
+                if "version" not in sp_columns:
+                    conn.execute(text("ALTER TABLE sentinel_playbooks ADD COLUMN version INTEGER NOT NULL DEFAULT 1"))
+                if "parent_id" not in sp_columns:
+                    conn.execute(text("ALTER TABLE sentinel_playbooks ADD COLUMN parent_id INTEGER"))
+                if "is_latest" not in sp_columns:
+                    conn.execute(text("ALTER TABLE sentinel_playbooks ADD COLUMN is_latest BOOLEAN NOT NULL DEFAULT TRUE"))
+                if "regeneration_reason" not in sp_columns:
+                    conn.execute(text("ALTER TABLE sentinel_playbooks ADD COLUMN regeneration_reason VARCHAR(512)"))
+                if "quality_score" not in sp_columns:
+                    conn.execute(text("ALTER TABLE sentinel_playbooks ADD COLUMN quality_score FLOAT"))
                 if "llm_narrative" not in sp_columns:
                     conn.execute(text("ALTER TABLE sentinel_playbooks ADD COLUMN llm_narrative TEXT"))
                     logger.info("✅ Database schema migration: added llm_narrative to sentinel_playbooks")
@@ -119,7 +129,7 @@ def upgrade_db_schema(engine):
             if "system_config" in tables:
                 sc_columns = [c["name"] for c in inspector.get_columns("system_config")]
                 if "sentinel_llm_enabled" not in sc_columns:
-                    conn.execute(text("ALTER TABLE system_config ADD COLUMN sentinel_llm_enabled BOOLEAN DEFAULT 0"))
+                    conn.execute(text("ALTER TABLE system_config ADD COLUMN sentinel_llm_enabled BOOLEAN DEFAULT FALSE"))
                     logger.info("✅ Database schema migration: added sentinel_llm_enabled to system_config")
             conn.commit()
     except Exception as e:

@@ -152,17 +152,30 @@ def score_threat(input_data: ThreatInput) -> ThreatResponse:
     # 3. Predict
     # predict_proba returns [prob_benign, prob_malicious]
     try:
+        # Align features if model expects fewer/different feature count
+        X_input = feature_vector
+        if hasattr(model, "n_features_in_") and model.n_features_in_ is not None:
+            if hasattr(model, "feature_names_in_") and model.feature_names_in_ is not None:
+                avail_cols = [c for c in model.feature_names_in_ if c in feature_vector.columns]
+                if len(avail_cols) == model.n_features_in_:
+                    X_input = feature_vector[avail_cols]
+                else:
+                    X_input = feature_vector.iloc[:, :model.n_features_in_].values
+            else:
+                X_input = feature_vector.iloc[:, :model.n_features_in_].values
+
         # Check for predict_proba (Standard Classifiers)
         if hasattr(model, "predict_proba"):
-            probabilities = model.predict_proba(feature_vector)
+            probabilities = model.predict_proba(X_input)
             malicious_prob = probabilities[0][1]
             score = malicious_prob # 0.0 - 1.0
             confidence = max(probabilities[0])
 
         # Check for Isolation Forest / One-Class SVM (predict returns -1 for anomaly)
         elif hasattr(model, "predict"):
-            # Use .values to strip feature names and avoid sklearn warning
-            pred = model.predict(feature_vector.values)[0]
+            # Use .values or ndarray to strip feature names and avoid sklearn warning
+            arr = X_input if not hasattr(X_input, "values") else X_input.values
+            pred = model.predict(arr)[0]
             # IsolationForest: -1 = Anomaly, 1 = Normal
             if pred == -1:
                 score = 0.85  # High threat (generic for anomaly)
@@ -264,14 +277,27 @@ def score_threat_batch(inputs: List[ThreatInput]) -> List[ThreatResponse]:
 
     # 3. Predict Batch
     try:
+        # Align features if model expects fewer/different feature count
+        X_matrix = feature_matrix
+        if hasattr(model, "n_features_in_") and model.n_features_in_ is not None:
+            if hasattr(model, "feature_names_in_") and model.feature_names_in_ is not None:
+                avail_cols = [c for c in model.feature_names_in_ if c in feature_matrix.columns]
+                if len(avail_cols) == model.n_features_in_:
+                    X_matrix = feature_matrix[avail_cols]
+                else:
+                    X_matrix = feature_matrix.iloc[:, :model.n_features_in_].values
+            else:
+                X_matrix = feature_matrix.iloc[:, :model.n_features_in_].values
+
         if hasattr(model, "predict_proba"):
-            probabilities = model.predict_proba(feature_matrix)
+            probabilities = model.predict_proba(X_matrix)
             malicious_probs = [p[1] for p in probabilities]
             confidences = [max(p) for p in probabilities]
             scores = [p for p in malicious_probs] # 0.0 - 1.0
 
         elif hasattr(model, "predict"):
-            preds = model.predict(feature_matrix.values)
+            arr = X_matrix if not hasattr(X_matrix, "values") else X_matrix.values
+            preds = model.predict(arr)
             scores = [0.85 if p == -1 else 0.10 for p in preds]
             confidences = [0.85 if p == -1 else 0.90 for p in preds]
         else:

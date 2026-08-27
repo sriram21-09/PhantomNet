@@ -95,8 +95,9 @@ class FeatureExtractor:
         return protocol_map.get(event.get("protocol"), 0)
 
     def source_ip_event_rate(self, src_ip: str, now: datetime) -> float:
+        now = self._parse_timestamp(now)
         window_start = now - timedelta(seconds=self.window_seconds)
-        recent = [ts for ts in self.ip_event_timestamps[src_ip] if ts >= window_start]
+        recent = [ts for ts in self.ip_event_timestamps[src_ip] if self._parse_timestamp(ts) >= window_start]
         return len(recent) * (60 / self.window_seconds)
 
     def destination_port_class(self, event: dict) -> int:
@@ -119,12 +120,13 @@ class FeatureExtractor:
         return max(attacks.count(a) for a in set(attacks)) if attacks else 0
 
     def time_of_day_deviation(self, timestamp: datetime) -> int:
-        hour = timestamp.hour
+        hour = self._parse_timestamp(timestamp).hour
         return int(hour < 6 or hour > 22)
 
     def burst_rate(self, src_ip: str, now: datetime) -> float:
+        now = self._parse_timestamp(now)
         window_start = now - timedelta(seconds=10)
-        recent = [ts for ts in self.ip_event_timestamps[src_ip] if ts >= window_start]
+        recent = [ts for ts in self.ip_event_timestamps[src_ip] if self._parse_timestamp(ts) >= window_start]
         return float(len(recent))
 
     def packet_size_variance(self, src_ip: str) -> float:
@@ -135,8 +137,11 @@ class FeatureExtractor:
         return len(self.ip_honeypots[src_ip])
 
     def session_duration_estimate(self, src_ip: str) -> float:
-        ts = self.ip_event_timestamps[src_ip]
-        return (max(ts) - min(ts)).total_seconds() if len(ts) >= 2 else 0.0
+        raw_ts = self.ip_event_timestamps[src_ip]
+        if len(raw_ts) < 2:
+            return 0.0
+        ts = [self._parse_timestamp(t) for t in raw_ts]
+        return (max(ts) - min(ts)).total_seconds()
 
     def unique_destination_count(self, src_ip: str) -> int:
         return len(self.ip_destinations[src_ip])
@@ -163,7 +168,7 @@ class FeatureExtractor:
     def _parse_timestamp(self, ts) -> datetime:
         """
         Robust timestamp parser.
-        Never crashes the pipeline.
+        Never crashes the pipeline and guarantees timezone-aware UTC datetime.
         """
         if ts is None:
             return datetime.now(timezone.utc)
@@ -177,7 +182,8 @@ class FeatureExtractor:
                 return datetime.now(timezone.utc)
             try:
                 ts = ts.replace("Z", "+00:00")
-                return datetime.fromisoformat(ts)
+                dt = datetime.fromisoformat(ts)
+                return dt if dt.tzinfo else dt.replace(tzinfo=timezone.utc)
             except Exception:
                 return datetime.now(timezone.utc)
 

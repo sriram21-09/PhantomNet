@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Activity, Brain, Target, BarChart3, Info } from 'lucide-react';
 import ThreatScoreBadge from './ThreatScoreBadge';
 import FeatureImportanceChart from './FeatureImportanceChart';
@@ -79,12 +79,12 @@ const ModelMetricsDashboard = () => {
     return () => clearInterval(interval);
   }, [fetchMLData, isLive]);
 
-  if (loading) {
+  if (loading || !data) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
         <div className="flex flex-col items-center gap-4">
           <Brain className="w-12 h-12 text-blue-500 animate-bounce" />
-          <p className="hud-font text-blue-400 animate-pulse">Initializing ML Engine...</p>
+          <p className="hud-font text-blue-400 animate-pulse">{error || 'Initializing ML Engine...'}</p>
         </div>
       </div>
     );
