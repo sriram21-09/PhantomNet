@@ -154,15 +154,17 @@ def score_threat(input_data: ThreatInput) -> ThreatResponse:
     try:
         # Align features if model expects fewer/different feature count
         X_input = feature_vector
-        if hasattr(model, "n_features_in_") and model.n_features_in_ is not None:
-            if hasattr(model, "feature_names_in_") and model.feature_names_in_ is not None:
-                avail_cols = [c for c in model.feature_names_in_ if c in feature_vector.columns]
-                if len(avail_cols) == model.n_features_in_:
+        if hasattr(model, "n_features_in_") and isinstance(getattr(model, "n_features_in_", None), int):
+            n_feat = model.n_features_in_
+            feat_names = getattr(model, "feature_names_in_", None)
+            if feat_names is not None and hasattr(feat_names, "__iter__") and not isinstance(feat_names, (str, bytes)):
+                avail_cols = [c for c in feat_names if c in feature_vector.columns]
+                if len(avail_cols) == n_feat:
                     X_input = feature_vector[avail_cols]
                 else:
-                    X_input = feature_vector.iloc[:, :model.n_features_in_].values
+                    X_input = feature_vector.iloc[:, :n_feat].values
             else:
-                X_input = feature_vector.iloc[:, :model.n_features_in_].values
+                X_input = feature_vector.iloc[:, :n_feat].values
 
         # Check for predict_proba (Standard Classifiers)
         if hasattr(model, "predict_proba"):
@@ -279,15 +281,17 @@ def score_threat_batch(inputs: List[ThreatInput]) -> List[ThreatResponse]:
     try:
         # Align features if model expects fewer/different feature count
         X_matrix = feature_matrix
-        if hasattr(model, "n_features_in_") and model.n_features_in_ is not None:
-            if hasattr(model, "feature_names_in_") and model.feature_names_in_ is not None:
-                avail_cols = [c for c in model.feature_names_in_ if c in feature_matrix.columns]
-                if len(avail_cols) == model.n_features_in_:
+        if hasattr(model, "n_features_in_") and isinstance(getattr(model, "n_features_in_", None), int):
+            n_feat = model.n_features_in_
+            feat_names = getattr(model, "feature_names_in_", None)
+            if feat_names is not None and hasattr(feat_names, "__iter__") and not isinstance(feat_names, (str, bytes)):
+                avail_cols = [c for c in feat_names if c in feature_matrix.columns]
+                if len(avail_cols) == n_feat:
                     X_matrix = feature_matrix[avail_cols]
                 else:
-                    X_matrix = feature_matrix.iloc[:, :model.n_features_in_].values
+                    X_matrix = feature_matrix.iloc[:, :n_feat].values
             else:
-                X_matrix = feature_matrix.iloc[:, :model.n_features_in_].values
+                X_matrix = feature_matrix.iloc[:, :n_feat].values
 
         if hasattr(model, "predict_proba"):
             probabilities = model.predict_proba(X_matrix)
