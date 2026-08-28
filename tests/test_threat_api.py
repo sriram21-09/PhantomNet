@@ -21,6 +21,8 @@ def get_valid_payload():
 @pytest.fixture
 def mock_model():
     """Mocks the ML model loader to return a mock sklearn model"""
+    from backend.ml.threat_scoring_service import _LOCAL_PRED_CACHE
+    _LOCAL_PRED_CACHE.clear()
     with patch("ml.model_loader.load_model") as mock_load, \
          patch("ml.model_loader.get_model") as mock_get:
         mock_sklearn = MagicMock()
@@ -34,6 +36,8 @@ def mock_model():
 @pytest.fixture
 def mock_model_benign():
     """Mocks the ML model for benign traffic"""
+    from backend.ml.threat_scoring_service import _LOCAL_PRED_CACHE
+    _LOCAL_PRED_CACHE.clear()
     with patch("ml.model_loader.load_model") as mock_load, \
          patch("ml.model_loader.get_model") as mock_get:
         mock_sklearn = MagicMock()
