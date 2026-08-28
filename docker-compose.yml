@@ -42,7 +42,8 @@ services:
       - app_net
       - honeypot_net
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
     deploy:
       resources:
         limits:
@@ -69,7 +70,8 @@ services:
       - app_net
       - honeypot_net
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
     deploy:
       resources:
         limits:
@@ -97,7 +99,8 @@ services:
       - app_net
       - honeypot_net
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
     deploy:
       resources:
         limits:
@@ -124,7 +127,8 @@ services:
       - app_net
       - honeypot_net
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
     deploy:
       resources:
         limits:
@@ -172,8 +176,10 @@ services:
       - app_net
       - honeypot_net
     depends_on:
-      - postgres
-      - ollama
+      postgres:
+        condition: service_healthy
+      ollama:
+        condition: service_started
     deploy:
       resources:
         limits:
