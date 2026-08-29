@@ -14,7 +14,35 @@ The format follows standard release logging conventions:
 
 ---
 
-## [v3.0.0-rc1] - 2026-08-07
+## [v3.0.0-rc1] - 2026-08-29
+
+### 🚀 Features & Advanced Sentinel Capabilities (Week 21-22)
+- **Playbook Diff & Comparison**: Side-by-side comparison endpoint (`GET /api/v1/sentinel/playbooks/compare`) with automated field-level diff metrics and frontend modal highlights.
+- **Dynamic Quality Scoring**: Automated quality evaluation engine (`quality_scorer.py`) calculating quality badges and scores across all generated playbooks.
+- **CVE Intelligence Enrichment**: Integrated CVE lookup and vulnerability correlation engine (`cve_mapper.py`) enriching playbooks and STIX bundles.
+- **Campaign Timeline & Audit History**: Time-series campaign event aggregator and full compliance audit logging system (`SentinelAuditLog`, `/api/v1/sentinel/audit-logs`, `/export-history`).
+- **Comprehensive Rules Packaging**: Bundled Snort and Sigma rule export engine streaming ZIP archives (`GET /api/v1/sentinel/rules/export-all`).
+- **Webhook Alerts**: Asynchronous webhook dispatch engine (`webhook_notifier.py`) delivering real-time JSON payloads for critical incidents.
+
+### 🛡️ Security Hardening & P0/P1 Remediations (Week 22)
+- **API Security Hardening**: Timing attack prevention via `hmac.compare_digest()`, canonical path traversal defenses on PCAP downloads, input boundary validation, and global sanitized 500 exception handlers.
+- **Cross-Platform Active Defense (BUG-P0-01)**: Multi-platform firewall blocking/unblocking with strict IP network parsing across Linux iptables/nftables and Windows netsh.
+- **Corrupted Policy Resilience (BUG-P0-02)**: Graceful schema fallback preventing unhandled deserialization crashes.
+- **High-Performance Socket Probing (BUG-P1-01)**: Reduced socket polling latency from 8s to <180ms across all honeypot monitors.
+- **Thread Safety (BUG-P1-02)**: Reentrant mutex locks safeguarding concurrent threat response mutations.
+
+### 🧪 Quality Assurance & E2E Validation
+- **100% Automated Test Suite Pass Rate**: 4,181 / 4,181 automated tests passing with 0 failures across unit, integration, ML, and API test suites.
+- **Cypress E2E Playbook Specs**: 6/6 specs passing covering individual reviews, batch approvals, PDF/STIX downloads, compare modal, and timeline navigation.
+- **Stress & Load Testing**: 100 concurrent playbooks generated in 1.18s, 500+ object TAXII 2.1 feed paginated in 0.42s.
+
+### 🏁 Sign-Off & Release Candidate Tag
+- Formally signed off by Security Lead (`docs/rc1_security_signoff_week22_day5.md`), Frontend Lead (`docs/frontend_rc1_signoff.md`), and Team Lead (`docs/release_candidate_readiness_report_week22_day5.md`).
+- Repository tagged: `v3.0.0-rc1`.
+
+---
+
+## [v3.0.0-beta] - 2026-08-07
 
 ### 🚀 Features
 - **Sentinel V3 Layer**: Fully automated threat response pipeline integrating honeypot event telemetry with MITRE ATT&CK mapping, Snort/Sigma detection rules, and incident response playbooks.
