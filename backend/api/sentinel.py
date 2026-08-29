@@ -60,7 +60,7 @@ from sentinel.mitre_mapper import get_all_techniques
 # pyrefly: ignore [missing-import]
 from sentinel.sentinel_service import SentinelService
 
-from middleware.auth import get_current_user, require_role
+from middleware.auth import get_current_user, get_optional_current_user, require_role
 from database.models import User
 from middleware.rate_limit import rate_limit_dependency
 from api.rate_limiter import check_rate_limit
@@ -251,10 +251,6 @@ def _serialize_playbook_summary(row: SentinelPlaybook) -> Dict[str, Any]:
         "status": row.status,
         "created_at": row.created_at.isoformat() if row.created_at else None,
         "updated_at": row.updated_at.isoformat() if row.updated_at else None,
-        # Playbook details for instant viewer rendering
-        "playbook_content": row.playbook_content,
-        "snort_rule": row.snort_rule,
-        "sigma_rule": row.sigma_rule,
         # Version tracking
         "version": row.version,
         "parent_id": row.parent_id,
@@ -2011,6 +2007,7 @@ def get_audit_logs(
     user: Optional[str] = Query(None, description="Filter by username or service name"),
     playbook_id: Optional[str] = Query(None, description="Filter by associated playbook ID or DB integer ID"),
     db: Session = Depends(get_db),
+    current_user: Optional[User] = Depends(get_optional_current_user),
 ) -> Dict[str, Any]:
     """
     Retrieve audit activity logs for analyst actions and compliance tracking.
