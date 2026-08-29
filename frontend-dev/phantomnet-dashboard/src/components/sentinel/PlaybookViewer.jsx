@@ -633,13 +633,20 @@ const MarkdownRenderer = ({
               <FaRobot className="llm-icon" />
             </div>
             <span className="llm-title-text">AI Threat Summary</span>
-            <span className="ai-enhanced-badge">
-              <span className="badge-glowing-dot"></span>
-              <FaMagic className="badge-magic-icon" />
-              <span>AI-Enhanced Narrative</span>
-              <span className="badge-model-divider">│</span>
-              <span className="badge-model-name">{llmModel}</span>
-            </span>
+            {llm_narrative && llm_narrative.includes("(Local Fallback)") ? (
+              <span className="ai-offline-badge" style={{ display: 'inline-flex', alignItems: 'center', backgroundColor: 'rgba(255, 59, 48, 0.1)', color: '#ff3b30', padding: '4px 8px', borderRadius: '4px', fontSize: '11px', fontWeight: 'bold', marginLeft: '12px', border: '1px solid rgba(255,59,48,0.2)' }}>
+                <FaRobot className="badge-magic-icon" style={{ marginRight: '6px' }} />
+                <span>AI Offline - Local Fallback</span>
+              </span>
+            ) : (
+              <span className="ai-enhanced-badge">
+                <span className="badge-glowing-dot"></span>
+                <FaMagic className="badge-magic-icon" />
+                <span>AI-Enhanced Narrative</span>
+                <span className="badge-model-divider">│</span>
+                <span className="badge-model-name">{llmModel}</span>
+              </span>
+            )}
             <span className="llm-chevron-toggle">
               {isLlmExpanded ? <FaChevronUp /> : <FaChevronDown />}
             </span>
