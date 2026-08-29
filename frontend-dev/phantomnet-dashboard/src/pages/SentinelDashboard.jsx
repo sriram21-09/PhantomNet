@@ -244,36 +244,34 @@ const SentinelDashboard = () => {
       if (technique && technique !== "all") url += `&technique_id=${technique}`;
       if (search && search.trim()) url += `&q=${encodeURIComponent(search.trim())}`;
 
-      const playbooksRes = await fetch(url);
-      const playbooksData = await playbooksRes.json();
-      if (!playbooksRes.ok) {
-        throw new Error(playbooksData.detail || "Failed to load playbooks from server");
-      }
-      setPlaybooks(playbooksData.playbooks || []);
-      setTotalCount(playbooksData.total || 0);
+      const [playbooksRes, statsRes, techRes, mRes] = await Promise.all([
+        fetch(url).catch(() => null),
+        fetch("/api/sentinel/stats").catch(() => null),
+        fetch("/api/sentinel/mitre/mapping").catch(() => null),
+        fetch("/api/sentinel/mitre/matrix").catch(() => null),
+      ]);
 
-      // 2. Fetch stats
-      try {
-        const statsRes = await fetch("/api/sentinel/stats");
+      if (playbooksRes && playbooksRes.ok) {
+        const playbooksData = await playbooksRes.json();
+        setPlaybooks(playbooksData.playbooks || []);
+        setTotalCount(playbooksData.total || 0);
+      }
+
+      if (statsRes && statsRes.ok) {
         const statsData = await statsRes.json();
-        if (statsRes.ok && statsData.status === "success") {
+        if (statsData.status === "success") {
           setStats(statsData);
         }
-      } catch (statsErr) {
-        console.warn("Could not fetch Sentinel stats:", statsErr);
       }
 
-      // 3. Fetch MITRE mappings dynamically
-      try {
-        const techRes = await fetch("/api/sentinel/mitre/mapping");
+      if (techRes && techRes.ok) {
         const techData = await techRes.json();
-        if (techRes.ok && techData.status === "success" && techData.mappings) {
+        if (techData.status === "success" && techData.mappings) {
           const mapped = techData.mappings.map((m) => ({
             techniqueId: m.technique_id,
             techniqueName: m.technique_name,
             tactic: m.tactic,
           }));
-          // Dedup
           const unique = Array.from(
             new Map(mapped.map((item) => [item.techniqueId, item])).values()
           );
@@ -281,47 +279,34 @@ const SentinelDashboard = () => {
             setTechniques(unique);
           }
         }
-      } catch (techErr) {
-        console.warn("Could not fetch MITRE mappings dynamically, using fallback:", techErr);
       }
 
-      // 4. Fetch LLM pipeline status
-      try {
-        const llmRes = await fetch("/api/sentinel/llm/status");
-        const llmData = await llmRes.json();
-        if (llmRes.ok && llmData.status === "success") {
+      if (mRes && mRes.ok) {
+        const mData = await mRes.json();
+        setMatrixData(mData.matrix || mData);
+      }
+    } catch (err) {
+      console.error("Dashboard connection error:", err);
+      setError(err.message || "Failed to connect to the Sentinel Security Service");
+    } finally {
+      setLoading(false);
+      setMatrixLoading(false);
+    }
+
+    // Fetch LLM status asynchronously (non-blocking)
+    fetch("/api/sentinel/llm/status")
+      .then((res) => res.json())
+      .then((llmData) => {
+        if (llmData && llmData.status === "success") {
           setAiStatus(llmData.llm_status || "offline");
         } else {
           setAiStatus("offline");
         }
-      } catch (llmErr) {
+      })
+      .catch((llmErr) => {
         console.warn("Could not fetch Sentinel LLM status:", llmErr);
         setAiStatus("offline");
-      }
-
-      // 5. Fetch MITRE ATT&CK Matrix Data
-      try {
-        const mRes = await fetch("/api/sentinel/mitre/matrix");
-        const mData = await mRes.json();
-        if (mRes.ok) {
-          setMatrixData(mData);
-        }
-      } catch (mErr) {
-        console.warn("Could not fetch MITRE ATT&CK Matrix data:", mErr);
-      }
-
-    } catch (err) {
-      console.error("Dashboard connection error:", err);
-      setError(err.message || "Failed to connect to the Sentinel Security Service");
-      addToast({
-        type: "error",
-        title: "Connection Failed",
-        message: err.message || "Failed to connect to the Sentinel Security Service",
-        duration: 6000,
       });
-    } finally {
-      setLoading(false);
-    }
   };
 
   useEffect(() => {
@@ -454,15 +439,10 @@ const SentinelDashboard = () => {
 
 
   const handleCardClick = async (pb) => {
-    // Open immediately with summary props to provide instant response
-    setSelectedPlaybook({
-      ...pb,
-      playbook_content: "",
-      snort_rule: "",
-      sigma_rule: "",
-    });
+    // Open immediately with summary props & existing content to provide instant response
+    setSelectedPlaybook(pb);
     setIsViewerOpen(true);
-    setLoadingDetails(true);
+    setLoadingDetails(!pb.playbook_content);
 
     try {
       const response = await fetch(`/api/sentinel/playbooks/${pb.id}`);
@@ -1064,7 +1044,7 @@ const SentinelDashboard = () => {
             <h2 className="sentinel-section-title">Playbook Export Audit Trail &amp; History</h2>
             <span className="sentinel-section-count hud-font">DOWNLOAD LOGS</span>
           </div>
-          <ExportHistoryPanel />
+          <ExportHistoryPanel playbookId={1} />
         </div>
       )}
 

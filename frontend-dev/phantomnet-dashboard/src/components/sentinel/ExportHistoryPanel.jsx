@@ -100,20 +100,23 @@ export default function ExportHistoryPanel({
   const [downloadingId, setDownloadingId] = useState(null);
 
   const fetchExportHistory = useCallback(async () => {
-    if (!playbookId) return;
     setLoading(true);
     setError(null);
     try {
-      // Primary route: GET /api/sentinel/playbooks/{id}/export-history
-      const res = await fetch(`/api/sentinel/playbooks/${playbookId}/export-history`);
+      // Primary route: GET /api/sentinel/playbooks/{id}/export-history OR global audit-logs
+      const url = playbookId
+        ? `/api/sentinel/playbooks/${playbookId}/export-history`
+        : `/api/sentinel/audit-logs?action=export`;
+      const res = await fetch(url);
       if (res.ok) {
         const data = await res.json();
         setLogs(data.export_history || data.logs || []);
       } else {
-        // Fallback: GET /api/sentinel/audit-logs?playbook_id={id}&action=export
-        const fallbackRes = await fetch(
-          `/api/sentinel/audit-logs?playbook_id=${playbookId}&action=export`
-        );
+        // Fallback: GET /api/sentinel/audit-logs
+        const fallbackUrl = playbookId
+          ? `/api/sentinel/audit-logs?playbook_id=${playbookId}&action=export`
+          : `/api/sentinel/audit-logs`;
+        const fallbackRes = await fetch(fallbackUrl);
         if (fallbackRes.ok) {
           const fallbackData = await fallbackRes.json();
           setLogs(fallbackData.logs || []);
