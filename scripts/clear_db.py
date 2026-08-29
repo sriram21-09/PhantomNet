@@ -1,56 +1,64 @@
-import sqlite3
 import os
-import shutil
+import sys
 
-PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-DB_PATH = os.path.join(PROJECT_ROOT, "phantomnet.db")
-BACKUP_PATH = os.path.join(PROJECT_ROOT, "phantomnet_backup.db")
+# Windows UTF-8 console output fix
+if sys.platform == "win32":
+    try:
+        sys.stdout.reconfigure(encoding="utf-8")
+    except Exception:
+        pass
 
-def backup_and_clear_db():
-    print(f"Checking database at: {DB_PATH}")
-    if os.path.exists(DB_PATH):
-        shutil.copyfile(DB_PATH, BACKUP_PATH)
-        print(f"[OK] Created database backup at: {BACKUP_PATH}")
-    else:
-        print(f"[INFO] Database not found at {DB_PATH}, creating new connection...")
+# Ensure backend modules can be imported
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "backend"))
 
-    conn = sqlite3.connect(DB_PATH)
-    cursor = conn.cursor()
+from database.database import SessionLocal, engine
+from database.models import (
+    PacketLog,
+    Alert,
+    Event,
+    AttackSession,
+    TrafficStats,
+    IOC,
+    SearchHistory,
+    PcapCapture,
+    InvestigationCase,
+    CaseEvidence,
+)
+from sentinel.models import SentinelPlaybook, SentinelAuditLog
 
-    # Get list of all tables
-    cursor.execute("SELECT name FROM sqlite_master WHERE type='table';")
-    tables = [row[0] for row in cursor.fetchall() if not row[0].startswith("sqlite_")]
+def clear_active_database():
+    print("[*] Connecting to active PhantomNet database...")
+    db = SessionLocal()
 
-    print(f"Found {len(tables)} tables: {tables}")
-
-    tables_to_clear = [
-        "sentinel_playbooks",
-        "sentinel_audit_logs",
-        "packet_logs",
-        "alerts",
-        "events",
-        "attack_sessions",
-        "iocs",
-        "case_evidence",
-        "investigation_cases",
-        "pcap_captures",
-        "traffic_stats",
-        "honeypot_nodes",
-        "search_history"
+    models_to_clear = [
+        ("Sentinel Audit Logs", SentinelAuditLog),
+        ("Sentinel Playbooks", SentinelPlaybook),
+        ("Case Evidence", CaseEvidence),
+        ("Investigation Cases", InvestigationCase),
+        ("PCAP Captures", PcapCapture),
+        ("Search History", SearchHistory),
+        ("IOCs", IOC),
+        ("Events", Event),
+        ("Attack Sessions", AttackSession),
+        ("Alerts", Alert),
+        ("Traffic Stats", TrafficStats),
+        ("Packet Logs", PacketLog),
     ]
 
-    cleared_counts = {}
-    for table in tables_to_clear:
-        if table in tables:
-            cursor.execute(f"DELETE FROM {table};")
-            cursor.execute(f"SELECT COUNT(*) FROM {table};")
-            cleared_counts[table] = cursor.fetchone()[0]
-            print(f"Cleared table: {table} (Remaining rows: {cleared_counts[table]})")
+    total_deleted = 0
+    for name, model in models_to_clear:
+        try:
+            count = db.query(model).delete()
+            total_deleted += count
+            print(f"  [-] Cleared {count:5d} records from {name}")
+        except Exception as e:
+            print(f"  [!] Skipping {name}: {e}")
 
-    conn.commit()
-    conn.close()
-
-    print("[SUCCESS] Database successfully cleared of all playbooks, rules, campaigns, and events!")
+    db.commit()
+    db.close()
+    print(f"\n[OK] Database cleared completely! (Total records wiped: {total_deleted})")
 
 if __name__ == "__main__":
-    backup_and_clear_db()
+    clear_active_database()
+
+
