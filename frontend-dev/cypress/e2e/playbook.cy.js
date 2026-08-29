@@ -191,8 +191,9 @@ describe('Sentinel V3 Playbook Workflows', () => {
 
     // Make sure card checkboxes exist and check them
     cy.get('.playbook-card-select-checkbox').should('have.length', 2);
-    cy.get('.playbook-card-select-checkbox').eq(0).check({ force: true });
-    cy.get('.playbook-card-select-checkbox').eq(1).check({ force: true });
+    cy.get('.playbook-card-select-checkbox').eq(0).click({ force: true }).trigger('change');
+    cy.get('.floating-batch-toolbar').should('exist');
+    cy.get('.playbook-card-select-checkbox').eq(1).click({ force: true }).trigger('change');
 
     // Floating batch toolbar should appear
     cy.get('.floating-batch-toolbar').should('exist');
@@ -270,8 +271,10 @@ describe('Sentinel V3 Playbook Workflows', () => {
     cy.wait('@getPlaybooks');
 
     // Check first 2 playbooks
-    cy.get('.playbook-card-select-checkbox').eq(0).check({ force: true });
-    cy.get('.playbook-card-select-checkbox').eq(1).check({ force: true });
+    cy.get('.playbook-card-select-checkbox').eq(0).click({ force: true }).trigger('change');
+    cy.get('.header-selection-badge').should('contain', '1 SELECTED');
+    cy.get('.playbook-card-select-checkbox').eq(1).click({ force: true }).trigger('change');
+    cy.get('.header-selection-badge').should('contain', '2 SELECTED');
 
     // Floating toolbar Compare button
     cy.get('.btn-batch-compare').should('exist').and('contain', 'Compare Playbooks (2)');
