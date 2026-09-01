@@ -1,9 +1,9 @@
 {
   "openapi": "3.1.0",
   "info": {
-    "title": "PhantomNet API",
-    "description": "AI-Driven Active Defense Platform",
-    "version": "2.0"
+    "title": "PhantomNet Sentinel & Cyber Defense API",
+    "description": "PhantomNet V3 -- AI-Driven Active Defense, Automated Incident Response Playbooks, MITRE ATT&CK Mapping, IDS Rule Generation, and TAXII 2.1 Threat Sharing Platform",
+    "version": "3.0"
   },
   "paths": {
     "/api/v1/model/metrics": {
@@ -141,8 +141,12 @@
             "required": true,
             "schema": {
               "type": "string",
+              "minLength": 1,
+              "maxLength": 50,
+              "description": "IP address to enrich",
               "title": "Ip"
-            }
+            },
+            "description": "IP address to enrich"
           }
         ],
         "responses": {
@@ -408,8 +412,11 @@
             "required": true,
             "schema": {
               "type": "integer",
+              "minimum": 1,
+              "description": "Event database ID",
               "title": "Event Id"
-            }
+            },
+            "description": "Event database ID"
           }
         ],
         "responses": {
@@ -449,8 +456,11 @@
             "required": true,
             "schema": {
               "type": "integer",
+              "minimum": 1,
+              "description": "Event database ID",
               "title": "Event Id"
-            }
+            },
+            "description": "Event database ID"
           }
         ],
         "responses": {
@@ -510,8 +520,11 @@
             "required": true,
             "schema": {
               "type": "integer",
+              "minimum": 1,
+              "description": "Event database ID",
               "title": "Event Id"
-            }
+            },
+            "description": "Event database ID"
           },
           {
             "name": "duration",
@@ -519,9 +532,13 @@
             "required": false,
             "schema": {
               "type": "integer",
+              "maximum": 3600,
+              "minimum": 1,
+              "description": "Capture duration in seconds",
               "default": 60,
               "title": "Duration"
-            }
+            },
+            "description": "Capture duration in seconds"
           }
         ],
         "responses": {
@@ -561,8 +578,11 @@
             "required": true,
             "schema": {
               "type": "integer",
+              "minimum": 1,
+              "description": "Event database ID",
               "title": "Event Id"
-            }
+            },
+            "description": "Event database ID"
           }
         ],
         "responses": {
@@ -602,9 +622,13 @@
             "required": false,
             "schema": {
               "type": "integer",
+              "maximum": 365,
+              "minimum": 1,
+              "description": "Retention window in days",
               "default": 30,
               "title": "Retention Days"
-            }
+            },
+            "description": "Retention window in days"
           }
         ],
         "responses": {
@@ -644,8 +668,12 @@
             "required": true,
             "schema": {
               "type": "string",
+              "minLength": 1,
+              "maxLength": 50,
+              "description": "IP address to profile",
               "title": "Ip"
-            }
+            },
+            "description": "IP address to profile"
           }
         ],
         "responses": {
@@ -685,9 +713,13 @@
             "required": false,
             "schema": {
               "type": "integer",
+              "maximum": 100,
+              "minimum": 1,
+              "description": "Max top attackers to return",
               "default": 10,
               "title": "Limit"
-            }
+            },
+            "description": "Max top attackers to return"
           }
         ],
         "responses": {
@@ -1290,9 +1322,11 @@
               "type": "integer",
               "maximum": 30,
               "minimum": 1,
+              "description": "Trend window in days (1-30)",
               "default": 7,
               "title": "Days"
-            }
+            },
+            "description": "Trend window in days (1-30)"
           }
         ],
         "responses": {
@@ -1543,8 +1577,11 @@
             "required": true,
             "schema": {
               "type": "integer",
+              "minimum": 1,
+              "description": "Report schedule database ID",
               "title": "Report Id"
-            }
+            },
+            "description": "Report schedule database ID"
           }
         ],
         "responses": {
@@ -1581,8 +1618,11 @@
             "required": true,
             "schema": {
               "type": "integer",
+              "minimum": 1,
+              "description": "Report schedule database ID",
               "title": "Report Id"
-            }
+            },
+            "description": "Report schedule database ID"
           }
         ],
         "requestBody": {
@@ -1669,9 +1709,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "additionalProperties": true,
-                "type": "object",
-                "title": "Payload"
+                "$ref": "#/components/schemas/TextPayload"
               }
             }
           },
@@ -1720,7 +1758,8 @@
             "schema": {
               "anyOf": [
                 {
-                  "type": "string"
+                  "type": "string",
+                  "maxLength": 50
                 },
                 {
                   "type": "null"
@@ -1736,7 +1775,8 @@
             "schema": {
               "anyOf": [
                 {
-                  "type": "string"
+                  "type": "string",
+                  "maxLength": 50
                 },
                 {
                   "type": "null"
@@ -1752,7 +1792,9 @@
             "schema": {
               "anyOf": [
                 {
-                  "type": "integer"
+                  "type": "integer",
+                  "maximum": 43200,
+                  "minimum": 1
                 },
                 {
                   "type": "null"
@@ -1792,12 +1834,36 @@
         ],
         "summary": "Get Search History",
         "operationId": "get_search_history_api_v1_hunting_history_get",
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 100,
+              "minimum": 1,
+              "default": 20,
+              "title": "Limit"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": "Successful Response",
             "content": {
               "application/json": {
                 "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
               }
             }
           }
@@ -1815,9 +1881,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "additionalProperties": true,
-                "type": "object",
-                "title": "Payload"
+                "$ref": "#/components/schemas/TextPayload"
               }
             }
           },
@@ -1942,8 +2006,11 @@
             "required": true,
             "schema": {
               "type": "integer",
+              "minimum": 1,
+              "description": "Case database ID",
               "title": "Case Id"
-            }
+            },
+            "description": "Case database ID"
           }
         ],
         "responses": {
@@ -1982,8 +2049,11 @@
             "required": true,
             "schema": {
               "type": "integer",
+              "minimum": 1,
+              "description": "Case database ID",
               "title": "Case Id"
-            }
+            },
+            "description": "Case database ID"
           }
         ],
         "requestBody": {
@@ -2034,8 +2104,11 @@
             "required": true,
             "schema": {
               "type": "integer",
+              "minimum": 1,
+              "description": "Case database ID",
               "title": "Case Id"
-            }
+            },
+            "description": "Case database ID"
           }
         ],
         "requestBody": {
@@ -2085,9 +2158,13 @@
             "required": false,
             "schema": {
               "type": "integer",
+              "maximum": 1000,
+              "minimum": 1,
+              "description": "Max alerts to return (1-1000)",
               "default": 100,
               "title": "Limit"
-            }
+            },
+            "description": "Max alerts to return (1-1000)"
           },
           {
             "name": "offset",
@@ -2095,9 +2172,12 @@
             "required": false,
             "schema": {
               "type": "integer",
+              "minimum": 0,
+              "description": "Pagination offset",
               "default": 0,
               "title": "Offset"
-            }
+            },
+            "description": "Pagination offset"
           },
           {
             "name": "level",
@@ -2106,7 +2186,8 @@
             "schema": {
               "anyOf": [
                 {
-                  "type": "string"
+                  "type": "string",
+                  "maxLength": 50
                 },
                 {
                   "type": "null"
@@ -2122,7 +2203,8 @@
             "schema": {
               "anyOf": [
                 {
-                  "type": "string"
+                  "type": "string",
+                  "maxLength": 50
                 },
                 {
                   "type": "null"
@@ -2189,8 +2271,11 @@
             "required": true,
             "schema": {
               "type": "integer",
+              "minimum": 1,
+              "description": "Alert ID to resolve",
               "title": "Alert Id"
-            }
+            },
+            "description": "Alert ID to resolve"
           }
         ],
         "responses": {
@@ -2221,7 +2306,7 @@
           "Sentinel"
         ],
         "summary": "List Playbooks",
-        "description": "List all Sentinel playbooks with page-based pagination and optional filtering.\n\nArgs:\n    page: Page number, 1-indexed (default 1).\n    per_page: Results per page, 1-100 (default 20).\n    status: Filter by workflow status (pending|approved|rejected|exported).\n    attack_type: Filter by attack classification label.\n    technique: Filter by MITRE technique ID or name.\n    severity: Filter by severity (critical|high|medium|low).\n    search: Search keyword query matching ID, name, technique, IP, or attack type.\n    date_from: Filter by creation date (start) ISO-8601.\n    date_to: Filter by creation date (end) ISO-8601.\n    db: Injected database session.\n\nReturns:\n    Dict with keys: status, total, page, per_page, playbooks[].\n\nRaises:\n    HTTPException 500: On unexpected database errors.",
+        "description": "List all Sentinel playbooks with page-based pagination and multi-criteria filtering (status, severity, attack type, technique, search query, date range).",
         "operationId": "list_playbooks_api_sentinel_playbooks_get",
         "parameters": [
           {
@@ -2404,6 +2489,71 @@
         }
       }
     },
+    "/api/sentinel/playbooks/compare": {
+      "get": {
+        "tags": [
+          "Sentinel"
+        ],
+        "summary": "Compare Playbooks",
+        "description": "Compare two playbooks side-by-side and return structured diff metrics, IOC count differentials, and rule parity.",
+        "operationId": "compare_playbooks_api_sentinel_playbooks_compare_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id1",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "description": "First playbook database ID",
+              "title": "Id1"
+            },
+            "description": "First playbook database ID"
+          },
+          {
+            "name": "id2",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "description": "Second playbook database ID",
+              "title": "Id2"
+            },
+            "description": "Second playbook database ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response Compare Playbooks Api Sentinel Playbooks Compare Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/sentinel/playbooks/{playbook_id}": {
       "get": {
         "tags": [
@@ -2452,8 +2602,8 @@
         "tags": [
           "Sentinel"
         ],
-        "summary": "Get Sentinel Stats",
-        "description": "Return Sentinel pipeline statistics.\n\nIncludes total playbook count, breakdown by status, severity distributions,\naverage confidence and threat scores, approval rates, and daily generation trends.\n\nArgs:\n    db: Injected database session.\n\nReturns:\n    Dict containing aggregated summary statistics.\n\nRaises:\n    HTTPException 500: On unexpected database errors.",
+        "summary": "Get Sentinel Statistics",
+        "description": "Return aggregated Sentinel pipeline statistics, including playbook counts by status, severity breakdown, approval rates, average threat scores, and daily generation trends.",
         "operationId": "get_sentinel_stats_api_sentinel_stats_get",
         "responses": {
           "200": {
@@ -2476,8 +2626,8 @@
         "tags": [
           "Sentinel"
         ],
-        "summary": "Get Mitre Mappings",
-        "description": "Return all 12 MITRE ATT&CK technique mappings used by the Sentinel pipeline.\n\nEach mapping shows the signature name, technique ID, technique name,\ntactic, severity, and the official ATT&CK reference URL.\n\nReturns:\n    Dict with keys: status, total, mappings[].\n\nRaises:\n    HTTPException 500: On unexpected errors.",
+        "summary": "Get MITRE ATT&CK Mappings",
+        "description": "Return all 12 MITRE ATT&CK technique mappings used by the Sentinel pipeline with signatures, tactics, and ATT&CK reference URLs.",
         "operationId": "get_mitre_mappings_api_sentinel_mitre_mapping_get",
         "responses": {
           "200": {
@@ -2503,15 +2653,27 @@
         "summary": "Manual Playbook Generation",
         "description": "Trigger manual playbook generation for a campaign (Auto-gen).",
         "operationId": "generate_playbook_api_sentinel_generate_post",
+        "parameters": [
+          {
+            "name": "max_requests",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 10,
+              "title": "Max Requests"
+            }
+          }
+        ],
         "requestBody": {
+          "required": true,
           "content": {
             "application/json": {
               "schema": {
                 "$ref": "#/components/schemas/GenerateRequest"
               }
             }
-          },
-          "required": true
+          }
         },
         "responses": {
           "200": {
@@ -2543,7 +2705,7 @@
           "Sentinel"
         ],
         "summary": "Approve Playbook",
-        "description": "Approve a Sentinel playbook.\n\nUpdates **three** fields atomically:\n  - ``status`` -> ``\"approved\"``\n  - ``reviewed_by`` -> analyst username from request body\n  - ``reviewed_at`` -> current UTC timestamp\n\nArgs:\n    playbook_id: Database ID of the playbook to approve.\n    body: ReviewRequest with reviewed_by username.\n    db: Injected database session.\n\nReturns:\n    Dict with keys: status, message, playbook (full detail).\n\nRaises:\n    HTTPException 404: If playbook not found.\n    HTTPException 409: If playbook status is not pending/rejected.\n    HTTPException 500: On database commit failure.",
+        "description": "Approve a pending or rejected Sentinel playbook, recording the reviewing analyst and UTC timestamp.",
         "operationId": "approve_playbook_api_sentinel_playbooks__playbook_id__approve_patch",
         "security": [
           {
@@ -2606,7 +2768,7 @@
           "Sentinel"
         ],
         "summary": "Reject Playbook",
-        "description": "Reject a Sentinel playbook.\n\nUpdates **three** fields atomically:\n  - ``status`` -> ``\"rejected\"``\n  - ``reviewed_by`` -> analyst username from request body\n  - ``reviewed_at`` -> current UTC timestamp\n\nArgs:\n    playbook_id: Database ID of the playbook to reject.\n    body: ReviewRequest with reviewed_by username.\n    db: Injected database session.\n\nReturns:\n    Dict with keys: status, message, playbook (full detail).\n\nRaises:\n    HTTPException 404: If playbook not found.\n    HTTPException 409: If playbook status is not pending/approved.\n    HTTPException 500: On database commit failure.",
+        "description": "Reject a pending or approved Sentinel playbook, recording the reviewing analyst and UTC timestamp.",
         "operationId": "reject_playbook_api_sentinel_playbooks__playbook_id__reject_patch",
         "security": [
           {
@@ -2770,7 +2932,7 @@
           "Sentinel"
         ],
         "summary": "List Snort Rules",
-        "description": "List all Snort IDS rules generated by the Sentinel pipeline.\n\nReturns playbooks that have a non-null ``snort_rule`` field, with\npagination and optional attack_type filtering.\n\nArgs:\n    limit: Max results per page (1-200, default 50).\n    offset: Pagination offset (default 0).\n    attack_type: Filter by attack classification label.\n    db: Injected database session.\n\nReturns:\n    Dict with keys: status, total, limit, offset, rules[].\n\nRaises:\n    HTTPException 500: On unexpected database errors.",
+        "description": "List all Snort IDS rules generated by the Sentinel pipeline with pagination and optional attack_type filtering.",
         "operationId": "list_snort_rules_api_sentinel_rules_snort_get",
         "parameters": [
           {
@@ -2851,7 +3013,7 @@
           "Sentinel"
         ],
         "summary": "List Sigma Rules",
-        "description": "List all Sigma detection rules generated by the Sentinel pipeline.\n\nReturns playbooks that have a non-null ``sigma_rule`` field, with\npagination and optional attack_type filtering.\n\nArgs:\n    limit: Max results per page (1-200, default 50).\n    offset: Pagination offset (default 0).\n    attack_type: Filter by attack classification label.\n    db: Injected database session.\n\nReturns:\n    Dict with keys: status, total, limit, offset, rules[].\n\nRaises:\n    HTTPException 500: On unexpected database errors.",
+        "description": "List all Sigma detection rules generated by the Sentinel pipeline with pagination and optional attack_type filtering.",
         "operationId": "list_sigma_rules_api_sentinel_rules_sigma_get",
         "parameters": [
           {
@@ -2931,8 +3093,8 @@
         "tags": [
           "Sentinel"
         ],
-        "summary": "Get Llm Status",
-        "description": "Check the status and availability of the Ollama LLM service.",
+        "summary": "Get LLM Service Status",
+        "description": "Check the status, model configuration, and live connectivity of the Ollama LLM service.",
         "operationId": "get_llm_status_api_sentinel_llm_status_get",
         "responses": {
           "200": {
@@ -2955,7 +3117,7 @@
         "tags": [
           "Sentinel"
         ],
-        "summary": "Regenerate Playbook Llm",
+        "summary": "Regenerate Playbook LLM Narrative",
         "description": "Manually triggers regeneration of the LLM narrative summary for the playbook.",
         "operationId": "regenerate_playbook_llm_api_sentinel_playbooks__playbook_id__regenerate_llm_post",
         "parameters": [
@@ -2970,6 +3132,16 @@
               "title": "Playbook Id"
             },
             "description": "Database ID of the playbook"
+          },
+          {
+            "name": "max_requests",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 10,
+              "title": "Max Requests"
+            }
           }
         ],
         "responses": {
@@ -3003,8 +3175,8 @@
         "tags": [
           "Sentinel"
         ],
-        "summary": "Get Mitre Matrix",
-        "description": "Return the aggregated MITRE ATT&CK technique matrix with live playbook counts.\n\nQueries the ``sentinel_playbooks`` table to compute per-technique hit counts\nand overlays them onto the full static technique catalogue.  The result is\nformatted for the MitreMatrix dashboard component.\n\nResponse Schema\n---------------\n{\n  \"status\":           \"success\",\n  \"generated_at\":     \"<ISO-8601 UTC>\",\n  \"total_tactics\":    <int>,          // number of distinct tactics\n  \"total_techniques\": <int>,          // total unique techniques across all tactics\n  \"matrix\": {\n    \"<Tactic Name>\": [                // e.g. \"Credential Access\"\n      {\n        \"technique_id\":   \"T1110.001\",\n        \"technique_name\": \"Brute Force: Password Guessing\",\n        \"tactic_id\":      \"TA0006\",\n        \"severity\":       \"HIGH\",\n        \"url\":            \"https://attack.mitre.org/techniques/T1110/001/\",\n        \"description\":    \"...\",\n        \"count\":          <int>       // live playbook hit count\n      },\n      ...\n    ],\n    ...\n  },\n  \"frequency_map\": {\n    \"T1110\": <int>,   // base technique ID \u2192 aggregated count\n    \"T1046\": <int>,   // (sub-techniques are rolled up: T1110.001 + T1110.004 \u2192 T1110)\n    ...\n  }\n}\n\nThe ``frequency_map`` is keyed by the *base* technique ID (e.g. ``T1110``\ninstead of ``T1110.001``) so the frontend MitreMatrix component can perform\ndirect lookups using its standard 12-tactic TACTIC_TECHNIQUES catalogue.\n\nArgs:\n    db: Injected SQLAlchemy database session.\n\nReturns:\n    Structured JSON response as described above.\n\nRaises:\n    HTTPException 500: On unexpected database or aggregation errors.",
+        "summary": "Get MITRE ATT&CK Matrix Heatmap",
+        "description": "Return the aggregated MITRE ATT&CK technique matrix with live playbook hit counts and frequency map for dashboard visualization.",
         "operationId": "get_mitre_matrix_api_sentinel_mitre_matrix_get",
         "responses": {
           "200": {
@@ -3125,8 +3297,8 @@
         "tags": [
           "Sentinel"
         ],
-        "summary": "Regenerate Playbook",
-        "description": "Regenerate a playbook, creating a new versioned record.\n\nThe original playbook is preserved as a historical version with\n``is_latest=False``.  A new record is created by re-running the full\nSentinel pipeline with the original threat context, and the new record\nlinks to its predecessor via ``parent_id``.\n\nArgs:\n    playbook_id: Database ID of the playbook to regenerate.\n    body: RegenerateRequest with reason string.\n    background_tasks: Injected background tasks manager.\n    db: Injected database session.\n\nReturns:\n    Dict with keys: status, message, new_playbook (detail), old_version, new_version.\n\nRaises:\n    HTTPException 404: If the original playbook is not found.\n    HTTPException 500: On pipeline failure.",
+        "summary": "Regenerate Playbook Version",
+        "description": "Regenerate a playbook, creating a new versioned record and preserving historical lineage.",
         "operationId": "regenerate_playbook_api_sentinel_playbooks__playbook_id__regenerate_post",
         "parameters": [
           {
@@ -3185,8 +3357,8 @@
         "tags": [
           "Sentinel"
         ],
-        "summary": "Get Playbook Versions",
-        "description": "Retrieve the full version history for a playbook lineage.\n\nGiven the database ID of *any* version in a playbook chain, returns\nall versions ordered from newest to oldest.\n\nArgs:\n    playbook_id: Database ID of any version in the chain.\n    db: Injected database session.\n\nReturns:\n    Dict with keys: status, total_versions, current_version, versions[].\n\nRaises:\n    HTTPException 404: If the playbook is not found.\n    HTTPException 500: On unexpected database errors.",
+        "summary": "Get Playbook Version History",
+        "description": "Retrieve the full version lineage for a playbook from newest to oldest.",
         "operationId": "get_playbook_versions_api_sentinel_playbooks__playbook_id__versions_get",
         "parameters": [
           {
@@ -3211,6 +3383,453 @@
                   "type": "object",
                   "additionalProperties": true,
                   "title": "Response Get Playbook Versions Api Sentinel Playbooks  Playbook Id  Versions Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/sentinel/rules/export-all": {
+      "get": {
+        "tags": [
+          "Sentinel"
+        ],
+        "summary": "Export All Rules (ZIP Archive)",
+        "description": "Export all active approved Snort and Sigma rules into a single sanitized, zip-slip protected ZIP archive.",
+        "operationId": "export_all_rules_api_sentinel_rules_export_all_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response"
+          }
+        }
+      }
+    },
+    "/api/sentinel/campaigns/{campaign_id}/timeline": {
+      "get": {
+        "tags": [
+          "Sentinel"
+        ],
+        "summary": "Get Campaign Progression Timeline",
+        "description": "Retrieve time-series event density data for campaign timeline visualization, including surge detection and anomaly timestamps.",
+        "operationId": "get_campaign_timeline_api_sentinel_campaigns__campaign_id__timeline_get",
+        "parameters": [
+          {
+            "name": "campaign_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Campaign Id"
+            }
+          },
+          {
+            "name": "interval",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "pattern": "^(hourly|daily)$",
+              "description": "Aggregation interval",
+              "default": "hourly",
+              "title": "Interval"
+            },
+            "description": "Aggregation interval"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response Get Campaign Timeline Api Sentinel Campaigns  Campaign Id  Timeline Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/sentinel/audit-logs": {
+      "get": {
+        "tags": [
+          "Sentinel"
+        ],
+        "summary": "Get Sentinel Audit Logs",
+        "description": "Retrieve audit activity logs for analyst actions, approvals, rejections, exports, and compliance tracking.",
+        "operationId": "get_audit_logs_api_sentinel_audit_logs_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 500,
+              "minimum": 1,
+              "description": "Max audit records to return",
+              "default": 50,
+              "title": "Limit"
+            },
+            "description": "Max audit records to return"
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "Pagination offset",
+              "default": 0,
+              "title": "Offset"
+            },
+            "description": "Pagination offset"
+          },
+          {
+            "name": "action",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Filter by action name (e.g. approve, reject, export, batch_approve, regenerate)",
+              "title": "Action"
+            },
+            "description": "Filter by action name (e.g. approve, reject, export, batch_approve, regenerate)"
+          },
+          {
+            "name": "user",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Filter by username or service name",
+              "title": "User"
+            },
+            "description": "Filter by username or service name"
+          },
+          {
+            "name": "playbook_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Filter by associated playbook ID or DB integer ID",
+              "title": "Playbook Id"
+            },
+            "description": "Filter by associated playbook ID or DB integer ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response Get Audit Logs Api Sentinel Audit Logs Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/sentinel/playbooks/{playbook_id}/export-history": {
+      "get": {
+        "tags": [
+          "Sentinel"
+        ],
+        "summary": "Get Playbook Export History",
+        "description": "Retrieve export audit history timeline for a specific playbook.",
+        "operationId": "get_playbook_export_history_api_sentinel_playbooks__playbook_id__export_history_get",
+        "parameters": [
+          {
+            "name": "playbook_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "description": "Database primary key ID of the playbook",
+              "title": "Playbook Id"
+            },
+            "description": "Database primary key ID of the playbook"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 200,
+              "minimum": 1,
+              "default": 50,
+              "title": "Limit"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response Get Playbook Export History Api Sentinel Playbooks  Playbook Id  Export History Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/sentinel/audit-logs": {
+      "get": {
+        "tags": [
+          "Sentinel Compliance"
+        ],
+        "summary": "Get V1 Compliance Audit Logs",
+        "description": "Compliance tracking endpoint for Sentinel audit logs under /api/v1/sentinel/audit-logs.",
+        "operationId": "get_v1_audit_logs_api_v1_sentinel_audit_logs_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 500,
+              "minimum": 1,
+              "description": "Max audit records to return",
+              "default": 50,
+              "title": "Limit"
+            },
+            "description": "Max audit records to return"
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "Pagination offset",
+              "default": 0,
+              "title": "Offset"
+            },
+            "description": "Pagination offset"
+          },
+          {
+            "name": "action",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Filter by action name",
+              "title": "Action"
+            },
+            "description": "Filter by action name"
+          },
+          {
+            "name": "user",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Filter by username",
+              "title": "User"
+            },
+            "description": "Filter by username"
+          },
+          {
+            "name": "playbook_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Filter by playbook ID",
+              "title": "Playbook Id"
+            },
+            "description": "Filter by playbook ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response Get V1 Audit Logs Api V1 Sentinel Audit Logs Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/sentinel/templates": {
+      "get": {
+        "tags": [
+          "Sentinel Compliance"
+        ],
+        "summary": "List Playbook Templates",
+        "description": "List available Jinja2 incident response playbook templates.",
+        "operationId": "list_sentinel_templates_api_v1_sentinel_templates_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object",
+                  "title": "Response List Sentinel Templates Api V1 Sentinel Templates Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/sentinel/templates/preview": {
+      "post": {
+        "tags": [
+          "Sentinel Compliance"
+        ],
+        "summary": "Preview Playbook Template",
+        "description": "Render a Jinja2 template with sample parameters or inline Jinja2 syntax testing.",
+        "operationId": "preview_sentinel_template_api_v1_sentinel_templates_preview_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "additionalProperties": true,
+                "type": "object",
+                "title": "Payload"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object",
+                  "title": "Response Preview Sentinel Template Api V1 Sentinel Templates Preview Post"
                 }
               }
             }
@@ -3862,9 +4481,13 @@
             "required": false,
             "schema": {
               "type": "integer",
+              "maximum": 1000,
+              "minimum": 1,
+              "description": "Max events to return (1-1000)",
               "default": 100,
               "title": "Limit"
-            }
+            },
+            "description": "Max events to return (1-1000)"
           }
         ],
         "responses": {
@@ -3922,8 +4545,12 @@
             "required": true,
             "schema": {
               "type": "string",
+              "minLength": 1,
+              "maxLength": 50,
+              "description": "IP address to block",
               "title": "Ip"
-            }
+            },
+            "description": "IP address to block"
           }
         ],
         "responses": {
@@ -3964,9 +4591,13 @@
             "required": false,
             "schema": {
               "type": "integer",
+              "maximum": 1000,
+              "minimum": 1,
+              "description": "Max events to analyze",
               "default": 200,
               "title": "Limit"
-            }
+            },
+            "description": "Max events to analyze"
           }
         ],
         "responses": {
@@ -4007,8 +4638,12 @@
             "required": true,
             "schema": {
               "type": "string",
+              "minLength": 1,
+              "maxLength": 50,
+              "description": "IP address to lookup",
               "title": "Ip"
-            }
+            },
+            "description": "IP address to lookup"
           }
         ],
         "responses": {
@@ -4070,9 +4705,13 @@
             "required": false,
             "schema": {
               "type": "integer",
+              "maximum": 500,
+              "minimum": 1,
+              "description": "Max history records to return",
               "default": 50,
               "title": "Limit"
-            }
+            },
+            "description": "Max history records to return"
           }
         ],
         "responses": {
@@ -4134,8 +4773,12 @@
             "required": true,
             "schema": {
               "type": "string",
+              "minLength": 1,
+              "maxLength": 50,
+              "description": "IP address to unblock",
               "title": "Ip"
-            }
+            },
+            "description": "IP address to unblock"
           }
         ],
         "responses": {
@@ -4262,9 +4905,13 @@
             "required": false,
             "schema": {
               "type": "integer",
+              "maximum": 168,
+              "minimum": 1,
+              "description": "Time window in hours (1-168)",
               "default": 24,
               "title": "Hours Back"
-            }
+            },
+            "description": "Time window in hours (1-168)"
           }
         ],
         "responses": {
@@ -4308,8 +4955,11 @@
             "required": true,
             "schema": {
               "type": "integer",
+              "minimum": 1,
+              "description": "Event database ID",
               "title": "Event Id"
-            }
+            },
+            "description": "Event database ID"
           }
         ],
         "responses": {
@@ -4353,23 +5003,25 @@
               "$ref": "#/components/schemas/QueryCondition"
             },
             "type": "array",
-            "title": "Conditions"
+            "maxItems": 50,
+            "title": "Conditions",
+            "default": []
           },
           "limit": {
             "type": "integer",
+            "maximum": 1000.0,
+            "minimum": 1.0,
             "title": "Limit",
             "default": 100
           },
           "offset": {
             "type": "integer",
+            "minimum": 0.0,
             "title": "Offset",
             "default": 0
           }
         },
         "type": "object",
-        "required": [
-          "conditions"
-        ],
         "title": "AdvancedQuery"
       },
       "BatchReviewRequest": {
@@ -4404,10 +5056,13 @@
         "properties": {
           "title": {
             "type": "string",
+            "maxLength": 255,
+            "minLength": 1,
             "title": "Title"
           },
           "description": {
             "type": "string",
+            "maxLength": 5000,
             "title": "Description"
           },
           "priority": {
@@ -4418,7 +5073,8 @@
           "assigned_to": {
             "anyOf": [
               {
-                "type": "string"
+                "type": "string",
+                "maxLength": 100
               },
               {
                 "type": "null"
@@ -4496,7 +5152,9 @@
           "title": {
             "anyOf": [
               {
-                "type": "string"
+                "type": "string",
+                "maxLength": 255,
+                "minLength": 1
               },
               {
                 "type": "null"
@@ -4507,7 +5165,8 @@
           "description": {
             "anyOf": [
               {
-                "type": "string"
+                "type": "string",
+                "maxLength": 5000
               },
               {
                 "type": "null"
@@ -4540,7 +5199,8 @@
           "assigned_to": {
             "anyOf": [
               {
-                "type": "string"
+                "type": "string",
+                "maxLength": 100
               },
               {
                 "type": "null"
@@ -4556,14 +5216,19 @@
         "properties": {
           "key": {
             "type": "string",
+            "maxLength": 100,
+            "minLength": 1,
             "title": "Key"
           },
           "value": {
             "type": "string",
+            "maxLength": 2000,
             "title": "Value"
           },
           "category": {
             "type": "string",
+            "maxLength": 50,
+            "minLength": 1,
             "title": "Category"
           }
         },
@@ -4579,16 +5244,20 @@
         "properties": {
           "event_id": {
             "type": "integer",
+            "minimum": 1.0,
             "title": "Event Id"
           },
           "event_type": {
             "type": "string",
+            "maxLength": 50,
+            "minLength": 1,
             "title": "Event Type"
           },
           "notes": {
             "anyOf": [
               {
-                "type": "string"
+                "type": "string",
+                "maxLength": 2000
               },
               {
                 "type": "null"
@@ -4824,10 +5493,14 @@
         "properties": {
           "username": {
             "type": "string",
+            "maxLength": 100,
+            "minLength": 1,
             "title": "Username"
           },
           "password": {
             "type": "string",
+            "maxLength": 128,
+            "minLength": 1,
             "title": "Password"
           }
         },
@@ -4842,6 +5515,8 @@
         "properties": {
           "node_id": {
             "type": "string",
+            "maxLength": 100,
+            "minLength": 1,
             "title": "Node Id"
           }
         },
@@ -4855,14 +5530,20 @@
         "properties": {
           "hostname": {
             "type": "string",
+            "maxLength": 255,
+            "minLength": 1,
             "title": "Hostname"
           },
           "ip_address": {
             "type": "string",
+            "maxLength": 45,
+            "minLength": 1,
             "title": "Ip Address"
           },
           "honeypot_type": {
             "type": "string",
+            "maxLength": 50,
+            "minLength": 1,
             "title": "Honeypot Type"
           }
         },
@@ -4938,6 +5619,28 @@
               }
             ],
             "title": "Threat Score"
+          },
+          "quality_score": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Quality Score"
+          },
+          "quality_badge": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Quality Badge"
           },
           "technique_id": {
             "anyOf": [
@@ -5161,10 +5864,13 @@
         "properties": {
           "node_id": {
             "type": "string",
+            "maxLength": 100,
+            "minLength": 1,
             "title": "Node Id"
           },
           "policy_id": {
             "type": "integer",
+            "minimum": 1.0,
             "title": "Policy Id"
           }
         },
@@ -5179,10 +5885,13 @@
         "properties": {
           "name": {
             "type": "string",
+            "maxLength": 100,
+            "minLength": 1,
             "title": "Name"
           },
           "description": {
             "type": "string",
+            "maxLength": 1000,
             "title": "Description"
           },
           "config": {
@@ -5203,6 +5912,8 @@
         "properties": {
           "field": {
             "type": "string",
+            "maxLength": 50,
+            "minLength": 1,
             "title": "Field"
           },
           "operator": {
@@ -5257,10 +5968,14 @@
         "properties": {
           "name": {
             "type": "string",
+            "maxLength": 100,
+            "minLength": 1,
             "title": "Name"
           },
           "template_type": {
             "type": "string",
+            "maxLength": 100,
+            "minLength": 1,
             "title": "Template Type"
           },
           "frequency": {
@@ -5269,10 +5984,14 @@
           },
           "schedule_time": {
             "type": "string",
+            "maxLength": 10,
+            "minLength": 1,
             "title": "Schedule Time"
           },
           "recipients": {
             "type": "string",
+            "maxLength": 500,
+            "minLength": 3,
             "title": "Recipients"
           },
           "day_of_week": {
@@ -5617,6 +6336,21 @@
         "title": "TaxiiEnvelopeResponse",
         "description": "TAXII 2.1 Envelope / Objects Response Model (GET /taxii2/phantomnet/collections/{id}/objects/).\nServes STIX objects wrapped in a TAXII envelope or standard bundle."
       },
+      "TextPayload": {
+        "properties": {
+          "text": {
+            "type": "string",
+            "maxLength": 500000,
+            "title": "Text",
+            "description": "Raw log or text payload"
+          }
+        },
+        "type": "object",
+        "required": [
+          "text"
+        ],
+        "title": "TextPayload"
+      },
       "ThreatInput": {
         "properties": {
           "src_ip": {
@@ -5739,14 +6473,20 @@
         "properties": {
           "username": {
             "type": "string",
+            "maxLength": 50,
+            "minLength": 3,
             "title": "Username"
           },
           "email": {
             "type": "string",
+            "maxLength": 100,
+            "minLength": 5,
             "title": "Email"
           },
           "password": {
             "type": "string",
+            "maxLength": 128,
+            "minLength": 6,
             "title": "Password"
           },
           "role": {
@@ -5768,7 +6508,9 @@
           "email": {
             "anyOf": [
               {
-                "type": "string"
+                "type": "string",
+                "maxLength": 100,
+                "minLength": 5
               },
               {
                 "type": "null"
@@ -5779,7 +6521,9 @@
           "password": {
             "anyOf": [
               {
-                "type": "string"
+                "type": "string",
+                "maxLength": 128,
+                "minLength": 6
               },
               {
                 "type": "null"
