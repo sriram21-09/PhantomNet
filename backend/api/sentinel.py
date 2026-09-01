@@ -289,7 +289,12 @@ def _serialize_playbook_detail(row: SentinelPlaybook) -> Dict[str, Any]:
 # 1. GET /api/sentinel/playbooks — List all playbooks with pagination
 # ---------------------------------------------------------------------------
 
-@router.get("/playbooks", response_model=Dict[str, Any])
+@router.get(
+    "/playbooks",
+    response_model=Dict[str, Any],
+    summary="List Playbooks",
+    description="List all Sentinel playbooks with page-based pagination and multi-criteria filtering (status, severity, attack type, technique, search query, date range).",
+)
 def list_playbooks(
     page: int = Query(default=1, ge=1, description="Page number (1-indexed, default 1)"),
     per_page: int = Query(default=20, ge=1, le=100, description="Results per page (1–100, default 20)"),
@@ -324,23 +329,26 @@ def list_playbooks(
         HTTPException 500: On unexpected database errors.
     """
     try:
+        page_val = page if isinstance(page, int) else 1
+        per_page_val = per_page if isinstance(per_page, int) else 20
+
         query = db.query(SentinelPlaybook).filter(SentinelPlaybook.is_latest == True)
 
-        if status is not None and status.strip():
+        if isinstance(status, str) and status.strip():
             status_val = status.strip().lower()
             if status_val == "approved":
                 query = query.filter(SentinelPlaybook.status.in_(["approved", "exported"]))
             else:
                 query = query.filter(SentinelPlaybook.status == status_val)
-        if attack_type is not None and attack_type.strip():
+        if isinstance(attack_type, str) and attack_type.strip():
             query = query.filter(SentinelPlaybook.attack_type == attack_type.strip())
-        if technique is not None and technique.strip():
+        if isinstance(technique, str) and technique.strip():
             tech_val = technique.strip()
             query = query.filter(
                 (SentinelPlaybook.technique_id.ilike(f"%{tech_val}%")) |
                 (SentinelPlaybook.technique_name.ilike(f"%{tech_val}%"))
             )
-        if severity is not None and severity.strip():
+        if isinstance(severity, str) and severity.strip():
             sev_val = severity.strip().upper()
             if sev_val == "CRITICAL":
                 query = query.filter((SentinelPlaybook.severity == "CRITICAL") | (SentinelPlaybook.threat_score >= 90))
@@ -350,7 +358,7 @@ def list_playbooks(
                 query = query.filter((SentinelPlaybook.severity == "MEDIUM") | ((SentinelPlaybook.threat_score >= 40) & (SentinelPlaybook.threat_score < 70)))
             elif sev_val == "LOW":
                 query = query.filter((SentinelPlaybook.severity == "LOW") | (SentinelPlaybook.threat_score < 40))
-        if search is not None and search.strip():
+        if isinstance(search, str) and search.strip():
             search_val = f"%{search.strip()}%"
             query = query.filter(
                 (SentinelPlaybook.playbook_id.ilike(search_val)) |
@@ -360,13 +368,13 @@ def list_playbooks(
                 (SentinelPlaybook.src_ip.ilike(search_val)) |
                 (SentinelPlaybook.attack_type.ilike(search_val))
             )
-        if date_from is not None and date_from.strip():
+        if isinstance(date_from, str) and date_from.strip():
             try:
                 dt_from = datetime.fromisoformat(date_from.strip().replace('Z', '+00:00'))
                 query = query.filter(SentinelPlaybook.created_at >= dt_from)
             except ValueError:
                 pass
-        if date_to is not None and date_to.strip():
+        if isinstance(date_to, str) and date_to.strip():
             try:
                 dt_to = datetime.fromisoformat(date_to.strip().replace('Z', '+00:00'))
                 query = query.filter(SentinelPlaybook.created_at <= dt_to)
@@ -376,21 +384,21 @@ def list_playbooks(
         total = query.count()
 
         # Calculate offset from page/per_page
-        offset = (page - 1) * per_page
+        offset = (page_val - 1) * per_page_val
 
         playbooks = (
             query
             .order_by(SentinelPlaybook.created_at.desc())
             .offset(offset)
-            .limit(per_page)
+            .limit(per_page_val)
             .all()
         )
 
         return {
             "status": "success",
             "total": total,
-            "page": page,
-            "per_page": per_page,
+            "page": page_val,
+            "per_page": per_page_val,
             "playbooks": [_serialize_playbook_summary(p) for p in playbooks],
         }
     except Exception as exc:
@@ -402,7 +410,12 @@ def list_playbooks(
 # 1b. GET /api/sentinel/playbooks/compare — Side-by-side playbook diff
 # ---------------------------------------------------------------------------
 
-@router.get("/playbooks/compare", response_model=Dict[str, Any])
+@router.get(
+    "/playbooks/compare",
+    response_model=Dict[str, Any],
+    summary="Compare Playbooks",
+    description="Compare two playbooks side-by-side and return structured diff metrics, IOC count differentials, and rule parity.",
+)
 def compare_playbooks(
     id1: int = Query(..., ge=1, description="First playbook database ID"),
     id2: int = Query(..., ge=1, description="Second playbook database ID"),
@@ -496,7 +509,12 @@ def get_playbook(
 # 3. GET /api/sentinel/stats — Playbook pipeline statistics
 # ---------------------------------------------------------------------------
 
-@router.get("/stats", response_model=Dict[str, Any])
+@router.get(
+    "/stats",
+    response_model=Dict[str, Any],
+    summary="Get Sentinel Statistics",
+    description="Return aggregated Sentinel pipeline statistics, including playbook counts by status, severity breakdown, approval rates, average threat scores, and daily generation trends.",
+)
 def get_sentinel_stats(
     db: Session = Depends(get_db),
 ) -> Dict[str, Any]:
@@ -609,7 +627,12 @@ def get_sentinel_stats(
 # 4. GET /api/sentinel/mitre/mapping — All 12 ATT&CK technique mappings
 # ---------------------------------------------------------------------------
 
-@router.get("/mitre/mapping", response_model=Dict[str, Any])
+@router.get(
+    "/mitre/mapping",
+    response_model=Dict[str, Any],
+    summary="Get MITRE ATT&CK Mappings",
+    description="Return all 12 MITRE ATT&CK technique mappings used by the Sentinel pipeline with signatures, tactics, and ATT&CK reference URLs.",
+)
 def get_mitre_mappings() -> Dict[str, Any]:
     """
     Return all 12 MITRE ATT&CK technique mappings used by the Sentinel pipeline.
@@ -647,7 +670,7 @@ def get_mitre_mappings() -> Dict[str, Any]:
 )
 def generate_playbook(
     request: GenerateRequest,
-    background_tasks: BackgroundTasks,
+    background_tasks: BackgroundTasks = BackgroundTasks(),
     db: Session = Depends(get_db),
 ) -> Dict[str, Any]:
     """
@@ -722,7 +745,12 @@ def generate_playbook(
 # 6. PATCH /api/sentinel/playbooks/{id}/approve — Approve a playbook
 # ---------------------------------------------------------------------------
 
-@router.patch("/playbooks/{playbook_id}/approve", response_model=Dict[str, Any])
+@router.patch(
+    "/playbooks/{playbook_id}/approve",
+    response_model=Dict[str, Any],
+    summary="Approve Playbook",
+    description="Approve a pending or rejected Sentinel playbook, recording the reviewing analyst and UTC timestamp.",
+)
 def approve_playbook(
     playbook_id: int = Path(..., ge=1, description="Database ID of the playbook to approve"),
     body: ReviewRequest = ...,
@@ -808,7 +836,12 @@ def approve_playbook(
 # 7. PATCH /api/sentinel/playbooks/{id}/reject — Reject a playbook
 # ---------------------------------------------------------------------------
 
-@router.patch("/playbooks/{playbook_id}/reject", response_model=Dict[str, Any])
+@router.patch(
+    "/playbooks/{playbook_id}/reject",
+    response_model=Dict[str, Any],
+    summary="Reject Playbook",
+    description="Reject a pending or approved Sentinel playbook, recording the reviewing analyst and UTC timestamp.",
+)
 def reject_playbook(
     playbook_id: int = Path(..., ge=1, description="Database ID of the playbook to reject"),
     body: ReviewRequest = ...,
@@ -1248,7 +1281,12 @@ def export_playbook_pdf(
 # 9. GET /api/sentinel/rules/snort — List all Snort rules
 # ---------------------------------------------------------------------------
 
-@router.get("/rules/snort", response_model=Dict[str, Any])
+@router.get(
+    "/rules/snort",
+    response_model=Dict[str, Any],
+    summary="List Snort Rules",
+    description="List all Snort IDS rules generated by the Sentinel pipeline with pagination and optional attack_type filtering.",
+)
 def list_snort_rules(
     limit: int = Query(default=50, ge=1, le=200, description="Max results per page"),
     offset: int = Query(default=0, ge=0, description="Pagination offset"),
@@ -1274,20 +1312,23 @@ def list_snort_rules(
         HTTPException 500: On unexpected database errors.
     """
     try:
+        limit_val = limit if isinstance(limit, int) else 50
+        offset_val = offset if isinstance(offset, int) else 0
+
         query = db.query(SentinelPlaybook).filter(
             SentinelPlaybook.snort_rule.isnot(None),
             SentinelPlaybook.snort_rule != "",
         )
 
-        if attack_type is not None and attack_type.strip():
+        if isinstance(attack_type, str) and attack_type.strip():
             query = query.filter(SentinelPlaybook.attack_type == attack_type.strip())
 
         total = query.count()
         rows = (
             query
             .order_by(SentinelPlaybook.created_at.desc())
-            .offset(offset)
-            .limit(limit)
+            .offset(offset_val)
+            .limit(limit_val)
             .all()
         )
 
@@ -1309,8 +1350,8 @@ def list_snort_rules(
         return {
             "status": "success",
             "total": total,
-            "limit": limit,
-            "offset": offset,
+            "limit": limit_val,
+            "offset": offset_val,
             "rules": rules,
         }
     except Exception as exc:
@@ -1322,7 +1363,12 @@ def list_snort_rules(
 # 10. GET /api/sentinel/rules/sigma — List all Sigma rules
 # ---------------------------------------------------------------------------
 
-@router.get("/rules/sigma", response_model=Dict[str, Any])
+@router.get(
+    "/rules/sigma",
+    response_model=Dict[str, Any],
+    summary="List Sigma Rules",
+    description="List all Sigma detection rules generated by the Sentinel pipeline with pagination and optional attack_type filtering.",
+)
 def list_sigma_rules(
     limit: int = Query(default=50, ge=1, le=200, description="Max results per page"),
     offset: int = Query(default=0, ge=0, description="Pagination offset"),
@@ -1348,20 +1394,23 @@ def list_sigma_rules(
         HTTPException 500: On unexpected database errors.
     """
     try:
+        limit_val = limit if isinstance(limit, int) else 50
+        offset_val = offset if isinstance(offset, int) else 0
+
         query = db.query(SentinelPlaybook).filter(
             SentinelPlaybook.sigma_rule.isnot(None),
             SentinelPlaybook.sigma_rule != "",
         )
 
-        if attack_type is not None and attack_type.strip():
+        if isinstance(attack_type, str) and attack_type.strip():
             query = query.filter(SentinelPlaybook.attack_type == attack_type.strip())
 
         total = query.count()
         rows = (
             query
             .order_by(SentinelPlaybook.created_at.desc())
-            .offset(offset)
-            .limit(limit)
+            .offset(offset_val)
+            .limit(limit_val)
             .all()
         )
 
@@ -1383,8 +1432,8 @@ def list_sigma_rules(
         return {
             "status": "success",
             "total": total,
-            "limit": limit,
-            "offset": offset,
+            "limit": limit_val,
+            "offset": offset_val,
             "rules": rules,
         }
     except Exception as exc:
@@ -1396,7 +1445,12 @@ def list_sigma_rules(
 # 11. GET /api/sentinel/llm/status — Check Ollama status
 # ---------------------------------------------------------------------------
 
-@router.get("/llm/status", response_model=Dict[str, Any])
+@router.get(
+    "/llm/status",
+    response_model=Dict[str, Any],
+    summary="Get LLM Service Status",
+    description="Check the status, model configuration, and live connectivity of the Ollama LLM service.",
+)
 async def get_llm_status() -> Dict[str, Any]:
     """
     Check the status and availability of the Ollama LLM service.
@@ -1437,7 +1491,9 @@ async def get_llm_status() -> Dict[str, Any]:
 @router.post(
     "/playbooks/{playbook_id}/regenerate-llm",
     response_model=Dict[str, Any],
-    dependencies=[Depends(check_rate_limit)]
+    summary="Regenerate Playbook LLM Narrative",
+    description="Manually triggers regeneration of the LLM narrative summary for the playbook.",
+    dependencies=[Depends(check_rate_limit)],
 )
 async def regenerate_playbook_llm(
     playbook_id: int = Path(..., ge=1, description="Database ID of the playbook"),
@@ -1477,7 +1533,12 @@ async def regenerate_playbook_llm(
 # 13. GET /api/sentinel/mitre/matrix — Aggregated MITRE ATT&CK Heatmap Data
 # ---------------------------------------------------------------------------
 
-@router.get("/mitre/matrix", response_model=Dict[str, Any])
+@router.get(
+    "/mitre/matrix",
+    response_model=Dict[str, Any],
+    summary="Get MITRE ATT&CK Matrix Heatmap",
+    description="Return the aggregated MITRE ATT&CK technique matrix with live playbook hit counts and frequency map for dashboard visualization.",
+)
 def get_mitre_matrix(db: Session = Depends(get_db)) -> Dict[str, Any]:
     """
     Return the aggregated MITRE ATT&CK technique matrix with live playbook counts.
@@ -1692,7 +1753,12 @@ def batch_reject_playbooks(
 # 16. POST /api/sentinel/playbooks/{id}/regenerate — Regenerate with version tracking
 # ---------------------------------------------------------------------------
 
-@router.post("/playbooks/{playbook_id}/regenerate", response_model=Dict[str, Any])
+@router.post(
+    "/playbooks/{playbook_id}/regenerate",
+    response_model=Dict[str, Any],
+    summary="Regenerate Playbook Version",
+    description="Regenerate a playbook, creating a new versioned record and preserving historical lineage.",
+)
 def regenerate_playbook(
     playbook_id: int = Path(..., ge=1, description="Database ID of the playbook to regenerate"),
     body: RegenerateRequest = RegenerateRequest(),
@@ -1763,7 +1829,12 @@ def regenerate_playbook(
 # 17. GET /api/sentinel/playbooks/{id}/versions — Version history for a playbook
 # ---------------------------------------------------------------------------
 
-@router.get("/playbooks/{playbook_id}/versions", response_model=Dict[str, Any])
+@router.get(
+    "/playbooks/{playbook_id}/versions",
+    response_model=Dict[str, Any],
+    summary="Get Playbook Version History",
+    description="Retrieve the full version lineage for a playbook from newest to oldest.",
+)
 def get_playbook_versions(
     playbook_id: int = Path(..., ge=1, description="Database ID of any version in the playbook chain"),
     db: Session = Depends(get_db),
@@ -1841,7 +1912,12 @@ def get_playbook_versions(
 # 19. GET /api/sentinel/rules/export-all — Download all rules as ZIP archive
 # ---------------------------------------------------------------------------
 
-@router.get("/rules/export-all")
+@router.get(
+    "/rules/export-all",
+    response_class=StreamingResponse,
+    summary="Export All Rules (ZIP Archive)",
+    description="Export all active approved Snort and Sigma rules into a single sanitized, zip-slip protected ZIP archive.",
+)
 def export_all_rules(db: Session = Depends(get_db)):
     """
     Export all active approved Snort and Sigma rules into a single ZIP archive.
@@ -1890,7 +1966,12 @@ def export_all_rules(db: Session = Depends(get_db)):
 # 20. GET /api/sentinel/campaigns/{campaign_id}/timeline — Campaign time-series
 # ---------------------------------------------------------------------------
 
-@router.get("/campaigns/{campaign_id}/timeline", response_model=Dict[str, Any])
+@router.get(
+    "/campaigns/{campaign_id}/timeline",
+    response_model=Dict[str, Any],
+    summary="Get Campaign Progression Timeline",
+    description="Retrieve time-series event density data for campaign timeline visualization, including surge detection and anomaly timestamps.",
+)
 def get_campaign_timeline(
     campaign_id: str = Path(...),
     interval: str = Query("hourly", pattern="^(hourly|daily)$", description="Aggregation interval"),
@@ -1999,7 +2080,12 @@ def get_campaign_timeline(
 # 21. GET /api/sentinel/audit-logs — Audit activity log listing
 # ---------------------------------------------------------------------------
 
-@router.get("/audit-logs", response_model=Dict[str, Any])
+@router.get(
+    "/audit-logs",
+    response_model=Dict[str, Any],
+    summary="Get Sentinel Audit Logs",
+    description="Retrieve audit activity logs for analyst actions, approvals, rejections, exports, and compliance tracking.",
+)
 def get_audit_logs(
     limit: int = Query(50, ge=1, le=500, description="Max audit records to return"),
     offset: int = Query(0, ge=0, description="Pagination offset"),
@@ -2012,12 +2098,15 @@ def get_audit_logs(
     """
     Retrieve audit activity logs for analyst actions and compliance tracking.
     """
+    limit_val = limit if isinstance(limit, int) else 50
+    offset_val = offset if isinstance(offset, int) else 0
+
     query = db.query(SentinelAuditLog)
-    if action and action.strip():
+    if isinstance(action, str) and action.strip():
         query = query.filter(SentinelAuditLog.action == action.strip())
-    if user and user.strip():
+    if isinstance(user, str) and user.strip():
         query = query.filter(SentinelAuditLog.user == user.strip())
-    if playbook_id and playbook_id.strip():
+    if isinstance(playbook_id, str) and playbook_id.strip():
         p_val = playbook_id.strip()
         conditions = [
             SentinelAuditLog.playbook_id == p_val,
@@ -2033,20 +2122,25 @@ def get_audit_logs(
     total = query.count()
     logs = (
         query.order_by(SentinelAuditLog.timestamp.desc())
-        .offset(offset)
-        .limit(limit)
+        .offset(offset_val)
+        .limit(limit_val)
         .all()
     )
     return {
         "status": "success",
         "total": total,
-        "limit": limit,
-        "offset": offset,
+        "limit": limit_val,
+        "offset": offset_val,
         "logs": [l.to_dict() for l in logs],
     }
 
 
-@v1_router.get("/audit-logs", response_model=Dict[str, Any])
+@v1_router.get(
+    "/audit-logs",
+    response_model=Dict[str, Any],
+    summary="Get V1 Compliance Audit Logs",
+    description="Compliance tracking endpoint for Sentinel audit logs under /api/v1/sentinel/audit-logs.",
+)
 def get_v1_audit_logs(
     limit: int = Query(50, ge=1, le=500, description="Max audit records to return"),
     offset: int = Query(0, ge=0, description="Pagination offset"),
@@ -2075,7 +2169,12 @@ def get_v1_audit_logs(
 # 21b. GET /api/sentinel/playbooks/{playbook_id}/export-history
 # ---------------------------------------------------------------------------
 
-@router.get("/playbooks/{playbook_id}/export-history", response_model=Dict[str, Any])
+@router.get(
+    "/playbooks/{playbook_id}/export-history",
+    response_model=Dict[str, Any],
+    summary="Get Playbook Export History",
+    description="Retrieve export audit history timeline for a specific playbook.",
+)
 def get_playbook_export_history(
     playbook_id: int = Path(..., ge=1, description="Database primary key ID of the playbook"),
     limit: int = Query(50, ge=1, le=200),
@@ -2109,7 +2208,12 @@ def get_playbook_export_history(
 # 22. GET & POST /api/v1/sentinel/templates — Template inspection and live preview
 # ---------------------------------------------------------------------------
 
-@v1_router.get("/templates", response_model=Dict[str, Any])
+@v1_router.get(
+    "/templates",
+    response_model=Dict[str, Any],
+    summary="List Playbook Templates",
+    description="List available Jinja2 incident response playbook templates.",
+)
 def list_sentinel_templates():
     """
     List available Jinja2 playbook templates.
@@ -2120,7 +2224,12 @@ def list_sentinel_templates():
     return {"status": "success", "templates": templates}
 
 
-@v1_router.post("/templates/preview", response_model=Dict[str, Any])
+@v1_router.post(
+    "/templates/preview",
+    response_model=Dict[str, Any],
+    summary="Preview Playbook Template",
+    description="Render a Jinja2 template with sample parameters or inline Jinja2 syntax testing.",
+)
 def preview_sentinel_template(payload: Dict[str, Any]):
     """
     Render a Jinja2 template with sample parameters for testing.
