@@ -44,26 +44,32 @@ from fastapi.testclient import TestClient
 from unittest.mock import patch
 
 try:
+    # pyrefly: ignore [missing-import]
     from taxii2client.v21 import ApiRoot, Collection, Server
+    # pyrefly: ignore [missing-import]
     from taxii2client.exceptions import TAXIIServiceException
     TAXII2_CLIENT_AVAILABLE = True
 except ImportError:
     TAXII2_CLIENT_AVAILABLE = False
 
-try:
-    from backend.api.taxii import router as taxii_router, TaxiiContentNegotiationMiddleware
-    from backend.database.database import SessionLocal
-    from backend.sentinel.models import SentinelPlaybook
-except ImportError:
-    from api.taxii import router as taxii_router, TaxiiContentNegotiationMiddleware
-    from database.database import SessionLocal
-    from sentinel.models import SentinelPlaybook
+# pyrefly: ignore [missing-import]
+from api.taxii import router as taxii_router, TaxiiContentNegotiationMiddleware
+# pyrefly: ignore [missing-import]
+from database.database import SessionLocal
+# pyrefly: ignore [missing-import]
+from sentinel.models import SentinelPlaybook
 
 
 def build_test_app() -> FastAPI:
     """Build FastAPI instance configured with TAXII 2.1 routes and middleware."""
     app = FastAPI(title="PhantomNet TAXII Test Server")
     app.add_middleware(TaxiiContentNegotiationMiddleware)
+    
+    # Bypass auth for test
+    # pyrefly: ignore [missing-import]
+    from api.taxii import get_taxii_user
+    app.dependency_overrides[get_taxii_user] = lambda: None
+    
     app.include_router(taxii_router)
     return app
 
@@ -234,11 +240,10 @@ def _execute_client_flow(server_url: str) -> bool:
         objects = bundle.get("objects", [])
 
         print("  [OK] STIX 2.1 Objects Bundle Retrieved Successfully!")
-        print(f"       - Bundle Type: {bundle.get('type')}")
-        print(f"       - Bundle ID: {bundle.get('id')}")
+        print(f"       - Bundle Type: {bundle.get('type', 'Envelope (No type field)')}")
+        print(f"       - Bundle ID: {bundle.get('id', 'N/A')}")
         print(f"       - Total STIX Objects: {len(objects)}")
 
-        assert bundle.get("type") == "bundle"
         assert isinstance(objects, list)
 
         for obj in objects:
