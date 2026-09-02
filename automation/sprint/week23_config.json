@@ -1,0 +1,394 @@
+{
+    "_comment": "PhantomNet Sprint Config — Week 23 (Month 6 Week 3: Documentation + Demo Preparation, Days 51-55)",
+    "week": 23,
+    "milestone_title": "Month 6 – Production Polish & Final Delivery (Weeks 21–24)",
+    "milestone_description": "Advanced features, CVE mapping, audit logging, system hardening, comprehensive E2E testing, and final V3.0 production delivery.",
+    "month_label": "month-6",
+    "extra_labels": [
+        "documentation-demo",
+        "production-polish"
+    ],
+    "labels": [
+        {
+            "name": "week-23",
+            "color": "0E8A16",
+            "description": "Week 23 tasks"
+        },
+        {
+            "name": "month-6",
+            "color": "5319E7",
+            "description": "Month 6 tasks"
+        },
+        {
+            "name": "documentation-demo",
+            "color": "FBCA04",
+            "description": "Documentation and demo preparation"
+        },
+        {
+            "name": "production-polish",
+            "color": "0075CA",
+            "description": "Production hardening and polish"
+        }
+    ],
+    "day_map": {
+        "1": "Mon (Aug 31)",
+        "2": "Tue (Sep 01)",
+        "3": "Wed (Sep 02)",
+        "4": "Thu (Sep 03)",
+        "5": "Fri (Sep 04)"
+    },
+    "tasks": [
+        {
+            "Day": 1,
+            "Role": "Team Lead",
+            "Assignee": "sriram21-09",
+            "Type": "Documentation",
+            "Title": "V3 Architecture README Rewrite",
+            "Objective": "Rewrite README.md to provide a complete, comprehensive, and professional overview of PhantomNet V3 architecture, features, quickstart instructions, and sentinel capabilities.",
+            "Tasks": [
+                "Rewrite README.md with full V3 system overview and capabilities breakdown.",
+                "Document end-to-end pipeline (honeypot capture -> ML detection -> MITRE ATT&CK mapping -> Snort/Sigma rule generation -> Playbook generation -> TAXII feed / SOC export).",
+                "Include setup/installation steps, quick start guide, environment variables, and Docker deployment commands.",
+                "Add status badges, feature matrices, and architecture component summaries."
+            ],
+            "Deliverables": [
+                "Rewritten and polished README.md."
+            ],
+            "Estimate": 6,
+            "Warnings": [
+                "**Do NOT** delete or break existing quickstart references and Docker guidelines."
+            ]
+        },
+        {
+            "Day": 1,
+            "Role": "Security Developer",
+            "Assignee": "VivekanandaReddy2006",
+            "Type": "Documentation",
+            "Title": "Sentinel Layer Technical Documentation",
+            "Objective": "Author comprehensive technical documentation for the Sentinel module covering architecture, threat aggregation, playbook lifecycle, and active defense.",
+            "Tasks": [
+                "Create docs/sentinel_layer.md detailing Sentinel architecture, data flow, and database models (SentinelPlaybook, SentinelAuditLog).",
+                "Document signature extraction from honeypot payloads, MITRE technique mapping rules, and playbook generation triggers.",
+                "Detail SOC analyst workflows (approval, rejection, batch operations, rule export, and retention policies)."
+            ],
+            "Deliverables": [
+                "docs/sentinel_layer.md"
+            ],
+            "Estimate": 5
+        },
+        {
+            "Day": 1,
+            "Role": "AI/ML Developer",
+            "Assignee": "vikranthN101",
+            "Type": "Documentation",
+            "Title": "LLM Integration and AI Playbook Guide",
+            "Objective": "Author dedicated documentation for the Ollama/Mistral LLM integration, prompt templates, few-shot prompt engineering, and offline graceful fallbacks.",
+            "Tasks": [
+                "Create docs/llm_integration.md detailing Ollama setup, hardware requirements (GPU/CPU), and model selection (Mistral 7B / fallback Gemma 2B).",
+                "Document LLM prompt architecture, structured context injection, and few-shot formatting.",
+                "Document response time tracking, timeout resilience, background task execution, and template-only fallback behavior."
+            ],
+            "Deliverables": [
+                "docs/llm_integration.md"
+            ],
+            "Estimate": 5
+        },
+        {
+            "Day": 1,
+            "Role": "Frontend Developer",
+            "Assignee": "sairammanideepreddy2123",
+            "Type": "Documentation",
+            "Title": "Full Pipeline Architecture Diagram and Visual Assets",
+            "Objective": "Create high-resolution Mermaid and visual architecture diagrams illustrating the full end-to-end pipeline and UI component structure.",
+            "Tasks": [
+                "Author Mermaid diagram in docs/diagrams/pipeline_architecture.md showing packet ingestion -> ML inference -> Sentinel -> UI / TAXII.",
+                "Generate frontend component hierarchy diagram for Sentinel dashboard, playbook viewer, Mitre matrix, and timeline analytics.",
+                "Export diagrams to web-ready formats and organize in docs/images/ and docs/diagrams/."
+            ],
+            "Deliverables": [
+                "docs/diagrams/pipeline_architecture.md",
+                "Mermaid diagrams and visual assets in docs/images/."
+            ],
+            "Estimate": 5
+        },
+        {
+            "Day": 2,
+            "Role": "Team Lead",
+            "Assignee": "sriram21-09",
+            "Type": "Documentation",
+            "Title": "Sentinel API Reference Documentation and OpenAPI Spec",
+            "Objective": "Write exhaustive API reference documentation and update OpenAPI specification for all Sentinel REST endpoints with request/response schemas.",
+            "Tasks": [
+                "Author docs/api_documentation_v2.md documenting all Sentinel endpoints (playbooks, batch actions, compare, rules export, timeline, audit logs, TAXII 2.1).",
+                "Provide curl, Python requests, and JSON payload examples for each endpoint.",
+                "Update docs/openapi.json / OpenAPI schema with new request bodies, query params, and HTTP status codes."
+            ],
+            "Deliverables": [
+                "Updated docs/api_documentation_v2.md",
+                "Updated docs/openapi.json"
+            ],
+            "Estimate": 6
+        },
+        {
+            "Day": 2,
+            "Role": "Security Developer",
+            "Assignee": "VivekanandaReddy2006",
+            "Type": "Documentation",
+            "Title": "IDS Rule Generation and Detection Formats Documentation",
+            "Objective": "Author comprehensive documentation on automated Snort and Sigma rule generation, syntax validation, deduplication, and export mechanisms.",
+            "Tasks": [
+                "Create docs/ids_rules.md explaining Snort 2.9/3.0 rule structures, header options, classtypes, SIDs, and thresholds.",
+                "Document Sigma rule generation, YAML schema compliance, condition syntax, and logsource mappings.",
+                "Detail rule deduplication algorithms and the combined ZIP export feature (/api/v1/sentinel/rules/export-all)."
+            ],
+            "Deliverables": [
+                "docs/ids_rules.md"
+            ],
+            "Estimate": 5
+        },
+        {
+            "Day": 2,
+            "Role": "AI/ML Developer",
+            "Assignee": "vikranthN101",
+            "Type": "Documentation",
+            "Title": "Playbook Template Authoring and Customization Guide",
+            "Objective": "Author documentation for Jinja2 playbook templates, template inheritance, variable dictionaries, and authoring guidelines for new attack scenarios.",
+            "Tasks": [
+                "Create docs/playbook_templates.md explaining Jinja2 template structure (base_playbook.md.j2, attack-specific templates).",
+                "Document all template context variables (cluster metadata, IOC tables, MITRE tactics, containment steps, recovery procedures).",
+                "Provide step-by-step developer tutorial for adding new incident response playbook templates."
+            ],
+            "Deliverables": [
+                "docs/playbook_templates.md"
+            ],
+            "Estimate": 5
+        },
+        {
+            "Day": 2,
+            "Role": "Frontend Developer",
+            "Assignee": "sairammanideepreddy2123",
+            "Type": "Documentation",
+            "Title": "Live Demonstration Script and Storyboard",
+            "Objective": "Author a comprehensive, step-by-step live demo script and user journey storyboard showcasing the entire PhantomNet V3 platform.",
+            "Tasks": [
+                "Create docs/demo_script.md containing a minute-by-minute demonstration walkthrough.",
+                "Detail step-by-step narrative: attack simulation -> real-time traffic detection -> ML scoring -> Sentinel incident response -> playbook approval -> TAXII feed / rule export.",
+                "Include UI highlight callouts (dark theme, ATT&CK heatmap, timeline spikes, side-by-side diff comparison)."
+            ],
+            "Deliverables": [
+                "docs/demo_script.md"
+            ],
+            "Estimate": 5
+        },
+        {
+            "Day": 3,
+            "Role": "Team Lead",
+            "Assignee": "sriram21-09",
+            "Type": "Documentation",
+            "Title": "Demo Video 1 Production: End-to-End Pipeline",
+            "Objective": "Record and produce Demo Video #1 showcasing the complete automated pipeline: attack injection -> playbook generation -> approval -> SOC export.",
+            "Tasks": [
+                "Execute live attack simulation against honeypots (SSH brute-force, SQL injection).",
+                "Capture backend aggregation, ML inference, and Sentinel playbook generation.",
+                "Demonstrate SOC analyst review, one-click playbook approval, and PDF/STIX/Markdown export.",
+                "Produce and save demo recording / capture in demos/demo_pipeline_e2e.mp4."
+            ],
+            "Deliverables": [
+                "Demo Video #1 artifact in demos/ or documentation summary."
+            ],
+            "Estimate": 6
+        },
+        {
+            "Day": 3,
+            "Role": "Security Developer",
+            "Assignee": "VivekanandaReddy2006",
+            "Type": "Documentation",
+            "Title": "Demo Video 2 Production: IDS Rules and TAXII Feed",
+            "Objective": "Record and produce Demo Video #2 demonstrating automated Snort/Sigma rule generation, rule deduplication, and external TAXII 2.1 STIX feed consumption.",
+            "Tasks": [
+                "Demonstrate real-time Snort and Sigma rule generation from detected attack payloads.",
+                "Demonstrate combined ZIP download of IDS rules.",
+                "Execute taxii2-client verification demonstrating external TAXII discovery, collection query, and STIX 2.1 bundle consumption.",
+                "Produce and save demo recording / capture in demos/demo_ids_taxii.mp4."
+            ],
+            "Deliverables": [
+                "Demo Video #2 artifact in demos/ or documentation summary."
+            ],
+            "Estimate": 5
+        },
+        {
+            "Day": 3,
+            "Role": "AI/ML Developer",
+            "Assignee": "vikranthN101",
+            "Type": "Documentation",
+            "Title": "Demo Video 3 Production: LLM Enhancement and ATT&CK Matrix",
+            "Objective": "Record and produce Demo Video #3 highlighting LLM narrative generation, prompt contextualization, and interactive MITRE ATT&CK coverage heatmap.",
+            "Tasks": [
+                "Demonstrate AI Narrative generation with Ollama/Mistral integration vs template fallback.",
+                "Showcase ATT&CK Matrix visualization tab, technique coverage heatmaps, and filtering.",
+                "Demonstrate quality scoring and campaign timeline progression charts.",
+                "Produce and save demo recording / capture in demos/demo_ai_mitre.mp4."
+            ],
+            "Deliverables": [
+                "Demo Video #3 artifact in demos/ or documentation summary."
+            ],
+            "Estimate": 5
+        },
+        {
+            "Day": 3,
+            "Role": "Frontend Developer",
+            "Assignee": "sairammanideepreddy2123",
+            "Type": "Documentation",
+            "Title": "Demo Video 4 Production: Dashboard UI Walkthrough",
+            "Objective": "Record and produce Demo Video #4 providing a polished, comprehensive walkthrough of all dashboard pages, themes, and interactive features.",
+            "Tasks": [
+                "Walk through Overview Dashboard, Honeypot Monitors, ML Model Analytics, Sentinel Dashboard, Playbook Viewer, and Admin Settings.",
+                "Highlight theme switching (dark/light), multi-select batch approval, and search filters.",
+                "Record and produce demo recording / capture in demos/demo_dashboard_walkthrough.mp4."
+            ],
+            "Deliverables": [
+                "Demo Video #4 artifact in demos/ or documentation summary."
+            ],
+            "Estimate": 5
+        },
+        {
+            "Day": 4,
+            "Role": "Team Lead",
+            "Assignee": "sriram21-09",
+            "Type": "Documentation",
+            "Title": "Project Report Section 1: Architecture and Design Decisions",
+            "Objective": "Author Section 1 of the formal Final Project Report focusing on system architecture, component modularity, scalability, and design trade-offs.",
+            "Tasks": [
+                "Write architecture report section covering layered micro-architecture (Collector, Classifier, Sentinel, Presentation).",
+                "Document architectural design decisions, technology stack selections, and database concurrency handling.",
+                "Detail API design philosophy, state management, and enterprise integration patterns."
+            ],
+            "Deliverables": [
+                "docs/reports/final_report_section1_architecture.md"
+            ],
+            "Estimate": 6
+        },
+        {
+            "Day": 4,
+            "Role": "Security Developer",
+            "Assignee": "VivekanandaReddy2006",
+            "Type": "Documentation",
+            "Title": "Project Report Section 2: Threat Detection and Security Hardening",
+            "Objective": "Author Section 2 of the formal Final Project Report detailing threat detection efficacy, honeypot emulation, IDS rules, and security audits.",
+            "Tasks": [
+                "Write security report section detailing honeypot protocols (SSH, HTTP, FTP, SMTP), capture mechanisms, and attack scenario coverage.",
+                "Document MITRE ATT&CK mapping accuracy, Snort/Sigma rule generation fidelity, and TAXII 2.1 threat sharing.",
+                "Summarize vulnerability management, red-team penetration tests, and API security hardening."
+            ],
+            "Deliverables": [
+                "docs/reports/final_report_section2_security.md"
+            ],
+            "Estimate": 5
+        },
+        {
+            "Day": 4,
+            "Role": "AI/ML Developer",
+            "Assignee": "vikranthN101",
+            "Type": "Documentation",
+            "Title": "Project Report Section 3: Machine Learning and LLM Integration",
+            "Objective": "Author Section 3 of the formal Final Project Report covering ML detection models, feature extraction, evaluation metrics, and LLM narrative synthesis.",
+            "Tasks": [
+                "Write ML report section detailing anomaly detection models, supervised classifiers, feature engineering pipelines, and F1-score benchmarks.",
+                "Document Ollama/Mistral integration, prompt optimization, few-shot examples, and latency benchmarks.",
+                "Document threat scoring, quality metrics, and campaign timeline density modeling."
+            ],
+            "Deliverables": [
+                "docs/reports/final_report_section3_ml_ai.md"
+            ],
+            "Estimate": 5
+        },
+        {
+            "Day": 4,
+            "Role": "Frontend Developer",
+            "Assignee": "sairammanideepreddy2123",
+            "Type": "Documentation",
+            "Title": "Project Report Section 4: Frontend Design and User Experience",
+            "Objective": "Author Section 4 of the formal Final Project Report covering UI/UX architecture, dashboard ergonomics, design systems, and usability testing.",
+            "Tasks": [
+                "Write frontend report section detailing React architecture, component library, state management, and real-time polling.",
+                "Document UI/UX design choices, dark/light theme implementation, accessibility standards, and responsive breakpoints.",
+                "Summarize usability testing, SOC analyst workflow efficiencies, and frontend performance metrics."
+            ],
+            "Deliverables": [
+                "docs/reports/final_report_section4_frontend.md"
+            ],
+            "Estimate": 5
+        },
+        {
+            "Day": 5,
+            "Role": "Team Lead",
+            "Assignee": "sriram21-09",
+            "Type": "Review",
+            "Title": "Comprehensive Documentation Review and Audit",
+            "Objective": "Lead formal review of all project documentation, report sections, and guides for technical accuracy, completeness, and alignment with master plan.",
+            "Tasks": [
+                "Review and audit all newly created documentation files in docs/ and README.md.",
+                "Ensure cross-references, API schemas, and installation commands are verified and accurate.",
+                "Consolidate individual report sections into a unified Master Final Project Report."
+            ],
+            "Deliverables": [
+                "Consolidated Master Final Project Report.",
+                "Documentation audit sign-off report."
+            ],
+            "Estimate": 5
+        },
+        {
+            "Day": 5,
+            "Role": "Security Developer",
+            "Assignee": "VivekanandaReddy2006",
+            "Type": "Review",
+            "Title": "Security and Compliance Documentation Review",
+            "Objective": "Review and sign off on all security documentation, TAXII specifications, IDS rule catalogs, and pentest summaries.",
+            "Tasks": [
+                "Verify accuracy of docs/ids_rules.md, docs/taxii_interoperability.md, and docs/sentinel_layer.md.",
+                "Ensure all CVE references, attack signatures, and MITRE IDs in documentation match backend implementations.",
+                "Complete Security Documentation Sign-off for Week 23."
+            ],
+            "Deliverables": [
+                "Security documentation review sign-off."
+            ],
+            "Estimate": 4
+        },
+        {
+            "Day": 5,
+            "Role": "AI/ML Developer",
+            "Assignee": "vikranthN101",
+            "Type": "Review",
+            "Title": "AI/ML Documentation Verification and Presentation Compilation",
+            "Objective": "Review AI/ML and LLM documentation, compile recorded demo videos into presentation slides, and prepare media assets.",
+            "Tasks": [
+                "Verify accuracy of docs/llm_integration.md and docs/playbook_templates.md.",
+                "Assemble demo video clips and diagrams into project presentation deck / slide outline.",
+                "Complete AI/ML documentation sign-off for Week 23."
+            ],
+            "Deliverables": [
+                "Project presentation slide outline / compilation.",
+                "AI/ML documentation review sign-off."
+            ],
+            "Estimate": 4
+        },
+        {
+            "Day": 5,
+            "Role": "Frontend Developer",
+            "Assignee": "sairammanideepreddy2123",
+            "Type": "Review",
+            "Title": "GitHub Repo Polish, README Assets, and Demo GIF Integration",
+            "Objective": "Update the GitHub repository presentation, embed demo GIFs/screenshots into README and documentation, and ensure clean repository appearance.",
+            "Tasks": [
+                "Generate animated demo GIFs from UI walkthrough videos.",
+                "Embed screenshots and GIFs into README.md and docs/ guides.",
+                "Verify Markdown rendering, links, and asset paths on GitHub."
+            ],
+            "Deliverables": [
+                "Polished GitHub repository visual assets and embedded demo GIFs.",
+                "Frontend review sign-off for Week 23."
+            ],
+            "Estimate": 4
+        }
+    ]
+}

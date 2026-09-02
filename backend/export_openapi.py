@@ -5,8 +5,10 @@ from fastapi.openapi.utils import get_openapi
 import logging
 
 try:
-    # Need to prevent APScheduler from blocking exit
+    # Need to prevent APScheduler and sniffer from blocking exit
+    os.environ["ENVIRONMENT"] = "test"
     os.environ["DISABLE_BACKGROUND_TASKS"] = "1"
+    sys.path.insert(0, os.path.dirname(__file__))
     
     from main import app
     
