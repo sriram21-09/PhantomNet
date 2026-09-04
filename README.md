@@ -648,6 +648,8 @@ PhantomNet is built from the ground up on defense-in-depth principles to protect
 
 For in-depth technical documentation, refer to the dedicated guides in the `docs/` repository:
 
+- 📑 **[Master Final Project Report](docs/reports/MASTER_FINAL_PROJECT_REPORT.md)** — Consolidated camera-ready master report across Architecture, Security, ML/AI, and Frontend.
+- 🛡️ **[Documentation Audit & Sign-Off Report](docs/reports/DOCUMENTATION_AUDIT_SIGNOFF.md)** — Formal Week 23 documentation audit and certification sign-off.
 - 🏛️ **[System Architecture & Design Guide](docs/system_architecture.md)** — Architectural layers, data diode design, and threading models.
 - 🧠 **[Machine Learning & Inference Pipeline](docs/ml_pipeline.md)** — Feature definitions, model hyperparameters, and SHAP mathematical formulation.
 - 🤖 **[LLM Integration & AI Playbooks](docs/llm_integration.md)** — Ollama setup, Mistral prompt templates, few-shot conditioning, and fallback logic.
