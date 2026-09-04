@@ -153,17 +153,17 @@ graph TD
 
 | Component | File Path | Primary Responsibilities | Key Child Components / Dependencies |
 | :--- | :--- | :--- | :--- |
-| **`SentinelDashboard`** | [`SentinelDashboard.jsx`](file:///c:/Users/manid/project/PhantomNet/frontend-dev/phantomnet-dashboard/src/pages/SentinelDashboard.jsx) | Main view container, state orchestration, layout grid | `SentinelStatsPanel`, `PlaybookList`, `MitreMatrix`, `PlaybookViewer` |
-| **`SentinelStatsPanel`** | [`SentinelStatsPanel.jsx`](file:///c:/Users/manid/project/PhantomNet/frontend-dev/phantomnet-dashboard/src/components/sentinel/SentinelStatsPanel.jsx) | KPI stats header, critical threat metrics, coverage indicators | SVG gauges, metric counter cards |
-| **`PlaybookList`** | [`PlaybookList.jsx`](file:///c:/Users/manid/project/PhantomNet/frontend-dev/phantomnet-dashboard/src/components/sentinel/PlaybookList.jsx) | Filterable, sortable list and grid of playbooks | `PlaybookCard` |
-| **`PlaybookCard`** | [`PlaybookCard.jsx`](file:///c:/Users/manid/project/PhantomNet/frontend-dev/phantomnet-dashboard/src/components/sentinel/PlaybookCard.jsx) | Compact card rendering playbook status, threat score, indicators | `MitreTag` |
-| **`MitreMatrix`** | [`MitreMatrix.jsx`](file:///c:/Users/manid/project/PhantomNet/frontend-dev/phantomnet-dashboard/src/components/sentinel/MitreMatrix.jsx) | Interactive 12-tactic MITRE ATT&CK grid visualization | `MitreTag`, `TechniqueDetailPanel` |
-| **`TechniqueDetailPanel`** | [`TechniqueDetailPanel.jsx`](file:///c:/Users/manid/project/PhantomNet/frontend-dev/phantomnet-dashboard/src/components/sentinel/TechniqueDetailPanel.jsx) | Side drawer showing detailed technique metadata & rules | `RulePreview` |
-| **`PlaybookViewer`** | [`PlaybookViewer.jsx`](file:///c:/Users/manid/project/PhantomNet/frontend-dev/phantomnet-dashboard/src/components/sentinel/PlaybookViewer.jsx) | Deep inspection modal/drawer with AI narrative & response actions | `ApprovalControls`, `RulePreview` |
-| **`ApprovalControls`** | [`ApprovalControls.jsx`](file:///c:/Users/manid/project/PhantomNet/frontend-dev/phantomnet-dashboard/src/components/sentinel/ApprovalControls.jsx) | Workflow approval buttons (Pending → Approved → Promoted) | API integration hooks |
-| **`RulePreview`** | [`RulePreview.jsx`](file:///c:/Users/manid/project/PhantomNet/frontend-dev/phantomnet-dashboard/src/components/sentinel/RulePreview.jsx) | Code syntax block with copy/download for Snort, Sigma, YARA | Clipboard API |
-| **`CampaignTimelineChart`** | [`CampaignTimelineChart.jsx`](file:///c:/Users/manid/project/PhantomNet/frontend-dev/phantomnet-dashboard/src/components/sentinel/CampaignTimelineChart.jsx) | Time-series visualization of attack volume, severity spikes, C2 events | Recharts (`ResponsiveContainer`, `AreaChart`) |
-| **`ExportHistoryPanel`** | [`ExportHistoryPanel.jsx`](file:///c:/Users/manid/project/PhantomNet/frontend-dev/phantomnet-dashboard/src/components/sentinel/ExportHistoryPanel.jsx) | TAXII 2.1 sync status table & STIX 2.1 JSON bundle downloader | FileSaver / Blob API |
+| **`SentinelDashboard`** | [`SentinelDashboard.jsx`](../../frontend-dev/phantomnet-dashboard/src/pages/SentinelDashboard.jsx) | Main view container, state orchestration, layout grid | `SentinelStatsPanel`, `PlaybookList`, `MitreMatrix`, `PlaybookViewer` |
+| **`SentinelStatsPanel`** | [`SentinelStatsPanel.jsx`](../../frontend-dev/phantomnet-dashboard/src/components/sentinel/SentinelStatsPanel.jsx) | KPI stats header, critical threat metrics, coverage indicators | SVG gauges, metric counter cards |
+| **`PlaybookList`** | [`PlaybookList.jsx`](../../frontend-dev/phantomnet-dashboard/src/components/sentinel/PlaybookList.jsx) | Filterable, sortable list and grid of playbooks | `PlaybookCard` |
+| **`PlaybookCard`** | [`PlaybookCard.jsx`](../../frontend-dev/phantomnet-dashboard/src/components/sentinel/PlaybookCard.jsx) | Compact card rendering playbook status, threat score, indicators | `MitreTag` |
+| **`MitreMatrix`** | [`MitreMatrix.jsx`](../../frontend-dev/phantomnet-dashboard/src/components/sentinel/MitreMatrix.jsx) | Interactive 12-tactic MITRE ATT&CK grid visualization | `MitreTag`, `TechniqueDetailPanel` |
+| **`TechniqueDetailPanel`** | [`TechniqueDetailPanel.jsx`](../../frontend-dev/phantomnet-dashboard/src/components/sentinel/TechniqueDetailPanel.jsx) | Side drawer showing detailed technique metadata & rules | `RulePreview` |
+| **`PlaybookViewer`** | [`PlaybookViewer.jsx`](../../frontend-dev/phantomnet-dashboard/src/components/sentinel/PlaybookViewer.jsx) | Deep inspection modal/drawer with AI narrative & response actions | `ApprovalControls`, `RulePreview` |
+| **`ApprovalControls`** | [`ApprovalControls.jsx`](../../frontend-dev/phantomnet-dashboard/src/components/sentinel/ApprovalControls.jsx) | Workflow approval buttons (Pending → Approved → Promoted) | API integration hooks |
+| **`RulePreview`** | [`RulePreview.jsx`](../../frontend-dev/phantomnet-dashboard/src/components/sentinel/RulePreview.jsx) | Code syntax block with copy/download for Snort, Sigma, YARA | Clipboard API |
+| **`CampaignTimelineChart`** | [`CampaignTimelineChart.jsx`](../../frontend-dev/phantomnet-dashboard/src/components/sentinel/CampaignTimelineChart.jsx) | Time-series visualization of attack volume, severity spikes, C2 events | Recharts (`ResponsiveContainer`, `AreaChart`) |
+| **`ExportHistoryPanel`** | [`ExportHistoryPanel.jsx`](../../frontend-dev/phantomnet-dashboard/src/components/sentinel/ExportHistoryPanel.jsx) | TAXII 2.1 sync status table & STIX 2.1 JSON bundle downloader | FileSaver / Blob API |
 
 ---
 
@@ -266,14 +266,14 @@ High-resolution visual architecture diagrams generated for documentation and web
 
 | Diagram Reference | Format | Description | File Path |
 | :--- | :--- | :--- | :--- |
-| **Pipeline Architecture** | Visual PNG | Complete packet ingestion to UI/TAXII pipeline | [`docs/images/pipeline_architecture_diagram.png`](file:///c:/Users/manid/project/PhantomNet/docs/images/pipeline_architecture_diagram.png) |
-| **Frontend Component Hierarchy** | Visual PNG | Modular layout & component breakdown for Sentinel React UI | [`docs/images/frontend_component_hierarchy_diagram.png`](file:///c:/Users/manid/project/PhantomNet/docs/images/frontend_component_hierarchy_diagram.png) |
+| **Pipeline Architecture** | Visual PNG | Complete packet ingestion to UI/TAXII pipeline | [`docs/images/pipeline_architecture_diagram.png`](../images/pipeline_architecture_diagram.png) |
+| **Frontend Component Hierarchy** | Visual PNG | Modular layout & component breakdown for Sentinel React UI | [`docs/images/frontend_component_hierarchy_diagram.png`](../images/frontend_component_hierarchy_diagram.png) |
 
 ### Visual Pipeline Architecture
-![Pipeline Architecture Diagram](file:///c:/Users/manid/project/PhantomNet/docs/images/pipeline_architecture_diagram.png)
+![Pipeline Architecture Diagram](../images/pipeline_architecture_diagram.png)
 
 ### Visual Frontend Component Hierarchy
-![Frontend Component Hierarchy Diagram](file:///c:/Users/manid/project/PhantomNet/docs/images/frontend_component_hierarchy_diagram.png)
+![Frontend Component Hierarchy Diagram](../images/frontend_component_hierarchy_diagram.png)
 
 ---
 *Documentation updated for PhantomNet Release Candidate 1 (RC1).*
