@@ -135,7 +135,9 @@ def test_taxii2_client_get_objects(mocked_taxii_session):
         api_root = server.api_roots[0]
         col = api_root.collections[0]
 
-        bundle = col.get_objects()
+        from datetime import datetime, timezone, timedelta
+        filter_time = (datetime.now(timezone.utc) - timedelta(minutes=1)).strftime("%Y-%m-%dT%H:%M:%SZ")
+        bundle = col.get_objects(added_after=filter_time)
         assert "objects" in bundle
         assert isinstance(bundle["objects"], list)
 
