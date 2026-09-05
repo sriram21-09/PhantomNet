@@ -220,6 +220,22 @@ To ensure operational uptime across diverse enterprise networks (including air-g
 
 ## 2. UI/UX Design System, Themes & Ergonomics
 
+### 2.0 Visual UI/UX & Demo Walkthroughs
+
+The PhantomNet V3 React frontend provides dynamic, low-latency visual interfaces for SOC analysts:
+
+| Sentinel V3 Playbook Inspection & Rules | NOC Dashboard & Campaign Analytics |
+| :---: | :---: |
+| ![Sentinel V3 Playbook Demo](../../demos/sentinel_v3_demo.gif) | ![Dashboard Walkthrough Demo](../../demos/demo_dashboard_walkthrough.gif) |
+| *Playbook modal inspection, Snort/Sigma rule previews, and workflow approval* | *NOC telemetry grid, interactive MITRE matrix heatmap, and campaign timeline* |
+
+| End-to-End Incident Response Pipeline | TAXII 2.1 Threat Dissemination Exchange |
+| :---: | :---: |
+| ![End-to-End Pipeline Demo](../../demos/demo_pipeline_e2e.gif) | ![TAXII 2.1 Exchange Demo](../../demos/demo_ids_taxii.gif) |
+| *Ingestion from honeypot mesh to automated LLM narrative playbook generation* | *Real-time STIX 2.1 threat bundle exchange via TAXII 2.1 protocol* |
+
+---
+
 ### 2.1 Design Philosophy & 8px Base Grid Architecture
 
 PhantomNet V3 enforces an **8px base layout grid** across all component boundaries, container margins, and padding rules. This spatial rhythm guarantees visual alignment and pixel-perfect responsiveness:

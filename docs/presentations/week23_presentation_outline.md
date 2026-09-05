@@ -33,7 +33,7 @@
 
 ## Slide 5: LLM-Powered Incident Playbooks
 * **Headline:** Automated Playbook Generation
-* **Video Clip:** `demos/demo_ai_mitre.mp4`
+* **Media Assets:** `demos/sentinel_v3_demo.mp4` / `demos/sentinel_v3_demo.gif`
 * **Content:**
   * Ollama integration serving Mistral-7B (Primary) and Gemma-2B (Fallback).
   * Dynamic Jinja2 templating system for structured outputs.
@@ -42,17 +42,18 @@
 
 ## Slide 6: Dynamic Threat Scoring & Campaign Modeling
 * **Headline:** Prioritizing Threats Effectively
-* **Video Clip:** `demos/demo_dashboard_walkthrough.mp4` (Highlighting Campaign Timeline)
+* **Media Assets:** `demos/demo_dashboard_walkthrough.mp4` / `demos/demo_dashboard_walkthrough.gif` (Highlighting Campaign Timeline & MITRE Heatmap)
 * **Content:**
   * Quality Scoring Engine (0-100) based on ML confidence, IOC density, and multi-source verification.
   * Campaign Density Modeling aggregating events into time-series buckets to visualize lateral movement and sustained attacks.
 
-## Slide 7: End-to-End Pipeline Demonstration
-* **Headline:** Sentinel Pipeline In Action
-* **Video Clip:** `demos/demo_pipeline_e2e.mp4`
+## Slide 7: End-to-End Pipeline Demonstration & Threat Intelligence Sharing
+* **Headline:** Sentinel Pipeline & TAXII 2.1 Dissemination In Action
+* **Media Assets:** `demos/demo_pipeline_e2e.mp4` / `demos/demo_pipeline_e2e.gif` and `demos/demo_ids_taxii.mp4` / `demos/demo_ids_taxii.gif`
 * **Content:**
   * Walkthrough from Honeypot ingestion to Playbook generation.
-  * Displaying the generated MITRE ATT&CK mappings and containment steps.
+  * Displaying the generated MITRE ATT&CK mappings, Snort/Sigma rules, and containment steps.
+  * Real-time TAXII 2.1 collection discovery and STIX 2.1 bundle dissemination.
 
 ## Slide 8: Future Work & Enhancements
 * **Headline:** Roadmap and Scalability

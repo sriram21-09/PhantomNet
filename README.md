@@ -287,6 +287,20 @@ tags:
 
 The React 19 Sentinel Dashboard provides an enterprise-ready command center for SOC analysts:
 
+### 🎬 Animated Interactive Walkthroughs
+
+| Sentinel V3 Playbook & Rule Inspection | NOC Operations & Campaign Analytics |
+| :---: | :---: |
+| ![Sentinel V3 Demo](demos/sentinel_v3_demo.gif) | ![Dashboard Walkthrough](demos/demo_dashboard_walkthrough.gif) |
+| *Playbook inspection, Snort/Sigma previews, and approval workflow* | *NOC metrics, interactive ATT&CK matrix, and campaign timeline* |
+
+| End-to-End Incident Pipeline | TAXII 2.1 Threat Feed Exchange |
+| :---: | :---: |
+| ![E2E Pipeline Demo](demos/demo_pipeline_e2e.gif) | ![TAXII 2.1 Exchange](demos/demo_ids_taxii.gif) |
+| *Ingestion from Honeypots to Sentinel LLM Playbook synthesis* | *Real-time STIX 2.1 bundle dissemination via TAXII 2.1* |
+
+---
+
 ### 1. Operations Overview & Live Telemetry
 Real-time monitoring of all active honeypot nodes, live incoming attack telemetry, threat level breakdown, and system health status.
 

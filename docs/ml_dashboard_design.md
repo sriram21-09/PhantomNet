@@ -39,5 +39,5 @@ The ML Insights Dashboard provides a high-level overview of the machine learning
 - **Mock Data**: Comprehensive data provider with realistic ML telemetry.
 
 ## Implementation Screenshots
-![ML Dashboard Implementation](/c:/Users/MANIDEEP%20REDDY/project/PhantomNet/docs/screenshots/ml_dashboard_week11/ml_dashboard_final_refined.png)
+![ML Dashboard Implementation](screenshots/ml_dashboard_week11/ml_dashboard_final_refined.png)
 *(Note: Final high-fidelity prototype with integrated ML visualizations)*
