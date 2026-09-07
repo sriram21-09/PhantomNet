@@ -1,0 +1,432 @@
+{
+    "_comment": "PhantomNet Sprint Config — Week 24 (Month 6 Week 4: Final Polish + Submission, Days 56-60)",
+    "week": 24,
+    "milestone_title": "Month 6 – Production Polish & Final Delivery (Weeks 21–24)",
+    "milestone_description": "Advanced features, CVE mapping, audit logging, system hardening, comprehensive E2E testing, and final V3.0 production delivery.",
+    "month_label": "month-6",
+    "extra_labels": [
+        "final-submission",
+        "production-polish"
+    ],
+    "labels": [
+        {
+            "name": "week-24",
+            "color": "0E8A16",
+            "description": "Week 24 tasks"
+        },
+        {
+            "name": "month-6",
+            "color": "5319E7",
+            "description": "Month 6 tasks"
+        },
+        {
+            "name": "final-submission",
+            "color": "D93F0B",
+            "description": "Final submission and release"
+        },
+        {
+            "name": "production-polish",
+            "color": "0075CA",
+            "description": "Production hardening and polish"
+        }
+    ],
+    "day_map": {
+        "1": "Mon (Sep 07)",
+        "2": "Tue (Sep 08)",
+        "3": "Wed (Sep 09)",
+        "4": "Thu (Sep 10)",
+        "5": "Fri (Sep 11)"
+    },
+    "tasks": [
+        {
+            "Day": 1,
+            "Role": "Team Lead",
+            "Assignee": "sriram21-09",
+            "Type": "Review",
+            "Title": "Final Code Cleanup — Backend Core, Sentinel Service, and API Layer",
+            "Objective": "Perform comprehensive final code cleanup across all backend modules — remove debug prints, unused imports, TODO comments, dead code, and ensure consistent logging, type hints, and docstrings throughout sentinel/, api/, and core backend files.",
+            "Tasks": [
+                "Audit and clean sentinel/sentinel_service.py, sentinel/mitre_mapper.py, sentinel/rule_generator.py, sentinel/playbook_generator.py — remove debug prints, unused imports, TODO/FIXME comments.",
+                "Audit and clean api/sentinel.py, api/taxii.py — verify all endpoints have proper error handling, type hints, and docstrings.",
+                "Audit main.py, backend/main.py — remove unused imports, dead code paths, and commented-out experimental code.",
+                "Verify all Python files pass flake8/pylint linting with zero warnings on critical rules."
+            ],
+            "Deliverables": [
+                "Clean, production-ready backend codebase with zero debug artifacts."
+            ],
+            "Estimate": 6,
+            "Warnings": [
+                "**Do NOT** remove or modify any production logging statements (logger.info, logger.warning, logger.error) — only remove print() debug statements.",
+                "**Do NOT** remove any existing unit test files or test fixtures during cleanup."
+            ]
+        },
+        {
+            "Day": 1,
+            "Role": "Security Developer",
+            "Assignee": "VivekanandaReddy2006",
+            "Type": "Review",
+            "Title": "Final Code Cleanup — Rule Generator, TAXII, and Security Tests",
+            "Objective": "Perform final code cleanup across rule_generator.py, TAXII endpoints, security test files, and all security-related modules — ensure production-grade code quality with no debug artifacts.",
+            "Tasks": [
+                "Clean sentinel/rule_generator.py — remove debug prints, unused variables, TODO comments, and verify consistent Snort/Sigma rule formatting.",
+                "Clean api/taxii.py — verify TAXII 2.1 spec compliance, remove experimental code, ensure proper content-type headers.",
+                "Clean all test files in tests/ related to security (test_rule_generator.py, test_taxii.py, test_stix_enhanced.py) — remove skipped/disabled tests, fix deprecation warnings.",
+                "Verify all security imports are used and no circular dependencies exist in sentinel/ package."
+            ],
+            "Deliverables": [
+                "Clean, production-ready security codebase with verified rule generation and TAXII endpoints."
+            ],
+            "Estimate": 5
+        },
+        {
+            "Day": 1,
+            "Role": "AI/ML Developer",
+            "Assignee": "vikranthN101",
+            "Type": "Review",
+            "Title": "Final Code Cleanup — Playbook Generator, LLM Service, and Templates",
+            "Objective": "Perform final code cleanup across playbook_generator.py, llm_service.py, Jinja2 templates, and ML model files — remove debug artifacts and ensure clean, maintainable AI/ML codebase.",
+            "Tasks": [
+                "Clean sentinel/playbook_generator.py — remove debug prints, unused template variables, TODO comments.",
+                "Clean sentinel/llm_service.py — remove experimental prompts, ensure timeout/fallback logic is clean.",
+                "Audit all Jinja2 templates in sentinel/templates/ — remove draft comments, verify consistent formatting across all .md.j2 files.",
+                "Clean ml_models/ and experiments/ — remove unused model checkpoints, experimental scripts, and temporary data files."
+            ],
+            "Deliverables": [
+                "Clean, production-ready AI/ML codebase with polished templates and LLM service."
+            ],
+            "Estimate": 5
+        },
+        {
+            "Day": 1,
+            "Role": "Frontend Developer",
+            "Assignee": "sairammanideepreddy2123",
+            "Type": "Review",
+            "Title": "Final Code Cleanup — React Components, Console Logs, and Unused State",
+            "Objective": "Perform final code cleanup across all React components in frontend-dev/ — remove console.log statements, unused state variables, commented-out JSX, and ensure consistent component patterns.",
+            "Tasks": [
+                "Remove all console.log, console.warn, console.error debug statements from React components.",
+                "Remove unused imports, unused state variables (useState/useEffect), and dead code paths in all .jsx files.",
+                "Audit src/components/sentinel/ — PlaybookViewer.jsx, PlaybookCard.jsx, MitreMatrix.jsx, RulePreview.jsx, ApprovalControls.jsx — ensure clean prop drilling and consistent error boundaries.",
+                "Verify all CSS/styles are referenced and no orphaned stylesheets exist in src/pages/ or src/components/."
+            ],
+            "Deliverables": [
+                "Clean, production-ready React frontend with zero console debug artifacts."
+            ],
+            "Estimate": 5
+        },
+        {
+            "Day": 2,
+            "Role": "Team Lead",
+            "Assignee": "sriram21-09",
+            "Type": "Review",
+            "Title": "Version Bump, Changelog, and Release Notes for V3.0.0",
+            "Objective": "Prepare formal release artifacts — bump version to 3.0.0 across all configuration files, finalize CHANGELOG.md with comprehensive Month 1-6 entries, and author release notes.",
+            "Tasks": [
+                "Bump version to 3.0.0 in package.json, setup.py/pyproject.toml (if present), docker-compose.yml labels, and README.md badges.",
+                "Finalize CHANGELOG.md with comprehensive entries for all 6 months of development — features, fixes, and breaking changes.",
+                "Author GitHub Release Notes (draft) summarizing key V3 capabilities: Sentinel Layer, LLM Integration, TAXII 2.1, ATT&CK Matrix, PDF Export, Batch Operations.",
+                "Tag the release commit message format: 'Release v3.0.0 — PhantomNet Sentinel V3'."
+            ],
+            "Deliverables": [
+                "Updated CHANGELOG.md with complete V3 history.",
+                "GitHub Release Notes draft.",
+                "Version bumped to 3.0.0 across all config files."
+            ],
+            "Estimate": 6
+        },
+        {
+            "Day": 2,
+            "Role": "Security Developer",
+            "Assignee": "VivekanandaReddy2006",
+            "Type": "Testing",
+            "Title": "Verify Docker Deployment from Scratch",
+            "Objective": "Perform a clean Docker deployment verification — build from scratch with docker-compose up --build, verify all services start correctly, test end-to-end pipeline in containerized environment.",
+            "Tasks": [
+                "Run docker-compose down -v to remove all existing containers and volumes.",
+                "Execute docker-compose up --build and verify all services (backend, frontend, honeypots) start without errors.",
+                "Test end-to-end pipeline in Docker: attack simulation -> ML detection -> Sentinel playbook generation -> Dashboard visibility.",
+                "Document any Docker-specific issues, environment variable gaps, or missing dependencies in deployment checklist."
+            ],
+            "Deliverables": [
+                "Docker deployment verification report.",
+                "Updated docker-compose.yml / Dockerfile if fixes needed."
+            ],
+            "Estimate": 6,
+            "Warnings": [
+                "**Do NOT** modify docker-compose.prod.yml without updating docker-compose.yml equivalently — both must stay in sync."
+            ]
+        },
+        {
+            "Day": 2,
+            "Role": "AI/ML Developer",
+            "Assignee": "vikranthN101",
+            "Type": "Testing",
+            "Title": "Verify Fresh Install and First-Run Experience",
+            "Objective": "Simulate a first-time user experience — clone repository from scratch, install all dependencies, run the application, and verify the dashboard loads with zero pre-existing data.",
+            "Tasks": [
+                "Clone repository to a fresh directory (git clone).",
+                "Install Python backend dependencies (pip install -r requirements.txt) and verify no missing packages.",
+                "Install frontend dependencies (npm install in frontend-dev/phantomnet-dashboard/) and verify clean build.",
+                "Run backend (uvicorn) and frontend (npm run dev), verify dashboard loads at localhost:5173 with empty/seed data.",
+                "Document any missing setup steps, environment variable requirements, or first-run issues."
+            ],
+            "Deliverables": [
+                "Fresh install verification report.",
+                "Updated README.md quickstart if gaps found."
+            ],
+            "Estimate": 5
+        },
+        {
+            "Day": 2,
+            "Role": "Frontend Developer",
+            "Assignee": "sairammanideepreddy2123",
+            "Type": "Documentation",
+            "Title": "Final Screenshot Set for README and Project Report",
+            "Objective": "Capture a comprehensive set of high-resolution screenshots of every dashboard page, Sentinel features, and key UI states for inclusion in README.md and the final project report.",
+            "Tasks": [
+                "Capture screenshots of: Overview Dashboard, Honeypot Monitor, ML Analytics, Sentinel Dashboard (list view), Sentinel Playbook Viewer (detail view).",
+                "Capture screenshots of: ATT&CK Matrix heatmap, Campaign Timeline, Batch Approval workflow, PDF Export dialog, Dark/Light theme comparison.",
+                "Organize all screenshots in docs/images/ with descriptive filenames (e.g., sentinel_dashboard_dark.png, mitre_matrix_heatmap.png).",
+                "Update README.md to embed the latest screenshots replacing any outdated placeholders."
+            ],
+            "Deliverables": [
+                "Complete screenshot set in docs/images/.",
+                "Updated README.md with embedded screenshots."
+            ],
+            "Estimate": 5
+        },
+        {
+            "Day": 3,
+            "Role": "Team Lead",
+            "Assignee": "sriram21-09",
+            "Type": "Testing",
+            "Title": "Full System Test on Clean Environment",
+            "Objective": "Execute a comprehensive full-system test on a clean environment with a fresh database and no cached data — verify every component of the pipeline works from cold start.",
+            "Tasks": [
+                "Reset database to clean state (delete phantomnet.db, let system recreate on startup).",
+                "Start all services (backend, frontend, honeypots) and verify clean initialization.",
+                "Execute complete attack simulation pipeline: SSH brute force, SQL injection, port scan, FTP exfiltration — verify each generates correct Sentinel playbooks.",
+                "Verify all dashboard pages render correctly with freshly generated data — no stale cache artifacts."
+            ],
+            "Deliverables": [
+                "Full system test report with pass/fail for each pipeline stage."
+            ],
+            "Estimate": 6,
+            "Warnings": [
+                "**Back up the existing phantomnet.db** before resetting — copy to phantomnet.db.backup before deletion."
+            ]
+        },
+        {
+            "Day": 3,
+            "Role": "Security Developer",
+            "Assignee": "VivekanandaReddy2006",
+            "Type": "Testing",
+            "Title": "Full System Test — Security and TAXII Verification",
+            "Objective": "Execute security-focused system tests on the clean environment — verify TAXII feed serves STIX data, all rule exports work, and API security hardening is intact.",
+            "Tasks": [
+                "Test TAXII 2.1 endpoints: discovery, collections, objects retrieval with taxii2-client library.",
+                "Verify Snort and Sigma rule exports — download ZIP, validate rule syntax for all generated rules.",
+                "Test API security: verify rate limiting on sentinel generation, proper error responses for invalid inputs, no SQL injection in search endpoints.",
+                "Verify PDF export generates valid PDF files for all playbook types."
+            ],
+            "Deliverables": [
+                "Security verification test report."
+            ],
+            "Estimate": 5
+        },
+        {
+            "Day": 3,
+            "Role": "AI/ML Developer",
+            "Assignee": "vikranthN101",
+            "Type": "Testing",
+            "Title": "Full System Test — ML Pipeline and LLM Verification",
+            "Objective": "Execute ML/AI-focused system tests — verify ML model inference, LLM graceful degradation without Ollama, quality scoring, and campaign timeline data accuracy.",
+            "Tasks": [
+                "Verify ML model loads correctly and produces valid threat scores for all attack patterns.",
+                "Test LLM graceful degradation: stop Ollama service, verify system generates template-only playbooks without errors or crashes.",
+                "Verify quality scoring produces consistent scores across multiple runs with same input data.",
+                "Test campaign timeline API returns accurate event density data matching database records."
+            ],
+            "Deliverables": [
+                "ML/AI system test verification report."
+            ],
+            "Estimate": 5
+        },
+        {
+            "Day": 3,
+            "Role": "Frontend Developer",
+            "Assignee": "sairammanideepreddy2123",
+            "Type": "Testing",
+            "Title": "Full System Test — Complete Demo Recording from Start to Finish",
+            "Objective": "Record a complete end-to-end demo from system startup to final export — this serves as the backup demo recording and validates the full user journey.",
+            "Tasks": [
+                "Record system startup sequence: backend initialization, frontend loading, honeypot status verification.",
+                "Record complete attack → detection → playbook pipeline: inject attacks, show real-time ML scoring, navigate to Sentinel dashboard.",
+                "Record SOC analyst workflow: review playbook, inspect ATT&CK mapping, approve playbook, export as PDF and STIX.",
+                "Save recording in demos/ directory with descriptive filename (e.g., demo_full_system_v3_final.mp4)."
+            ],
+            "Deliverables": [
+                "Complete backup demo recording in demos/."
+            ],
+            "Estimate": 6
+        },
+        {
+            "Day": 4,
+            "Role": "Team Lead",
+            "Assignee": "sriram21-09",
+            "Type": "Review",
+            "Title": "Presentation Rehearsal — Architecture and Lead Section",
+            "Objective": "Conduct presentation rehearsal for the Architecture and System Design section — practice live demonstration, refine talking points, and coordinate with team on handoff transitions.",
+            "Tasks": [
+                "Rehearse Architecture section: system overview, layered micro-architecture, technology stack justification.",
+                "Practice live demo segment: cold start → attack injection → playbook generation in under 3 minutes.",
+                "Coordinate team handoff transitions: define speaking order (Architecture → Security → AI/ML → Frontend).",
+                "Fix any last-minute issues discovered during rehearsal — document critical fixes needed."
+            ],
+            "Deliverables": [
+                "Rehearsal notes with timing per section.",
+                "List of last-minute fixes (if any)."
+            ],
+            "Estimate": 5
+        },
+        {
+            "Day": 4,
+            "Role": "Security Developer",
+            "Assignee": "VivekanandaReddy2006",
+            "Type": "Review",
+            "Title": "Presentation Rehearsal — Security and Threat Detection Section",
+            "Objective": "Conduct presentation rehearsal for the Security Features and Threat Detection section — practice demonstrating TAXII feeds, IDS rules, and MITRE ATT&CK mapping accuracy.",
+            "Tasks": [
+                "Rehearse Security section: honeypot protocol coverage, signature detection, MITRE ATT&CK mapping.",
+                "Practice live demo segment: TAXII feed discovery with external client, rule export and validation.",
+                "Demonstrate Snort/Sigma rule quality and STIX 2.1 bundle structure.",
+                "Fix any last-minute security-related issues discovered during rehearsal."
+            ],
+            "Deliverables": [
+                "Rehearsal notes for security section.",
+                "Last-minute security fixes (if any)."
+            ],
+            "Estimate": 4
+        },
+        {
+            "Day": 4,
+            "Role": "AI/ML Developer",
+            "Assignee": "vikranthN101",
+            "Type": "Review",
+            "Title": "Presentation Rehearsal — ML Pipeline and AI Integration Section",
+            "Objective": "Conduct presentation rehearsal for the Machine Learning and AI Integration section — practice demonstrating ML inference, LLM narrative generation, and quality scoring.",
+            "Tasks": [
+                "Rehearse AI/ML section: anomaly detection models, feature engineering, F1-score benchmarks.",
+                "Practice live demo segment: show ML scoring in real-time, LLM narrative vs template-only comparison.",
+                "Demonstrate quality scoring algorithm and campaign timeline visualization.",
+                "Fix any last-minute AI/ML issues discovered during rehearsal."
+            ],
+            "Deliverables": [
+                "Rehearsal notes for AI/ML section.",
+                "Last-minute AI/ML fixes (if any)."
+            ],
+            "Estimate": 4
+        },
+        {
+            "Day": 4,
+            "Role": "Frontend Developer",
+            "Assignee": "sairammanideepreddy2123",
+            "Type": "Review",
+            "Title": "Presentation Rehearsal — Dashboard Design and UX Section",
+            "Objective": "Conduct presentation rehearsal for the Frontend Design and User Experience section — practice live dashboard walkthrough, theme switching, and interactive feature demonstration.",
+            "Tasks": [
+                "Rehearse Frontend section: React architecture, component library, real-time polling, responsive design.",
+                "Practice live dashboard walkthrough: navigate all pages, demonstrate dark/light theme switch, show batch operations.",
+                "Demonstrate ATT&CK heatmap interaction, campaign timeline, playbook comparison view.",
+                "Fix any last-minute UI issues discovered during rehearsal."
+            ],
+            "Deliverables": [
+                "Rehearsal notes for frontend section.",
+                "Last-minute UI fixes (if any)."
+            ],
+            "Estimate": 4
+        },
+        {
+            "Day": 5,
+            "Role": "Team Lead",
+            "Assignee": "sriram21-09",
+            "Type": "Review",
+            "Title": "Final Git Push — Tag Release v3.0.0 and Submit Project",
+            "Objective": "Execute the final git workflow: commit all changes, create annotated v3.0.0 tag, push to remote, create GitHub Release with release notes, and formally submit the project.",
+            "Tasks": [
+                "Run final git status — ensure working tree is clean with all changes committed.",
+                "Create annotated git tag: git tag -a v3.0.0 -m 'PhantomNet Sentinel V3 — Final Release'.",
+                "Push all branches and tags: git push origin main --tags.",
+                "Create GitHub Release from v3.0.0 tag with compiled release notes, demo video links, and download assets.",
+                "Formally submit project per submission requirements."
+            ],
+            "Deliverables": [
+                "Tagged v3.0.0 release on GitHub.",
+                "GitHub Release page with release notes.",
+                "Formal project submission."
+            ],
+            "Estimate": 5,
+            "Warnings": [
+                "**Ensure ALL team members have pushed their final commits** before creating the release tag.",
+                "**Do NOT force-push** to main — use merge commits only."
+            ]
+        },
+        {
+            "Day": 5,
+            "Role": "Security Developer",
+            "Assignee": "VivekanandaReddy2006",
+            "Type": "Review",
+            "Title": "Final Security Checklist Sign-Off and Release Verification",
+            "Objective": "Complete the final security checklist — verify no sensitive data in repository, all API endpoints secured, Docker images clean, and TAXII/STIX compliance confirmed.",
+            "Tasks": [
+                "Scan repository for accidentally committed secrets, API keys, or credentials (check .env, config files, git history).",
+                "Verify .gitignore covers all sensitive files: .env, *.db, mlruns/, __pycache__/, node_modules/.",
+                "Run final TAXII interoperability test and confirm STIX 2.1 bundle compliance.",
+                "Sign off on Security Checklist for v3.0.0 release."
+            ],
+            "Deliverables": [
+                "Security release checklist sign-off document.",
+                "Confirmation of no leaked credentials in repository."
+            ],
+            "Estimate": 4
+        },
+        {
+            "Day": 5,
+            "Role": "AI/ML Developer",
+            "Assignee": "vikranthN101",
+            "Type": "Review",
+            "Title": "Final ML Model and LLM Verification Sign-Off",
+            "Objective": "Complete final verification of ML model artifacts, LLM configuration, and AI documentation — ensure all model files are properly versioned and documentation is accurate.",
+            "Tasks": [
+                "Verify ML model files in models/ are the final trained versions with correct accuracy metrics.",
+                "Verify LLM configuration defaults are production-safe: SENTINEL_LLM_ENABLED=false by default, timeout values reasonable.",
+                "Confirm docs/llm_integration.md and docs/playbook_templates.md are accurate and match current implementation.",
+                "Sign off on AI/ML release readiness for v3.0.0."
+            ],
+            "Deliverables": [
+                "AI/ML release readiness sign-off document."
+            ],
+            "Estimate": 4
+        },
+        {
+            "Day": 5,
+            "Role": "Frontend Developer",
+            "Assignee": "sairammanideepreddy2123",
+            "Type": "Review",
+            "Title": "Final Frontend Build Verification and Project Submission Celebration",
+            "Objective": "Run final frontend production build, verify no build warnings or errors, confirm all assets are optimized, and celebrate successful V3 delivery with the team! 🎉",
+            "Tasks": [
+                "Run npm run build in frontend-dev/phantomnet-dashboard/ — verify zero build errors and zero critical warnings.",
+                "Verify all static assets (images, fonts, icons) are included in the build output.",
+                "Confirm all route paths work correctly in production build (test with npm run preview if available).",
+                "Celebrate completion of PhantomNet V3! 🎉 Document lessons learned and team retrospective notes."
+            ],
+            "Deliverables": [
+                "Clean production build verification.",
+                "Team retrospective notes (optional).",
+                "🎉 PhantomNet V3.0.0 — Done!"
+            ],
+            "Estimate": 4
+        }
+    ]
+}

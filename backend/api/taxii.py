@@ -25,13 +25,12 @@ Week 18, Day 4 — Add Filtering to TAXII Objects Endpoint (added_after)
 from __future__ import annotations
 
 import logging
-import re
 import uuid
-from datetime import datetime, timezone, timedelta
+from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional
 
 # pyrefly: ignore [missing-import]
-from fastapi import APIRouter, Depends, Header, HTTPException, Path, Query, Response
+from fastapi import APIRouter, Depends, Header, HTTPException, Path, Query
 # pyrefly: ignore [missing-import]
 from fastapi.responses import JSONResponse
 # pyrefly: ignore [missing-import]
@@ -82,7 +81,7 @@ def get_taxii_user(
         user = db.query(User).filter(User.username == basic.username).first()
         if user and user.status == "active" and verify_password(basic.password, user.hashed_password):
             return user
-            
+
     err = TaxiiErrorResponse(
         title="Unauthorized",
         description="Invalid or missing authentication credentials.",
@@ -591,10 +590,10 @@ def get_collection_objects(
 ) -> JSONResponse:
     """
     Retrieve STIX 2.1 objects from a specific TAXII collection.
-    
-    Supports pagination via `limit` and `next` tokens, and time-based filtering 
+
+    Supports pagination via `limit` and `next` tokens, and time-based filtering
     using the `added_after` query parameter.
-    
+
     Returns a TAXII envelope containing the STIX objects.
     """
     err_resp = validate_taxii_headers(accept, content_type, is_objects_endpoint=True)
@@ -656,13 +655,13 @@ def get_collection_objects(
 
         # If a limit is provided, we fetch one extra to determine if there are more results
         safe_limit = limit if limit is not None else 100
-        
+
         playbooks = query.limit(safe_limit + 1).all()
-        
+
         more_results = len(playbooks) > safe_limit
         if more_results:
             playbooks = playbooks[:safe_limit]
-            
+
 
 
     except Exception as e:
@@ -679,7 +678,7 @@ def get_collection_objects(
         )
 
     stix_objects: List[Dict[str, Any]] = []
-    
+
     if playbooks:
         # 1. Base PhantomNet Identity Anchor Object
         phantomnet_identity = {
@@ -706,7 +705,7 @@ def get_collection_objects(
         )
 
         pb_seed = str(pb.playbook_id) if getattr(pb, "playbook_id", None) else str(uuid.uuid4())
-        
+
         # Ensure valid STIX 2.1 UUID format for Report ID
         if pb_seed.startswith("report--"):
             report_id = pb_seed

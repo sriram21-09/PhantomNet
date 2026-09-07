@@ -156,10 +156,10 @@ _NEXT_SID = _load_sid()
 def escape_snort_string(val: str) -> str:
     """
     Escape special characters in a Snort string value (double quotes, backslashes, semicolons).
-    
+
     Args:
         val: The raw description string.
-        
+
     Returns:
         The escaped description string suitable for msg field.
     """
@@ -177,7 +177,7 @@ def escape_snort_string(val: str) -> str:
 def format_mitre_url(technique_id: str) -> str:
     """
     Normalizes a technique ID or MITRE URL into a standard URL path segment.
-    
+
     Examples:
         "T1110.001" -> "T1110/001/"
         "T1190" -> "T1190/"
@@ -203,11 +203,11 @@ def format_mitre_url(technique_id: str) -> str:
 
     # Replace dots with slashes
     path = technique_id.replace(".", "/")
-    
+
     # Ensure trailing slash is present
     if path and not path.endswith("/"):
         path += "/"
-        
+
     return path
 
 
@@ -407,7 +407,7 @@ def validate_snort_rule_inputs(
 
     if classtype not in VALID_SNORT_CLASSTYPES:
         return {
-            "status": "error", 
+            "status": "error",
             "error": f"Invalid classtype {classtype!r}. Must be one of the standard Snort classtypes."
         }
 
@@ -449,7 +449,7 @@ def generate_snort_rule(
 
     Returns:
         A formatted Snort rule string, or a dictionary containing an error status and message.
-    
+
     Raises:
         ValueError: If inputs are invalid and the caller expects an exception.
     """
@@ -499,7 +499,7 @@ def generate_snort_rule(
 
     # Escape attack description to keep Snort syntax valid
     escaped_desc = escape_snort_string(str(attack_desc))
-    
+
     # Format technique ID properly for the MITRE URL reference
     formatted_tech_id = format_mitre_url(technique_id)
 
@@ -520,7 +520,7 @@ def generate_snort_rule(
 def clean_and_format_tag(tag: str) -> str:
     """
     Normalizes a tag or MITRE ATT&CK technique reference into a standard lowercase Sigma tag.
-    
+
     Examples:
         "T1110.001" -> "attack.t1110.001"
         "T1190" -> "attack.t1190"
@@ -529,36 +529,36 @@ def clean_and_format_tag(tag: str) -> str:
     """
     if not isinstance(tag, str):
         return ""
-    
+
     tag_clean = tag.strip()
-    
+
     # If it is a full MITRE URL, extract the technique portion
     if "attack.mitre.org/techniques/" in tag_clean:
         parts = tag_clean.split("attack.mitre.org/techniques/")
         if len(parts) > 1:
             tag_clean = parts[1]
-            
+
     # Clean leading/trailing slashes
     tag_clean = tag_clean.strip("/")
-    
+
     # Check if it matches the ATT&CK technique pattern (e.g. t1110, t1110.001, t1110/001, optionally with attack. prefix)
     pattern = r"^(?:attack\.)?([tT]\d{4}(?:[./]\d{3})?)$"
     match = re.match(pattern, tag_clean)
     if match:
         tech_id = match.group(1).lower().replace("/", ".")
         return f"attack.{tech_id}"
-    
+
     # If it starts with attack. but is not standard technique pattern, just return lowercase
     if tag_clean.lower().startswith("attack."):
         return tag_clean.lower()
-        
+
     return tag_clean.lower()
 
 
 def map_severity_to_level(severity: str) -> str:
     """
     Maps a severity string to a standard Sigma level (critical, high, medium, low).
-    
+
     Supported severity values (case-insensitive):
         - CRITICAL -> critical
         - HIGH -> high
@@ -568,13 +568,13 @@ def map_severity_to_level(severity: str) -> str:
     """
     if not isinstance(severity, str):
         return "medium"
-        
+
     sev = severity.strip().lower()
     if sev in ("critical", "high", "medium", "low"):
         return sev
     if sev == "info":
         return "low"
-        
+
     # Default to medium if unknown
     return "medium"
 
@@ -631,7 +631,7 @@ def generate_sigma_rule(
 
     # Process and format tags
     processed_tags = []
-    
+
     # 1. Process technique_id if provided
     if technique_id:
         tech_tag = clean_and_format_tag(technique_id)
@@ -735,7 +735,7 @@ def generate_rules_for_campaign(
         sources = list(sources_raw)
     else:
         sources = [str(sources_raw)]
-    
+
     # Filter/validate source IPs
     validated_sources = []
     for ip in sources:
@@ -816,19 +816,19 @@ def generate_rules_for_campaign(
         if not isinstance(tech, dict):
             # If it's a string or other, create a basic placeholder
             tech = {"technique_id": str(tech)}
-        
+
         tech_id = tech.get("technique_id") or tech.get("id") or "T1046"
         # Normalize format
         tech_id = str(tech_id).strip()
-        
+
         if tech_id not in seen_technique_ids:
             seen_technique_ids.add(tech_id)
-            
+
             tech_name = tech.get("technique_name") or tech.get("name") or "Unknown ATT&CK Technique"
             tactic = tech.get("tactic") or "Discovery"
             url = tech.get("url") or tech.get("mitre_url") or f"https://attack.mitre.org/techniques/{tech_id}/"
             severity = tech.get("severity") or "MEDIUM"
-            
+
             normalized_techniques.append({
                 "technique_id": tech_id,
                 "technique_name": tech_name,
@@ -871,14 +871,14 @@ def generate_rules_for_campaign(
             "category": "network_traffic",
             "product": "phantomnet"
         }
-        
+
         # Build detection selection block
         selection = {}
         if validated_sources and validated_sources != ["any"]:
             selection["src_ip"] = validated_sources
         if validated_ports and validated_ports != ["any"]:
             selection["dst_port"] = validated_ports
-        
+
         # Include protocols if any
         protos_cleaned = [p.lower().strip() for p in protocols]
         if protos_cleaned:
@@ -892,7 +892,7 @@ def generate_rules_for_campaign(
             "selection": selection,
             "condition": "selection"
         }
-        
+
         rule = generate_sigma_rule(
             title=title,
             logsource=logsource,
@@ -944,7 +944,7 @@ def deduplicate_rules(rule_list: list[str]) -> list[str]:
     import re
     seen_hashes = set()
     deduped = []
-    
+
     # Regex patterns for variable fields
     # Match Snort sid: e.g. "sid:1000001;" or "sid: 1000001;"
     snort_sid_pattern = re.compile(r"sid\s*:\s*\d+\s*;?", re.IGNORECASE)
@@ -952,26 +952,23 @@ def deduplicate_rules(rule_list: list[str]) -> list[str]:
     sigma_title_pattern = re.compile(r"^title\s*:.*$", re.MULTILINE | re.IGNORECASE)
     # Match Sigma id (if present)
     sigma_id_pattern = re.compile(r"^id\s*:.*$", re.MULTILINE | re.IGNORECASE)
-    
+
     for rule in rule_list:
         if not rule or not isinstance(rule, str):
             continue
-            
+
         # Strip variable fields for fingerprinting
         normalized = rule
         normalized = snort_sid_pattern.sub("", normalized)
         normalized = sigma_title_pattern.sub("", normalized)
         normalized = sigma_id_pattern.sub("", normalized)
-        
+
         # Normalize rule string (strip whitespace, lower case for fingerprinting)
         normalized = " ".join(normalized.strip().split()).lower()
         fingerprint = hashlib.md5(normalized.encode("utf-8")).hexdigest()
-        
+
         if fingerprint not in seen_hashes:
             seen_hashes.add(fingerprint)
             deduped.append(rule)
-            
+
     return deduped
-
-
-

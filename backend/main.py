@@ -1,7 +1,7 @@
 # =========================
 # CORE IMPORTS (Reloaded)
 # =========================
-import sys
+# pylint: disable=not-callable
 import os
 import importlib.util as _ilu
 
@@ -16,28 +16,27 @@ _cw_mod.apply_console_wrapper()
 del _ilu, _cw_path, _cw_spec, _cw_mod
 
 
-import json
 import contextlib
 import socket
 import asyncio
 import ipaddress
 import logging
 from datetime import datetime, timedelta
-from typing import Dict, List, Any, Optional, Set, Union, Tuple
+from typing import Dict, List, Any, Set, Tuple
 
 import psutil
 from dotenv import load_dotenv
 from fastapi import FastAPI, Depends, HTTPException, Query, Path, Request
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
-from sqlalchemy import text, func
+from sqlalchemy import func
 from sqlalchemy.orm import Session
 
 # =========================
 # DATABASE & MODELS
 # =========================
 from database.database import get_db, engine, SessionLocal
-from database.models import Base, PacketLog, TrafficStats
+from database.models import Base, PacketLog
 
 # =========================
 # SENTINEL MODELS
@@ -69,7 +68,7 @@ from ml_engine.explainability import explainer_service
 # PERFORMANCE MIDDLEWARE
 # =========================
 from middleware.profiling import ProfilingMiddleware
-from middleware.metrics_collector import MetricsMiddleware, get_metrics_response
+from middleware.metrics_collector import MetricsMiddleware
 from middleware.cache import cache_response, api_cache
 from middleware.auth import seed_default_admin
 from middleware.logging_middleware import SecurityLoggingMiddleware
@@ -88,7 +87,7 @@ from api.predictive import router as predictive_router
 from api.admin import router as admin_router
 from api.threat_scoring import router as threat_router
 from api.sentinel import router as sentinel_router, v1_router as v1_sentinel_router
-from ml.threat_scoring_service import score_threat, map_score_to_level, ThreatInput, REDIS_AVAILABLE, _FEATURE_EXTRACTOR
+from ml.threat_scoring_service import _FEATURE_EXTRACTOR
 from api.protocol_analytics import router as analytics_router
 from api.metrics import router as metrics_router
 from api.pattern_analytics import router as pattern_analytics_router
@@ -106,6 +105,7 @@ from api.rate_limiter import get_rate_limit_status
 _env_preset = os.getenv("ENVIRONMENT")
 load_dotenv()
 ENVIRONMENT = _env_preset or os.getenv("ENVIRONMENT", "local")
+logger = logging.getLogger("phantomnet")
 
 # =========================
 # DATABASE SETUP
@@ -127,36 +127,36 @@ async def lifespan(_app: FastAPI):
     if os.getenv("ENVIRONMENT", "local").lower() not in ["ci", "test"]:
         sniffer: RealTimeSniffer = RealTimeSniffer()
         sniffer.start_background_sniffer()
-        print("PhantomNet Sniffer Started")
+        logger.info("PhantomNet Sniffer Started")
 
         # Start Threat Analyzer Background Service (with 2s delay)
         async def delayed_analyzer_start():
             await asyncio.sleep(2)
             try:
                 threat_analyzer.start()
-                print("Threat Analyzer Service started (background)")
+                logger.info("Threat Analyzer Service started (background)")
             except Exception as e:
-                print(f"Error starting threat analyzer: {e}")
-        
+                logger.error("Error starting threat analyzer: %s", e)
+
         asyncio.create_task(delayed_analyzer_start())
 
         # Initialize and load scheduled reports
         scheduler_service.load_schedules()
-        print("Scheduled Reports Loader Started")
+        logger.info("Scheduled Reports Loader Started")
 
         # Start Sentinel Auto-Generation Scheduler (APScheduler-based, opt-in)
         _auto_gen_started = scheduler_service.start_sentinel_auto_gen()
         if _auto_gen_started:
-            print("[OK] Sentinel Auto-Gen Scheduler started (APScheduler interval job)")
+            logger.info("[OK] Sentinel Auto-Gen Scheduler started (APScheduler interval job)")
         else:
-            print("[--] Sentinel Auto-Gen Scheduler disabled (SENTINEL_AUTO_GEN_ENABLED=false)")
+            logger.info("[--] Sentinel Auto-Gen Scheduler disabled (SENTINEL_AUTO_GEN_ENABLED=false)")
 
         # Start Sentinel Retention Cleanup Scheduler
         _retention_started = scheduler_service.start_sentinel_retention_cleanup()
         if _retention_started:
-            print("[OK] Sentinel Retention Cleanup Scheduler started")
+            logger.info("[OK] Sentinel Retention Cleanup Scheduler started")
         else:
-            print("[--] Sentinel Retention Cleanup Scheduler disabled (SENTINEL_RETENTION_CLEANUP_ENABLED=false)")
+            logger.info("[--] Sentinel Retention Cleanup Scheduler disabled (SENTINEL_RETENTION_CLEANUP_ENABLED=false)")
 
         # Start Real-Time Metrics Broadcaster
         asyncio.create_task(broadcast_live_metrics())
@@ -170,19 +170,19 @@ async def lifespan(_app: FastAPI):
         _sentinel_enabled = os.getenv("SENTINEL_ENABLED", "false").lower() == "true"
         if _sentinel_enabled:
             asyncio.create_task(sentinel_generation_loop())
-            print("[OK] Sentinel Generation Loop started (SENTINEL_ENABLED=true)")
+            logger.info("[OK] Sentinel Generation Loop started (SENTINEL_ENABLED=true)")
         else:
-            print("[--] Sentinel Generation Loop disabled (SENTINEL_ENABLED=false)")
+            logger.info("[--] Sentinel Generation Loop disabled (SENTINEL_ENABLED=false)")
 
         # Seed default admin
         _db = SessionLocal()
         seed_default_admin(_db)
         _db.close()
     else:
-        print("Sniffer disabled (CI/Test mode)")
+        logger.info("Sniffer disabled (CI/Test mode)")
 
     yield
-    print("PhantomNet Shutting Down")
+    logger.info("PhantomNet Shutting Down")
     scheduler_service.stop_sentinel_auto_gen()
     scheduler_service.stop_sentinel_retention_cleanup()
     threat_analyzer.stop()
@@ -235,7 +235,7 @@ async def sentinel_generation_loop() -> None:
     except Exception as exc:
         _log.warning("DB pre-seed failed (non-fatal): %s", exc)
 
-    print(f"[+] Sentinel Generation Loop Started (pre-seeded {len(_processed_hashes)} existing playbooks)")
+    _log.info("[+] Sentinel Generation Loop Started (pre-seeded %d existing playbooks)", len(_processed_hashes))
 
     cycle_count = 0
     while True:
@@ -358,18 +358,12 @@ async def sentinel_generation_loop() -> None:
                 error_count,
                 len(_processed_hashes),
             )
-            print(
-                f"[*] Sentinel cycle #{cycle_count}: "
-                f"{total_found} found, {new_count} new, "
-                f"{skipped_count} skipped, {error_count} errors"
-            )
 
         except Exception as e:
             _log.error(
                 "Sentinel generation loop error (cycle #%d): %s",
                 cycle_count, e,
             )
-            print(f"[!] Sentinel generation loop error: {e}")
 
 
 async def _pcap_cleanup_scheduler(analyzer) -> None:
@@ -383,11 +377,13 @@ async def _pcap_cleanup_scheduler(analyzer) -> None:
         try:
             result = analyzer.cleanup_old_pcaps(retention_days=30)
             if result["removed_files"] > 0:
-                print(
-                    f"[Cleanup] PCAP Cleanup: Removed {result['removed_files']} expired files ({result['freed_bytes']} bytes freed)"
+                logger.info(
+                    "[Cleanup] PCAP Cleanup: Removed %s expired files (%s bytes freed)",
+                    result["removed_files"],
+                    result["freed_bytes"],
                 )
         except Exception as e:
-            print(f"PCAP cleanup error: {e}")
+            logger.error("PCAP cleanup error: %s", e)
         await asyncio.sleep(86400)  # 24 hours
 
 
@@ -396,7 +392,7 @@ async def broadcast_live_metrics() -> None:
     Background task to broadcast real-time metrics every 2 seconds via WebSockets.
     Fetches stats, enriches them with honeypot and system health data.
     """
-    print("[+] Real-Time Metrics Broadcaster Started")
+    logger.info("[+] Real-Time Metrics Broadcaster Started")
     while True:
         try:
             db = SessionLocal()
@@ -439,7 +435,7 @@ async def broadcast_live_metrics() -> None:
 
             await push_realtime_event("LIVE_METRICS", stats)
         except Exception as e:
-            print(f"Error in metrics broadcast loop: {e}")
+            logger.error("Error in metrics broadcast loop: %s", e)
         finally:
             if "db" in locals():
                 db.close()
@@ -453,7 +449,7 @@ async def broadcast_event_stream() -> None:
     Identifies new PacketLog entries and pushes them via WebSockets.
     """
 
-    print("[+] Event Stream Broadcaster Started")
+    logger.info("[+] Event Stream Broadcaster Started")
     last_id = 0
     while True:
         try:
@@ -483,7 +479,7 @@ async def broadcast_event_stream() -> None:
                 await push_realtime_event("EVENT_STREAM", payload)
                 last_id = max(last_id, event.id)
         except (AttributeError, KeyError, RuntimeError, socket.error) as e:
-            print(f"Error in event stream broadcast: {e}")
+            logger.error("Error in event stream broadcast: %s", e)
         finally:
             if "db" in locals():
                 db.close()
@@ -577,7 +573,7 @@ def health_check() -> dict:
     Check the health of the API.
     """
     return {
-        "status": "online", 
+        "status": "online",
         "timestamp": datetime.utcnow().isoformat(),
         "rate_limits": get_rate_limit_status()
     }
@@ -662,7 +658,7 @@ def prometheus_metrics() -> str:
     from fastapi.responses import PlainTextResponse
     from middleware.metrics_collector import metrics
     from sentinel.metrics import sentinel_metrics
-    
+
     content = metrics.to_prometheus() + sentinel_metrics.to_prometheus()
     return PlainTextResponse(
         content=content,
@@ -750,25 +746,25 @@ def get_live_features(db: Session = Depends(get_db)):
         "threat_score": log.threat_score or 0.0,
         "timestamp": log.timestamp.isoformat() if log.timestamp else None
     }
-    
+
     # Run through the true backend feature extractor
     raw_features = _FEATURE_EXTRACTOR.extract_features(event_dict)
-    
+
     features = {}
     for k, v in raw_features.items():
         v = round(v, 2) if isinstance(v, float) else v
-        
+
         status = "normal"
         if ("score" in k and v > 50) or ("malicious" in k and v > 0.5) or ("anomaly" in k and v > 1.0):
             status = "anomalous"
-            
+
         features[k] = {
             "label": k.replace("_", " ").title(),
             "value": v,
             "interpretation": f"Calculated value: {v}",
             "status": status
         }
-        
+
     return {
         "eventId": f"LIVE-{log.protocol}-{log.id}",
         "features": features
@@ -867,7 +863,7 @@ def _process_attack_map_logs(logs: List[PacketLog]) -> Tuple[List[Dict[str, Any]
             "avg_threat_score": round(sum(scores) / len(scores), 2) if scores else 0.0,
         })
     locations.sort(key=lambda x: x["count"], reverse=True)
-    
+
     top_countries = sorted([{"country": k, "count": v} for k, v in country_counts.items()],
                            key=lambda x: int(x["count"]), reverse=True)[:10] # type: ignore
 

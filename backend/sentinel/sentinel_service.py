@@ -892,7 +892,7 @@ class SentinelService:
             logger.info("Step 8 - SentinelPlaybook persisted: id=%s, playbook_id=%s",
 
                         playbook_record.id, playbook_id)
-            
+
             # ── Step 8b: Trigger background LLM narrative generation ─────
             # Offloads LLM generation asynchronously using FastAPI BackgroundTasks
             # (or thread/event loop fallbacks) to prevent database write connection locks.
