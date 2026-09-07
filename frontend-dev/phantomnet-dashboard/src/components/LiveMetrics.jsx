@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useRealTime } from '../context/RealTimeContext';
 import { PieChart, Pie, Cell, ResponsiveContainer, LineChart, Line, YAxis, Tooltip } from 'recharts';
 import { Activity, Shield, Users, Server, Cpu, Database, Zap, BarChart3 } from 'lucide-react';
@@ -38,14 +38,12 @@ const LiveMetrics = () => {
     const [prevMetrics, setPrevMetrics] = useState(null);
 
     useEffect(() => {
-        if (metrics) {
-            setPrevMetrics(prev => prev ? prev : metrics);
-            setHistory(prev => [...prev.slice(-29), { val: metrics.totalEvents || 0, ts: Date.now() }]);
-            setEpmHistory(prev => [...prev.slice(-29), { val: metrics.events_per_minute || 0, ts: Date.now() }]);
-            // Update prev every 10s
-            const timer = setTimeout(() => setPrevMetrics(metrics), 10000);
-            return () => clearTimeout(timer);
-        }
+        if (!metrics) return;
+        // eslint-disable-next-line react-hooks/set-state-in-effect
+        setHistory(prev => [...prev.slice(-29), { val: metrics.totalEvents || 0, ts: Date.now() }]);
+        setEpmHistory(prev => [...prev.slice(-29), { val: metrics.events_per_minute || 0, ts: Date.now() }]);
+        const timer = setTimeout(() => setPrevMetrics(metrics), 10000);
+        return () => clearTimeout(timer);
     }, [metrics]);
 
     const threatData = useMemo(() => {

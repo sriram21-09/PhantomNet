@@ -25,7 +25,7 @@ const Maintenance = () => {
             const data = await res.json();
             setBackups(data.backups || []);
             setBackupsLoaded(true);
-        } catch (err) {
+        } catch {
             setResult('backups', 'error', 'Failed to load backup history');
         }
     }, []);

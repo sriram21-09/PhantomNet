@@ -1,16 +1,11 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { FaRocket, FaShieldAlt, FaChartLine, FaCheckCircle } from "react-icons/fa";
 import "../Styles/components/WelcomeModal.css";
 
 const WelcomeModal = () => {
-    const [isVisible, setIsVisible] = useState(false);
-
-    useEffect(() => {
-        const hasSeenWelcome = localStorage.getItem("phantomnet_welcome_seen");
-        if (!hasSeenWelcome) {
-            setIsVisible(true);
-        }
-    }, []);
+    const [isVisible, setIsVisible] = useState(() => {
+        return !localStorage.getItem("phantomnet_welcome_seen");
+    });
 
     const handleClose = () => {
         localStorage.setItem("phantomnet_welcome_seen", "true");

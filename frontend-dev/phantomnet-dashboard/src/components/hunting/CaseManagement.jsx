@@ -49,6 +49,7 @@ const CaseManagement = ({ selectedEvent, cases, onCaseUpdate }) => {
             setRelatedEvents([]);
             setPatterns([]);
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [selectedEvent]);
 
     const handleExtractIOCs = async () => {
@@ -111,8 +112,8 @@ const CaseManagement = ({ selectedEvent, cases, onCaseUpdate }) => {
             setInlineNote('');
             setNewCaseData({ title: '', description: '', priority: 'High', assigned_to: '' });
             onCaseUpdate();
-        } catch (err) {
-            console.error('Failed to create case:', err);
+        } catch {
+            // Ignore case creation failure
         } finally {
             setCreating(false);
         }

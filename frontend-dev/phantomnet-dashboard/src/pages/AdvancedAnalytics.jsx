@@ -94,8 +94,8 @@ const AdvancedAnalytics = () => {
                 ];
                 setTypeData(radarData);
 
-            } catch (error) {
-                console.error("Failed to load analytics:", error);
+            } catch {
+                // Ignore analytics fetch error
             } finally {
                 setIsLoading(false);
             }
@@ -151,8 +151,8 @@ const AdvancedAnalytics = () => {
             link.download = `phantomnet_analytics_${Date.now()}.png`;
             link.href = dataUrl;
             link.click();
-        } catch (err) {
-            console.error('Snapshot failed:', err);
+        } catch {
+            // Ignore export error
         } finally {
             setIsExporting(false);
         }

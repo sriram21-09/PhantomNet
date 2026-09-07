@@ -33,8 +33,8 @@ const ScheduledReports = () => {
         try {
             const response = await axios.get(`${API_BASE}/schedules`);
             setSchedules(response.data);
-        } catch (err) {
-            console.error('Error fetching schedules:', err);
+        } catch {
+            // Ignore fetch error
         } finally {
             setLoading(false);
         }
@@ -67,8 +67,7 @@ const ScheduledReports = () => {
             }
             resetForm();
             fetchSchedules();
-        } catch (err) {
-            console.error('Error saving schedule:', err);
+        } catch {
             alert('Failed to save schedule. Backend might be offline.');
         }
     };
@@ -91,8 +90,8 @@ const ScheduledReports = () => {
         try {
             await axios.delete(`${API_BASE}/schedule/${id}`);
             fetchSchedules();
-        } catch (err) {
-            console.error('Error deleting schedule:', err);
+        } catch {
+            // Ignore delete error
         }
     };
 

@@ -7,24 +7,19 @@ const BASE_URL = "http://127.0.0.1:5000/api";
  * Generic API request handler
  */
 async function apiRequest(endpoint, options = {}) {
-  try {
-    const response = await fetch(`${BASE_URL}${endpoint}`, {
-      headers: {
-        "Content-Type": "application/json",
-      },
-      ...options,
-    });
+  const response = await fetch(`${BASE_URL}${endpoint}`, {
+    headers: {
+      "Content-Type": "application/json",
+    },
+    ...options,
+  });
 
-    if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(errorText || "API request failed");
-    }
-
-    return await response.json();
-  } catch (error) {
-    console.error("ML API Error:", error.message);
-    throw error;
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(errorText || "API request failed");
   }
+
+  return await response.json();
 }
 
 /**

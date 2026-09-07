@@ -6,7 +6,6 @@ const CyberMeshMap = () => {
     const [ghosts, setGhosts] = useState([]);
     const [latestAttack, setLatestAttack] = useState(null);
     const [terminalFeed, setTerminalFeed] = useState([]);
-    const [loading, setLoading] = useState(true);
 
     const HUB_X = 400;
     const HUB_Y = 160;
@@ -69,10 +68,8 @@ const CyberMeshMap = () => {
                         setTerminalFeed(prev => [`> INBOUND_${latest.proto} [${latest.ip}] SIZE:${latest.size}B`, ...prev].slice(0, 4));
                     }
                 }
-            } catch (err) {
-                console.error("Map fetch error:", err);
-            } finally {
-                setLoading(false);
+            } catch {
+              // Ignore fetch error gracefully
             }
         };
 

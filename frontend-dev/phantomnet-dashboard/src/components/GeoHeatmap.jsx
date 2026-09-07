@@ -10,11 +10,7 @@ const GeoHeatmap = () => {
     useEffect(() => {
         const fetchHeatmapData = async () => {
             try {
-                // Fetching from the general events API since it now has lat/lon
-                const res = await fetch('/api/stats');
-                const data = await res.json();
-
-                // For demonstration/real-time, we might fetch recent events
+                // For demonstration/real-time, fetch recent events
                 const eventsRes = await fetch('/analyze-traffic');
                 const eventsData = await eventsRes.json();
 
@@ -32,8 +28,8 @@ const GeoHeatmap = () => {
                         }));
                     setPoints(validPoints);
                 }
-            } catch (err) {
-                console.error("Heatmap fetch error:", err);
+            } catch {
+                // Ignore fetch error
             } finally {
                 setLoading(false);
             }

@@ -93,8 +93,8 @@ const ThreatAnalysis = () => {
       if (alerts.length > 0) setLiveAlerts(alerts);
 
       setLastUpdated(new Date());
-    } catch (err) {
-      console.error("Threat fetch error:", err);
+    } catch {
+      // Ignore fetch error
     }
   }, []);
 

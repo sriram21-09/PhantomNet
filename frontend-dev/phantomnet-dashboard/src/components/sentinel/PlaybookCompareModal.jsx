@@ -78,7 +78,6 @@ export default function PlaybookCompareModal({
         throw new Error(data.detail || "Invalid comparison data structure");
       }
     } catch (err) {
-      console.warn("API comparison fetch failed, computing client-side fallback diff:", err);
       if (initialPb1 && initialPb2) {
         setComparisonData({
           playbook_1: initialPb1,

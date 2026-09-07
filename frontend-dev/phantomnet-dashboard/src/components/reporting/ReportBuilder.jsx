@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import {
     Download,
@@ -34,6 +34,7 @@ const ReportBuilder = () => {
     const [dateRange, setDateRange] = useState('24h');
     const [honeypotFilter, setHoneypotFilter] = useState('ALL');
     const [threatLevelFilter, setThreatLevelFilter] = useState('ALL');
+    const protocolFilter = 'ALL';
     const [includeSections, setIncludeSections] = useState(ALL_SECTIONS);
     const [reportTitle, setReportTitle] = useState('');
     const [loading, setLoading] = useState(false);
@@ -42,7 +43,7 @@ const ReportBuilder = () => {
 
     const [reportDescription, setReportDescription] = useState('Cybersecurity intelligence report for PhantomNet active defense nodes.');
 
-    const fetchPreview = async () => {
+    const fetchPreview = useCallback(async () => {
         if (!selectedTemplate) return;
         setLoading(true);
         setError(null);
@@ -61,8 +62,7 @@ const ReportBuilder = () => {
                 ...response.data,
                 description: reportDescription
             });
-        } catch (err) {
-            console.error('Error fetching report preview:', err);
+        } catch {
             setError('Failed to generate preview. Ensure backend is running.');
             setPreviewData({
                 title: selectedTemplate.title,
@@ -76,14 +76,14 @@ const ReportBuilder = () => {
         } finally {
             setLoading(false);
         }
-    };
+    }, [selectedTemplate, dateRange, honeypotFilter, threatLevelFilter, protocolFilter, includeSections, reportDescription]);
 
     useEffect(() => {
         if (selectedTemplate) {
             fetchPreview();
             setReportTitle(`${selectedTemplate.title} Report - ${new Date().toLocaleDateString()}`);
         }
-    }, [selectedTemplate, dateRange, honeypotFilter, threatLevelFilter, protocolFilter, includeSections, reportDescription]);
+    }, [selectedTemplate, fetchPreview]);
 
     const handleExport = (format) => {
         if (!previewData) return;

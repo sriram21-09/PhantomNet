@@ -33,7 +33,6 @@ const ThreatIntelWidget = ({ ip }) => {
             const result = await response.json();
             setData(result);
         } catch (err) {
-            console.error('[IntelWidget Error]', err);
             setError(err.message);
         } finally {
             setLoading(false);

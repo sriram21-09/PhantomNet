@@ -25,7 +25,6 @@ const ThreatIndicator = ({ eventId, threatScore: propThreatScore }) => {
           setThreatScore(response.features.threat_score.value);
         }
       } catch (err) {
-        console.warn("ThreatIndicator API failed, using mock score");
         setThreatScore(
           propThreatScore ??
           normalSSHEvent.features.threat_score.value ??
@@ -39,16 +38,6 @@ const ThreatIndicator = ({ eventId, threatScore: propThreatScore }) => {
 
     fetchThreatScore();
   }, [eventId, propThreatScore]);
-
-  // 🔹 Internal debug usage
-  useEffect(() => {
-    if (_loading) {
-      console.debug("ThreatIndicator: loading threat score...");
-    }
-    if (_error) {
-      console.debug("ThreatIndicator error:", _error);
-    }
-  }, [_loading, _error]);
 
   /* ======================
      UI BELOW — UNCHANGED

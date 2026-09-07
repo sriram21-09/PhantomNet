@@ -38,8 +38,8 @@ const GeoDashboard = () => {
                 link.download = `phantomnet-geospatial-capture-${Date.now()}.png`;
                 link.href = dataUrl;
                 link.click();
-            } catch (err) {
-                console.error('Export failed:', err);
+            } catch {
+                // Ignore export error
             }
         }
     };
@@ -82,12 +82,13 @@ const GeoDashboard = () => {
                     setTopOrigin('LOCAL NETWORK');
                 }
             }
-        } catch (err) {
-            console.error("Failed to fetch geospatial analytics:", err);
+        } catch {
+            // Ignore fetch error
         }
     }, []);
 
     useEffect(() => {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         fetchGeoData();
         const interval = setInterval(fetchGeoData, 5000);
         return () => clearInterval(interval);

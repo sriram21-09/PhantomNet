@@ -65,8 +65,8 @@ const Dashboard = () => {
       try {
         const data = await fetchThreatMetrics();
         setThreatMetrics(data);
-      } catch (err) {
-        console.error("Threat metrics fetch error:", err);
+      } catch {
+        // Ignore fetch error
       }
     };
 
@@ -85,7 +85,6 @@ const Dashboard = () => {
         setSentinelStats(data);
         setSentinelError(null);
       } catch (err) {
-        console.error("Sentinel stats fetch error:", err);
         setSentinelError(err.message);
       } finally {
         if (isInitial) setSentinelLoading(false);

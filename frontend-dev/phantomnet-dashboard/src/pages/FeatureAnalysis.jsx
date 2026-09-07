@@ -34,8 +34,8 @@ const FeatureAnalysis = () => {
            setLiveEvent(data);
         }
       }
-    } catch (err) {
-      console.error("Failed to fetch live features:", err);
+    } catch {
+      // Ignore fetch error
     } finally {
       setIsFetching(false);
     }

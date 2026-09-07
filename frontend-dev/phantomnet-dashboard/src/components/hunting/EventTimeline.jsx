@@ -21,7 +21,7 @@ const detectPatterns = (text) => {
     const patterns = [];
     if (/union\s+select|select.*from|insert\s+into|drop\s+table/i.test(text)) patterns.push({ label: 'SQLi', color: '#ef4444' });
     if (/<script>|javascript:|onerror=|onload=/i.test(text)) patterns.push({ label: 'XSS', color: '#f97316' });
-    if (/\.\.[\/\\]|etc\/passwd|cmd\.exe/i.test(text)) patterns.push({ label: 'Path Traversal', color: '#eab308' });
+    if (/\.\.[/\\]|etc\/passwd|cmd\.exe/i.test(text)) patterns.push({ label: 'Path Traversal', color: '#eab308' });
     if (/nmap|masscan|sqlmap|nikto/i.test(text)) patterns.push({ label: 'Scanner', color: '#a855f7' });
     if (/base64_decode|eval\(|exec\(|system\(/i.test(text)) patterns.push({ label: 'Code Exec', color: '#06b6d4' });
     return patterns;

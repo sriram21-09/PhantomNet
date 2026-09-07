@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useRealTime } from '../context/RealTimeContext';
 import { Target, Zap, ShieldAlert, Clock, Info, ChevronDown, Crosshair, Fingerprint, TriangleAlert } from 'lucide-react';
 import './AttackAttribution.css';
@@ -30,16 +30,11 @@ const AttackAttribution = () => {
         return Object.values(ipMap).sort((a, b) => b.maxScore - a.maxScore).slice(0, 10);
     }, [events]);
 
-    // Auto-select most threatening IP
-    useEffect(() => {
-        if (!selectedIP && attackerIPs.length > 0) {
-            setSelectedIP(attackerIPs[0].ip);
-        }
-    }, [attackerIPs, selectedIP]);
+    const activeIP = selectedIP || (attackerIPs.length > 0 ? attackerIPs[0].ip : null);
 
     const currentAttacker = useMemo(() => {
-        return attackerIPs.find(a => a.ip === selectedIP) || attackerIPs[0] || null;
-    }, [attackerIPs, selectedIP]);
+        return attackerIPs.find(a => a.ip === activeIP) || attackerIPs[0] || null;
+    }, [attackerIPs, activeIP]);
 
     if (!currentAttacker || events.length === 0) {
         return (

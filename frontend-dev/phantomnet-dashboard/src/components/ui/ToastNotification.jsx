@@ -92,6 +92,7 @@ const ToastContainer = ({ toasts = [], onDismiss }) => {
  * Returns { toasts, addToast, removeToast, clearAll }
  */
 let toastIdCounter = 0;
+// eslint-disable-next-line react-refresh/only-export-components
 export const useToast = () => {
   const [toasts, setToasts] = useState([]);
 

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Plus, Trash2, Play, Clock, Zap, ChevronDown, AlertCircle } from 'lucide-react';
 import axios from 'axios';
 import './QueryBuilder.css';
@@ -103,16 +103,17 @@ const QueryBuilder = ({ onSearch, loading }) => {
     const [validationError, setValidationError] = useState('');
     const [showHistory, setShowHistory] = useState(false);
 
-    useEffect(() => { fetchHistory(); }, []);
-
-    const fetchHistory = async () => {
+    const fetchHistory = useCallback(async () => {
         try {
             const response = await axios.get('/api/v1/hunting/history');
             setHistory(response.data || []);
-        } catch (err) {
+        } catch {
             // graceful — history is non-critical
         }
-    };
+    }, []);
+
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    useEffect(() => { fetchHistory(); }, [fetchHistory]);
 
     const getFieldMeta = (fieldValue) => FIELDS.find(f => f.value === fieldValue) || FIELDS[0];
 
@@ -182,7 +183,7 @@ const QueryBuilder = ({ onSearch, loading }) => {
             setLogic(query.logic || 'AND');
             setConditions(query.conditions || []);
             setValidationError('');
-        } catch (err) { /* ignore */ }
+        } catch { /* ignore */ }
     };
 
     return (

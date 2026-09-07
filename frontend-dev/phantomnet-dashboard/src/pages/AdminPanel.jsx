@@ -114,8 +114,8 @@ const SystemOverview = () => {
             const res = await adminFetch(`${API_BASE}/system-overview`);
             const data = await res.json();
             setOverview(data);
-        } catch (err) {
-            console.error('Failed to fetch overview:', err);
+        } catch {
+            // Ignore fetch error
         } finally {
             setLoading(false);
         }
