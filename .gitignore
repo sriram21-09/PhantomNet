@@ -57,6 +57,9 @@ last_sid.txt
 backend/logs/*.jsonl
 data/predictions.csv
 
+# Scratch / Temporary
+scratch/
+
 # ─────────────────────────────────────────────
 # GSD / Agent Tooling (not project source code)
 # ─────────────────────────────────────────────
