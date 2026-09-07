@@ -33,10 +33,12 @@ Week 19, Day 3 — PDF Export Endpoint (streaming, Content-Type: application/pdf
 
 from __future__ import annotations
 
+# pylint: disable=not-callable
+
 import io
 import json
 import logging
-from datetime import datetime, timezone
+from datetime import datetime
 from typing import Any, Dict, List, Optional
 
 # pyrefly: ignore [missing-import]
@@ -534,9 +536,6 @@ def get_sentinel_stats(
         HTTPException 500: On unexpected database errors.
     """
     try:
-        # pyrefly: ignore [missing-import]
-        from sqlalchemy import cast, Date
-
         total = db.query(func.count(SentinelPlaybook.id)).filter(SentinelPlaybook.is_latest == True).scalar() or 0
 
         # Count by status
@@ -797,7 +796,7 @@ def approve_playbook(
         row.status = "approved"
         row.reviewed_by = body.reviewed_by
         row.reviewed_at = datetime.utcnow()
-        
+
         log_audit_event(
             db=db,
             action="approve",
@@ -809,11 +808,11 @@ def approve_playbook(
 
         db.commit()
         db.refresh(row)
-        
+
         # pyrefly: ignore [missing-import]
         from sentinel.metrics import sentinel_metrics
         sentinel_metrics.inc_approved_total()
-        
+
         logger.info(
             "Playbook id=%d approved by %s", playbook_id, body.reviewed_by
         )
@@ -1461,7 +1460,7 @@ async def get_llm_status() -> Dict[str, Any]:
     import sentinel.llm_service
     # pyrefly: ignore [missing-import]
     import httpx
-    
+
     svc = LLMService()
     status = "offline"
     try:
@@ -1472,7 +1471,7 @@ async def get_llm_status() -> Dict[str, Any]:
                 status = "online"
     except Exception:
         pass
-        
+
     return {
         "status": "success",
         "enabled": svc.enabled,
@@ -1637,18 +1636,18 @@ def batch_approve_playbooks(
         Dict with status, message, and detailed results of successful/failed IDs.
     """
     results = {"successful": [], "failed": []}
-    
+
     for pb_id in set(body.playbook_ids):
         try:
             row = db.query(SentinelPlaybook).filter(SentinelPlaybook.id == pb_id).first()
             if not row:
                 results["failed"].append({"id": pb_id, "error": "Not found"})
                 continue
-                
+
             if row.status not in ("pending", "rejected"):
                 results["failed"].append({"id": pb_id, "error": f"Invalid status: {row.status}"})
                 continue
-                
+
             row.status = "approved"
             row.reviewed_by = body.reviewed_by
             row.reviewed_at = datetime.utcnow()
@@ -1665,14 +1664,14 @@ def batch_approve_playbooks(
             # pyrefly: ignore [missing-import]
             from sentinel.metrics import sentinel_metrics
             sentinel_metrics.inc_approved_total()
-            
+
             results["successful"].append(pb_id)
             logger.info("Playbook id=%d approved in batch by %s", pb_id, body.reviewed_by)
         except Exception as exc:
             db.rollback()
             logger.error("Failed to approve playbook id=%d in batch: %s", pb_id, exc)
             results["failed"].append({"id": pb_id, "error": str(exc)})
-            
+
     return {
         "status": "success",
         "message": f"Processed {len(body.playbook_ids)} playbooks. {len(results['successful'])} successful, {len(results['failed'])} failed.",
@@ -1710,18 +1709,18 @@ def batch_reject_playbooks(
         Dict with status, message, and detailed results of successful/failed IDs.
     """
     results = {"successful": [], "failed": []}
-    
+
     for pb_id in set(body.playbook_ids):
         try:
             row = db.query(SentinelPlaybook).filter(SentinelPlaybook.id == pb_id).first()
             if not row:
                 results["failed"].append({"id": pb_id, "error": "Not found"})
                 continue
-                
+
             if row.status not in ("pending", "approved"):
                 results["failed"].append({"id": pb_id, "error": f"Invalid status: {row.status}"})
                 continue
-                
+
             row.status = "rejected"
             row.reviewed_by = body.reviewed_by
             row.reviewed_at = datetime.utcnow()
@@ -1734,14 +1733,14 @@ def batch_reject_playbooks(
                 commit=False,
             )
             db.commit()
-            
+
             results["successful"].append(pb_id)
             logger.info("Playbook id=%d rejected in batch by %s", pb_id, body.reviewed_by)
         except Exception as exc:
             db.rollback()
             logger.error("Failed to reject playbook id=%d in batch: %s", pb_id, exc)
             results["failed"].append({"id": pb_id, "error": str(exc)})
-            
+
     return {
         "status": "success",
         "message": f"Processed {len(body.playbook_ids)} playbooks. {len(results['successful'])} successful, {len(results['failed'])} failed.",
@@ -1918,48 +1917,61 @@ def get_playbook_versions(
     summary="Export All Rules (ZIP Archive)",
     description="Export all active approved Snort and Sigma rules into a single sanitized, zip-slip protected ZIP archive.",
 )
-def export_all_rules(db: Session = Depends(get_db)):
+def export_all_rules(db: Session = Depends(get_db)) -> StreamingResponse:
     """
     Export all active approved Snort and Sigma rules into a single ZIP archive.
+
+    Args:
+        db: Injected database session.
+
+    Returns:
+        StreamingResponse containing the zipped rules archive.
+
+    Raises:
+        HTTPException 500: On unexpected errors while building ZIP archive.
     """
-    import zipfile
-    playbooks = db.query(SentinelPlaybook).filter(SentinelPlaybook.status == "approved").all()
-    if not playbooks:
-        # Fallback to all latest playbooks if none approved
-        playbooks = db.query(SentinelPlaybook).filter(SentinelPlaybook.is_latest == True).all()
+    try:
+        import zipfile
+        playbooks = db.query(SentinelPlaybook).filter(SentinelPlaybook.status == "approved").all()
+        if not playbooks:
+            # Fallback to all latest playbooks if none approved
+            playbooks = db.query(SentinelPlaybook).filter(SentinelPlaybook.is_latest == True).all()
 
-    mem_zip = io.BytesIO()
-    with zipfile.ZipFile(mem_zip, mode="w", compression=zipfile.ZIP_DEFLATED) as zf:
-        snort_combined = []
-        sigma_combined = []
+        mem_zip = io.BytesIO()
+        with zipfile.ZipFile(mem_zip, mode="w", compression=zipfile.ZIP_DEFLATED) as zf:
+            snort_combined = []
+            sigma_combined = []
 
-        for pb in playbooks:
-            if pb.snort_rule:
-                snort_combined.append(f"# Playbook {pb.playbook_id} ({pb.attack_type})\n{pb.snort_rule}")
-            if pb.sigma_rule:
-                sigma_combined.append(f"# Playbook {pb.playbook_id}\n{pb.sigma_rule}")
+            for pb in playbooks:
+                if pb.snort_rule:
+                    snort_combined.append(f"# Playbook {pb.playbook_id} ({pb.attack_type})\n{pb.snort_rule}")
+                if pb.sigma_rule:
+                    sigma_combined.append(f"# Playbook {pb.playbook_id}\n{pb.sigma_rule}")
 
-        # Path sanitization to prevent Zip Slip vulnerabilities
-        import os
-        def sanitize_filename(filename: str) -> str:
-            # Strip any directory traversal characters and get just the base filename
-            base = os.path.basename(filename)
-            return base.replace("..", "").replace("/", "").replace("\\", "")
+            # Path sanitization to prevent Zip Slip vulnerabilities
+            import os
+            def sanitize_filename(filename: str) -> str:
+                # Strip any directory traversal characters and get just the base filename
+                base = os.path.basename(filename)
+                return base.replace("..", "").replace("/", "").replace("\\", "")
 
-        snort_file = sanitize_filename("phantomnet_snort_rules.rules")
-        sigma_file = sanitize_filename("phantomnet_sigma_rules.yml")
-        readme_file = sanitize_filename("README.txt")
+            snort_file = sanitize_filename("phantomnet_snort_rules.rules")
+            sigma_file = sanitize_filename("phantomnet_sigma_rules.yml")
+            readme_file = sanitize_filename("README.txt")
 
-        zf.writestr(snort_file, "\n\n".join(snort_combined))
-        zf.writestr(sigma_file, "\n---\n".join(sigma_combined))
-        zf.writestr(readme_file, f"PhantomNet Sentinel Export\nGenerated: {datetime.utcnow().isoformat()}\nTotal Playbooks: {len(playbooks)}\n")
+            zf.writestr(snort_file, "\n\n".join(snort_combined))
+            zf.writestr(sigma_file, "\n---\n".join(sigma_combined))
+            zf.writestr(readme_file, f"PhantomNet Sentinel Export\nGenerated: {datetime.utcnow().isoformat()}\nTotal Playbooks: {len(playbooks)}\n")
 
-    mem_zip.seek(0)
-    return StreamingResponse(
-        mem_zip,
-        media_type="application/zip",
-        headers={"Content-Disposition": "attachment; filename=phantomnet_rules_export.zip"},
-    )
+        mem_zip.seek(0)
+        return StreamingResponse(
+            mem_zip,
+            media_type="application/zip",
+            headers={"Content-Disposition": "attachment; filename=phantomnet_rules_export.zip"},
+        )
+    except Exception as exc:
+        logger.error("Failed to generate rules ZIP export: %s", exc)
+        raise HTTPException(status_code=500, detail=f"Failed to generate rules export: {str(exc)}")
 
 
 # ---------------------------------------------------------------------------
@@ -1988,7 +2000,7 @@ def get_campaign_timeline(
         from sqlalchemy import func
         from database.models import PacketLog
         from sentinel.models import SentinelPlaybook
-        
+
         format_str = "%Y-%m-%d %H:00:00" if interval == "hourly" else "%Y-%m-%d 00:00:00"
 
         pb = db.query(SentinelPlaybook).filter(
@@ -2005,9 +2017,9 @@ def get_campaign_timeline(
         )
         if pb and pb.src_ip:
             query = query.filter(PacketLog.src_ip == pb.src_ip)
-            
+
         results = query.group_by("bucket").all()
-        
+
         timeline_buckets = {}
         for bucket, count in results:
             if bucket:
@@ -2214,14 +2226,24 @@ def get_playbook_export_history(
     summary="List Playbook Templates",
     description="List available Jinja2 incident response playbook templates.",
 )
-def list_sentinel_templates():
+def list_sentinel_templates() -> Dict[str, Any]:
     """
     List available Jinja2 playbook templates.
+
+    Returns:
+        Dict with keys: status, templates (list of template filenames).
+
+    Raises:
+        HTTPException 500: On unexpected errors while scanning templates.
     """
-    from sentinel.playbook_generator import PlaybookGenerator
-    gen = PlaybookGenerator()
-    templates = gen.env.list_templates()
-    return {"status": "success", "templates": templates}
+    try:
+        from sentinel.playbook_generator import PlaybookGenerator
+        gen = PlaybookGenerator()
+        templates = gen.env.list_templates()
+        return {"status": "success", "templates": templates}
+    except Exception as exc:
+        logger.error("Failed to list playbook templates: %s", exc)
+        raise HTTPException(status_code=500, detail=f"Failed to list playbook templates: {str(exc)}")
 
 
 @v1_router.post(
@@ -2230,19 +2252,25 @@ def list_sentinel_templates():
     summary="Preview Playbook Template",
     description="Render a Jinja2 template with sample parameters or inline Jinja2 syntax testing.",
 )
-def preview_sentinel_template(payload: Dict[str, Any]):
+def preview_sentinel_template(payload: Dict[str, Any]) -> Dict[str, Any]:
     """
     Render a Jinja2 template with sample parameters for testing.
     Supports both saved templates (via template_name) and inline Jinja2 syntax testing (via template_content).
+
+    Args:
+        payload: Dict containing optional template_name, template_content, and context parameters.
+
+    Returns:
+        Dict with keys: status, template_name, validation_status, rendered_content, error_message.
     """
     from sentinel.playbook_generator import PlaybookGenerator
     from jinja2.exceptions import TemplateSyntaxError, TemplateError
-    
+
     template_name = payload.get("template_name", "brute_force")
     template_content = payload.get("template_content")
     context = payload.get("context", {})
     context["attack_pattern"] = template_name
-    
+
     if "src_ip" not in context:
         context["src_ip"] = "192.168.1.100"
     if "dst_port" not in context:
@@ -2257,15 +2285,15 @@ def preview_sentinel_template(payload: Dict[str, Any]):
         if template_content:
             # Inline testing of Jinja2 syntax
             template = gen.env.from_string(template_content)
-            
+
             # Use the generator's context enrichment
             canonical = gen._resolve_canonical_pattern(template_name)
             render_ctx = gen._build_enriched_context(context, canonical)
-            
+
             rendered = template.render(**render_ctx)
         else:
             rendered = gen.generate(context_data=context, format="markdown")
-            
+
     except (TemplateSyntaxError, TemplateError) as e:
         validation_status = "invalid"
         error_message = str(e)
@@ -2280,6 +2308,3 @@ def preview_sentinel_template(payload: Dict[str, Any]):
         "rendered_content": rendered,
         "error_message": error_message,
     }
-
-
-
