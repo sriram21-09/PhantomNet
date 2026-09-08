@@ -19,7 +19,6 @@ export const RealTimeProvider = ({ children }) => {
             ws.current = new WebSocket(wsUrl);
 
             ws.current.onopen = () => {
-                console.log('✅ Real-time WebSocket connected');
                 setIsConnected(true);
                 setReconnectCount(0);
             };
@@ -32,13 +31,12 @@ export const RealTimeProvider = ({ children }) => {
                     } else if (data.type === 'LIVE_METRICS') {
                         setMetrics(data.payload);
                     }
-                } catch (err) {
-                    console.error('Error parsing WebSocket message:', err);
+                } catch {
+                    // Ignore JSON parse error
                 }
             };
 
             ws.current.onclose = () => {
-                console.log('❌ Real-time WebSocket disconnected. Retrying...');
                 setIsConnected(false);
                 setReconnectCount(prev => prev + 1);
                 reconnectTimer.current = setTimeout(() => {
@@ -46,12 +44,10 @@ export const RealTimeProvider = ({ children }) => {
                 }, 3000);
             };
 
-            ws.current.onerror = (err) => {
-                console.error('WebSocket Error:', err);
-                ws.current.close();
+            ws.current.onerror = () => {
+                ws.current?.close();
             };
-        } catch (err) {
-            console.error('WebSocket connection failed:', err);
+        } catch {
             setIsConnected(false);
             reconnectTimer.current = setTimeout(() => {
                 if (connectRef.current) connectRef.current();
@@ -64,6 +60,7 @@ export const RealTimeProvider = ({ children }) => {
     }, [connect]);
 
     useEffect(() => {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         connect();
 
         return () => {
@@ -79,4 +76,5 @@ export const RealTimeProvider = ({ children }) => {
     );
 };
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const useRealTime = () => useContext(RealTimeContext);

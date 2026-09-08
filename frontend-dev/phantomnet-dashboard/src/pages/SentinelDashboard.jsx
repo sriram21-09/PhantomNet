@@ -209,7 +209,6 @@ const SentinelDashboard = () => {
       }
       setMatrixData(data.matrix || {});
     } catch (err) {
-      console.error("Failed to fetch MITRE matrix data:", err);
       setMatrixError(err.message || "Failed to connect to the MITRE matrix API");
       addToast({
         type: "error",
@@ -286,7 +285,6 @@ const SentinelDashboard = () => {
         setMatrixData(mData.matrix || mData);
       }
     } catch (err) {
-      console.error("Dashboard connection error:", err);
       setError(err.message || "Failed to connect to the Sentinel Security Service");
     } finally {
       setLoading(false);
@@ -303,8 +301,7 @@ const SentinelDashboard = () => {
           setAiStatus("offline");
         }
       })
-      .catch((llmErr) => {
-        console.warn("Could not fetch Sentinel LLM status:", llmErr);
+      .catch(() => {
         setAiStatus("offline");
       });
   };
@@ -450,15 +447,13 @@ const SentinelDashboard = () => {
       if (response.ok && data.status === "success") {
         setSelectedPlaybook(data.playbook);
       } else {
-        console.error("Failed to load playbook details:", data.detail);
         addToast({
           type: "error",
           title: "Playbook Load Failed",
           message: data.detail || "Failed to load playbook details",
         });
       }
-    } catch (err) {
-      console.error("Failed to fetch playbook details:", err);
+    } catch {
       addToast({
         type: "error",
         title: "Network Error",

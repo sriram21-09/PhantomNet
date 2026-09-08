@@ -28,7 +28,7 @@ const StatusPulse = ({ color }) => (
     <span className="status-pulse" style={{ '--pulse-color': color }} />
 );
 
-const ControllerNode = ({ data, selected }) => (
+const ControllerNode = ({ selected }) => (
     <div className={`pro-node node-controller ${selected ? 'node-selected' : ''}`}>
         <Handle type="source" position={Position.Bottom} id="out" />
         <div className="node-glow-border controller-glow" />
@@ -157,6 +157,7 @@ const NetworkTopology = () => {
     const flowRef = useRef(null);
     const ws = useRef(null);
     const nodesRef = useRef(nodes);
+    const connectRef = useRef(null);
 
     useEffect(() => { nodesRef.current = nodes; }, [nodes]);
 
@@ -181,8 +182,8 @@ const NetworkTopology = () => {
                 }
                 return node;
             }));
-        } catch (err) {
-            console.error('[Topology] Failed to fetch live node states', err);
+        } catch {
+            // Ignore fetch error
         }
     }, [setNodes]);
 
@@ -201,7 +202,11 @@ const NetworkTopology = () => {
         ws.current.onopen = () => setIsConnected(true);
         ws.current.onclose = () => {
             setIsConnected(false);
-            setTimeout(connectWS, 5000);
+            setTimeout(() => {
+                if (ws.current?.readyState === WebSocket.CLOSED) {
+                    connectRef.current?.();
+                }
+            }, 5000);
         };
         ws.current.onerror = () => ws.current.close();
 
@@ -248,11 +253,14 @@ const NetworkTopology = () => {
                 } else if (msg.type === 'TRAFFIC_TICK') {
                     setEdges(eds => eds.map(e => ({ ...e, animated: true })));
                 }
-            } catch (err) { console.error('[Topology] WS parse error:', err); }
+            } catch {
+                // Ignore parse error
+            }
         };
     }, [setEdges, setNodes]);
 
     useEffect(() => {
+        connectRef.current = connectWS;
         connectWS();
         return () => {
             if (ws.current) { ws.current.onclose = null; ws.current.close(); }

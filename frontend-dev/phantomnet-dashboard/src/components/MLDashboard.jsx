@@ -1,6 +1,7 @@
 import MLMetrics from "./MLMetrics";
 import ConfusionMatrix from "./ConfusionMatrix";
 import FeatureImportance from "./FeatureImportance";
+import "../Styles/ml-dashboard.css";
 
 const MLDashboard = () => {
   return (

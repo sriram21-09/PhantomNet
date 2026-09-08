@@ -13,28 +13,6 @@ const iconMap = {
   MYSQL: FaServer,
 };
 
-const formatLastSeen = (lastSeen) => {
-  if (!lastSeen || lastSeen === "Never") return "—";
-  try {
-    let isoString = lastSeen;
-    if (!lastSeen.includes("T") && !lastSeen.includes("Z")) {
-      isoString = lastSeen.replace(" ", "T") + "Z";
-    }
-    const lastSeenDate = new Date(isoString);
-    const now = new Date();
-    const diffMs = now.getTime() - lastSeenDate.getTime();
-    const diffSecs = Math.floor(diffMs / 1000);
-    const diffMins = Math.floor(diffSecs / 60);
-    const diffHours = Math.floor(diffMins / 60);
-    if (diffSecs < 0) return "Just now";
-    if (diffSecs < 60) return "Just now";
-    if (diffMins < 60) return `${diffMins}m ago`;
-    if (diffHours < 24) return `${diffHours}h ago`;
-    return lastSeenDate.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", hour12: false });
-  } catch {
-    return lastSeen.split(" ")[1] || "—";
-  }
-};
 
 // Static infrastructure nodes (left panel)
 const INFRA_NODES = [

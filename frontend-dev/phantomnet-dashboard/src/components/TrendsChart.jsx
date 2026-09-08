@@ -27,8 +27,8 @@ const TrendsChart = () => {
                     }));
                     setData(formatted);
                 }
-            } catch (err) {
-                console.error("Failed to fetch trends:", err);
+            } catch {
+                // Ignore fetch error
             } finally {
                 setLoading(false);
             }

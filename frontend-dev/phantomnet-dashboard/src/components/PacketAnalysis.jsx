@@ -44,8 +44,7 @@ const PacketAnalysis = () => {
                 const analysisData = await analysisRes.json();
                 setStats(statsData);
                 setAnalysis(analysisData?.report?.details || null);
-            } catch (err) {
-                console.error("Failed to fetch PCAP data:", err);
+            } catch {
                 // Use mock data for development when backend is unavailable
                 setStats({
                     total_captures: 42,
@@ -131,8 +130,8 @@ const PacketAnalysis = () => {
                 a.click();
                 window.URL.revokeObjectURL(url);
             }
-        } catch (err) {
-            console.error("Download failed:", err);
+        } catch {
+            // Ignore download error
         }
     };
 

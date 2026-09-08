@@ -22,7 +22,7 @@ const UserManagement = () => {
             const res = await adminFetch(`${API_BASE}/users`);
             const data = await res.json();
             setUsers(data.users || []);
-        } catch (err) {
+        } catch {
             setError('Failed to fetch users');
         } finally {
             setLoading(false);

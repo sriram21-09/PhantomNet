@@ -6,7 +6,6 @@ import {
   FaTimesCircle,
   FaUser,
   FaExclamationTriangle,
-  FaInfoCircle,
   FaSpinner
 } from "react-icons/fa";
 import "../../Styles/components/ApprovalControls.css";
@@ -36,8 +35,8 @@ const ApprovalControls = ({ playbookId, status, onStatusChange }) => {
           setAnalystName(parsed.username);
         }
       }
-    } catch (err) {
-      console.warn("Failed to load admin user from localStorage", err);
+    } catch {
+      // Ignore localStorage read errors gracefully
     }
   }, []);
 
@@ -134,7 +133,6 @@ const ApprovalControls = ({ playbookId, status, onStatusChange }) => {
         onStatusChange(action === "approve" ? "approved" : "rejected");
       }
     } catch (err) {
-      console.error(err);
       setError(err.message);
       setToast({
         type: "error",

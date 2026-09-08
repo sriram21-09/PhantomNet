@@ -60,8 +60,7 @@ const ModelMetricsDashboard = () => {
         activeDetectors: 14,
       });
       setError(null);
-    } catch (err) {
-      console.error('ML API Error:', err);
+    } catch {
       setError('Connection to ML Engine failed. Verify backend container is online.');
     } finally {
       setLoading((prev) => (prev ? false : prev));

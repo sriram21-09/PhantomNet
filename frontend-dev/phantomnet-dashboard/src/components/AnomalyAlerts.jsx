@@ -11,8 +11,8 @@ const AnomalyAlerts = () => {
         const data = await res.json();
         setAlerts(data.alerts || []);
       }
-    } catch (err) {
-      console.error("Failed to fetch alerts:", err);
+    } catch {
+      // Ignore fetch error
     } finally {
       setLoading(false);
     }

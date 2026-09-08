@@ -790,8 +790,8 @@ const PlaybookViewer = ({
           setUserRole(parsed.role);
         }
       }
-    } catch (err) {
-      console.warn("Failed to load admin user from localStorage", err);
+    } catch {
+      // Ignore localStorage read errors gracefully
     }
   }, []);
 
@@ -836,7 +836,6 @@ const PlaybookViewer = ({
   const handleRegenerateLLM = async () => {
     if (isRegeneratingLLM) return;
     if (!isAdminOrAnalyst) {
-      console.warn("Unauthorized: Only admins and analysts can regenerate AI Summary.");
       return;
     }
     setIsRegeneratingLLM(true);
@@ -847,11 +846,9 @@ const PlaybookViewer = ({
       const data = await response.json();
       if (response.ok && data.status === "success") {
         onLLMNarrativeUpdate?.(id, data.llm_narrative);
-      } else {
-        console.error("Failed to regenerate LLM summary:", data.detail);
       }
-    } catch (err) {
-      console.error("Failed to regenerate LLM summary:", err);
+    } catch {
+      // Handle error gracefully
     } finally {
       setIsRegeneratingLLM(false);
     }
@@ -1021,8 +1018,8 @@ const PlaybookViewer = ({
         onStatusChange("exported");
       }
       setExportRefreshTrigger((prev) => prev + 1);
-    } catch (error) {
-      console.error(`Error exporting playbook in format ${format}:`, error);
+    } catch {
+      // Handle export error gracefully
     } finally {
       setIsExporting(false);
     }

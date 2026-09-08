@@ -63,7 +63,7 @@ const SystemConfig = () => {
             const data = await res.json();
             setConfig(data.config || {});
             setOriginal(JSON.parse(JSON.stringify(data.config || {})));
-        } catch (err) {
+        } catch {
             setError('Failed to load configuration');
         } finally {
             setLoading(false);
@@ -105,7 +105,7 @@ const SystemConfig = () => {
             setOriginal(prev => ({ ...prev, [category]: JSON.parse(JSON.stringify(config[category])) }));
             setSuccess(`${CONFIG_SCHEMA[category].label} saved successfully`);
             setTimeout(() => setSuccess(''), 3000);
-        } catch (err) {
+        } catch {
             setError('Failed to save configuration');
         } finally {
             setSaving(false);

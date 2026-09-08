@@ -34,8 +34,7 @@ const Events = () => {
         const data = await res.json();
         setAllEvents(data);
         setEvents(data);
-      } catch (err) {
-        console.error("Failed to fetch /api/events:", err);
+      } catch {
         setAllEvents([]);
         setEvents([]);
         setError("Backend unavailable. Cannot load events.");

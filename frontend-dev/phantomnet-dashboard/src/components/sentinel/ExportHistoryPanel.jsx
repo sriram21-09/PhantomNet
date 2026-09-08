@@ -124,8 +124,7 @@ export default function ExportHistoryPanel({
           setError("Failed to load export history log.");
         }
       }
-    } catch (err) {
-      console.error("Failed to fetch export history:", err);
+    } catch {
       setError("Network error fetching audit logs.");
     } finally {
       setLoading(false);
@@ -178,7 +177,6 @@ export default function ExportHistoryPanel({
       // Refresh log list to record new download action
       setTimeout(fetchExportHistory, 500);
     } catch (err) {
-      console.error("Re-download failed:", err);
       alert(`Re-download failed: ${err.message}`);
     } finally {
       setDownloadingId(null);

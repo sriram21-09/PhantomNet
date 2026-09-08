@@ -162,9 +162,8 @@ export default function CampaignTimelineChart({
       if (res.data && res.data.timeline) {
         setData(res.data.timeline);
       }
-    } catch (err) {
-      console.warn("Failed to fetch campaign timeline API, fallback to mock points:", err);
-      // Fallback fallback time-series if backend network fails
+    } catch {
+      // Fallback time-series if backend network fails
       setData([
         { timestamp: "08-08 04:00", count: 14, is_spike: false, is_anomaly: false },
         { timestamp: "08-08 06:00", count: 22, is_spike: false, is_anomaly: false },

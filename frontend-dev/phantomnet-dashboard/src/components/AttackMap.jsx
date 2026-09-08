@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, Polyline, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
@@ -46,8 +46,8 @@ const ChangeView = ({ center, zoom }) => {
 };
 
 const AttackMap = ({ attacks = [], activeFilters = {} }) => {
-    const [mapCenter, setMapCenter] = useState([20, 0]);
-    const [zoom, setZoom] = useState(2);
+    const mapCenter = [20, 0];
+    const zoom = 2;
 
     // Filter attacks based on severity
     const filteredAttacks = useMemo(() => {

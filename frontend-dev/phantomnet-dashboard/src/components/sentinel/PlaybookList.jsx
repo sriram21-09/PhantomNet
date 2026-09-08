@@ -70,8 +70,8 @@ const PlaybookList = ({
           setAnalystName(parsed.username);
         }
       }
-    } catch (err) {
-      console.warn("Failed to load admin user from localStorage in PlaybookList", err);
+    } catch {
+      // Ignore localStorage read errors
     }
   }, []);
 
@@ -153,7 +153,6 @@ const PlaybookList = ({
         await refreshData();
       }
     } catch (err) {
-      console.error(err);
       if (addToast) {
         addToast({
           type: "error",

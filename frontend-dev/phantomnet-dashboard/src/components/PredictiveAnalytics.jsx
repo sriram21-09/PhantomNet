@@ -52,8 +52,7 @@ const PredictiveAnalytics = () => {
                 return prev;
             });
             setLoading(false);
-        } catch (err) {
-            console.error('Error fetching predictive data:', err);
+        } catch {
             setLoading(false);
         }
     };

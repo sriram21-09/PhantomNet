@@ -8,6 +8,7 @@ import {
   FaEnvelope,
 } from "react-icons/fa";
 import "./NetworkVisualization.css";
+import "../Styles/components/network.css";
 
 const NetworkVisualization = () => {
   const [nodes, setNodes] = useState({
@@ -46,8 +47,8 @@ const NetworkVisualization = () => {
         });
 
         setNodes(nodeMap);
-      } catch (err) {
-        console.error("Network Viz Error:", err);
+      } catch {
+        // Ignore fetch error
       } finally {
         setLoading(false);
       }

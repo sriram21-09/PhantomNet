@@ -22,7 +22,6 @@ const FeatureVector = ({ featureVector, eventId }) => {
         // ✅ Works with backend or mock shape
         setFeatures(response.features || response);
       } catch (err) {
-        console.warn("API failed, using mock feature vector");
         setFeatures((featureVector || normalSSHEvent).features);
         setError(err.message);
       } finally {
@@ -32,16 +31,6 @@ const FeatureVector = ({ featureVector, eventId }) => {
 
     fetchFeatures();
   }, [eventId, featureVector]);
-
-  // 🔹 Internal debug usage (no UI impact)
-  useEffect(() => {
-    if (_loading) {
-      console.debug("FeatureVector: loading feature data...");
-    }
-    if (_error) {
-      console.debug("FeatureVector error:", _error);
-    }
-  }, [_loading, _error]);
 
   if (!features) {
     return (

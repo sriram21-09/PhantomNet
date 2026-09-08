@@ -42,11 +42,9 @@ const TechniqueDetailPanel = ({
           const data = await res.json();
           setAssociatedPlaybooks(data.playbooks || []);
         } else {
-          console.warn("Failed to fetch associated playbooks: server returned non-ok status");
           setAssociatedPlaybooks([]);
         }
-      } catch (err) {
-        console.error("Failed to fetch associated playbooks for MITRE technique:", err);
+      } catch {
         setAssociatedPlaybooks([]);
       } finally {
         setLoadingPlaybooks(false);

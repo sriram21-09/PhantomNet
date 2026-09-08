@@ -14,19 +14,12 @@ const EventStream = () => {
 
     const displayEvents = isPaused ? pausedEvents : events;
 
-    // Auto-scroll to top on new event
+    // Auto-scroll to top when new events arrive and not paused
     useEffect(() => {
-        if (!isPaused && scrollRef.current) {
+        if (scrollRef.current && !isPaused) {
             scrollRef.current.scrollTop = 0;
         }
     }, [events, isPaused]);
-
-    // Capture events when pausing
-    useEffect(() => {
-        if (isPaused) {
-            setPausedEvents(events);
-        }
-    }, [isPaused]);
 
     // Sound alert for HIGH/CRITICAL threats
     useEffect(() => {
@@ -82,7 +75,12 @@ const EventStream = () => {
                 <div className="header-controls">
                     <button
                         className={`ctrl-btn ${isPaused ? 'active' : ''}`}
-                        onClick={() => setIsPaused(!isPaused)}
+                        onClick={() => {
+                            if (!isPaused) {
+                                setPausedEvents(events);
+                            }
+                            setIsPaused(!isPaused);
+                        }}
                         title={isPaused ? 'Resume' : 'Pause'}
                     >
                         {isPaused ? <Play size={14} /> : <Pause size={14} />}

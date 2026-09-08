@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { FaTerminal, FaGlobe, FaDatabase, FaEnvelope, FaServer } from "react-icons/fa";
 import "../Styles/pages/Honeypots.css";
+import "../Styles/honeypot.css";
 
 const formatLastSeen = (lastSeen) => {
   if (!lastSeen || lastSeen === "Never") return "Never";
@@ -106,7 +107,7 @@ const Honeypots = () => {
           setHoneypots(mapped);
         }
       } catch {
-        console.error("Failed to load honeypots status");
+        // Fallback to static honeypots list
       } finally {
         setIsLoading(false);
       }

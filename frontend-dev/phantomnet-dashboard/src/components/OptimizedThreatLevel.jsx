@@ -6,7 +6,6 @@ import PremiumMetricCard from "./PremiumMetricCard";
  * re-renders when the thread level actually changes.
  */
 const OptimizedThreatLevel = React.memo(({ threatLevel }) => {
-    console.log("Rendering OptimizedThreatLevel:", threatLevel);
 
     const getVariant = (level) => {
         if (level < 40) return "green";

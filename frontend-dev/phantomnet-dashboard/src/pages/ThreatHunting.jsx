@@ -39,8 +39,7 @@ const ThreatHunting = () => {
                 conditions: query.conditions.length,
                 logic: query.logic
             });
-        } catch (err) {
-            console.error('Search failed:', err);
+        } catch {
             setResults([]);
         } finally {
             setLoading(false);
@@ -51,8 +50,8 @@ const ThreatHunting = () => {
         try {
             const response = await axios.get(`${API_BASE}/cases/`);
             setCases(response.data);
-        } catch (err) {
-            console.error('Failed to fetch cases:', err);
+        } catch {
+            // Ignore fetch error
         }
     }, []);
 
@@ -71,8 +70,8 @@ const ThreatHunting = () => {
         try {
             const response = await axios.get(`${API_BASE}/hunting/related-events?ip=${ip}`);
             setCorrelationData(response.data || []);
-        } catch (err) {
-            console.error('Correlation failed:', err);
+        } catch {
+            // Ignore correlation error
         } finally {
             setLoadingCorrelation(false);
         }
