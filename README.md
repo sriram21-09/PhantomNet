@@ -302,45 +302,62 @@ The React 19 Sentinel Dashboard provides an enterprise-ready command center for 
 ---
 
 ### 1. Operations Overview & Live Telemetry
-Real-time monitoring of all active honeypot nodes, live incoming attack telemetry, threat level breakdown, and system health status.
+Real-time monitoring of active honeypot nodes, live incoming attack telemetry, threat level breakdown, and system health status.
 
-![SOC Operations Dashboard](docs/images/dashboard.png)
-
----
-
-### 2. Sentinel Playbook Workspace & Real-Time Metrics
-Centralized queue of auto-generated incident playbooks with aggregate status metrics (Pending, Approved, Rejected, Average Confidence):
-
-| Main Playbook Queue | Pipeline Metric Widgets |
-| :--- | :--- |
-| ![Sentinel Playbook Workspace](docs/screenshots/sentinel_dashboard.png) | ![Pipeline Statistics](docs/screenshots/sentinel_stats_widgets.png) |
+![SOC Overview Dashboard](docs/images/overview_dashboard.png)
 
 ---
 
-### 3. Playbook Inspection, Rule Previews & Multi-Format Exports
+### 2. Honeypot Deception Grid Monitor
+Protocol-level trap telemetry (SSH, HTTP, FTP, SMTP), active listener statuses, and container node health metrics.
+
+![Honeypot Monitor](docs/images/honeypot_monitor.png)
+
+---
+
+### 3. Real-Time ML Threat Analytics & XAI
+23D vector scoring distribution, feature importance attributions, and anomaly confidence curves.
+
+![ML Threat Analytics](docs/images/ml_analytics.png)
+
+---
+
+### 4. Sentinel Playbook Workspace (List View)
+Centralized queue of auto-generated incident playbooks with filterable status metrics (Pending, Approved, Rejected, Average Confidence):
+
+![Sentinel Management Console](docs/images/sentinel_dashboard_dark.png)
+
+---
+
+### 5. Sentinel Playbook Inspection (Detail View)
 Analysts inspect rendered Markdown playbooks, AI narratives, and generated detection rules across tabbed preview interfaces:
 
-| Incident Playbook Viewer | Snort Rule Preview Tab | Sigma YAML Preview Tab |
-| :--- | :--- | :--- |
-| ![Playbook Modal](docs/screenshots/sentinel_playbook_viewer.png) | ![Snort Preview](docs/screenshots/sentinel_rule_preview_snort.png) | ![Sigma Preview](docs/screenshots/sentinel_rule_preview_sigma.png) |
+![Playbook Detail Viewer](docs/images/sentinel_playbook_viewer.png)
 
 ---
 
-### 4. Human-in-the-Loop Approval Workflow
-State-aware review transitions with immediate analyst attribution and real-time navigation notification updates:
-
-| State: Pending Review (Before) | State: Approved & Disseminated (After) | Header Alert Notification |
-| :--- | :--- | :--- |
-| ![Pending State](docs/screenshots/sentinel_workflow_before.png) | ![Approved State](docs/screenshots/sentinel_workflow_after.png) | ![Nav Badge](docs/screenshots/sentinel_nav_badge.png) |
-
----
-
-### 5. MITRE ATT&CK Matrix Heatmap & Campaign Timelines
+### 6. MITRE ATT&CK Heatmap & Campaign Progression
 Visual threat analytics displaying real-time technique coverage and temporal attack progression:
 
 | Interactive ATT&CK Matrix Heatmap | Temporal Campaign Timeline |
 | :--- | :--- |
-| ![ATT&CK Heatmap](docs/images/mitre_matrix.png) | ![Campaign Timeline](docs/images/campaign_timeline.png) |
+| ![ATT&CK Heatmap](docs/images/mitre_matrix_heatmap.png) | ![Campaign Timeline](docs/images/campaign_timeline.png) |
+
+---
+
+### 7. Batch Approval Workflow & Export Engine
+Multi-select playbook approval workflows and multi-format export panels (PDF, JSON, STIX 2.1):
+
+| Batch Approval Workflow | PDF Export & History Dialog |
+| :--- | :--- |
+| ![Batch Approval Workflow](docs/images/batch_approval_workflow.png) | ![PDF Export Dialog](docs/images/pdf_export_dialog.png) |
+
+---
+
+### 8. Dark & Light Theme System Comparison
+Fully responsive dual-theme cybersecurity interface supporting ambient dark mode and high-contrast light mode:
+
+![Dark vs Light Theme Comparison](docs/images/dark_light_theme_comparison.png)
 
 ---
 
