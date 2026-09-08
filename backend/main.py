@@ -492,7 +492,7 @@ async def broadcast_event_stream() -> None:
 # =========================
 app = FastAPI(
     title="PhantomNet Sentinel & Cyber Defense API",
-    version="3.0",
+    version="3.0.0",
     description="PhantomNet V3 -- AI-Driven Active Defense, Automated Incident Response Playbooks, MITRE ATT&CK Mapping, IDS Rule Generation, and TAXII 2.1 Threat Sharing Platform",
     lifespan=lifespan,
 )

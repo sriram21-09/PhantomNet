@@ -51,9 +51,13 @@ services:
       ENVIRONMENT: production
       # Ensure these are set in .env on the server
       DB_PASSWORD: ${DB_PASSWORD}
+    labels:
+      com.phantomnet.version: "3.0.0"
 
   # Production overrides for Frontend
   frontend:
     restart: always
     ports:
       - "80:8080" # Expose on standard HTTP port, mapping unprivileged 8080
+    labels:
+      com.phantomnet.version: "3.0.0"
