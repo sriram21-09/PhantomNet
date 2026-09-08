@@ -29,4 +29,4 @@ Sub-packages
 """
 
 # Package version — kept in sync with backend/main.py app version
-__version__ = "3.0.0-sentinel"
+__version__ = "3.0.0"

@@ -85,7 +85,7 @@ from jinja2 import Environment, FileSystemLoader, TemplateNotFound
 # ---------------------------------------------------------------------------
 # Module-level constants
 # ---------------------------------------------------------------------------
-__version__ = "2.0.0"
+__version__ = "3.0.0"
 
 # ---------------------------------------------------------------------------
 # Module-level logger – inherits configuration from the root logger so that

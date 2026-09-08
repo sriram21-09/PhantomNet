@@ -3,7 +3,7 @@
   "info": {
     "title": "PhantomNet Sentinel & Cyber Defense API",
     "description": "PhantomNet V3 -- AI-Driven Active Defense, Automated Incident Response Playbooks, MITRE ATT&CK Mapping, IDS Rule Generation, and TAXII 2.1 Threat Sharing Platform",
-    "version": "3.0"
+    "version": "3.0.0"
   },
   "paths": {
     "/api/v1/model/metrics": {

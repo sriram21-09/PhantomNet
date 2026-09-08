@@ -21,6 +21,9 @@ services:
         limits:
           cpus: '0.5'
           memory: 512M
+    labels:
+      com.phantomnet.version: "3.0.0"
+      com.phantomnet.service: "postgres"
 
   ssh_honeypot:
     build:
@@ -49,6 +52,9 @@ services:
         limits:
           cpus: '0.2'
           memory: 256M
+    labels:
+      com.phantomnet.version: "3.0.0"
+      com.phantomnet.service: "ssh_honeypot"
 
   http_honeypot:
     build:
@@ -77,6 +83,9 @@ services:
         limits:
           cpus: '0.2'
           memory: 256M
+    labels:
+      com.phantomnet.version: "3.0.0"
+      com.phantomnet.service: "http_honeypot"
 
   ftp_honeypot:
     build:
@@ -106,6 +115,9 @@ services:
         limits:
           cpus: '0.2'
           memory: 256M
+    labels:
+      com.phantomnet.version: "3.0.0"
+      com.phantomnet.service: "ftp_honeypot"
 
   smtp-honeypot:
     build:
@@ -134,6 +146,9 @@ services:
         limits:
           cpus: '0.2'
           memory: 256M
+    labels:
+      com.phantomnet.version: "3.0.0"
+      com.phantomnet.service: "smtp_honeypot"
 
   frontend:
     build:
@@ -151,6 +166,9 @@ services:
         limits:
           cpus: '0.5'
           memory: 512M
+    labels:
+      com.phantomnet.version: "3.0.0"
+      com.phantomnet.service: "frontend"
 
   api:
     build:
@@ -185,6 +203,9 @@ services:
         limits:
           cpus: '1.0'
           memory: 1G
+    labels:
+      com.phantomnet.version: "3.0.0"
+      com.phantomnet.service: "sentinel_api"
 
   ollama:
     image: ollama/ollama:latest
@@ -209,6 +230,9 @@ services:
       timeout: 10s
       retries: 5
       start_period: 30s
+    labels:
+      com.phantomnet.version: "3.0.0"
+      com.phantomnet.service: "ollama_llm"
 
 networks:
   app_net:
