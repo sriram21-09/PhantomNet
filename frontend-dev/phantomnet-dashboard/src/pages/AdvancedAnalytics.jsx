@@ -23,15 +23,15 @@ const AdvancedAnalytics = () => {
         const fetchAnalyticsData = async () => {
             try {
                 // 1. Fetch dashboard metrics
-                const statsRes = await fetch('http://localhost:8000/api/stats');
+                const statsRes = await fetch('/api/stats');
                 const statsData = await statsRes.json();
 
                 // 2. Fetch global trends (last 7 days)
-                const trendsRes = await fetch('http://localhost:8000/api/v1/analytics/trends?days=7');
+                const trendsRes = await fetch('/api/v1/analytics/trends?days=7');
                 const trendsData = await trendsRes.json();
 
                 // 3. Fetch alerts for vector distribution
-                const alertsRes = await fetch('http://localhost:8000/api/v1/alerts?limit=100');
+                const alertsRes = await fetch('/api/v1/alerts?limit=100');
                 const alertsData = await alertsRes.json();
 
                 // Map stats

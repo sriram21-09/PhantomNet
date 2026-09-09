@@ -40,9 +40,13 @@ backend/.venv/
 *.db-shm
 *.db-wal
 *.db-journal
+*.db.backup
+*.backup
 phantomnet.db
 phantomnet.db-journal
+phantomnet.db.backup
 backend/phantomnet.db
+backend/phantomnet.db.backup
 backend/full_schema.sql
 backend/verify_output.txt
 
