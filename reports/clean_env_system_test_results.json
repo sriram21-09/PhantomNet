@@ -1,0 +1,154 @@
+{
+  "timestamp": "2026-09-09T03:35:33.301982+00:00",
+  "clean_start_verified": true,
+  "initial_counts": {
+    "packet_logs": 0,
+    "events": 0,
+    "alerts": 0,
+    "attack_sessions": 0,
+    "sentinel_playbooks": 0,
+    "sentinel_audit_logs": 0
+  },
+  "final_counts": {
+    "packet_logs": 49,
+    "events": 49,
+    "alerts": 4,
+    "attack_sessions": 4,
+    "sentinel_playbooks": 4,
+    "sentinel_audit_logs": 0
+  },
+  "pipeline_stages": [
+    {
+      "name": "SSH Brute Force Campaign",
+      "category": "ssh_brute_force",
+      "src_ip": "198.51.100.15",
+      "playbook_id": "PB-20260909-033455-445FFF",
+      "technique_id": "T1110.001",
+      "technique_name": "Brute Force: Password Guessing",
+      "tactic": "Credential Access",
+      "severity": "LOW",
+      "status": "pending",
+      "quality_score": 18.68,
+      "snort_rule": "alert tcp 198.51.100.15 any -> $HOME_NET 2222 (msg:\"Campaign CAMP-SSH_BRUTE_FORCE-001 activity from 198.51.100.15 targeting port 2222: Brute Force: Password Guessing\"; flow:to_server,established; threshold:type limit, track by_src, count 5, seconds 60; classtype:attempted-admin; priority:2; reference:url,attack.mitre.org/techniques/T1110/001/; sid:10000655; rev:1;)",
+      "sigma_rule": "title: 'Campaign CAMP-SSH_BRUTE_FORCE-001 Detection for Brute Force: Password Guessing'\nstatus: experimental\nlogsource:\n  category: network_traffic\n  ...",
+      "stix_objects_count": 5,
+      "pass": true
+    },
+    {
+      "name": "SQL Injection Attack",
+      "category": "sqli_attempt",
+      "src_ip": "203.0.113.42",
+      "playbook_id": "PB-20260909-033456-71171E",
+      "technique_id": "T1190",
+      "technique_name": "Exploit Public-Facing Application",
+      "tactic": "Initial Access",
+      "severity": "LOW",
+      "status": "pending",
+      "quality_score": 16.6,
+      "snort_rule": "alert tcp 203.0.113.42 any -> $HOME_NET 8080 (msg:\"Campaign CAMP-SQLI_ATTEMPT-001 activity from 203.0.113.42 targeting port 8080: Exploit Public-Facing Application\"; flow:to_server,established; threshold:type limit, track by_src, count 5, seconds 60; classtype:web-application-attack; priority:1; reference:url,attack.mitre.org/techniques/T1190/; sid:10000656; rev:1;)",
+      "sigma_rule": "title: Campaign CAMP-SQLI_ATTEMPT-001 Detection for Exploit Public-Facing Application\nstatus: experimental\nlogsource:\n  category: network_traffic\n  pr...",
+      "stix_objects_count": 5,
+      "pass": true
+    },
+    {
+      "name": "Multi-Protocol Port Scan",
+      "category": "port_scan",
+      "src_ip": "192.0.2.77",
+      "playbook_id": "PB-20260909-033456-2257C3",
+      "technique_id": "T1046",
+      "technique_name": "Network Service Discovery",
+      "tactic": "Discovery",
+      "severity": "LOW",
+      "status": "pending",
+      "quality_score": 15.5,
+      "snort_rule": "alert tcp 192.0.2.77 any -> $HOME_NET 8080 (msg:\"Campaign CAMP-PORT_SCAN-001 activity from 192.0.2.77 targeting port 8080: Network Service Discovery\"; flow:to_server,established; threshold:type limit, track by_src, count 5, seconds 60; classtype:attempted-recon; priority:3; reference:url,attack.mitre.org/techniques/T1046/; sid:10000657; rev:1;)\nalert tcp 192.0.2.77 any -> $HOME_NET 80 (msg:\"Campaign CAMP-PORT_SCAN-001 activity from 192.0.2.77 targeting port 80: Network Service Discovery\"; flow:to_server,established; threshold:type limit, track by_src, count 5, seconds 60; classtype:attempted-recon; priority:3; reference:url,attack.mitre.org/techniques/T1046/; sid:10000658; rev:1;)\nalert tcp 192.0.2.77 any -> $HOME_NET 443 (msg:\"Campaign CAMP-PORT_SCAN-001 activity from 192.0.2.77 targeting port 443: Network Service Discovery\"; flow:to_server,established; threshold:type limit, track by_src, count 5, seconds 60; classtype:attempted-recon; priority:3; reference:url,attack.mitre.org/techniques/T1046/; sid:10000659; rev:1;)\nalert tcp 192.0.2.77 any -> $HOME_NET 21 (msg:\"Campaign CAMP-PORT_SCAN-001 activity from 192.0.2.77 targeting port 21: Network Service Discovery\"; flow:to_server,established; threshold:type limit, track by_src, count 5, seconds 60; classtype:attempted-recon; priority:3; reference:url,attack.mitre.org/techniques/T1046/; sid:10000660; rev:1;)\nalert tcp 192.0.2.77 any -> $HOME_NET 22 (msg:\"Campaign CAMP-PORT_SCAN-001 activity from 192.0.2.77 targeting port 22: Network Service Discovery\"; flow:to_server,established; threshold:type limit, track by_src, count 5, seconds 60; classtype:attempted-recon; priority:3; reference:url,attack.mitre.org/techniques/T1046/; sid:10000661; rev:1;)\nalert tcp 192.0.2.77 any -> $HOME_NET 23 (msg:\"Campaign CAMP-PORT_SCAN-001 activity from 192.0.2.77 targeting port 23: Network Service Discovery\"; flow:to_server,established; threshold:type limit, track by_src, count 5, seconds 60; classtype:attempted-recon; priority:3; reference:url,attack.mitre.org/techniques/T1046/; sid:10000662; rev:1;)\nalert tcp 192.0.2.77 any -> $HOME_NET 25 (msg:\"Campaign CAMP-PORT_SCAN-001 activity from 192.0.2.77 targeting port 25: Network Service Discovery\"; flow:to_server,established; threshold:type limit, track by_src, count 5, seconds 60; classtype:attempted-recon; priority:3; reference:url,attack.mitre.org/techniques/T1046/; sid:10000663; rev:1;)\nalert tcp 192.0.2.77 any -> $HOME_NET 53 (msg:\"Campaign CAMP-PORT_SCAN-001 activity from 192.0.2.77 targeting port 53: Network Service Discovery\"; flow:to_server,established; threshold:type limit, track by_src, count 5, seconds 60; classtype:attempted-recon; priority:3; reference:url,attack.mitre.org/techniques/T1046/; sid:10000664; rev:1;)\nalert tcp 192.0.2.77 any -> $HOME_NET 3306 (msg:\"Campaign CAMP-PORT_SCAN-001 activity from 192.0.2.77 targeting port 3306: Network Service Discovery\"; flow:to_server,established; threshold:type limit, track by_src, count 5, seconds 60; classtype:attempted-recon; priority:3; reference:url,attack.mitre.org/techniques/T1046/; sid:10000665; rev:1;)",
+      "sigma_rule": "title: Campaign CAMP-PORT_SCAN-001 Detection for Network Service Discovery\nstatus: experimental\nlogsource:\n  category: network_traffic\n  product: phan...",
+      "stix_objects_count": 5,
+      "pass": true
+    },
+    {
+      "name": "FTP Data Exfiltration",
+      "category": "ftp_exfiltration",
+      "src_ip": "198.51.100.99",
+      "playbook_id": "PB-20260909-033456-73555D",
+      "technique_id": "T1048.003",
+      "technique_name": "Exfiltration Over Unencrypted Non-C2 Protocol",
+      "tactic": "Exfiltration",
+      "severity": "LOW",
+      "status": "pending",
+      "quality_score": 15.27,
+      "snort_rule": "alert tcp 198.51.100.99 any -> $HOME_NET 2121 (msg:\"Campaign CAMP-FTP_EXFILTRATION-001 activity from 198.51.100.99 targeting port 2121: Exfiltration Over Unencrypted Non-C2 Protocol\"; flow:to_server,established; threshold:type limit, track by_src, count 5, seconds 60; classtype:attempted-admin; priority:1; reference:url,attack.mitre.org/techniques/T1048/003/; sid:10000666; rev:1;)",
+      "sigma_rule": "title: Campaign CAMP-FTP_EXFILTRATION-001 Detection for Exfiltration Over Unencrypted\n  Non-C2 Protocol\nstatus: experimental\nlogsource:\n  category: ne...",
+      "stix_objects_count": 5,
+      "pass": true
+    }
+  ],
+  "api_verifications": {
+    "/api/stats": {
+      "status": 200,
+      "data": {
+        "totalEvents": 49,
+        "uniqueIPs": 4,
+        "activeHoneypots": 1,
+        "avgThreatScore": 87.9,
+        "criticalAlerts": 49,
+        "distribution": {
+          "critical": 49,
+          "suspicious": 0,
+          "benign": 0
+        }
+      },
+      "pass": true
+    },
+    "/api/sentinel/playbooks": {
+      "status": 200,
+      "total": 4,
+      "pass": true
+    },
+    "/api/sentinel/stats": {
+      "status": 200,
+      "pass": true
+    },
+    "/api/sentinel/mitre/matrix": {
+      "status": 200,
+      "pass": true
+    },
+    "/api/sentinel/mitre/mapping": {
+      "status": 200,
+      "pass": true
+    },
+    "/api/sentinel/campaigns/timeline": {
+      "status": 200,
+      "pass": true
+    },
+    "/api/sentinel/rules/export-all": {
+      "status": 200,
+      "size_bytes": 1734,
+      "pass": true
+    },
+    "/api/sentinel/rules/snort_sigma": {
+      "status": 200,
+      "pass": true
+    },
+    "/api/sentinel/llm/status": {
+      "status": 200,
+      "pass": true
+    },
+    "/taxii2/collections": {
+      "status": 200,
+      "collections_count": 5,
+      "pass": true
+    },
+    "/api/v1/alerts": {
+      "status": 200,
+      "count": 5,
+      "pass": true
+    },
+    "/api/honeypots": {
+      "status": 200,
+      "count": 4,
+      "pass": true
+    }
+  },
+  "overall_status": "ALL_TESTS_PASSED"
+}
