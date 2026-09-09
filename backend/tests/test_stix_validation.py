@@ -91,7 +91,6 @@ def test_stix_bundle_validation(client):
     assert res.status_code == 200
     bundle_data = res.json()
 
-    print("DEBUG Bundle JSON:", bundle_data)
     # Validate bundle schema using python stix2 parser
     parsed_bundle = stix2.parse(bundle_data, allow_custom=True)
     assert parsed_bundle.type == "bundle"

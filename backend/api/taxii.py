@@ -661,9 +661,6 @@ def get_collection_objects(
         more_results = len(playbooks) > safe_limit
         if more_results:
             playbooks = playbooks[:safe_limit]
-
-
-
     except Exception as e:
         logger.error("Failed to query playbooks for collection objects: %s", e)
         err = TaxiiErrorResponse(

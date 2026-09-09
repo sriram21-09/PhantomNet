@@ -361,25 +361,7 @@ def validate_port(port: typing.Union[int, str]) -> bool:
         _logger.debug("Port validation failed for: %s", port)
         return False
 
-def _is_called_from_verify_rule_generator() -> bool:
-    import inspect
-    try:
-        for frame_info in inspect.stack():
-            if "verify_rule_generator" in frame_info.filename:
-                return True
-    except Exception:
-        pass
-    return False
 
-def _is_called_from_snort_validation() -> bool:
-    import inspect
-    try:
-        for frame_info in inspect.stack():
-            if "test_week15_day1_snort_validation" in frame_info.filename:
-                return True
-    except Exception:
-        pass
-    return False
 
 
 def validate_snort_rule_inputs(
@@ -395,8 +377,8 @@ def validate_snort_rule_inputs(
     if not validate_ip(src_ip):
         return {"status": "error", "error": f"Invalid source IP address: {src_ip}"}
 
-    # Special port 0 check: invalid for Snort rule generation unless verifier/scenario validation is running
-    if (dst_port == 0 or dst_port == "0" or str(dst_port).strip() == "0") and not (_is_called_from_verify_rule_generator() or _is_called_from_snort_validation()):
+    # Special port 0 check: invalid for Snort rule generation
+    if dst_port == 0 or dst_port == "0" or str(dst_port).strip() == "0":
         return {"status": "error", "error": "Invalid destination port: 0"}
 
     if not validate_port(dst_port):
@@ -463,14 +445,11 @@ def generate_snort_rule(
     # Validate all inputs
     validation = validate_snort_rule_inputs(src_ip, dst_port, protocol, classtype, sid)
     if validation.get("status") == "error":
-        if _is_called_from_verify_rule_generator():
-            raise ValueError(validation.get("error"))
+        err_msg = validation.get("error", "")
+        if "classtype" in err_msg or "port: 0" in err_msg or "port: '0'" in err_msg:
+            return validation
         else:
-            err_msg = validation.get("error", "")
-            if "classtype" in err_msg or "port: 0" in err_msg or "port: '0'" in err_msg:
-                return validation
-            else:
-                raise ValueError(err_msg)
+            raise ValueError(err_msg)
 
     protocol = protocol.lower()
 
