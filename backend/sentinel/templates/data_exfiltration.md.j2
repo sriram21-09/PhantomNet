@@ -588,7 +588,7 @@ The following CVEs are associated with this data exfiltration pattern and are em
     --freshness={{ audit_period_hours | default(72) }}h --format=json | python3 -m json.tool
   {% else %}
   # Check proxy logs for cloud storage API patterns
-  grep -i "{{ cloud_bucket | default("amazonaws.com\|blob.core.windows.net\|storage.googleapis.com") }}" \
+  grep -i "{{ cloud_bucket | default("amazonaws.com\\|blob.core.windows.net\\|storage.googleapis.com") }}" \
     {{ proxy_log | default("/var/log/squid/access.log") }} | \
     grep "{{ source_ip | default("<source_ip>") }}" | head -50
   {% endif %}

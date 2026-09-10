@@ -70,7 +70,6 @@ except ImportError:
 # Week 17, Day 2: structured prompt templates
 try:
     from sentinel.prompt_templates import (
-        build_narrative_prompt,
         render_narrative_prompt_jinja,
         normalise_utc_timestamp,
     )
@@ -80,7 +79,6 @@ except ImportError:  # pragma: no cover
     normalise_utc_timestamp = None  # type: ignore[assignment]
 
 import httpx
-from httpx import Timeout as HttpxTimeout  # re-exported for convenience
 from sqlalchemy.orm import Session
 
 from database.database import SessionLocal
@@ -116,6 +114,7 @@ _OLLAMA_TIMEOUT = httpx.Timeout(
 
 # Global semaphores to limit concurrent requests to Ollama per event loop
 _llm_semaphores: Dict[Any, asyncio.Semaphore] = {}
+
 
 def get_llm_semaphore() -> asyncio.Semaphore:
     """Lazily initialize the semaphore within the active event loop."""
@@ -365,7 +364,6 @@ class LLMService:
         str
             The model's response as clean Markdown text, or ``""`` on failure.
         """
-        global last_generation_time_ms
         if getattr(self, "mock_client", False):
             logger.info("LLMService: using mock client, returning mock response.")
             return "MOCK_NARRATIVE_OUTPUT"
@@ -389,10 +387,10 @@ class LLMService:
                         return cached
                 except Exception as e:
                     logger.warning("LLMService._call_ollama: Redis cache get error: %s", e)
-                    
+
             start_time = time.time()
             sem = get_llm_semaphore()
-            
+
             # Use asyncio.timeout (or wait_for if on older python, but 3.11+ supports timeout)
             # Actually, using wait_for is safer across python versions if timeout doesn't exist
             async def _do_request():
@@ -426,20 +424,20 @@ class LLMService:
                                     collected_tokens.append(token)
                                 if chunk.get("done", False):
                                     break
-    
+
                         raw_text = "".join(collected_tokens)
                         latency_ms = (time.time() - start_time) * 1000
                         last_generation_time_ms = latency_ms
-    
+
                         if latency_ms > 25000:
                             logger.warning("Slow inference request detected: %.2f ms", latency_ms)
-    
+
                         logger.info(
                             "LLMService._call_ollama (stream): aggregated %d chars "
                             "from %d chunks (model=%s) in %.2f ms",
                             len(raw_text), len(collected_tokens), self.model, latency_ms
                         )
-    
+
                     else:
                         # ---- Aggregated (non-streaming) path ----
                         response = await client.post(url, json=payload)
@@ -454,15 +452,15 @@ class LLMService:
                         raw_text = result.get("response", "")
                         latency_ms = (time.time() - start_time) * 1000
                         last_generation_time_ms = latency_ms
-    
+
                         if latency_ms > 25000:
                             logger.warning("Slow inference request detected: %.2f ms", latency_ms)
-    
+
                         logger.info(
                             "LLMService._call_ollama: received %d chars (model=%s) in %.2f ms",
                             len(raw_text), self.model, latency_ms
                         )
-    
+
                     clean_text = self._clean_markdown(raw_text)
                     if self._redis and clean_text:
                         try:
@@ -552,8 +550,7 @@ class LLMService:
                         "HTTP_SCANNER_BEHAVIOR": "HTTP",
                         "FTP_DATA_EXFILTRATION": "FTP",
                         "SMTP_LARGE_PAYLOAD": "SMTP",
-                        "DISTRIBUTED_BRUTE_FORCE": "SSH",
-                        "DISTRIBUTED_BRUTE_FORCE": "SSH", # Commonly against SSH/HTTP
+                        "DISTRIBUTED_BRUTE_FORCE": "SSH",  # Commonly against SSH/HTTP
                         "LOW_AND_SLOW_SCAN": "NETWORK",
                         "MULTI_PROTOCOL_ATTACK": "NETWORK",
                         "HIGH_FREQUENCY_ATTACK": "NETWORK",
@@ -1000,16 +997,16 @@ async def generate_playbook_summary(
                                     "stream": False,
                                 },
                             )
-                    
+
                     response = await asyncio.wait_for(_do_generate(), timeout=65.0)
-                    
+
                     if response.status_code == 200:
                         latency_ms = (time.time() - start_time) * 1000
                         last_generation_time_ms = latency_ms
-                        
+
                         if latency_ms > 25000:
                             logger.warning("Slow inference request detected: %.2f ms", latency_ms)
-                            
+
                         result = response.json()
                         raw_text = result.get("response", "")
                         # Apply clean Markdown post-processing
