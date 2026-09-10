@@ -592,14 +592,14 @@ class PlaybookGenerator:
 
         if "time_range" not in ctx:
             first_seen_raw = ctx.get("first_seen") or ctx.get("cluster_first_seen")
-            last_seen_raw  = ctx.get("last_seen")  or ctx.get("cluster_last_seen")
+            last_seen_raw = ctx.get("last_seen") or ctx.get("cluster_last_seen")
 
             dt_first = _parse_dt(first_seen_raw)
-            dt_last  = _parse_dt(last_seen_raw)
+            dt_last = _parse_dt(last_seen_raw)
 
             if dt_first and dt_last:
                 t_start = dt_first.strftime("%H:%M")
-                t_end   = dt_last.strftime("%H:%M")
+                t_end = dt_last.strftime("%H:%M")
                 ctx["time_range"] = f"{t_start}–{t_end} UTC"
             elif dt_first:
                 ctx["time_range"] = f"from {dt_first.strftime('%H:%M')} UTC"
@@ -622,8 +622,6 @@ class PlaybookGenerator:
                     ctx["event_summary"] = f"{n} event{'s' if n != 1 else ''} detected"
             else:
                 ctx["event_summary"] = f"{n} event{'s' if n != 1 else ''} detected"
-
-
 
         # ── 7. Pattern-specific enrichment ────────────────────────────
         if canonical_pattern == "brute_force":

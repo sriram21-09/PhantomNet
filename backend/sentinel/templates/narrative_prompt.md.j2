@@ -114,7 +114,7 @@ No source IPs were recorded for this campaign.
 ### Additional IOC Entries
 
 | Type | Value | Threat Level |
-|------|-------|--------------| 
+|------|-------|--------------|
 {% for ioc in ioc_entries %}
 | {{ ioc.type | upper }} | `{{ ioc.value }}` | {{ ioc.threat_level | default("Unknown") }} |
 {% endfor %}
