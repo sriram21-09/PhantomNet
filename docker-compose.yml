@@ -31,7 +31,7 @@ services:
       dockerfile: backend/honeypots/ssh/Dockerfile
     container_name: phantomnet_ssh
     ports:
-      - "2222:2222"
+      - "2722:2222"
     environment:
       DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/${POSTGRES_DB:-phantomnet}
       DB_HOST: postgres
@@ -93,7 +93,7 @@ services:
       dockerfile: backend/honeypots/ftp/Dockerfile
     container_name: phantomnet_ftp
     ports:
-      - "2121:2121"
+      - "2721:2121"
       - "30000-30020:30000-30020"
     environment:
       DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/${POSTGRES_DB:-phantomnet}
@@ -125,7 +125,7 @@ services:
       dockerfile: backend/honeypots/smtp/Dockerfile
     container_name: phantomnet_smtp
     ports:
-      - "2525:2525"
+      - "2725:2525"
     environment:
       DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/${POSTGRES_DB:-phantomnet}
       DB_HOST: postgres
@@ -225,7 +225,7 @@ services:
     #           capabilities: [gpu]
     restart: unless-stopped
     healthcheck:
-      test: ["CMD-SHELL", "curl -sf http://localhost:11434/ || exit 1"]
+      test: ["CMD", "ollama", "list"]
       interval: 30s
       timeout: 10s
       retries: 5
