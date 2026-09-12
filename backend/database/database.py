@@ -109,6 +109,15 @@ def upgrade_db_schema(engine):
                     conn.execute(text("ALTER TABLE packet_logs ADD COLUMN email_subject VARCHAR(512)"))
                 if "body_len" not in columns:
                     conn.execute(text("ALTER TABLE packet_logs ADD COLUMN body_len INTEGER"))
+                # Add missing GeoIP enrichment columns if they do not exist
+                if "country" not in columns:
+                    conn.execute(text("ALTER TABLE packet_logs ADD COLUMN country VARCHAR"))
+                if "city" not in columns:
+                    conn.execute(text("ALTER TABLE packet_logs ADD COLUMN city VARCHAR"))
+                if "latitude" not in columns:
+                    conn.execute(text("ALTER TABLE packet_logs ADD COLUMN latitude FLOAT"))
+                if "longitude" not in columns:
+                    conn.execute(text("ALTER TABLE packet_logs ADD COLUMN longitude FLOAT"))
 
             if "sentinel_playbooks" in tables:
                 sp_columns = [c["name"] for c in inspector.get_columns("sentinel_playbooks")]

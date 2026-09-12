@@ -44,9 +44,6 @@ generate_fallback_narrative(playbook) -> str
 generate_playbook_summary(playbook_id, db) -> Coroutine[str]
 trigger_llm_summary(playbook_id) -> None
 
-Week 17, Day 1 — LLM Service Scaffolding
-Week 17, Day 2 — Structured Prompt Templates integration
-Week 17, Day 3 — Async HTTP Client with 60-second timeout & Markdown post-processing
 """
 
 from __future__ import annotations
@@ -67,7 +64,7 @@ try:
 except ImportError:
     redis = None
 
-# Week 17, Day 2: structured prompt templates
+# Structured prompt templates (optional dependency)
 try:
     from sentinel.prompt_templates import (
         build_narrative_prompt,
@@ -102,7 +99,7 @@ SENTINEL_LLM_MODEL: str = os.getenv("SENTINEL_LLM_MODEL", "mistral")
 last_generation_time_ms: float = 0.0
 
 # ---------------------------------------------------------------------------
-# Week 17, Day 3: Strict timeout configuration for the async HTTP client
+# Strict timeout configuration for the async HTTP client
 # ---------------------------------------------------------------------------
 # Both connection establishment and read operations must complete within 60 s.
 # Using httpx.Timeout to set connect and read independently so that a slow
@@ -129,7 +126,7 @@ def get_llm_semaphore() -> asyncio.Semaphore:
 
 
 # ===========================================================================
-# LLMService — class-based interface (Week 17, Day 1)
+# LLMService — class-based interface
 # ===========================================================================
 
 class LLMService:
@@ -300,7 +297,7 @@ class LLMService:
     # ------------------------------------------------------------------
 
     # ------------------------------------------------------------------
-    # Week 17, Day 3: Markdown post-processing helper
+    # Markdown post-processing helper
     # ------------------------------------------------------------------
 
     @staticmethod
@@ -335,14 +332,11 @@ class LLMService:
         return cleaned + "\n"
 
     # ------------------------------------------------------------------
-    # Week 17, Day 3: Async HTTP client — strict 60-second timeout
+    # Async HTTP client — strict 60-second timeout
     # ------------------------------------------------------------------
 
     async def _call_ollama(self, prompt: str, *, stream: bool = False) -> str:
         """Send a prompt to the Ollama ``/api/generate`` endpoint.
-
-        Week 17, Day 3 changes
-        ~~~~~~~~~~~~~~~~~~~~~~
         * Uses ``httpx.Timeout(connect=60, read=60)`` so neither the TCP
           handshake nor a slow model response can block the application
           indefinitely.
@@ -506,7 +500,7 @@ class LLMService:
     def _build_context_prompt(self, context_data: Dict[str, Any]) -> str:
         """Build a structured prompt from a generic context dictionary.
 
-        Week 17, Day 2: delegates to ``prompt_templates.build_narrative_prompt``
+        Delegates to ``prompt_templates.build_narrative_prompt``
         when available, which produces the full 4-section structured prompt
         with UTC timestamp standardisation.  Falls back to the legacy
         inline prompt when the module is unavailable.
@@ -534,7 +528,7 @@ class LLMService:
         str
             A fully structured Markdown prompt string ready for Ollama.
         """
-        # --- Week 17 Day 2: use structured prompt templates module ---
+        # --- Use structured prompt templates module when available ---
         if _PROMPT_TEMPLATES_AVAILABLE:
             try:
                 # Bridge legacy single-IP keys to structured multi-IP format
@@ -553,7 +547,6 @@ class LLMService:
                         "FTP_DATA_EXFILTRATION": "FTP",
                         "SMTP_LARGE_PAYLOAD": "SMTP",
                         "DISTRIBUTED_BRUTE_FORCE": "SSH",
-                        "DISTRIBUTED_BRUTE_FORCE": "SSH", # Commonly against SSH/HTTP
                         "LOW_AND_SLOW_SCAN": "NETWORK",
                         "MULTI_PROTOCOL_ATTACK": "NETWORK",
                         "HIGH_FREQUENCY_ATTACK": "NETWORK",
@@ -657,7 +650,7 @@ class LLMService:
     ) -> str:
         """Async coroutine — generate an AI-enhanced Markdown narrative.
 
-        **Week 17, Day 3 primary deliverable.**  This is the preferred entry
+        This is the preferred entry
         point for callers already running inside an ``async`` context (e.g.
         FastAPI route handlers, background tasks, or test coroutines).  It
         communicates with the dockerised Ollama API via the internal Docker

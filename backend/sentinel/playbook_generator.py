@@ -623,8 +623,6 @@ class PlaybookGenerator:
             else:
                 ctx["event_summary"] = f"{n} event{'s' if n != 1 else ''} detected"
 
-
-
         # ── 7. Pattern-specific enrichment ────────────────────────────
         if canonical_pattern == "brute_force":
             ctx.setdefault("ssh_port", 22)
@@ -766,6 +764,8 @@ class PlaybookGenerator:
         # --- Step 1: validate input -------------------------------------
         self.validate_context(context_data)
         attack_pattern: str = context_data["attack_pattern"]
+        # Inject generator version into context for templates
+        render_ctx_version = __version__
 
         # --- Step 2: select template ------------------------------------
         template_name = self._select_template(attack_pattern, format=format)
@@ -781,6 +781,9 @@ class PlaybookGenerator:
         else:
             # Legacy YAML – pass through as-is (backward compat)
             render_ctx = dict(context_data)
+            # Inject version information for templates
+            render_ctx['generator_version'] = __version__
+            render_ctx['version'] = __version__
 
         # --- Step 4: load template --------------------------------------
         try:

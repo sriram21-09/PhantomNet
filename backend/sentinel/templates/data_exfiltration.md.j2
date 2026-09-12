@@ -440,7 +440,7 @@ The following CVEs are associated with this data exfiltration pattern and are em
 - [ ] **Identify deleted files / anti-forensics** – Check for deliberate evidence destruction:
   ```bash
   # Linux – check for recently shredded / wiped files
-  grep -r "shred\|wipe\|dd if=/dev/zero\|secure-delete" \
+  grep -rE "shred|wipe|dd if=/dev/zero|secure-delete" \
     /var/log/auth.log /var/log/syslog /var/log/bash_history 2>/dev/null
 
   # Check bash history for data-staging commands
@@ -588,7 +588,7 @@ The following CVEs are associated with this data exfiltration pattern and are em
     --freshness={{ audit_period_hours | default(72) }}h --format=json | python3 -m json.tool
   {% else %}
   # Check proxy logs for cloud storage API patterns
-  grep -i "{{ cloud_bucket | default("amazonaws.com\|blob.core.windows.net\|storage.googleapis.com") }}" \
+  grep -i "{{ cloud_bucket | default("amazonaws.com\\|blob.core.windows.net\\|storage.googleapis.com") }}" \
     {{ proxy_log | default("/var/log/squid/access.log") }} | \
     grep "{{ source_ip | default("<source_ip>") }}" | head -50
   {% endif %}
