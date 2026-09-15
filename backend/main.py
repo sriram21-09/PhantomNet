@@ -36,7 +36,7 @@ from sqlalchemy.orm import Session
 # DATABASE & MODELS
 # =========================
 from database.database import get_db, engine, SessionLocal
-from database.models import Base, PacketLog
+from database.models import Base, PacketLog, Alert, TrafficStats, AttackSession, Event, HoneypotNode, Policy, ScheduledReport, InvestigationCase, CaseEvidence, IOC, SearchHistory, PcapCapture, User, SystemConfig
 
 # =========================
 # SENTINEL MODELS

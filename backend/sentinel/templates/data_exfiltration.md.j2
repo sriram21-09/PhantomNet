@@ -440,7 +440,7 @@ The following CVEs are associated with this data exfiltration pattern and are em
 - [ ] **Identify deleted files / anti-forensics** – Check for deliberate evidence destruction:
   ```bash
   # Linux – check for recently shredded / wiped files
-  grep -r "shred\|wipe\|dd if=/dev/zero\|secure-delete" \
+  grep -rE "shred|wipe|dd if=/dev/zero|secure-delete" \
     /var/log/auth.log /var/log/syslog /var/log/bash_history 2>/dev/null
 
   # Check bash history for data-staging commands

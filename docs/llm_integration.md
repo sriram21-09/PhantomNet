@@ -74,7 +74,7 @@ import httpx, json, time
 OLLAMA_URL = "http://localhost:11434/api/generate"
 PRIMARY_MODEL = "mistral"
 FALLBACK_MODEL = "gemma"
-TIMEOUT_SEC = 8  # per‑request timeout
+TIMEOUT_SEC = 60  # per‑request timeout
 
 def generate(prompt: str) -> str:
     payload = {"model": PRIMARY_MODEL, "prompt": prompt}
