@@ -2,6 +2,7 @@ import threading
 import unittest
 import yaml
 
+# pyrefly: ignore [missing-import]
 from sentinel.rule_generator import (
     SNORT_RULE_TEMPLATE,
     escape_snort_string,
@@ -549,8 +550,8 @@ class TestSnortRulePriority(unittest.TestCase):
     def test_port_zero_generates_valid_rule(self):
         """Task 4: port 0 is valid and must produce a parseable Snort rule."""
         result = generate_snort_rule("any", 0, "tcp", "Port0 test", "T1234")
-        self.assertIsInstance(result, dict)
-        self.assertEqual(result.get("status"), "error")
+        self.assertIsInstance(result, str)
+        self.assertIn(" 0 (", result)
 
     def test_port_any_string_generates_valid_rule(self):
         rule = generate_snort_rule("any", "any", "tcp", "AnyPort test", "T1234")
@@ -569,7 +570,9 @@ class TestSIDAutoIncrement(unittest.TestCase):
     """Task 5 - SID auto-increment must not produce duplicates."""
 
     def setUp(self):
+        # pyrefly: ignore [missing-import]
         from sentinel.rule_generator import _SID_FILE_PATH, _load_sid
+        # pyrefly: ignore [missing-import]
         import sentinel.rule_generator as rg
         import os
 
@@ -598,7 +601,9 @@ class TestSIDAutoIncrement(unittest.TestCase):
                 rg._current_sid = 1000000
 
     def tearDown(self):
+        # pyrefly: ignore [missing-import]
         from sentinel.rule_generator import _SID_FILE_PATH, _load_sid
+        #pyrefly: ignore [missing-import]
         import sentinel.rule_generator as rg
         import os
 
@@ -688,7 +693,9 @@ class TestSIDAutoIncrement(unittest.TestCase):
 
     def test_sid_persistence_across_restart(self):
         """Verify Snort SID persists across simulated server restarts."""
+        # pyrefly: ignore [missing-import]
         from sentinel.rule_generator import _SID_FILE_PATH, _load_sid, generate_snort_rule
+        # pyrefly: ignore [missing-import]
         import sentinel.rule_generator as rg
         import os
 
@@ -760,7 +767,9 @@ class TestSIDAutoIncrement(unittest.TestCase):
 
     def test_corrupted_sid_file_handled_gracefully(self):
         """Verify corrupted/empty/missing SID storage is handled gracefully."""
+        # pyrefly: ignore [missing-import]
         from sentinel.rule_generator import _SID_FILE_PATH, _load_sid
+        # pyrefly: ignore [missing-import]
         import sentinel.rule_generator as rg
         import os
 

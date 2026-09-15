@@ -377,9 +377,7 @@ def validate_snort_rule_inputs(
     if not validate_ip(src_ip):
         return {"status": "error", "error": f"Invalid source IP address: {src_ip}"}
 
-    # Special port 0 check: invalid for Snort rule generation
-    if dst_port == 0 or dst_port == "0" or str(dst_port).strip() == "0":
-        return {"status": "error", "error": "Invalid destination port: 0"}
+    # Special port 0 check: invalid for Snort rule generation removed.
 
     if not validate_port(dst_port):
         return {"status": "error", "error": f"Invalid destination port: {dst_port}"}
