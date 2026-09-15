@@ -1,0 +1,649 @@
+{
+  "test": "STIX 2.1 Bundle Compliance Verification",
+  "version": "v3.0.0",
+  "timestamp": "2026-09-15T15:11:36.634817Z",
+  "summary": {
+    "total_checks": 126,
+    "passed": 126,
+    "failed": 0,
+    "status": "COMPLIANT"
+  },
+  "object_type_counts": {
+    "identity": 1,
+    "attack-pattern": 5,
+    "indicator": 5,
+    "report": 5
+  },
+  "checks": [
+    {
+      "name": "HTTP 200 response",
+      "status": "\u2705 PASS",
+      "detail": "got 200"
+    },
+    {
+      "name": "Bundle has 'type' field",
+      "status": "\u2705 PASS",
+      "detail": ""
+    },
+    {
+      "name": "Bundle type is 'bundle'",
+      "status": "\u2705 PASS",
+      "detail": ""
+    },
+    {
+      "name": "Bundle has 'id' field",
+      "status": "\u2705 PASS",
+      "detail": ""
+    },
+    {
+      "name": "Bundle id starts with 'bundle--'",
+      "status": "\u2705 PASS",
+      "detail": ""
+    },
+    {
+      "name": "Bundle id contains valid UUID",
+      "status": "\u2705 PASS",
+      "detail": "0479d541-b974-4f59-b653-b181762b86a0"
+    },
+    {
+      "name": "Bundle has 'objects' array",
+      "status": "\u2705 PASS",
+      "detail": ""
+    },
+    {
+      "name": "Bundle contains objects",
+      "status": "\u2705 PASS",
+      "detail": "count=16"
+    },
+    {
+      "name": "Object[0] has valid 'type'",
+      "status": "\u2705 PASS",
+      "detail": "type=identity"
+    },
+    {
+      "name": "Object[0] has 'id' field",
+      "status": "\u2705 PASS",
+      "detail": ""
+    },
+    {
+      "name": "Object[0] id format 'identity--<uuid>'",
+      "status": "\u2705 PASS",
+      "detail": "identity--0b784a91-4e78-5777-a721-6ffab3"
+    },
+    {
+      "name": "Object[0] has spec_version '2.1'",
+      "status": "\u2705 PASS",
+      "detail": "got '2.1'"
+    },
+    {
+      "name": "Object[0] 'created' is ISO 8601 UTC",
+      "status": "\u2705 PASS",
+      "detail": "2026-01-01T00:00:00.000Z"
+    },
+    {
+      "name": "Object[0] 'modified' is ISO 8601 UTC",
+      "status": "\u2705 PASS",
+      "detail": "2026-01-01T00:00:00.000Z"
+    },
+    {
+      "name": "Object[1] has valid 'type'",
+      "status": "\u2705 PASS",
+      "detail": "type=attack-pattern"
+    },
+    {
+      "name": "Object[1] has 'id' field",
+      "status": "\u2705 PASS",
+      "detail": ""
+    },
+    {
+      "name": "Object[1] id format 'attack-pattern--<uuid>'",
+      "status": "\u2705 PASS",
+      "detail": "attack-pattern--da12e548-53a6-51b6-9a1b-"
+    },
+    {
+      "name": "Object[1] has spec_version '2.1'",
+      "status": "\u2705 PASS",
+      "detail": "got '2.1'"
+    },
+    {
+      "name": "Object[1] 'created' is ISO 8601 UTC",
+      "status": "\u2705 PASS",
+      "detail": "2026-09-01T00:00:00Z"
+    },
+    {
+      "name": "Object[1] 'modified' is ISO 8601 UTC",
+      "status": "\u2705 PASS",
+      "detail": "2026-09-01T00:00:00Z"
+    },
+    {
+      "name": "Object[2] has valid 'type'",
+      "status": "\u2705 PASS",
+      "detail": "type=indicator"
+    },
+    {
+      "name": "Object[2] has 'id' field",
+      "status": "\u2705 PASS",
+      "detail": ""
+    },
+    {
+      "name": "Object[2] id format 'indicator--<uuid>'",
+      "status": "\u2705 PASS",
+      "detail": "indicator--ed2c2149-07a0-5290-bbbd-de9c6"
+    },
+    {
+      "name": "Object[2] has spec_version '2.1'",
+      "status": "\u2705 PASS",
+      "detail": "got '2.1'"
+    },
+    {
+      "name": "Object[2] 'created' is ISO 8601 UTC",
+      "status": "\u2705 PASS",
+      "detail": "2026-09-01T00:00:00Z"
+    },
+    {
+      "name": "Object[2] 'modified' is ISO 8601 UTC",
+      "status": "\u2705 PASS",
+      "detail": "2026-09-01T00:00:00Z"
+    },
+    {
+      "name": "Object[3] has valid 'type'",
+      "status": "\u2705 PASS",
+      "detail": "type=report"
+    },
+    {
+      "name": "Object[3] has 'id' field",
+      "status": "\u2705 PASS",
+      "detail": ""
+    },
+    {
+      "name": "Object[3] id format 'report--<uuid>'",
+      "status": "\u2705 PASS",
+      "detail": "report--b024d063-87a1-58f0-872d-ceb72765"
+    },
+    {
+      "name": "Object[3] has spec_version '2.1'",
+      "status": "\u2705 PASS",
+      "detail": "got '2.1'"
+    },
+    {
+      "name": "Object[3] 'created' is ISO 8601 UTC",
+      "status": "\u2705 PASS",
+      "detail": "2026-09-01T00:00:00Z"
+    },
+    {
+      "name": "Object[3] 'modified' is ISO 8601 UTC",
+      "status": "\u2705 PASS",
+      "detail": "2026-09-01T00:00:00Z"
+    },
+    {
+      "name": "Object[4] has valid 'type'",
+      "status": "\u2705 PASS",
+      "detail": "type=attack-pattern"
+    },
+    {
+      "name": "Object[4] has 'id' field",
+      "status": "\u2705 PASS",
+      "detail": ""
+    },
+    {
+      "name": "Object[4] id format 'attack-pattern--<uuid>'",
+      "status": "\u2705 PASS",
+      "detail": "attack-pattern--da12e548-53a6-51b6-9a1b-"
+    },
+    {
+      "name": "Object[4] has spec_version '2.1'",
+      "status": "\u2705 PASS",
+      "detail": "got '2.1'"
+    },
+    {
+      "name": "Object[4] 'created' is ISO 8601 UTC",
+      "status": "\u2705 PASS",
+      "detail": "2026-09-01T01:00:00Z"
+    },
+    {
+      "name": "Object[4] 'modified' is ISO 8601 UTC",
+      "status": "\u2705 PASS",
+      "detail": "2026-09-01T01:00:00Z"
+    },
+    {
+      "name": "Object[5] has valid 'type'",
+      "status": "\u2705 PASS",
+      "detail": "type=indicator"
+    },
+    {
+      "name": "Object[5] has 'id' field",
+      "status": "\u2705 PASS",
+      "detail": ""
+    },
+    {
+      "name": "Object[5] id format 'indicator--<uuid>'",
+      "status": "\u2705 PASS",
+      "detail": "indicator--58ab2733-2f84-5b0d-baab-da8d9"
+    },
+    {
+      "name": "Object[5] has spec_version '2.1'",
+      "status": "\u2705 PASS",
+      "detail": "got '2.1'"
+    },
+    {
+      "name": "Object[5] 'created' is ISO 8601 UTC",
+      "status": "\u2705 PASS",
+      "detail": "2026-09-01T01:00:00Z"
+    },
+    {
+      "name": "Object[5] 'modified' is ISO 8601 UTC",
+      "status": "\u2705 PASS",
+      "detail": "2026-09-01T01:00:00Z"
+    },
+    {
+      "name": "Object[6] has valid 'type'",
+      "status": "\u2705 PASS",
+      "detail": "type=report"
+    },
+    {
+      "name": "Object[6] has 'id' field",
+      "status": "\u2705 PASS",
+      "detail": ""
+    },
+    {
+      "name": "Object[6] id format 'report--<uuid>'",
+      "status": "\u2705 PASS",
+      "detail": "report--b24b8e0b-d08d-56ba-a9a8-08df96b6"
+    },
+    {
+      "name": "Object[6] has spec_version '2.1'",
+      "status": "\u2705 PASS",
+      "detail": "got '2.1'"
+    },
+    {
+      "name": "Object[6] 'created' is ISO 8601 UTC",
+      "status": "\u2705 PASS",
+      "detail": "2026-09-01T01:00:00Z"
+    },
+    {
+      "name": "Object[6] 'modified' is ISO 8601 UTC",
+      "status": "\u2705 PASS",
+      "detail": "2026-09-01T01:00:00Z"
+    },
+    {
+      "name": "Object[7] has valid 'type'",
+      "status": "\u2705 PASS",
+      "detail": "type=attack-pattern"
+    },
+    {
+      "name": "Object[7] has 'id' field",
+      "status": "\u2705 PASS",
+      "detail": ""
+    },
+    {
+      "name": "Object[7] id format 'attack-pattern--<uuid>'",
+      "status": "\u2705 PASS",
+      "detail": "attack-pattern--da12e548-53a6-51b6-9a1b-"
+    },
+    {
+      "name": "Object[7] has spec_version '2.1'",
+      "status": "\u2705 PASS",
+      "detail": "got '2.1'"
+    },
+    {
+      "name": "Object[7] 'created' is ISO 8601 UTC",
+      "status": "\u2705 PASS",
+      "detail": "2026-09-01T02:00:00Z"
+    },
+    {
+      "name": "Object[7] 'modified' is ISO 8601 UTC",
+      "status": "\u2705 PASS",
+      "detail": "2026-09-01T02:00:00Z"
+    },
+    {
+      "name": "Object[8] has valid 'type'",
+      "status": "\u2705 PASS",
+      "detail": "type=indicator"
+    },
+    {
+      "name": "Object[8] has 'id' field",
+      "status": "\u2705 PASS",
+      "detail": ""
+    },
+    {
+      "name": "Object[8] id format 'indicator--<uuid>'",
+      "status": "\u2705 PASS",
+      "detail": "indicator--b549311f-49c3-570f-a574-05bb5"
+    },
+    {
+      "name": "Object[8] has spec_version '2.1'",
+      "status": "\u2705 PASS",
+      "detail": "got '2.1'"
+    },
+    {
+      "name": "Object[8] 'created' is ISO 8601 UTC",
+      "status": "\u2705 PASS",
+      "detail": "2026-09-01T02:00:00Z"
+    },
+    {
+      "name": "Object[8] 'modified' is ISO 8601 UTC",
+      "status": "\u2705 PASS",
+      "detail": "2026-09-01T02:00:00Z"
+    },
+    {
+      "name": "Object[9] has valid 'type'",
+      "status": "\u2705 PASS",
+      "detail": "type=report"
+    },
+    {
+      "name": "Object[9] has 'id' field",
+      "status": "\u2705 PASS",
+      "detail": ""
+    },
+    {
+      "name": "Object[9] id format 'report--<uuid>'",
+      "status": "\u2705 PASS",
+      "detail": "report--36d88929-ed16-5d90-a92a-40416738"
+    },
+    {
+      "name": "Object[9] has spec_version '2.1'",
+      "status": "\u2705 PASS",
+      "detail": "got '2.1'"
+    },
+    {
+      "name": "Object[9] 'created' is ISO 8601 UTC",
+      "status": "\u2705 PASS",
+      "detail": "2026-09-01T02:00:00Z"
+    },
+    {
+      "name": "Object[9] 'modified' is ISO 8601 UTC",
+      "status": "\u2705 PASS",
+      "detail": "2026-09-01T02:00:00Z"
+    },
+    {
+      "name": "Object[10] has valid 'type'",
+      "status": "\u2705 PASS",
+      "detail": "type=attack-pattern"
+    },
+    {
+      "name": "Object[10] has 'id' field",
+      "status": "\u2705 PASS",
+      "detail": ""
+    },
+    {
+      "name": "Object[10] id format 'attack-pattern--<uuid>'",
+      "status": "\u2705 PASS",
+      "detail": "attack-pattern--da12e548-53a6-51b6-9a1b-"
+    },
+    {
+      "name": "Object[10] has spec_version '2.1'",
+      "status": "\u2705 PASS",
+      "detail": "got '2.1'"
+    },
+    {
+      "name": "Object[10] 'created' is ISO 8601 UTC",
+      "status": "\u2705 PASS",
+      "detail": "2026-09-01T03:00:00Z"
+    },
+    {
+      "name": "Object[10] 'modified' is ISO 8601 UTC",
+      "status": "\u2705 PASS",
+      "detail": "2026-09-01T03:00:00Z"
+    },
+    {
+      "name": "Object[11] has valid 'type'",
+      "status": "\u2705 PASS",
+      "detail": "type=indicator"
+    },
+    {
+      "name": "Object[11] has 'id' field",
+      "status": "\u2705 PASS",
+      "detail": ""
+    },
+    {
+      "name": "Object[11] id format 'indicator--<uuid>'",
+      "status": "\u2705 PASS",
+      "detail": "indicator--7091f47b-2f6c-5c3e-ada1-76a2c"
+    },
+    {
+      "name": "Object[11] has spec_version '2.1'",
+      "status": "\u2705 PASS",
+      "detail": "got '2.1'"
+    },
+    {
+      "name": "Object[11] 'created' is ISO 8601 UTC",
+      "status": "\u2705 PASS",
+      "detail": "2026-09-01T03:00:00Z"
+    },
+    {
+      "name": "Object[11] 'modified' is ISO 8601 UTC",
+      "status": "\u2705 PASS",
+      "detail": "2026-09-01T03:00:00Z"
+    },
+    {
+      "name": "Object[12] has valid 'type'",
+      "status": "\u2705 PASS",
+      "detail": "type=report"
+    },
+    {
+      "name": "Object[12] has 'id' field",
+      "status": "\u2705 PASS",
+      "detail": ""
+    },
+    {
+      "name": "Object[12] id format 'report--<uuid>'",
+      "status": "\u2705 PASS",
+      "detail": "report--3f155036-83e3-5e09-a301-f8792d85"
+    },
+    {
+      "name": "Object[12] has spec_version '2.1'",
+      "status": "\u2705 PASS",
+      "detail": "got '2.1'"
+    },
+    {
+      "name": "Object[12] 'created' is ISO 8601 UTC",
+      "status": "\u2705 PASS",
+      "detail": "2026-09-01T03:00:00Z"
+    },
+    {
+      "name": "Object[12] 'modified' is ISO 8601 UTC",
+      "status": "\u2705 PASS",
+      "detail": "2026-09-01T03:00:00Z"
+    },
+    {
+      "name": "Object[13] has valid 'type'",
+      "status": "\u2705 PASS",
+      "detail": "type=attack-pattern"
+    },
+    {
+      "name": "Object[13] has 'id' field",
+      "status": "\u2705 PASS",
+      "detail": ""
+    },
+    {
+      "name": "Object[13] id format 'attack-pattern--<uuid>'",
+      "status": "\u2705 PASS",
+      "detail": "attack-pattern--da12e548-53a6-51b6-9a1b-"
+    },
+    {
+      "name": "Object[13] has spec_version '2.1'",
+      "status": "\u2705 PASS",
+      "detail": "got '2.1'"
+    },
+    {
+      "name": "Object[13] 'created' is ISO 8601 UTC",
+      "status": "\u2705 PASS",
+      "detail": "2026-09-01T04:00:00Z"
+    },
+    {
+      "name": "Object[13] 'modified' is ISO 8601 UTC",
+      "status": "\u2705 PASS",
+      "detail": "2026-09-01T04:00:00Z"
+    },
+    {
+      "name": "Object[14] has valid 'type'",
+      "status": "\u2705 PASS",
+      "detail": "type=indicator"
+    },
+    {
+      "name": "Object[14] has 'id' field",
+      "status": "\u2705 PASS",
+      "detail": ""
+    },
+    {
+      "name": "Object[14] id format 'indicator--<uuid>'",
+      "status": "\u2705 PASS",
+      "detail": "indicator--204780bc-61be-55aa-9024-fe362"
+    },
+    {
+      "name": "Object[14] has spec_version '2.1'",
+      "status": "\u2705 PASS",
+      "detail": "got '2.1'"
+    },
+    {
+      "name": "Object[14] 'created' is ISO 8601 UTC",
+      "status": "\u2705 PASS",
+      "detail": "2026-09-01T04:00:00Z"
+    },
+    {
+      "name": "Object[14] 'modified' is ISO 8601 UTC",
+      "status": "\u2705 PASS",
+      "detail": "2026-09-01T04:00:00Z"
+    },
+    {
+      "name": "Object[15] has valid 'type'",
+      "status": "\u2705 PASS",
+      "detail": "type=report"
+    },
+    {
+      "name": "Object[15] has 'id' field",
+      "status": "\u2705 PASS",
+      "detail": ""
+    },
+    {
+      "name": "Object[15] id format 'report--<uuid>'",
+      "status": "\u2705 PASS",
+      "detail": "report--bf52acaa-5045-5093-8a6c-8995a695"
+    },
+    {
+      "name": "Object[15] has spec_version '2.1'",
+      "status": "\u2705 PASS",
+      "detail": "got '2.1'"
+    },
+    {
+      "name": "Object[15] 'created' is ISO 8601 UTC",
+      "status": "\u2705 PASS",
+      "detail": "2026-09-01T04:00:00Z"
+    },
+    {
+      "name": "Object[15] 'modified' is ISO 8601 UTC",
+      "status": "\u2705 PASS",
+      "detail": "2026-09-01T04:00:00Z"
+    },
+    {
+      "name": "At least one identity object exists",
+      "status": "\u2705 PASS",
+      "detail": ""
+    },
+    {
+      "name": "Identity has 'name'",
+      "status": "\u2705 PASS",
+      "detail": ""
+    },
+    {
+      "name": "Identity has 'identity_class'",
+      "status": "\u2705 PASS",
+      "detail": ""
+    },
+    {
+      "name": "Attack-pattern objects present",
+      "status": "\u2705 PASS",
+      "detail": "count=5"
+    },
+    {
+      "name": "Attack-pattern has 'name'",
+      "status": "\u2705 PASS",
+      "detail": ""
+    },
+    {
+      "name": "Attack-pattern has 'external_references'",
+      "status": "\u2705 PASS",
+      "detail": ""
+    },
+    {
+      "name": "External ref has 'source_name'",
+      "status": "\u2705 PASS",
+      "detail": ""
+    },
+    {
+      "name": "External ref source is 'mitre-attack'",
+      "status": "\u2705 PASS",
+      "detail": ""
+    },
+    {
+      "name": "External ref has 'external_id'",
+      "status": "\u2705 PASS",
+      "detail": ""
+    },
+    {
+      "name": "External ref has 'url'",
+      "status": "\u2705 PASS",
+      "detail": ""
+    },
+    {
+      "name": "Indicator objects present",
+      "status": "\u2705 PASS",
+      "detail": "count=5"
+    },
+    {
+      "name": "Indicator has 'pattern'",
+      "status": "\u2705 PASS",
+      "detail": ""
+    },
+    {
+      "name": "Indicator has 'pattern_type'",
+      "status": "\u2705 PASS",
+      "detail": ""
+    },
+    {
+      "name": "Indicator pattern_type is 'stix'",
+      "status": "\u2705 PASS",
+      "detail": ""
+    },
+    {
+      "name": "Indicator has 'valid_from'",
+      "status": "\u2705 PASS",
+      "detail": ""
+    },
+    {
+      "name": "Indicator pattern is valid STIX pattern",
+      "status": "\u2705 PASS",
+      "detail": "[ipv4-addr:value = '192.168.1.10']"
+    },
+    {
+      "name": "Report objects present",
+      "status": "\u2705 PASS",
+      "detail": "count=5"
+    },
+    {
+      "name": "Report has 'name'",
+      "status": "\u2705 PASS",
+      "detail": ""
+    },
+    {
+      "name": "Report has 'published'",
+      "status": "\u2705 PASS",
+      "detail": ""
+    },
+    {
+      "name": "Report has 'object_refs'",
+      "status": "\u2705 PASS",
+      "detail": ""
+    },
+    {
+      "name": "Report object_refs is non-empty list",
+      "status": "\u2705 PASS",
+      "detail": ""
+    },
+    {
+      "name": "Response Content-Type is STIX 2.1 media type",
+      "status": "\u2705 PASS",
+      "detail": "application/stix+json;version=2.1"
+    }
+  ]
+}
