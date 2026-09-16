@@ -5,7 +5,7 @@ from sqlalchemy import func
 from typing import Optional, Dict, Any, List
 from database.database import get_db
 from database.models import Alert
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 from datetime import datetime, timezone
 
 logger = logging.getLogger("api.alerts")
@@ -21,8 +21,7 @@ class AlertResponse(BaseModel):
     details: Optional[str]
     is_resolved: bool
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 @router.get("", response_model=Dict[str, Any])
 def list_alerts(

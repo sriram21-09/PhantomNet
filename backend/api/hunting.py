@@ -65,7 +65,7 @@ class IOCOutput(BaseModel):
 def search_events(query: AdvancedQuery, db: Session = Depends(get_db)):
     try:
         service = HuntingService(db)
-        return service.search_events(query.dict())
+        return service.search_events(query.model_dump())
     except Exception as e:
         logger.error("Error executing threat hunting search: %s", e)
         raise HTTPException(status_code=500, detail="Failed to execute search query.")
