@@ -9,14 +9,14 @@
 ## Performance Metrics
 | Offset | Limit | Playbooks Returned | Total STIX Objects | Response Time (ms) |
 |--------|-------|--------------------|--------------------|--------------------|
-| 0 | 100 | 100 | 301 | 90.45 |
-| 100 | 100 | 100 | 301 | 29.63 |
-| 200 | 100 | 100 | 301 | 29.49 |
-| 300 | 100 | 100 | 301 | 31.82 |
-| 400 | 100 | 100 | 301 | 30.70 |
-| 500 | 100 | 50 | 151 | 24.91 |
+| 0 | 100 | 100 | 301 | 32.27 |
+| 100 | 100 | 100 | 301 | 12.03 |
+| 200 | 100 | 100 | 301 | 9.33 |
+| 300 | 100 | 100 | 301 | 10.41 |
+| 400 | 100 | 100 | 301 | 9.86 |
+| 500 | 100 | 50 | 151 | 9.05 |
 
-**Average Response Time**: 39.50 ms
+**Average Response Time**: 13.83 ms
 
 ## Verification Results
 - ✅ Database successfully seeded with 550 STIX bundle records.
