@@ -26,7 +26,7 @@ class TaxiiDiscoveryResponse(BaseModel):
     title: str = Field(
         default="PhantomNet TAXII 2.1 Server",
         description="A name or title for this TAXII server.",
-        example="PhantomNet TAXII 2.1 Server",
+        json_schema_extra={"example": "PhantomNet TAXII 2.1 Server"},
     )
     description: Optional[str] = Field(
         default="TAXII 2.1 Feed Server exposing Sentinel STIX 2.1 threat intelligence bundles.",
@@ -81,17 +81,17 @@ class TaxiiCollectionResource(BaseModel):
     id: str = Field(
         ...,
         description="A unique identifier for this collection.",
-        example="sentinel-playbooks-approved",
+        json_schema_extra={"example": "sentinel-playbooks-approved"},
     )
     title: str = Field(
         ...,
         description="A human-readable name for this collection.",
-        example="Approved Sentinel Playbooks",
+        json_schema_extra={"example": "Approved Sentinel Playbooks"},
     )
     description: Optional[str] = Field(
         None,
         description="A human-readable description of this collection.",
-        example="STIX 2.1 bundles generated from approved PhantomNet honeypot threat detections.",
+        json_schema_extra={"example": "STIX 2.1 bundles generated from approved PhantomNet honeypot threat detections."},
     )
     alias: Optional[str] = Field(
         None,
@@ -155,12 +155,12 @@ class TaxiiErrorResponse(BaseModel):
     title: str = Field(
         ...,
         description="A human-readable brief summary of the error.",
-        example="Not Acceptable",
+        json_schema_extra={"example": "Not Acceptable"},
     )
     description: Optional[str] = Field(
         None,
         description="A human-readable detailed message explaining the error.",
-        example="Accept header must be 'application/taxii+json;version=2.1' or 'application/stix+json;version=2.1'",
+        json_schema_extra={"example": "Accept header must be 'application/taxii+json;version=2.1' or 'application/stix+json;version=2.1'"},
     )
     error_id: Optional[str] = Field(
         None,
@@ -173,7 +173,7 @@ class TaxiiErrorResponse(BaseModel):
     http_status: str = Field(
         ...,
         description="The HTTP status code associated with this error.",
-        example="406",
+        json_schema_extra={"example": "406"},
     )
     details: Optional[Dict[str, Any]] = Field(
         None,

@@ -3,7 +3,7 @@ from fastapi import APIRouter, Depends, HTTPException, Path
 from sqlalchemy.orm import Session
 from database.database import get_db
 from database.models import InvestigationCase, CaseEvidence, IOC
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 from typing import List, Optional
 from datetime import datetime
 
@@ -73,8 +73,7 @@ class CaseResponse(BaseModel):
     created_at: datetime
     updated_at: datetime
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 @router.get("/", response_model=List[CaseResponse])
@@ -85,7 +84,7 @@ def get_cases(db: Session = Depends(get_db)):
 @router.post("/", response_model=CaseResponse)
 def create_case(case_data: CaseCreate, db: Session = Depends(get_db)):
     try:
-        data = case_data.dict()
+        data = case_data.model_dump()
         db_case = InvestigationCase(**data)
         db.add(db_case)
         db.commit()
@@ -152,7 +151,7 @@ def add_evidence(
         raise HTTPException(status_code=404, detail="Case not found")
 
     try:
-        db_evidence = CaseEvidence(case_id=case_id, **evidence.dict())
+        db_evidence = CaseEvidence(case_id=case_id, **evidence.model_dump())
         db.add(db_evidence)
         db.commit()
         return {"status": "success", "message": "Evidence added successfully"}

@@ -303,7 +303,7 @@ class TestContextEnrichment:
             "brute_force",
         )
         assert "generator_version" in ctx
-        assert ctx["generator_version"] == "2.0.0"
+        assert ctx["generator_version"] == "3.0.0"
 
     def test_severity_default(self, gen):
         ctx = gen._build_enriched_context(

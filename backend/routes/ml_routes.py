@@ -1,5 +1,5 @@
 from fastapi import APIRouter, HTTPException
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 from typing import List, Dict, Any
 import time
 from ml.preprocessing import DataPreprocessor
@@ -17,8 +17,7 @@ class LogEvent(BaseModel):
     payload: str = ""
     status: str = "Unknown"
 
-    class Config:
-        extra = "allow"
+    model_config = ConfigDict(extra="allow")
 
 
 @router.get("/features/{event_id}")

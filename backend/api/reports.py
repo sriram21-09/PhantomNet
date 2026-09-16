@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 from database.database import get_db
 from database.models import ScheduledReport
 from services.report_service import ReportService
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 from typing import List, Optional
 from datetime import datetime
 
@@ -64,8 +64,7 @@ class ScheduledReportResponse(BaseModel):
     last_run: Optional[datetime]
     next_run: Optional[datetime]
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 @router.get("/generate", response_model=dict)

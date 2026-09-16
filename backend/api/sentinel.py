@@ -46,7 +46,7 @@ from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Path, Qu
 # pyrefly: ignore [missing-import]
 from fastapi.responses import StreamingResponse
 # pyrefly: ignore [missing-import]
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 # pyrefly: ignore [missing-import]
 from sqlalchemy import func, or_
 # pyrefly: ignore [missing-import]
@@ -104,8 +104,7 @@ class PlaybookSummary(BaseModel):
     parent_id: Optional[int] = None
     is_latest: bool = True
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class PlaybookDetail(PlaybookSummary):
@@ -120,8 +119,7 @@ class PlaybookDetail(PlaybookSummary):
     reviewed_at: Optional[str] = None
     regeneration_reason: Optional[str] = None
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class RegenerateRequest(BaseModel):

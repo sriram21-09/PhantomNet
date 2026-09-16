@@ -118,7 +118,6 @@ httpx>=0.28.1
 python-multipart>=0.0.22
 aiofiles>=25.1.0
 websockets>=16.0
-scapy>=2.6.0
 pymisp>=2.5.33
 asyncssh>=2.22.0
 stix2>=3.0.2
