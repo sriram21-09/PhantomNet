@@ -19,6 +19,7 @@ import AdminPanel from "./pages/AdminPanel";
 import MLInsights from "./pages/MLInsights";
 import Honeypots from "./pages/Honeypots";
 import SentinelDashboard from "./pages/SentinelDashboard";
+import NotFound from "./pages/NotFound";
 
 
 function App() {
@@ -47,6 +48,7 @@ function App() {
               <Route path="/ml-insights" element={<MLInsights />} />
               <Route path="/honeypots" element={<Honeypots />} />
               <Route path="/sentinel" element={<SentinelDashboard />} />
+              <Route path="*" element={<NotFound />} />
             </Routes>
           </div>
         </BrowserRouter>

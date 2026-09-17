@@ -1,5 +1,5 @@
 from sqlalchemy.orm import Session
-from sqlalchemy import func
+from sqlalchemy import func, or_, and_
 from datetime import datetime, timedelta
 
 from database.models import PacketLog, TrafficStats
@@ -38,20 +38,40 @@ class StatsService:
         # Average threat score (0–1)
         avg_threat = self.db.query(func.avg(PacketLog.threat_score)).scalar() or 0.0
 
-        # Critical alerts (>= 0.8)
+        # Critical alerts (>= 80 or >= 0.8 if on 0-1 scale)
         critical_alerts = (
-            self.db.query(PacketLog).filter(PacketLog.threat_score >= 0.8).count()
+            self.db.query(PacketLog).filter(
+                or_(
+                    PacketLog.threat_score >= 80,
+                    and_(PacketLog.threat_score >= 0.8, PacketLog.threat_score <= 1.0),
+                )
+            ).count()
         )
 
         # Detailed Distribution
         malicious_count = (
-            self.db.query(PacketLog).filter(PacketLog.threat_score >= 0.75).count()
+            self.db.query(PacketLog).filter(
+                or_(
+                    PacketLog.threat_score >= 75,
+                    and_(PacketLog.threat_score >= 0.75, PacketLog.threat_score <= 1.0),
+                )
+            ).count()
         )
         suspicious_count = (
-            self.db.query(PacketLog).filter(PacketLog.threat_score.between(0.4, 0.7499)).count()
+            self.db.query(PacketLog).filter(
+                or_(
+                    PacketLog.threat_score.between(40, 74.99),
+                    and_(PacketLog.threat_score >= 0.4, PacketLog.threat_score < 0.75),
+                )
+            ).count()
         )
         benign_count = (
-            self.db.query(PacketLog).filter(PacketLog.threat_score < 0.4).count()
+            self.db.query(PacketLog).filter(
+                or_(
+                    and_(PacketLog.threat_score < 40, PacketLog.threat_score > 1.0),
+                    and_(PacketLog.threat_score < 0.4, PacketLog.threat_score >= 0.0),
+                )
+            ).count()
         )
 
         return {

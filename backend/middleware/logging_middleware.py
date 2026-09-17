@@ -22,7 +22,7 @@ class SecurityLoggingMiddleware(BaseHTTPMiddleware):
         start_time = time.time()
 
         # Capture request info
-        client_ip = request.client.host
+        client_ip = request.client.host if request.client else "unknown"
         method = request.method
         url = str(request.url)
 

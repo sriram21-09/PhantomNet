@@ -220,7 +220,7 @@ class SentinelPlaybook(Base):
     quality_score = Column(
         Float,
         nullable=True,
-        default=None,
+        default=0.0,
         comment="Dynamic quality score (0-100) based on IOC count, cluster volume, model confidence, and multi-source verification.",
     )
 
@@ -313,14 +313,6 @@ class SentinelPlaybook(Base):
         comment="AI-generated playbook narrative summary (Markdown format)",
     )
 
-    quality_score = Column(
-        Integer,
-        nullable=False,
-        default=0,
-        index=True,
-        comment="Dynamic playbook quality score in range 0-100",
-    )
-
     # ΓöÇΓöÇ 6. Lifecycle / Workflow ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
     #   status      : Approval workflow state.
     #                 Values: "pending" | "approved" | "rejected" | "exported"
@@ -389,7 +381,7 @@ class SentinelPlaybook(Base):
             "attack_type":      self.attack_type,
             "threat_score":     self.threat_score,
             "confidence_score": self.confidence_score,
-            "quality_score":    getattr(self, "quality_score", 0),
+            "quality_score":    self.quality_score,
             "severity":         self.severity,
             # MITRE ATT&CK
             "technique_id":     self.technique_id,

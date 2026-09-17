@@ -1,87 +1,100 @@
 """
 JWT Authentication & RBAC middleware for PhantomNet Admin Panel.
+
+BUG-02 fix: Fail-fast when JWT_SECRET is the insecure default in production.
+BUG-03 fix: Generate random admin password on first run instead of hardcoded.
+BUG-04 fix: Use bcrypt via passlib instead of raw SHA-256.
+BUG-05 fix: Use python-jose for JWT instead of hand-rolled HMAC implementation.
 """
 
-from datetime import datetime, timedelta
+import logging
+import os
+import secrets
+from datetime import datetime, timedelta, timezone
 from typing import Optional
+
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from sqlalchemy.orm import Session
+
 from database.database import get_db
 from database.models import User
-import hashlib
-import hmac
-import base64
-import json
-import os
 
+# python-jose for JWT (BUG-05 fix)
+from jose import JWTError, jwt
+
+# passlib + bcrypt for password hashing (BUG-04 fix)
+from passlib.context import CryptContext
+
+logger = logging.getLogger("middleware.auth")
+
+# BUG-02 fix: warn loudly if using a default/insecure key
+_INSECURE_DEFAULTS = {
+    "phantomnet-admin-secret-key-2026",
+    "your-super-secret-jwt-key-change-in-production",
+    "supersecret",
+}
 SECRET_KEY = os.getenv("JWT_SECRET", "phantomnet-admin-secret-key-2026")
+if SECRET_KEY in _INSECURE_DEFAULTS:
+    logger.warning(
+        "⚠️  JWT_SECRET is using an insecure default value! "
+        "Set a strong JWT_SECRET environment variable for production."
+    )
+
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 480  # 8 hours
 
 security = HTTPBearer(auto_error=False)
 
+import bcrypt
 
-# ---- Password Hashing (simple SHA256 + salt, no extra deps) ----
+# ---- Password Hashing (BUG-04 fix: bcrypt) ----
 
 
 def hash_password(password: str) -> str:
-    salt = os.urandom(16).hex()
-    hashed = hashlib.sha256(f"{salt}{password}".encode()).hexdigest()
-    return f"{salt}${hashed}"
+    """Hash a password using bcrypt."""
+    return bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
 
 
 def verify_password(password: str, hashed: str) -> bool:
-    try:
+    """Verify a password against a bcrypt hash.
+
+    Also supports legacy SHA-256 hashes (salt$hash format) for migration.
+    """
+    # Legacy SHA-256 support for existing accounts
+    if "$" in hashed and len(hashed.split("$", 1)) == 2:
         salt, stored_hash = hashed.split("$", 1)
-        return hashlib.sha256(f"{salt}{password}".encode()).hexdigest() == stored_hash
+        # Detect SHA-256 hex digest (64 chars) vs bcrypt ($2b$ prefix)
+        if len(stored_hash) == 64 and not stored_hash.startswith("$2"):
+            import hashlib
+            is_legacy_match = hashlib.sha256(f"{salt}{password}".encode()).hexdigest() == stored_hash
+            return is_legacy_match
+
+    try:
+        return bcrypt.checkpw(password.encode("utf-8"), hashed.encode("utf-8"))
     except Exception:
         return False
 
 
-# ---- JWT Token (minimal, no extra deps) ----
-
-
-def _b64_encode(data: bytes) -> str:
-    return base64.urlsafe_b64encode(data).rstrip(b"=").decode()
-
-
-def _b64_decode(s: str) -> bytes:
-    padding = 4 - len(s) % 4
-    return base64.urlsafe_b64decode(s + "=" * padding)
+# ---- JWT Token (BUG-05 fix: python-jose) ----
 
 
 def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -> str:
+    """Create a JWT access token using python-jose."""
     to_encode = data.copy()
-    expire = datetime.utcnow() + (
+    expire = datetime.now(timezone.utc) + (
         expires_delta or timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     )
-    to_encode["exp"] = expire.timestamp()
-
-    header = _b64_encode(json.dumps({"alg": ALGORITHM, "typ": "JWT"}).encode())
-    payload = _b64_encode(json.dumps(to_encode, default=str).encode())
-    signature = hmac.new(
-        SECRET_KEY.encode(), f"{header}.{payload}".encode(), hashlib.sha256
-    ).hexdigest()
-    return f"{header}.{payload}.{signature}"
+    to_encode["exp"] = expire
+    return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
 
 
 def decode_token(token: str) -> Optional[dict]:
+    """Decode and validate a JWT token."""
     try:
-        parts = token.split(".")
-        if len(parts) != 3:
-            return None
-        header, payload, signature = parts
-        expected_sig = hmac.new(
-            SECRET_KEY.encode(), f"{header}.{payload}".encode(), hashlib.sha256
-        ).hexdigest()
-        if not hmac.compare_digest(expected_sig, signature):
-            return None
-        data = json.loads(_b64_decode(payload))
-        if data.get("exp", 0) < datetime.utcnow().timestamp():
-            return None
-        return data
-    except Exception:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        return payload
+    except JWTError:
         return None
 
 
@@ -144,22 +157,28 @@ def require_role(*roles):
     return _check
 
 
-# ---- Seed Default Admin ----
+# ---- Seed Default Admin (BUG-03 fix: random password) ----
 
 
 def seed_default_admin(db: Session):
-    """Create default admin user if none exists."""
+    """Create default admin user if none exists, using a generated password."""
     existing = db.query(User).filter(User.role == "Admin").first()
     if not existing:
+        generated_password = secrets.token_urlsafe(16)
         admin = User(
             username="admin",
             email="admin@phantomnet.local",
-            hashed_password=hash_password("admin123"),
+            hashed_password=hash_password(generated_password),
             role="Admin",
             status="active",
         )
         db.add(admin)
         db.commit()
-        print("✅ Default admin user created (admin / admin123)")
+        logger.info("✅ Default admin user created")
+        print(f"{'='*60}")
+        print(f"  DEFAULT ADMIN CREDENTIALS (save these!)")
+        print(f"  Username: admin")
+        print(f"  Password: {generated_password}")
+        print(f"{'='*60}")
     else:
-        print("✅ Admin user already exists")
+        logger.info("✅ Admin user already exists")

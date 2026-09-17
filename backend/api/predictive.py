@@ -5,7 +5,6 @@ from database.database import get_db
 from database.models import PacketLog
 from datetime import datetime, timedelta
 import math
-import random
 
 router = APIRouter(prefix="/api/v1/predictive", tags=["Predictive"])
 
@@ -23,7 +22,7 @@ def _generate_forecast(hourly_counts: list, hours_ahead: int = 6):
     forecast = []
     trend = (hourly_counts[-1] - hourly_counts[0]) / max(len(hourly_counts), 1)
     for i in range(hours_ahead):
-        predicted = max(0, smoothed + trend * (i + 1) + random.uniform(-2, 2))
+        predicted = max(0, smoothed + trend * (i + 1))
         now = datetime.utcnow() + timedelta(hours=i + 1)
         forecast.append(
             {
@@ -169,7 +168,7 @@ def get_next_attack_prediction(db: Session = Depends(get_db)):
         confidence = min(
             95, max(45, int(float(top.avg_score or 50) * 0.8 + top.count * 0.5))
         )
-        est_minutes = max(3, int(30 - top.count * 0.5 + random.uniform(-2, 2)))
+        est_minutes = max(3, int(30 - top.count * 0.5))
     else:
         target_info = {"name": "SSH HONEYPOT", "port": 2222}
         confidence = 42

@@ -22,6 +22,7 @@ import hashlib
 import json
 import logging
 import functools
+import threading
 from typing import Optional, Any
 from fastapi import Request
 from fastapi.responses import JSONResponse
@@ -39,6 +40,7 @@ class TTLCache:
 
     def __init__(self, default_ttl: int = 30, max_size: int = 500):
         self._store = {}  # key → {"data": ..., "expires_at": float}
+        self._lock = threading.Lock()  # BUG-22 fix: thread-safe access
         self._default_ttl = default_ttl
         self._max_size = max_size
         self._hits = 0
@@ -46,56 +48,59 @@ class TTLCache:
 
     def get(self, key: str) -> Optional[Any]:
         """Get cached value if exists and not expired."""
-        entry = self._store.get(key)
-        if entry is None:
-            self._misses += 1
-            return None
+        with self._lock:
+            entry = self._store.get(key)
+            if entry is None:
+                self._misses += 1
+                return None
 
-        if time.time() > entry["expires_at"]:
-            # Expired — remove and return miss
-            del self._store[key]
-            self._misses += 1
-            return None
+            if time.time() > entry["expires_at"]:
+                del self._store[key]
+                self._misses += 1
+                return None
 
-        self._hits += 1
-        return entry["data"]
+            self._hits += 1
+            return entry["data"]
 
     def set(self, key: str, data: Any, ttl: Optional[int] = None):
         """Store a value with TTL expiration."""
-        # Evict oldest if at capacity
-        if len(self._store) >= self._max_size:
-            self._evict_expired()
+        with self._lock:
+            # Evict oldest if at capacity
             if len(self._store) >= self._max_size:
-                # Remove oldest entry
-                oldest_key = min(
-                    self._store, key=lambda k: self._store[k]["expires_at"]
-                )
-                del self._store[oldest_key]
+                self._evict_expired()
+                if len(self._store) >= self._max_size:
+                    oldest_key = min(
+                        self._store, key=lambda k: self._store[k]["expires_at"]
+                    )
+                    del self._store[oldest_key]
 
-        ttl = ttl or self._default_ttl
-        self._store[key] = {
-            "data": data,
-            "expires_at": time.time() + ttl,
-        }
+            ttl = ttl or self._default_ttl
+            self._store[key] = {
+                "data": data,
+                "expires_at": time.time() + ttl,
+            }
 
     def invalidate(self, pattern: str):
         """
         Remove all cache entries matching a path pattern.
         Pattern is a prefix match (e.g., "/api/stats" matches "/api/stats?x=1").
         """
-        keys_to_remove = [k for k in self._store if k.startswith(pattern)]
-        for key in keys_to_remove:
-            del self._store[key]
-        if keys_to_remove:
-            logger.info(
-                f"[CACHE] Invalidated {len(keys_to_remove)} entries matching '{pattern}'"
-            )
+        with self._lock:
+            keys_to_remove = [k for k in self._store if k.startswith(pattern)]
+            for key in keys_to_remove:
+                del self._store[key]
+            if keys_to_remove:
+                logger.info(
+                    "[CACHE] Invalidated %d entries matching '%s'",
+                    len(keys_to_remove), pattern,
+                )
 
     def clear(self):
         """Clear all cached entries."""
-        self._store.clear()
-        self._hits = 0
-        self._misses = 0
+        with self._lock:
+            self._store.clear()
+            self._hits = 0
+            self._misses = 0
         logger.info("[CACHE] Cache cleared")
 
     def _evict_expired(self):

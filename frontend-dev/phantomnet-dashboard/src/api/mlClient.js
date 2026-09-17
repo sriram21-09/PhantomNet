@@ -1,7 +1,7 @@
 // src/api/mlClient.js
 
-const BASE_URL = "http://127.0.0.1:5000/api";
-// ⬆️ placeholder — will match backend ML API later
+const BASE_URL = "/api";
+// Uses Vite proxy in development, relative path in production
 
 /**
  * Generic API request handler

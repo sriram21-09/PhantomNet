@@ -29,7 +29,7 @@ from dotenv import load_dotenv
 from fastapi import FastAPI, Depends, HTTPException, Query, Path, Request
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
-from sqlalchemy import func
+from sqlalchemy import func, or_, and_
 from sqlalchemy.orm import Session
 
 # =========================
@@ -437,8 +437,10 @@ async def broadcast_live_metrics() -> None:
         except Exception as e:
             logger.error("Error in metrics broadcast loop: %s", e)
         finally:
-            if "db" in locals():
+            try:
                 db.close()
+            except Exception:
+                pass
 
         await asyncio.sleep(2)
 
@@ -481,8 +483,10 @@ async def broadcast_event_stream() -> None:
         except (AttributeError, KeyError, RuntimeError, socket.error) as e:
             logger.error("Error in event stream broadcast: %s", e)
         finally:
-            if "db" in locals():
+            try:
                 db.close()
+            except Exception:
+                pass
 
         await asyncio.sleep(3)
 
@@ -530,7 +534,8 @@ async def global_exception_handler(request: Request, exc: Exception):
             headers=getattr(exc, "headers", None),
         )
     logging.getLogger("main").error(
-        f"Unhandled server error on {request.method} {request.url.path}: {exc}",
+        "Unhandled server error on %s %s: %s",
+        request.method, request.url.path, exc,
         exc_info=True,
     )
     return JSONResponse(
@@ -702,11 +707,27 @@ def get_events(
         query = query.filter(PacketLog.protocol == protocol)
 
     if threat == "MALICIOUS":
-        query = query.filter(PacketLog.threat_score >= 80)
+        query = query.filter(
+            or_(
+                PacketLog.threat_score >= 80,
+                and_(PacketLog.threat_score >= 0.8, PacketLog.threat_score <= 1.0),
+            )
+        )
     elif threat == "SUSPICIOUS":
-        query = query.filter(PacketLog.threat_score.between(40, 79))
+        query = query.filter(
+            or_(
+                PacketLog.threat_score.between(40, 79.99),
+                and_(PacketLog.threat_score >= 0.4, PacketLog.threat_score < 0.8),
+            )
+        )
     elif threat == "BENIGN":
-        query = query.filter(PacketLog.threat_score < 40)
+        query = query.filter(
+            or_(
+                and_(PacketLog.threat_score < 40, PacketLog.threat_score > 1.0),
+                and_(PacketLog.threat_score < 0.4, PacketLog.threat_score >= 0.0),
+                PacketLog.threat_score.is_(None),
+            )
+        )
 
     logs = query.order_by(PacketLog.timestamp.desc()).limit(limit).all()
 
@@ -717,7 +738,11 @@ def get_events(
             "type": log.protocol,
             "port": 0,
             "threat": log.attack_type or "BENIGN",
-            "score": log.threat_score or (0.0 if not log.attack_type else 15.0),
+            "score": (
+                round(log.threat_score * 100, 1)
+                if (log.threat_score is not None and 0.0 < log.threat_score <= 1.0)
+                else (log.threat_score or (0.0 if not log.attack_type else 15.0))
+            ),
             "details": f"{log.attack_type or 'BENIGN'} traffic detected",
         }
         for log in logs
@@ -799,7 +824,7 @@ def block_ip_address(
 
     result = FirewallService.block_ip(ip_clean)
     if result["status"] == "error":
-        logging.getLogger("main").error(f"Firewall block error: {result.get('message')}")
+        logging.getLogger("main").error("Firewall block error: %s", result.get('message'))
         raise HTTPException(status_code=500, detail="Firewall block operation failed.")
 
     return result
@@ -821,7 +846,7 @@ def _process_attack_map_logs(logs: List[PacketLog]) -> Tuple[List[Dict[str, Any]
             "city": log.city or "Unknown",
             "lat": log.latitude,
             "lon": log.longitude,
-            "flag": geoip_service._get_flag_emoji(""),
+            "flag": geoip_service._get_flag_emoji(log.country or ""),
         } if log.country and log.latitude else geoip_service.lookup(ip)
 
         country, city = geo.get("country", "Unknown"), geo.get("city", "Unknown")

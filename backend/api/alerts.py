@@ -28,7 +28,7 @@ def list_alerts(
     limit: int = Query(100, ge=1, le=1000, description="Max alerts to return (1-1000)"),
     offset: int = Query(0, ge=0, description="Pagination offset"),
     level: Optional[str] = Query(None, max_length=50),
-    type: Optional[str] = Query(None, max_length=50),
+    alert_type: Optional[str] = Query(None, max_length=50, alias="type"),
     resolved: Optional[bool] = Query(None),
     db: Session = Depends(get_db)
 ):
@@ -40,8 +40,8 @@ def list_alerts(
         
         if level is not None and level != "ALL":
             query = query.filter(Alert.level == level.strip().upper())
-        if type is not None and type != "ALL":
-            query = query.filter(Alert.type == type.strip())
+        if alert_type is not None and alert_type != "ALL":
+            query = query.filter(Alert.type == alert_type.strip())
         if resolved is not None:
             query = query.filter(Alert.is_resolved == resolved)
             

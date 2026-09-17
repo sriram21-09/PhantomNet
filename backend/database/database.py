@@ -56,18 +56,23 @@ def get_db_engine():
     retries = 3
     while retries > 0:
         try:
-            logger.info(f"🔌 Attempting connection to Database...")
-            engine = create_engine(
-                DATABASE_URL,
-                pool_pre_ping=True,  # Auto-detect broken connections
-                pool_size=50,
-                max_overflow=100,
-                connect_args=(
-                    {"check_same_thread": False, "timeout": 30}
-                    if "sqlite" in DATABASE_URL
-                    else {}
-                ),
-            )
+            logger.info("🔌 Attempting connection to Database...")
+
+            # BUG-15 fix: Use appropriate pool settings per engine
+            if "sqlite" in DATABASE_URL:
+                connect_args = {"check_same_thread": False, "timeout": 30}
+                engine = create_engine(
+                    DATABASE_URL,
+                    pool_pre_ping=True,
+                    connect_args=connect_args,
+                )
+            else:
+                engine = create_engine(
+                    DATABASE_URL,
+                    pool_pre_ping=True,
+                    pool_size=50,
+                    max_overflow=100,
+                )
             # Test connection
             with engine.connect() as connection:
                 logger.info("✅ Database Connection ESTABLISHED.")
@@ -75,8 +80,8 @@ def get_db_engine():
 
         except OperationalError as e:
             retries -= 1
-            logger.error(f"❌ Connection Failed: {e}")
-            logger.warning(f"⚠️  Retrying in 2 seconds... ({retries} attempts left)")
+            logger.error("❌ Connection Failed: %s", e)
+            logger.warning("⚠️  Retrying in 2 seconds... (%d attempts left)", retries)
             time.sleep(2)
 
     logger.critical(
