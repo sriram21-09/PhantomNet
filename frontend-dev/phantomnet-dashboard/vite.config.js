@@ -71,6 +71,27 @@ export default defineConfig({
         changeOrigin: true,
         secure: false,
       },
+      "/taxii2": {
+        target: target,
+        changeOrigin: true,
+        secure: false,
+      },
+      "/metrics": {
+        target: target,
+        changeOrigin: true,
+        secure: false,
+      },
+      "/active-defense": {
+        target: target,
+        changeOrigin: true,
+        secure: false,
+      },
+      "/ws": {
+        target: target,
+        changeOrigin: true,
+        secure: false,
+        ws: true,
+      },
     },
   },
 })

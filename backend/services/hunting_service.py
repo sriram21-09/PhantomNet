@@ -3,14 +3,14 @@ from sqlalchemy import or_, and_, desc
 from database.models import (
     PacketLog,
     Event,
-    IOC,
-    InvestigationCase,
-    CaseEvidence,
     SearchHistory,
 )
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 import re
 import json
+import logging
+
+logger = logging.getLogger("services.hunting")
 
 
 ALLOWED_SEARCH_FIELDS = {
@@ -83,7 +83,8 @@ class HuntingService:
             )
             self.db.add(history)
             self.db.commit()
-        except:
+        except Exception as exc:
+            logger.warning("Failed to record search history: %s", exc)
             self.db.rollback()
 
         return {
@@ -106,9 +107,11 @@ class HuntingService:
         elif operator == "not_equals":
             return column != value
         elif operator == "contains":
-            return column.ilike(f"%{value}%")
+            escaped = str(value).replace("%", "\\%").replace("_", "\\_")
+            return column.ilike(f"%{escaped}%")
         elif operator == "starts_with":
-            return column.ilike(f"{value}%")
+            escaped = str(value).replace("%", "\\%").replace("_", "\\_")
+            return column.ilike(f"{escaped}%")
         elif operator == "greater_than":
             return column > value
         elif operator == "less_than":
@@ -171,19 +174,19 @@ class HuntingService:
         """
         Find events related to a specific IP or same honeypot within a time window.
         """
-        start_time = datetime.utcnow() - timedelta(minutes=window_minutes)
+        start_time = datetime.now(timezone.utc).replace(tzinfo=None) - timedelta(minutes=window_minutes)
 
         query = self.db.query(PacketLog).filter(PacketLog.timestamp >= start_time)
 
         if ip and honeypot_type:
             # Correlation by both or either (IP is primary, Honeypot is secondary grouping)
             query = query.filter(
-                or_(PacketLog.src_ip == ip, PacketLog.protocol == honeypot_type)
+                or_(PacketLog.src_ip == ip, PacketLog.protocol.ilike(honeypot_type))
             )
         elif ip:
             query = query.filter(PacketLog.src_ip == ip)
         elif honeypot_type:
-            query = query.filter(PacketLog.protocol == honeypot_type)
+            query = query.filter(PacketLog.protocol.ilike(honeypot_type))
 
         results = query.order_by(desc(PacketLog.timestamp)).limit(50).all()
         return [self._format_packet_log(log) for log in results]

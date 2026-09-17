@@ -13,7 +13,14 @@ def rate_limit_dependency(request: Request):
     Dependency to rate limit sensitive API endpoints.
     Allows 30 requests per minute per IP.
     """
-    ip = request.client.host if request.client else "unknown"
+    # Prefer X-Forwarded-For for clients behind proxies
+    forwarded = request.headers.get("x-forwarded-for")
+    if forwarded:
+        ip = forwarded.split(",")[0].strip()
+    elif request.client:
+        ip = request.client.host
+    else:
+        ip = "unknown"
     
     # Use path and IP for granularity
     key = f"rate_limit:{ip}:{request.url.path}"

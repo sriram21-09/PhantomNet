@@ -5,7 +5,7 @@ from database.database import get_db
 from database.models import InvestigationCase, CaseEvidence, IOC
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 from typing import List, Optional
-from datetime import datetime
+from datetime import datetime, timezone
 
 logger = logging.getLogger("api.cases")
 router = APIRouter(prefix="/api/v1/cases", tags=["Case Management"])
@@ -56,7 +56,11 @@ class CaseUpdate(BaseModel):
     @classmethod
     def validate_status(cls, v: Optional[str]) -> Optional[str]:
         if v is not None:
-            v_title = v.strip().title()
+            clean = v.strip().lower().replace("_", " ").replace("-", " ")
+            if clean in {"in progress", "inprogress"}:
+                v_title = "In Progress"
+            else:
+                v_title = clean.title()
             if v_title not in VALID_STATUSES:
                 raise ValueError(f"Invalid status '{v}'. Allowed: {', '.join(sorted(VALID_STATUSES))}")
             return v_title
@@ -72,6 +76,7 @@ class CaseResponse(BaseModel):
     assigned_to: Optional[str]
     created_at: datetime
     updated_at: datetime
+    closed_at: Optional[datetime] = None
 
     model_config = ConfigDict(from_attributes=True)
 
@@ -122,13 +127,13 @@ def update_case(
         raise HTTPException(status_code=404, detail="Case not found")
 
     try:
-        for key, value in updates.dict(exclude_unset=True).items():
+        for key, value in updates.model_dump(exclude_unset=True).items():
             setattr(db_case, key, value)
 
         if updates.status == "Closed":
-            db_case.closed_at = datetime.utcnow()
+            db_case.closed_at = datetime.now(timezone.utc)
 
-        db_case.updated_at = datetime.utcnow()
+        db_case.updated_at = datetime.now(timezone.utc)
         db.commit()
         db.refresh(db_case)
         return db_case

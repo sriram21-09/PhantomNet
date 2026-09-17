@@ -4,7 +4,8 @@ from sqlalchemy.orm import Session
 from database.database import get_db
 from database.models import SearchHistory
 from services.hunting_service import HuntingService
-from pydantic import BaseModel, Field, field_validator
+from datetime import datetime
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 from typing import List, Optional, Any
 
 logger = logging.getLogger("api.hunting")
@@ -96,7 +97,17 @@ def get_related_events(
         raise HTTPException(status_code=500, detail="Failed to retrieve related events.")
 
 
-@router.get("/history")
+class SearchHistoryResponse(BaseModel):
+    id: int
+    query_json: Optional[str] = None
+    result_count: Optional[int] = 0
+    executed_at: Optional[datetime] = None
+    analyst_name: Optional[str] = None
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+@router.get("/history", response_model=List[SearchHistoryResponse])
 def get_search_history(
     limit: int = Query(20, ge=1, le=100),
     db: Session = Depends(get_db)

@@ -42,6 +42,12 @@ def check_rate_limit(request: Request, max_requests: int = MAX_GENERATIONS_PER_H
     history.append(now)
     _REQUEST_HISTORY[client_ip] = history
 
+    # BUG-40 fix: Periodic cleanup of stale IP keys
+    stale_ips = [ip for ip, h in _REQUEST_HISTORY.items()
+                 if all(ts <= cutoff for ts in h)]
+    for ip in stale_ips:
+        del _REQUEST_HISTORY[ip]
+
 
 def reset_rate_limits() -> None:
     """Utility to clear rate limit cache (for unit testing)."""

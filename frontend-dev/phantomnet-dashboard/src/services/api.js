@@ -11,7 +11,7 @@ export const fetchThreatMetrics = async () => {
     return cachedData;
   }
 
-  const response = await fetch(`${BASE_URL}/threat-metrics`);
+  const response = await fetch(`${BASE_URL}/stats`);
 
   if (!response.ok) {
     throw new Error("Failed to fetch threat metrics");
