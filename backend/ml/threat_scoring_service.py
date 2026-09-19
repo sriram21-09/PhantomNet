@@ -49,6 +49,10 @@ def map_score_to_level(score: float, context: ThreatInput = None) -> str:
     high_max = 0.90
 
     if context:
+        # Contextual adjustment: Known malicious reputation is an automatic CRITICAL
+        if getattr(context, "is_malicious", False):
+            return "CRITICAL"
+
         # Contextual adjustment: more sensitive at night (00:00 - 05:00 UTC)
         if context.timestamp:
             try:
