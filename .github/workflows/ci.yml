@@ -45,10 +45,6 @@ jobs:
           echo "event,data" > data/week6_test_events.csv
           echo "login_failed,test_payload" >> data/week6_test_events.csv
 
-      - name: Retrain Isolation Forest & Register Model
-        run: |
-          python -m backend.ml.retrain_isolation_forest
-
       - name: Run ML Pipeline Tests
         run: |
           python -m pytest backend/tests/ml/ -v
