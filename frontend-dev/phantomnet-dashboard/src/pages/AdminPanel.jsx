@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { Navigate } from 'react-router-dom';
 import { Shield, Users, Settings, Wrench, Server, Activity, Clock, Lock } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
 import UserManagement from '../components/admin/UserManagement';
 import SystemConfig from '../components/admin/SystemConfig';
 import Maintenance from '../components/admin/Maintenance';
@@ -10,92 +12,25 @@ const API_BASE = '/api/v1/admin';
 
 // Admin-only route guard
 const AdminGuard = ({ children }) => {
-    const [isAuthenticated, setIsAuthenticated] = useState(false);
-    const [isLoading, setIsLoading] = useState(true);
-    const [loginForm, setLoginForm] = useState({ username: '', password: '' });
-    const [error, setError] = useState('');
+    const { user, isAuthenticated, isLoading } = useAuth();
 
-    useEffect(() => {
-        const token = localStorage.getItem('admin_token');
-        if (!token) {
-            setIsLoading(false);
-            return;
-        }
-        // Validate the saved token against the backend
-        fetch(`${API_BASE}/system-overview`, {
-            headers: { Authorization: `Bearer ${token}` },
-        })
-            .then((res) => {
-                if (res.ok) {
-                    setIsAuthenticated(true);
-                } else {
-                    // Token invalid / expired — clear it
-                    localStorage.removeItem('admin_token');
-                    localStorage.removeItem('admin_user');
-                }
-            })
-            .catch(() => {
-                // Network error — still allow attempt (offline‑tolerant)
-                setIsAuthenticated(true);
-            })
-            .finally(() => setIsLoading(false));
-    }, []);
-
-    const handleLogin = async (e) => {
-        e.preventDefault();
-        setError('');
-        try {
-            const res = await fetch(`${API_BASE}/login`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(loginForm),
-            });
-            const data = await res.json();
-            if (!res.ok) throw new Error(data.detail || 'Login failed');
-            localStorage.setItem('admin_token', data.access_token);
-            localStorage.setItem('admin_user', JSON.stringify(data.user));
-            setIsAuthenticated(true);
-        } catch (err) {
-            setError(err.message);
-        }
-    };
-
-    if (isLoading) return <div className="admin-loading"><div className="spinner" /><span>Authenticating...</span></div>;
+    if (isLoading) {
+        return <div className="admin-loading"><div className="spinner" /><span>Authenticating...</span></div>;
+    }
 
     if (!isAuthenticated) {
+        return <Navigate to="/login" replace />;
+    }
+
+    if (user && user.role && user.role.toLowerCase() !== 'admin') {
         return (
             <div className="admin-login-page">
                 <div className="login-card">
                     <div className="login-header">
                         <Lock size={24} />
-                        <h2>ADMIN ACCESS</h2>
-                        <p>PhantomNet Control Panel</p>
+                        <h2>ACCESS RESTRICTED</h2>
+                        <p>Administrator privileges required to access this panel.</p>
                     </div>
-                    <form onSubmit={handleLogin}>
-                        <div className="form-group">
-                            <label>USERNAME</label>
-                            <input
-                                type="text"
-                                value={loginForm.username}
-                                onChange={(e) => setLoginForm(p => ({ ...p, username: e.target.value }))}
-                                placeholder="admin"
-                                required
-                            />
-                        </div>
-                        <div className="form-group">
-                            <label>PASSWORD</label>
-                            <input
-                                type="password"
-                                value={loginForm.password}
-                                onChange={(e) => setLoginForm(p => ({ ...p, password: e.target.value }))}
-                                placeholder="••••••••"
-                                required
-                            />
-                        </div>
-                        {error && <div className="login-error">{error}</div>}
-                        <button type="submit" className="login-btn">AUTHENTICATE</button>
-                    </form>
-                    <div className="login-footer">Default: admin / admin123</div>
                 </div>
             </div>
         );
@@ -206,14 +141,25 @@ const SystemOverview = () => {
     );
 };
 
-// Main Admin Panel
 const AdminPanel = () => {
     const [activeTab, setActiveTab] = useState('overview');
-    const adminUser = JSON.parse(localStorage.getItem('admin_user') || '{}');
+    const [adminUser, setAdminUser] = useState({ username: 'admin', role: 'Admin' });
 
-    const handleLogout = () => {
-        localStorage.removeItem('admin_token');
-        localStorage.removeItem('admin_user');
+    useEffect(() => {
+        fetch(`${API_BASE}/me`, { credentials: 'include' })
+            .then(res => res.ok ? res.json() : null)
+            .then(data => {
+                if (data) setAdminUser(data);
+            })
+            .catch(() => {});
+    }, []);
+
+    const handleLogout = async () => {
+        try {
+            await adminFetch(`${API_BASE}/logout`, { method: 'POST' });
+        } catch {
+            // Ignore error
+        }
         window.location.reload();
     };
 

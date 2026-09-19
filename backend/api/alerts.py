@@ -4,7 +4,8 @@ from sqlalchemy.orm import Session
 from sqlalchemy import func
 from typing import Optional, Dict, Any, List
 from database.database import get_db
-from database.models import Alert
+from database.models import Alert, User
+from middleware.auth import get_current_user, require_role
 from pydantic import BaseModel, ConfigDict
 from datetime import datetime, timezone
 
@@ -30,7 +31,8 @@ def list_alerts(
     level: Optional[str] = Query(None, max_length=50),
     alert_type: Optional[str] = Query(None, max_length=50, alias="type"),
     resolved: Optional[bool] = Query(None),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    _user: User = Depends(get_current_user),
 ):
     """
     Get a list of security alerts with pagination and filtering.
@@ -75,7 +77,8 @@ def list_alerts(
 @router.patch("/{alert_id}/resolve")
 def resolve_alert(
     alert_id: int = Path(..., ge=1, description="Alert ID to resolve"),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    _user: User = Depends(require_role("Admin", "Analyst")),
 ):
     """
     Mark a security alert as resolved.

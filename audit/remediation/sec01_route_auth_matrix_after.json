@@ -1,0 +1,3945 @@
+{
+  "timestamp": "2026-09-19T08:48:07.256666",
+  "target": "http://localhost:8000",
+  "total_routes_tested": 127,
+  "unprotected_count": 0,
+  "matrix": [
+    {
+      "path": "/active-defense/block/{ip}",
+      "method": "POST",
+      "endpoint": "block_ip_address_active_defense_block__ip__post",
+      "is_public_by_design": false,
+      "is_service_to_service": false,
+      "classification": "AUTHENTICATED_GENERAL",
+      "auth_enforced": true,
+      "responses": {
+        "anonymous": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Not authenticated\"}"
+        },
+        "invalid_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Invalid or expired token\"}"
+        },
+        "expired_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Invalid or expired token\"}"
+        },
+        "analyst_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"User not found\"}"
+        },
+        "admin_token": {
+          "status": 403,
+          "body_preview": "{\"detail\":\"Step-up authentication required for active defense operations. Obtain a token via POST /api/v1/admin/step-up\""
+        }
+      }
+    },
+    {
+      "path": "/analyze-traffic",
+      "method": "GET",
+      "endpoint": "get_real_traffic_analyze_traffic_get",
+      "is_public_by_design": false,
+      "is_service_to_service": false,
+      "classification": "ROLE_PROTECTED_ADMIN_ONLY",
+      "auth_enforced": true,
+      "responses": {
+        "anonymous": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Not authenticated\"}"
+        },
+        "invalid_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Invalid or expired token\"}"
+        },
+        "expired_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Invalid or expired token\"}"
+        },
+        "analyst_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"User not found\"}"
+        },
+        "admin_token": {
+          "status": 200,
+          "body_preview": "{\"status\":\"success\",\"count\":50,\"data\":[{\"packet_info\":{\"src\":\"172.19.0.1\",\"dst\":\"127.0.0.1\",\"proto\":\"SMTP\",\"length\":0,\"l"
+        }
+      }
+    },
+    {
+      "path": "/api/analytics/attack-map",
+      "method": "GET",
+      "endpoint": "get_attack_map_api_analytics_attack_map_get",
+      "is_public_by_design": false,
+      "is_service_to_service": false,
+      "classification": "ROLE_PROTECTED_ADMIN_ONLY",
+      "auth_enforced": true,
+      "responses": {
+        "anonymous": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Not authenticated\"}"
+        },
+        "invalid_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Invalid or expired token\"}"
+        },
+        "expired_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Invalid or expired token\"}"
+        },
+        "analyst_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"User not found\"}"
+        },
+        "admin_token": {
+          "status": 200,
+          "body_preview": "{\"status\":\"success\",\"total_events\":127,\"total_locations\":1,\"locations\":[{\"country\":\"Romania\",\"city\":\"Bucharest\",\"lat\":44"
+        }
+      }
+    },
+    {
+      "path": "/api/cache/stats",
+      "method": "GET",
+      "endpoint": "cache_stats_api_cache_stats_get",
+      "is_public_by_design": false,
+      "is_service_to_service": false,
+      "classification": "ROLE_PROTECTED_ADMIN_ONLY",
+      "auth_enforced": true,
+      "responses": {
+        "anonymous": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Not authenticated\"}"
+        },
+        "invalid_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Invalid or expired token\"}"
+        },
+        "expired_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Invalid or expired token\"}"
+        },
+        "analyst_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"User not found\"}"
+        },
+        "admin_token": {
+          "status": 200,
+          "body_preview": "{\"size\":0,\"max_size\":500,\"hits\":0,\"misses\":0,\"hit_rate\":0.0,\"default_ttl\":30}"
+        }
+      }
+    },
+    {
+      "path": "/api/events",
+      "method": "GET",
+      "endpoint": "get_events_api_events_get",
+      "is_public_by_design": false,
+      "is_service_to_service": false,
+      "classification": "ROLE_PROTECTED_ADMIN_ONLY",
+      "auth_enforced": true,
+      "responses": {
+        "anonymous": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Not authenticated\"}"
+        },
+        "invalid_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Invalid or expired token\"}"
+        },
+        "expired_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Invalid or expired token\"}"
+        },
+        "analyst_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"User not found\"}"
+        },
+        "admin_token": {
+          "status": 200,
+          "body_preview": "[{\"time\":\"2026-09-19 08:32:47\",\"ip\":\"172.19.0.1\",\"type\":\"SMTP\",\"port\":0,\"threat\":\"ALLOW\",\"score\":15.4,\"details\":\"ALLOW t"
+        }
+      }
+    },
+    {
+      "path": "/api/features/live",
+      "method": "GET",
+      "endpoint": "get_live_features_api_features_live_get",
+      "is_public_by_design": false,
+      "is_service_to_service": false,
+      "classification": "ROLE_PROTECTED_ADMIN_ONLY",
+      "auth_enforced": true,
+      "responses": {
+        "anonymous": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Not authenticated\"}"
+        },
+        "invalid_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Invalid or expired token\"}"
+        },
+        "expired_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Invalid or expired token\"}"
+        },
+        "analyst_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"User not found\"}"
+        },
+        "admin_token": {
+          "status": 200,
+          "body_preview": "{\"eventId\":\"LIVE-SMTP-1410\",\"features\":{\"packet_length\":{\"label\":\"Packet Length\",\"value\":0,\"interpretation\":\"Calculated "
+        }
+      }
+    },
+    {
+      "path": "/api/geoip/lookup/{ip}",
+      "method": "GET",
+      "endpoint": "geoip_lookup_api_geoip_lookup__ip__get",
+      "is_public_by_design": false,
+      "is_service_to_service": false,
+      "classification": "ROLE_PROTECTED_ADMIN_ONLY",
+      "auth_enforced": true,
+      "responses": {
+        "anonymous": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Not authenticated\"}"
+        },
+        "invalid_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Invalid or expired token\"}"
+        },
+        "expired_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Invalid or expired token\"}"
+        },
+        "analyst_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"User not found\"}"
+        },
+        "admin_token": {
+          "status": 200,
+          "body_preview": "{\"ip\":\"127.0.0.1\",\"geo\":{\"country\":\"Local Network\",\"country_code\":\"LAN\",\"city\":\"Loopback\",\"lat\":0.0,\"lon\":0.0,\"flag\":\"\ud83c\udfe0\""
+        }
+      }
+    },
+    {
+      "path": "/api/geoip/status",
+      "method": "GET",
+      "endpoint": "geoip_status_api_geoip_status_get",
+      "is_public_by_design": false,
+      "is_service_to_service": false,
+      "classification": "ROLE_PROTECTED_ADMIN_ONLY",
+      "auth_enforced": true,
+      "responses": {
+        "anonymous": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Not authenticated\"}"
+        },
+        "invalid_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Invalid or expired token\"}"
+        },
+        "expired_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Invalid or expired token\"}"
+        },
+        "analyst_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"User not found\"}"
+        },
+        "admin_token": {
+          "status": 200,
+          "body_preview": "{\"maxmind_available\":true,\"db_path\":\"/app/backend/data/GeoLite2-City.mmdb\",\"cache_size\":2,\"fallback\":\"ip-api.com\"}"
+        }
+      }
+    },
+    {
+      "path": "/api/health",
+      "method": "GET",
+      "endpoint": "health_check_api_health_get",
+      "is_public_by_design": true,
+      "is_service_to_service": false,
+      "classification": "PUBLIC_BY_DESIGN",
+      "auth_enforced": true,
+      "responses": {
+        "anonymous": {
+          "status": 200,
+          "body_preview": "{\"status\":\"online\",\"timestamp\":\"2026-09-19T08:47:51.252466\",\"rate_limits\":{\"active_ips_tracked\":0,\"limits\":{}}}"
+        },
+        "invalid_token": {
+          "status": 200,
+          "body_preview": "{\"status\":\"online\",\"timestamp\":\"2026-09-19T08:47:51.258225\",\"rate_limits\":{\"active_ips_tracked\":0,\"limits\":{}}}"
+        },
+        "expired_token": {
+          "status": 200,
+          "body_preview": "{\"status\":\"online\",\"timestamp\":\"2026-09-19T08:47:51.286936\",\"rate_limits\":{\"active_ips_tracked\":0,\"limits\":{}}}"
+        },
+        "analyst_token": {
+          "status": 200,
+          "body_preview": "{\"status\":\"online\",\"timestamp\":\"2026-09-19T08:47:51.302439\",\"rate_limits\":{\"active_ips_tracked\":0,\"limits\":{}}}"
+        },
+        "admin_token": {
+          "status": 200,
+          "body_preview": "{\"status\":\"online\",\"timestamp\":\"2026-09-19T08:47:51.317587\",\"rate_limits\":{\"active_ips_tracked\":0,\"limits\":{}}}"
+        }
+      }
+    },
+    {
+      "path": "/api/honeypots",
+      "method": "GET",
+      "endpoint": "get_honeypot_status_api_honeypots_get",
+      "is_public_by_design": false,
+      "is_service_to_service": false,
+      "classification": "ROLE_PROTECTED_ADMIN_ONLY",
+      "auth_enforced": true,
+      "responses": {
+        "anonymous": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Not authenticated\"}"
+        },
+        "invalid_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Invalid or expired token\"}"
+        },
+        "expired_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Invalid or expired token\"}"
+        },
+        "analyst_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"User not found\"}"
+        },
+        "admin_token": {
+          "status": 200,
+          "body_preview": "[{\"name\":\"SSH\",\"port\":2222,\"status\":\"active\",\"last_seen\":\"2026-09-19T08:32:47.384191+00:00\",\"packet_count\":53,\"total_eve"
+        }
+      }
+    },
+    {
+      "path": "/api/honeypots/status",
+      "method": "GET",
+      "endpoint": "get_honeypot_status_alias_api_honeypots_status_get",
+      "is_public_by_design": false,
+      "is_service_to_service": false,
+      "classification": "ROLE_PROTECTED_ADMIN_ONLY",
+      "auth_enforced": true,
+      "responses": {
+        "anonymous": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Not authenticated\"}"
+        },
+        "invalid_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Invalid or expired token\"}"
+        },
+        "expired_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Invalid or expired token\"}"
+        },
+        "analyst_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"User not found\"}"
+        },
+        "admin_token": {
+          "status": 200,
+          "body_preview": "[{\"name\":\"SSH\",\"port\":2222,\"status\":\"active\",\"last_seen\":\"2026-09-19T08:32:47.384191+00:00\",\"packet_count\":53,\"total_eve"
+        }
+      }
+    },
+    {
+      "path": "/api/response/blocked-ips",
+      "method": "GET",
+      "endpoint": "blocked_ips_api_response_blocked_ips_get",
+      "is_public_by_design": false,
+      "is_service_to_service": false,
+      "classification": "ROLE_PROTECTED_ADMIN_ONLY",
+      "auth_enforced": true,
+      "responses": {
+        "anonymous": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Not authenticated\"}"
+        },
+        "invalid_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Invalid or expired token\"}"
+        },
+        "expired_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Invalid or expired token\"}"
+        },
+        "analyst_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"User not found\"}"
+        },
+        "admin_token": {
+          "status": 200,
+          "body_preview": "{\"status\":\"success\",\"count\":0,\"blocked_ips\":[]}"
+        }
+      }
+    },
+    {
+      "path": "/api/response/history",
+      "method": "GET",
+      "endpoint": "response_history_api_response_history_get",
+      "is_public_by_design": false,
+      "is_service_to_service": false,
+      "classification": "ROLE_PROTECTED_ADMIN_ONLY",
+      "auth_enforced": true,
+      "responses": {
+        "anonymous": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Not authenticated\"}"
+        },
+        "invalid_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Invalid or expired token\"}"
+        },
+        "expired_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Invalid or expired token\"}"
+        },
+        "analyst_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"User not found\"}"
+        },
+        "admin_token": {
+          "status": 200,
+          "body_preview": "{\"status\":\"success\",\"count\":0,\"history\":[]}"
+        }
+      }
+    },
+    {
+      "path": "/api/response/policy",
+      "method": "GET",
+      "endpoint": "get_response_policy_api_response_policy_get",
+      "is_public_by_design": false,
+      "is_service_to_service": false,
+      "classification": "ROLE_PROTECTED_ADMIN_ONLY",
+      "auth_enforced": true,
+      "responses": {
+        "anonymous": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Not authenticated\"}"
+        },
+        "invalid_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Invalid or expired token\"}"
+        },
+        "expired_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Invalid or expired token\"}"
+        },
+        "analyst_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"User not found\"}"
+        },
+        "admin_token": {
+          "status": 200,
+          "body_preview": "{\"status\":\"success\",\"policy\":{\"LOW\":{\"threshold\":0,\"actions\":[\"log\"],\"block_duration_minutes\":0,\"enabled\":true},\"MEDIUM\""
+        }
+      }
+    },
+    {
+      "path": "/api/response/policy",
+      "method": "PUT",
+      "endpoint": "update_response_policy_api_response_policy_put",
+      "is_public_by_design": false,
+      "is_service_to_service": false,
+      "classification": "ROLE_PROTECTED_ADMIN_ONLY",
+      "auth_enforced": true,
+      "responses": {
+        "anonymous": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Not authenticated\"}"
+        },
+        "invalid_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Invalid or expired token\"}"
+        },
+        "expired_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Invalid or expired token\"}"
+        },
+        "analyst_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"User not found\"}"
+        },
+        "admin_token": {
+          "status": 422,
+          "body_preview": "{\"detail\":[{\"type\":\"missing\",\"loc\":[\"body\"],\"msg\":\"Field required\",\"input\":null}]}"
+        }
+      }
+    },
+    {
+      "path": "/api/response/stats",
+      "method": "GET",
+      "endpoint": "response_stats_api_response_stats_get",
+      "is_public_by_design": false,
+      "is_service_to_service": false,
+      "classification": "ROLE_PROTECTED_ADMIN_ONLY",
+      "auth_enforced": true,
+      "responses": {
+        "anonymous": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Not authenticated\"}"
+        },
+        "invalid_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Invalid or expired token\"}"
+        },
+        "expired_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Invalid or expired token\"}"
+        },
+        "analyst_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"User not found\"}"
+        },
+        "admin_token": {
+          "status": 200,
+          "body_preview": "{\"total_responses\":0,\"blocked_ips\":0,\"rate_limited_ips\":0,\"policy_levels\":[\"LOW\",\"MEDIUM\",\"HIGH\",\"CRITICAL\"]}"
+        }
+      }
+    },
+    {
+      "path": "/api/response/unblock/{ip}",
+      "method": "POST",
+      "endpoint": "unblock_ip_api_response_unblock__ip__post",
+      "is_public_by_design": false,
+      "is_service_to_service": false,
+      "classification": "AUTHENTICATED_GENERAL",
+      "auth_enforced": true,
+      "responses": {
+        "anonymous": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Not authenticated\"}"
+        },
+        "invalid_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Invalid or expired token\"}"
+        },
+        "expired_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Invalid or expired token\"}"
+        },
+        "analyst_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"User not found\"}"
+        },
+        "admin_token": {
+          "status": 403,
+          "body_preview": "{\"detail\":\"Step-up authentication required for active defense operations. Obtain a token via POST /api/v1/admin/step-up\""
+        }
+      }
+    },
+    {
+      "path": "/api/sentinel/audit-logs",
+      "method": "GET",
+      "endpoint": "get_audit_logs_api_sentinel_audit_logs_get",
+      "is_public_by_design": false,
+      "is_service_to_service": false,
+      "classification": "ROLE_PROTECTED_ADMIN_ONLY",
+      "auth_enforced": true,
+      "responses": {
+        "anonymous": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Not authenticated\"}"
+        },
+        "invalid_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Invalid or expired token\"}"
+        },
+        "expired_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Invalid or expired token\"}"
+        },
+        "analyst_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"User not found\"}"
+        },
+        "admin_token": {
+          "status": 200,
+          "body_preview": "{\"status\":\"success\",\"total\":0,\"limit\":50,\"offset\":0,\"logs\":[]}"
+        }
+      }
+    },
+    {
+      "path": "/api/sentinel/campaigns/{campaign_id}/timeline",
+      "method": "GET",
+      "endpoint": "get_campaign_timeline_api_sentinel_campaigns__campaign_id__timeline_get",
+      "is_public_by_design": false,
+      "is_service_to_service": false,
+      "classification": "ROLE_PROTECTED_ADMIN_ONLY",
+      "auth_enforced": true,
+      "responses": {
+        "anonymous": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Not authenticated\"}"
+        },
+        "invalid_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Invalid or expired token\"}"
+        },
+        "expired_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Invalid or expired token\"}"
+        },
+        "analyst_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"User not found\"}"
+        },
+        "admin_token": {
+          "status": 500,
+          "body_preview": "{\"detail\":\"Failed to fetch campaign timeline data.\"}"
+        }
+      }
+    },
+    {
+      "path": "/api/sentinel/generate",
+      "method": "POST",
+      "endpoint": "generate_playbook_api_sentinel_generate_post",
+      "is_public_by_design": false,
+      "is_service_to_service": false,
+      "classification": "ROLE_PROTECTED_ADMIN_ONLY",
+      "auth_enforced": true,
+      "responses": {
+        "anonymous": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Not authenticated\"}"
+        },
+        "invalid_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Invalid or expired token\"}"
+        },
+        "expired_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Invalid or expired token\"}"
+        },
+        "analyst_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"User not found\"}"
+        },
+        "admin_token": {
+          "status": 422,
+          "body_preview": "{\"detail\":[{\"type\":\"missing\",\"loc\":[\"body\"],\"msg\":\"Field required\",\"input\":null}]}"
+        }
+      }
+    },
+    {
+      "path": "/api/sentinel/llm/status",
+      "method": "GET",
+      "endpoint": "get_llm_status_api_sentinel_llm_status_get",
+      "is_public_by_design": false,
+      "is_service_to_service": false,
+      "classification": "ROLE_PROTECTED_ADMIN_ONLY",
+      "auth_enforced": true,
+      "responses": {
+        "anonymous": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Not authenticated\"}"
+        },
+        "invalid_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Invalid or expired token\"}"
+        },
+        "expired_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Invalid or expired token\"}"
+        },
+        "analyst_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"User not found\"}"
+        },
+        "admin_token": {
+          "status": 200,
+          "body_preview": "{\"status\":\"success\",\"enabled\":false,\"model\":\"mistral\",\"host\":\"http://ollama:11434\",\"host_connection_status\":\"online\",\"ll"
+        }
+      }
+    },
+    {
+      "path": "/api/sentinel/mitre/mapping",
+      "method": "GET",
+      "endpoint": "get_mitre_mappings_api_sentinel_mitre_mapping_get",
+      "is_public_by_design": false,
+      "is_service_to_service": false,
+      "classification": "ROLE_PROTECTED_ADMIN_ONLY",
+      "auth_enforced": true,
+      "responses": {
+        "anonymous": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Not authenticated\"}"
+        },
+        "invalid_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Invalid or expired token\"}"
+        },
+        "expired_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Invalid or expired token\"}"
+        },
+        "analyst_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"User not found\"}"
+        },
+        "admin_token": {
+          "status": 200,
+          "body_preview": "{\"status\":\"success\",\"total\":12,\"mappings\":[{\"technique_id\":\"T1110.001\",\"technique_name\":\"Brute Force: Password Guessing\""
+        }
+      }
+    },
+    {
+      "path": "/api/sentinel/mitre/matrix",
+      "method": "GET",
+      "endpoint": "get_mitre_matrix_api_sentinel_mitre_matrix_get",
+      "is_public_by_design": false,
+      "is_service_to_service": false,
+      "classification": "ROLE_PROTECTED_ADMIN_ONLY",
+      "auth_enforced": true,
+      "responses": {
+        "anonymous": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Not authenticated\"}"
+        },
+        "invalid_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Invalid or expired token\"}"
+        },
+        "expired_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Invalid or expired token\"}"
+        },
+        "analyst_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"User not found\"}"
+        },
+        "admin_token": {
+          "status": 200,
+          "body_preview": "{\"status\":\"success\",\"generated_at\":\"2026-09-19T08:47:55.543803+00:00\",\"total_tactics\":9,\"total_techniques\":11,\"matrix\":{"
+        }
+      }
+    },
+    {
+      "path": "/api/sentinel/playbooks",
+      "method": "GET",
+      "endpoint": "list_playbooks_api_sentinel_playbooks_get",
+      "is_public_by_design": false,
+      "is_service_to_service": false,
+      "classification": "ROLE_PROTECTED_ADMIN_ONLY",
+      "auth_enforced": true,
+      "responses": {
+        "anonymous": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Not authenticated\"}"
+        },
+        "invalid_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Invalid or expired token\"}"
+        },
+        "expired_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Invalid or expired token\"}"
+        },
+        "analyst_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"User not found\"}"
+        },
+        "admin_token": {
+          "status": 200,
+          "body_preview": "{\"status\":\"success\",\"total\":1,\"page\":1,\"per_page\":20,\"playbooks\":[{\"id\":1,\"playbook_id\":\"PB-20260713-104741-2F270E\",\"src"
+        }
+      }
+    },
+    {
+      "path": "/api/sentinel/playbooks/batch/approve",
+      "method": "POST",
+      "endpoint": "batch_approve_playbooks_api_sentinel_playbooks_batch_approve_post",
+      "is_public_by_design": false,
+      "is_service_to_service": false,
+      "classification": "ROLE_PROTECTED_ADMIN_ONLY",
+      "auth_enforced": true,
+      "responses": {
+        "anonymous": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Not authenticated\"}"
+        },
+        "invalid_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Invalid or expired token\"}"
+        },
+        "expired_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Invalid or expired token\"}"
+        },
+        "analyst_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"User not found\"}"
+        },
+        "admin_token": {
+          "status": 422,
+          "body_preview": "{\"detail\":[{\"type\":\"missing\",\"loc\":[\"body\"],\"msg\":\"Field required\",\"input\":null}]}"
+        }
+      }
+    },
+    {
+      "path": "/api/sentinel/playbooks/batch/reject",
+      "method": "POST",
+      "endpoint": "batch_reject_playbooks_api_sentinel_playbooks_batch_reject_post",
+      "is_public_by_design": false,
+      "is_service_to_service": false,
+      "classification": "ROLE_PROTECTED_ADMIN_ONLY",
+      "auth_enforced": true,
+      "responses": {
+        "anonymous": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Not authenticated\"}"
+        },
+        "invalid_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Invalid or expired token\"}"
+        },
+        "expired_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Invalid or expired token\"}"
+        },
+        "analyst_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"User not found\"}"
+        },
+        "admin_token": {
+          "status": 422,
+          "body_preview": "{\"detail\":[{\"type\":\"missing\",\"loc\":[\"body\"],\"msg\":\"Field required\",\"input\":null}]}"
+        }
+      }
+    },
+    {
+      "path": "/api/sentinel/playbooks/compare",
+      "method": "GET",
+      "endpoint": "compare_playbooks_api_sentinel_playbooks_compare_get",
+      "is_public_by_design": false,
+      "is_service_to_service": false,
+      "classification": "ROLE_PROTECTED_ADMIN_ONLY",
+      "auth_enforced": true,
+      "responses": {
+        "anonymous": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Not authenticated\"}"
+        },
+        "invalid_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Invalid or expired token\"}"
+        },
+        "expired_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Invalid or expired token\"}"
+        },
+        "analyst_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"User not found\"}"
+        },
+        "admin_token": {
+          "status": 422,
+          "body_preview": "{\"detail\":[{\"type\":\"missing\",\"loc\":[\"query\",\"id1\"],\"msg\":\"Field required\",\"input\":null},{\"type\":\"missing\",\"loc\":[\"query\""
+        }
+      }
+    },
+    {
+      "path": "/api/sentinel/playbooks/{playbook_id}",
+      "method": "GET",
+      "endpoint": "get_playbook_api_sentinel_playbooks__playbook_id__get",
+      "is_public_by_design": false,
+      "is_service_to_service": false,
+      "classification": "ROLE_PROTECTED_ADMIN_ONLY",
+      "auth_enforced": true,
+      "responses": {
+        "anonymous": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Not authenticated\"}"
+        },
+        "invalid_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Invalid or expired token\"}"
+        },
+        "expired_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Invalid or expired token\"}"
+        },
+        "analyst_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"User not found\"}"
+        },
+        "admin_token": {
+          "status": 422,
+          "body_preview": "{\"detail\":[{\"type\":\"int_parsing\",\"loc\":[\"path\",\"playbook_id\"],\"msg\":\"Input should be a valid integer, unable to parse st"
+        }
+      }
+    },
+    {
+      "path": "/api/sentinel/playbooks/{playbook_id}/approve",
+      "method": "PATCH",
+      "endpoint": "approve_playbook_api_sentinel_playbooks__playbook_id__approve_patch",
+      "is_public_by_design": false,
+      "is_service_to_service": false,
+      "classification": "ROLE_PROTECTED_ADMIN_ONLY",
+      "auth_enforced": true,
+      "responses": {
+        "anonymous": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Not authenticated\"}"
+        },
+        "invalid_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Invalid or expired token\"}"
+        },
+        "expired_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Invalid or expired token\"}"
+        },
+        "analyst_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"User not found\"}"
+        },
+        "admin_token": {
+          "status": 422,
+          "body_preview": "{\"detail\":[{\"type\":\"int_parsing\",\"loc\":[\"path\",\"playbook_id\"],\"msg\":\"Input should be a valid integer, unable to parse st"
+        }
+      }
+    },
+    {
+      "path": "/api/sentinel/playbooks/{playbook_id}/export",
+      "method": "POST",
+      "endpoint": "export_playbook_api_sentinel_playbooks__playbook_id__export_post",
+      "is_public_by_design": false,
+      "is_service_to_service": false,
+      "classification": "ROLE_PROTECTED_ADMIN_ONLY",
+      "auth_enforced": true,
+      "responses": {
+        "anonymous": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Not authenticated\"}"
+        },
+        "invalid_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Invalid or expired token\"}"
+        },
+        "expired_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Invalid or expired token\"}"
+        },
+        "analyst_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"User not found\"}"
+        },
+        "admin_token": {
+          "status": 422,
+          "body_preview": "{\"detail\":[{\"type\":\"int_parsing\",\"loc\":[\"path\",\"playbook_id\"],\"msg\":\"Input should be a valid integer, unable to parse st"
+        }
+      }
+    },
+    {
+      "path": "/api/sentinel/playbooks/{playbook_id}/export-history",
+      "method": "GET",
+      "endpoint": "get_playbook_export_history_api_sentinel_playbooks__playbook_id__export_history_get",
+      "is_public_by_design": false,
+      "is_service_to_service": false,
+      "classification": "ROLE_PROTECTED_ADMIN_ONLY",
+      "auth_enforced": true,
+      "responses": {
+        "anonymous": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Not authenticated\"}"
+        },
+        "invalid_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Invalid or expired token\"}"
+        },
+        "expired_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Invalid or expired token\"}"
+        },
+        "analyst_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"User not found\"}"
+        },
+        "admin_token": {
+          "status": 422,
+          "body_preview": "{\"detail\":[{\"type\":\"int_parsing\",\"loc\":[\"path\",\"playbook_id\"],\"msg\":\"Input should be a valid integer, unable to parse st"
+        }
+      }
+    },
+    {
+      "path": "/api/sentinel/playbooks/{playbook_id}/export/pdf",
+      "method": "POST",
+      "endpoint": "export_playbook_pdf_api_sentinel_playbooks__playbook_id__export_pdf_post",
+      "is_public_by_design": false,
+      "is_service_to_service": false,
+      "classification": "ROLE_PROTECTED_ADMIN_ONLY",
+      "auth_enforced": true,
+      "responses": {
+        "anonymous": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Not authenticated\"}"
+        },
+        "invalid_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Invalid or expired token\"}"
+        },
+        "expired_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Invalid or expired token\"}"
+        },
+        "analyst_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"User not found\"}"
+        },
+        "admin_token": {
+          "status": 422,
+          "body_preview": "{\"detail\":[{\"type\":\"int_parsing\",\"loc\":[\"path\",\"playbook_id\"],\"msg\":\"Input should be a valid integer, unable to parse st"
+        }
+      }
+    },
+    {
+      "path": "/api/sentinel/playbooks/{playbook_id}/regenerate",
+      "method": "POST",
+      "endpoint": "regenerate_playbook_api_sentinel_playbooks__playbook_id__regenerate_post",
+      "is_public_by_design": false,
+      "is_service_to_service": false,
+      "classification": "ROLE_PROTECTED_ADMIN_ONLY",
+      "auth_enforced": true,
+      "responses": {
+        "anonymous": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Not authenticated\"}"
+        },
+        "invalid_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Invalid or expired token\"}"
+        },
+        "expired_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Invalid or expired token\"}"
+        },
+        "analyst_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"User not found\"}"
+        },
+        "admin_token": {
+          "status": 422,
+          "body_preview": "{\"detail\":[{\"type\":\"int_parsing\",\"loc\":[\"path\",\"playbook_id\"],\"msg\":\"Input should be a valid integer, unable to parse st"
+        }
+      }
+    },
+    {
+      "path": "/api/sentinel/playbooks/{playbook_id}/regenerate-llm",
+      "method": "POST",
+      "endpoint": "regenerate_playbook_llm_api_sentinel_playbooks__playbook_id__regenerate_llm_post",
+      "is_public_by_design": false,
+      "is_service_to_service": false,
+      "classification": "ROLE_PROTECTED_ADMIN_ONLY",
+      "auth_enforced": true,
+      "responses": {
+        "anonymous": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Not authenticated\"}"
+        },
+        "invalid_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Invalid or expired token\"}"
+        },
+        "expired_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Invalid or expired token\"}"
+        },
+        "analyst_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"User not found\"}"
+        },
+        "admin_token": {
+          "status": 422,
+          "body_preview": "{\"detail\":[{\"type\":\"int_parsing\",\"loc\":[\"path\",\"playbook_id\"],\"msg\":\"Input should be a valid integer, unable to parse st"
+        }
+      }
+    },
+    {
+      "path": "/api/sentinel/playbooks/{playbook_id}/reject",
+      "method": "PATCH",
+      "endpoint": "reject_playbook_api_sentinel_playbooks__playbook_id__reject_patch",
+      "is_public_by_design": false,
+      "is_service_to_service": false,
+      "classification": "ROLE_PROTECTED_ADMIN_ONLY",
+      "auth_enforced": true,
+      "responses": {
+        "anonymous": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Not authenticated\"}"
+        },
+        "invalid_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Invalid or expired token\"}"
+        },
+        "expired_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Invalid or expired token\"}"
+        },
+        "analyst_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"User not found\"}"
+        },
+        "admin_token": {
+          "status": 422,
+          "body_preview": "{\"detail\":[{\"type\":\"int_parsing\",\"loc\":[\"path\",\"playbook_id\"],\"msg\":\"Input should be a valid integer, unable to parse st"
+        }
+      }
+    },
+    {
+      "path": "/api/sentinel/playbooks/{playbook_id}/versions",
+      "method": "GET",
+      "endpoint": "get_playbook_versions_api_sentinel_playbooks__playbook_id__versions_get",
+      "is_public_by_design": false,
+      "is_service_to_service": false,
+      "classification": "ROLE_PROTECTED_ADMIN_ONLY",
+      "auth_enforced": true,
+      "responses": {
+        "anonymous": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Not authenticated\"}"
+        },
+        "invalid_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Invalid or expired token\"}"
+        },
+        "expired_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Invalid or expired token\"}"
+        },
+        "analyst_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"User not found\"}"
+        },
+        "admin_token": {
+          "status": 422,
+          "body_preview": "{\"detail\":[{\"type\":\"int_parsing\",\"loc\":[\"path\",\"playbook_id\"],\"msg\":\"Input should be a valid integer, unable to parse st"
+        }
+      }
+    },
+    {
+      "path": "/api/sentinel/rules/export-all",
+      "method": "GET",
+      "endpoint": "export_all_rules_api_sentinel_rules_export_all_get",
+      "is_public_by_design": false,
+      "is_service_to_service": false,
+      "classification": "ROLE_PROTECTED_ADMIN_ONLY",
+      "auth_enforced": true,
+      "responses": {
+        "anonymous": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Not authenticated\"}"
+        },
+        "invalid_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Invalid or expired token\"}"
+        },
+        "expired_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Invalid or expired token\"}"
+        },
+        "analyst_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"User not found\"}"
+        },
+        "admin_token": {
+          "status": 200,
+          "body_preview": "PK\u0003\u0004\u0014\u0000\u0000\u0000\b\u0000\ufffdE3]\ufffd\ufffd\u0002\ufffd<\u0001\u0000\u0000\ufffd\u0001\u0000\u0000\u001c\u0000\u0000\u0000phantomnet_snort_rules.rulesU\ufffd\ufffdN\ufffd@\u0010\ufffd\ufffd>\ufffdD=h\u0496\ufffdjA\ufffd\ufffd\t\ufffd\"&\ufffdD\ufffd\ufffd,\u06e1lh\ufffduv\ufffd\ufffd\ufffd]\ufffd\ufffdi\u000e\ufffd|\ufffd?7\ufffdj\ufffd\ufffdu\ufffd\u0000\ufffdY\ufffd\ufffdt,&"
+        }
+      }
+    },
+    {
+      "path": "/api/sentinel/rules/sigma",
+      "method": "GET",
+      "endpoint": "list_sigma_rules_api_sentinel_rules_sigma_get",
+      "is_public_by_design": false,
+      "is_service_to_service": false,
+      "classification": "ROLE_PROTECTED_ADMIN_ONLY",
+      "auth_enforced": true,
+      "responses": {
+        "anonymous": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Not authenticated\"}"
+        },
+        "invalid_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Invalid or expired token\"}"
+        },
+        "expired_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Invalid or expired token\"}"
+        },
+        "analyst_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"User not found\"}"
+        },
+        "admin_token": {
+          "status": 200,
+          "body_preview": "{\"status\":\"success\",\"total\":1,\"limit\":50,\"offset\":0,\"rules\":[{\"id\":1,\"playbook_id\":\"PB-20260713-104741-2F270E\",\"attack_t"
+        }
+      }
+    },
+    {
+      "path": "/api/sentinel/rules/snort",
+      "method": "GET",
+      "endpoint": "list_snort_rules_api_sentinel_rules_snort_get",
+      "is_public_by_design": false,
+      "is_service_to_service": false,
+      "classification": "ROLE_PROTECTED_ADMIN_ONLY",
+      "auth_enforced": true,
+      "responses": {
+        "anonymous": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Not authenticated\"}"
+        },
+        "invalid_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Invalid or expired token\"}"
+        },
+        "expired_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Invalid or expired token\"}"
+        },
+        "analyst_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"User not found\"}"
+        },
+        "admin_token": {
+          "status": 200,
+          "body_preview": "{\"status\":\"success\",\"total\":1,\"limit\":50,\"offset\":0,\"rules\":[{\"id\":1,\"playbook_id\":\"PB-20260713-104741-2F270E\",\"attack_t"
+        }
+      }
+    },
+    {
+      "path": "/api/sentinel/stats",
+      "method": "GET",
+      "endpoint": "get_sentinel_stats_api_sentinel_stats_get",
+      "is_public_by_design": false,
+      "is_service_to_service": false,
+      "classification": "ROLE_PROTECTED_ADMIN_ONLY",
+      "auth_enforced": true,
+      "responses": {
+        "anonymous": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Not authenticated\"}"
+        },
+        "invalid_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Invalid or expired token\"}"
+        },
+        "expired_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Invalid or expired token\"}"
+        },
+        "analyst_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"User not found\"}"
+        },
+        "admin_token": {
+          "status": 200,
+          "body_preview": "{\"status\":\"success\",\"total_playbooks\":1,\"pending\":1,\"approved\":0,\"rejected\":0,\"exported\":0,\"approval_rate\":0.0,\"severity"
+        }
+      }
+    },
+    {
+      "path": "/api/stats",
+      "method": "GET",
+      "endpoint": "get_api_stats_api_stats_get",
+      "is_public_by_design": false,
+      "is_service_to_service": false,
+      "classification": "ROLE_PROTECTED_ADMIN_ONLY",
+      "auth_enforced": true,
+      "responses": {
+        "anonymous": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Not authenticated\"}"
+        },
+        "invalid_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Invalid or expired token\"}"
+        },
+        "expired_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Invalid or expired token\"}"
+        },
+        "analyst_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"User not found\"}"
+        },
+        "admin_token": {
+          "status": 200,
+          "body_preview": "{\"totalEvents\":127,\"uniqueIPs\":3,\"activeHoneypots\":5,\"avgThreatScore\":29.9,\"criticalAlerts\":5,\"distribution\":{\"critical\""
+        }
+      }
+    },
+    {
+      "path": "/api/threat-metrics",
+      "method": "GET",
+      "endpoint": "get_threat_metrics_api_threat_metrics_get",
+      "is_public_by_design": false,
+      "is_service_to_service": false,
+      "classification": "ROLE_PROTECTED_ADMIN_ONLY",
+      "auth_enforced": true,
+      "responses": {
+        "anonymous": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Not authenticated\"}"
+        },
+        "invalid_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Invalid or expired token\"}"
+        },
+        "expired_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Invalid or expired token\"}"
+        },
+        "analyst_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"User not found\"}"
+        },
+        "admin_token": {
+          "status": 200,
+          "body_preview": "{\"threatLevel\":0,\"anomalyScore\":0.23264130636702635,\"activeThreats\":0}"
+        }
+      }
+    },
+    {
+      "path": "/api/v1/admin/backup",
+      "method": "POST",
+      "endpoint": "create_backup_api_v1_admin_backup_post",
+      "is_public_by_design": false,
+      "is_service_to_service": false,
+      "classification": "ROLE_PROTECTED_ADMIN_ONLY",
+      "auth_enforced": true,
+      "responses": {
+        "anonymous": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Not authenticated\"}"
+        },
+        "invalid_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Invalid or expired token\"}"
+        },
+        "expired_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Invalid or expired token\"}"
+        },
+        "analyst_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"User not found\"}"
+        },
+        "admin_token": {
+          "status": 500,
+          "body_preview": "{\"status\":\"error\",\"message\":\"An internal server error occurred.\"}"
+        }
+      }
+    },
+    {
+      "path": "/api/v1/admin/backups",
+      "method": "GET",
+      "endpoint": "list_backups_api_v1_admin_backups_get",
+      "is_public_by_design": false,
+      "is_service_to_service": false,
+      "classification": "ROLE_PROTECTED_ADMIN_ONLY",
+      "auth_enforced": true,
+      "responses": {
+        "anonymous": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Not authenticated\"}"
+        },
+        "invalid_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Invalid or expired token\"}"
+        },
+        "expired_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Invalid or expired token\"}"
+        },
+        "analyst_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"User not found\"}"
+        },
+        "admin_token": {
+          "status": 200,
+          "body_preview": "{\"backups\":[]}"
+        }
+      }
+    },
+    {
+      "path": "/api/v1/admin/config",
+      "method": "GET",
+      "endpoint": "get_config_api_v1_admin_config_get",
+      "is_public_by_design": false,
+      "is_service_to_service": false,
+      "classification": "ROLE_PROTECTED_ADMIN_ONLY",
+      "auth_enforced": true,
+      "responses": {
+        "anonymous": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Not authenticated\"}"
+        },
+        "invalid_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Invalid or expired token\"}"
+        },
+        "expired_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Invalid or expired token\"}"
+        },
+        "analyst_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"User not found\"}"
+        },
+        "admin_token": {
+          "status": 200,
+          "body_preview": "{\"config\":{\"threat_detection\":{\"ml_threshold\":{\"value\":\"0.65\",\"updated_at\":\"2026-07-13T09:51:46.673125\"},\"auto_response\""
+        }
+      }
+    },
+    {
+      "path": "/api/v1/admin/config",
+      "method": "PUT",
+      "endpoint": "update_config_api_v1_admin_config_put",
+      "is_public_by_design": false,
+      "is_service_to_service": false,
+      "classification": "ROLE_PROTECTED_ADMIN_ONLY",
+      "auth_enforced": true,
+      "responses": {
+        "anonymous": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Not authenticated\"}"
+        },
+        "invalid_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Invalid or expired token\"}"
+        },
+        "expired_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Invalid or expired token\"}"
+        },
+        "analyst_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"User not found\"}"
+        },
+        "admin_token": {
+          "status": 422,
+          "body_preview": "{\"detail\":[{\"type\":\"missing\",\"loc\":[\"body\"],\"msg\":\"Field required\",\"input\":null}]}"
+        }
+      }
+    },
+    {
+      "path": "/api/v1/admin/events/old",
+      "method": "DELETE",
+      "endpoint": "delete_old_events_api_v1_admin_events_old_delete",
+      "is_public_by_design": false,
+      "is_service_to_service": false,
+      "classification": "ROLE_PROTECTED_ADMIN_ONLY",
+      "auth_enforced": true,
+      "responses": {
+        "anonymous": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Not authenticated\"}"
+        },
+        "invalid_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Invalid or expired token\"}"
+        },
+        "expired_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Invalid or expired token\"}"
+        },
+        "analyst_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"User not found\"}"
+        },
+        "admin_token": {
+          "status": 200,
+          "body_preview": "{\"status\":\"success\",\"deleted\":{\"packet_logs\":0,\"events\":0,\"alerts\":0,\"total\":0},\"cutoff_date\":\"2026-08-20T08:47:57.32398"
+        }
+      }
+    },
+    {
+      "path": "/api/v1/admin/login",
+      "method": "POST",
+      "endpoint": "admin_login_api_v1_admin_login_post",
+      "is_public_by_design": true,
+      "is_service_to_service": false,
+      "classification": "PUBLIC_BY_DESIGN",
+      "auth_enforced": true,
+      "responses": {
+        "anonymous": {
+          "status": 422,
+          "body_preview": "{\"detail\":[{\"type\":\"missing\",\"loc\":[\"body\"],\"msg\":\"Field required\",\"input\":null}]}"
+        },
+        "invalid_token": {
+          "status": 422,
+          "body_preview": "{\"detail\":[{\"type\":\"missing\",\"loc\":[\"body\"],\"msg\":\"Field required\",\"input\":null}]}"
+        },
+        "expired_token": {
+          "status": 422,
+          "body_preview": "{\"detail\":[{\"type\":\"missing\",\"loc\":[\"body\"],\"msg\":\"Field required\",\"input\":null}]}"
+        },
+        "analyst_token": {
+          "status": 422,
+          "body_preview": "{\"detail\":[{\"type\":\"missing\",\"loc\":[\"body\"],\"msg\":\"Field required\",\"input\":null}]}"
+        },
+        "admin_token": {
+          "status": 422,
+          "body_preview": "{\"detail\":[{\"type\":\"missing\",\"loc\":[\"body\"],\"msg\":\"Field required\",\"input\":null}]}"
+        }
+      }
+    },
+    {
+      "path": "/api/v1/admin/logout",
+      "method": "POST",
+      "endpoint": "logout_endpoint_api_v1_admin_logout_post",
+      "is_public_by_design": false,
+      "is_service_to_service": false,
+      "classification": "ROLE_PROTECTED_ADMIN_ONLY",
+      "auth_enforced": true,
+      "responses": {
+        "anonymous": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Not authenticated\"}"
+        },
+        "invalid_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Invalid or expired token\"}"
+        },
+        "expired_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Invalid or expired token\"}"
+        },
+        "analyst_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"User not found\"}"
+        },
+        "admin_token": {
+          "status": 200,
+          "body_preview": "{\"status\":\"success\",\"detail\":\"Logged out successfully\"}"
+        }
+      }
+    },
+    {
+      "path": "/api/v1/admin/me",
+      "method": "GET",
+      "endpoint": "get_current_admin_user_api_v1_admin_me_get",
+      "is_public_by_design": false,
+      "is_service_to_service": false,
+      "classification": "ROLE_PROTECTED_ADMIN_ONLY",
+      "auth_enforced": true,
+      "responses": {
+        "anonymous": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Not authenticated\"}"
+        },
+        "invalid_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Invalid or expired token\"}"
+        },
+        "expired_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Invalid or expired token\"}"
+        },
+        "analyst_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"User not found\"}"
+        },
+        "admin_token": {
+          "status": 200,
+          "body_preview": "{\"id\":1,\"username\":\"admin\",\"email\":\"admin@phantomnet.local\",\"role\":\"Admin\",\"status\":\"active\",\"last_login\":\"2026-08-27T11"
+        }
+      }
+    },
+    {
+      "path": "/api/v1/admin/refresh",
+      "method": "POST",
+      "endpoint": "refresh_token_endpoint_api_v1_admin_refresh_post",
+      "is_public_by_design": false,
+      "is_service_to_service": false,
+      "classification": "AUTHENTICATED_GENERAL",
+      "auth_enforced": true,
+      "responses": {
+        "anonymous": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Missing refresh token\"}"
+        },
+        "invalid_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Missing refresh token\"}"
+        },
+        "expired_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Missing refresh token\"}"
+        },
+        "analyst_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Missing refresh token\"}"
+        },
+        "admin_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Missing refresh token\"}"
+        }
+      }
+    },
+    {
+      "path": "/api/v1/admin/step-up",
+      "method": "POST",
+      "endpoint": "request_step_up_token_api_v1_admin_step_up_post",
+      "is_public_by_design": false,
+      "is_service_to_service": false,
+      "classification": "ROLE_PROTECTED_ADMIN_ONLY",
+      "auth_enforced": true,
+      "responses": {
+        "anonymous": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Not authenticated\"}"
+        },
+        "invalid_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Invalid or expired token\"}"
+        },
+        "expired_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Invalid or expired token\"}"
+        },
+        "analyst_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"User not found\"}"
+        },
+        "admin_token": {
+          "status": 422,
+          "body_preview": "{\"detail\":[{\"type\":\"missing\",\"loc\":[\"body\"],\"msg\":\"Field required\",\"input\":null}]}"
+        }
+      }
+    },
+    {
+      "path": "/api/v1/admin/system-overview",
+      "method": "GET",
+      "endpoint": "system_overview_api_v1_admin_system_overview_get",
+      "is_public_by_design": false,
+      "is_service_to_service": false,
+      "classification": "ROLE_PROTECTED_ADMIN_ONLY",
+      "auth_enforced": true,
+      "responses": {
+        "anonymous": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Not authenticated\"}"
+        },
+        "invalid_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Invalid or expired token\"}"
+        },
+        "expired_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Invalid or expired token\"}"
+        },
+        "analyst_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"User not found\"}"
+        },
+        "admin_token": {
+          "status": 200,
+          "body_preview": "{\"system\":{\"version\":\"2.0.0\",\"uptime\":\"Running\",\"python_version\":\"3.11.15\",\"db_type\":\"PostgreSQL\",\"db_size_mb\":9.76},\"re"
+        }
+      }
+    },
+    {
+      "path": "/api/v1/admin/taxii/clients",
+      "method": "GET",
+      "endpoint": "list_taxii_clients_api_v1_admin_taxii_clients_get",
+      "is_public_by_design": false,
+      "is_service_to_service": false,
+      "classification": "ROLE_PROTECTED_ADMIN_ONLY",
+      "auth_enforced": true,
+      "responses": {
+        "anonymous": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Not authenticated\"}"
+        },
+        "invalid_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Invalid or expired token\"}"
+        },
+        "expired_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Invalid or expired token\"}"
+        },
+        "analyst_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"User not found\"}"
+        },
+        "admin_token": {
+          "status": 500,
+          "body_preview": "{\"status\":\"error\",\"message\":\"An internal server error occurred.\"}"
+        }
+      }
+    },
+    {
+      "path": "/api/v1/admin/taxii/clients",
+      "method": "POST",
+      "endpoint": "create_taxii_client_api_v1_admin_taxii_clients_post",
+      "is_public_by_design": false,
+      "is_service_to_service": false,
+      "classification": "ROLE_PROTECTED_ADMIN_ONLY",
+      "auth_enforced": true,
+      "responses": {
+        "anonymous": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Not authenticated\"}"
+        },
+        "invalid_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Invalid or expired token\"}"
+        },
+        "expired_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Invalid or expired token\"}"
+        },
+        "analyst_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"User not found\"}"
+        },
+        "admin_token": {
+          "status": 422,
+          "body_preview": "{\"detail\":[{\"type\":\"missing\",\"loc\":[\"body\"],\"msg\":\"Field required\",\"input\":null}]}"
+        }
+      }
+    },
+    {
+      "path": "/api/v1/admin/taxii/clients/{key_id}",
+      "method": "DELETE",
+      "endpoint": "revoke_taxii_client_api_v1_admin_taxii_clients__key_id__delete",
+      "is_public_by_design": false,
+      "is_service_to_service": false,
+      "classification": "ROLE_PROTECTED_ADMIN_ONLY",
+      "auth_enforced": true,
+      "responses": {
+        "anonymous": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Not authenticated\"}"
+        },
+        "invalid_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Invalid or expired token\"}"
+        },
+        "expired_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Invalid or expired token\"}"
+        },
+        "analyst_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"User not found\"}"
+        },
+        "admin_token": {
+          "status": 500,
+          "body_preview": "{\"status\":\"error\",\"message\":\"An internal server error occurred.\"}"
+        }
+      }
+    },
+    {
+      "path": "/api/v1/admin/users",
+      "method": "GET",
+      "endpoint": "list_users_api_v1_admin_users_get",
+      "is_public_by_design": false,
+      "is_service_to_service": false,
+      "classification": "ROLE_PROTECTED_ADMIN_ONLY",
+      "auth_enforced": true,
+      "responses": {
+        "anonymous": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Not authenticated\"}"
+        },
+        "invalid_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Invalid or expired token\"}"
+        },
+        "expired_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Invalid or expired token\"}"
+        },
+        "analyst_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"User not found\"}"
+        },
+        "admin_token": {
+          "status": 200,
+          "body_preview": "{\"users\":[{\"id\":1,\"username\":\"admin\",\"email\":\"admin@phantomnet.local\",\"role\":\"Admin\",\"status\":\"active\",\"last_login\":\"202"
+        }
+      }
+    },
+    {
+      "path": "/api/v1/admin/users",
+      "method": "POST",
+      "endpoint": "create_user_api_v1_admin_users_post",
+      "is_public_by_design": false,
+      "is_service_to_service": false,
+      "classification": "ROLE_PROTECTED_ADMIN_ONLY",
+      "auth_enforced": true,
+      "responses": {
+        "anonymous": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Not authenticated\"}"
+        },
+        "invalid_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Invalid or expired token\"}"
+        },
+        "expired_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Invalid or expired token\"}"
+        },
+        "analyst_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"User not found\"}"
+        },
+        "admin_token": {
+          "status": 422,
+          "body_preview": "{\"detail\":[{\"type\":\"missing\",\"loc\":[\"body\"],\"msg\":\"Field required\",\"input\":null}]}"
+        }
+      }
+    },
+    {
+      "path": "/api/v1/admin/users/{user_id}",
+      "method": "DELETE",
+      "endpoint": "delete_user_api_v1_admin_users__user_id__delete",
+      "is_public_by_design": false,
+      "is_service_to_service": false,
+      "classification": "ROLE_PROTECTED_ADMIN_ONLY",
+      "auth_enforced": true,
+      "responses": {
+        "anonymous": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Not authenticated\"}"
+        },
+        "invalid_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Invalid or expired token\"}"
+        },
+        "expired_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Invalid or expired token\"}"
+        },
+        "analyst_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"User not found\"}"
+        },
+        "admin_token": {
+          "status": 422,
+          "body_preview": "{\"detail\":[{\"type\":\"int_parsing\",\"loc\":[\"path\",\"user_id\"],\"msg\":\"Input should be a valid integer, unable to parse string"
+        }
+      }
+    },
+    {
+      "path": "/api/v1/admin/users/{user_id}",
+      "method": "PUT",
+      "endpoint": "update_user_api_v1_admin_users__user_id__put",
+      "is_public_by_design": false,
+      "is_service_to_service": false,
+      "classification": "ROLE_PROTECTED_ADMIN_ONLY",
+      "auth_enforced": true,
+      "responses": {
+        "anonymous": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Not authenticated\"}"
+        },
+        "invalid_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Invalid or expired token\"}"
+        },
+        "expired_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Invalid or expired token\"}"
+        },
+        "analyst_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"User not found\"}"
+        },
+        "admin_token": {
+          "status": 422,
+          "body_preview": "{\"detail\":[{\"type\":\"int_parsing\",\"loc\":[\"path\",\"user_id\"],\"msg\":\"Input should be a valid integer, unable to parse string"
+        }
+      }
+    },
+    {
+      "path": "/api/v1/admin/vacuum",
+      "method": "POST",
+      "endpoint": "vacuum_db_api_v1_admin_vacuum_post",
+      "is_public_by_design": false,
+      "is_service_to_service": false,
+      "classification": "ROLE_PROTECTED_ADMIN_ONLY",
+      "auth_enforced": true,
+      "responses": {
+        "anonymous": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Not authenticated\"}"
+        },
+        "invalid_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Invalid or expired token\"}"
+        },
+        "expired_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Invalid or expired token\"}"
+        },
+        "analyst_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"User not found\"}"
+        },
+        "admin_token": {
+          "status": 200,
+          "body_preview": "{\"status\":\"success\",\"message\":\"Database vacuumed and optimized\"}"
+        }
+      }
+    },
+    {
+      "path": "/api/v1/advanced/campaigns",
+      "method": "GET",
+      "endpoint": "get_attack_campaigns_api_v1_advanced_campaigns_get",
+      "is_public_by_design": false,
+      "is_service_to_service": false,
+      "classification": "ROLE_PROTECTED_ADMIN_ONLY",
+      "auth_enforced": true,
+      "responses": {
+        "anonymous": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Not authenticated\"}"
+        },
+        "invalid_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Invalid or expired token\"}"
+        },
+        "expired_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Invalid or expired token\"}"
+        },
+        "analyst_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"User not found\"}"
+        },
+        "admin_token": {
+          "status": 200,
+          "body_preview": "{\"campaign_count\":0,\"campaigns\":[]}"
+        }
+      }
+    },
+    {
+      "path": "/api/v1/alerts",
+      "method": "GET",
+      "endpoint": "list_alerts_api_v1_alerts_get",
+      "is_public_by_design": false,
+      "is_service_to_service": false,
+      "classification": "ROLE_PROTECTED_ADMIN_ONLY",
+      "auth_enforced": true,
+      "responses": {
+        "anonymous": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Not authenticated\"}"
+        },
+        "invalid_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Invalid or expired token\"}"
+        },
+        "expired_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Invalid or expired token\"}"
+        },
+        "analyst_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"User not found\"}"
+        },
+        "admin_token": {
+          "status": 200,
+          "body_preview": "{\"status\":\"success\",\"total\":0,\"limit\":100,\"offset\":0,\"alerts\":[]}"
+        }
+      }
+    },
+    {
+      "path": "/api/v1/alerts/{alert_id}/resolve",
+      "method": "PATCH",
+      "endpoint": "resolve_alert_api_v1_alerts__alert_id__resolve_patch",
+      "is_public_by_design": false,
+      "is_service_to_service": false,
+      "classification": "ROLE_PROTECTED_ADMIN_ONLY",
+      "auth_enforced": true,
+      "responses": {
+        "anonymous": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Not authenticated\"}"
+        },
+        "invalid_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Invalid or expired token\"}"
+        },
+        "expired_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Invalid or expired token\"}"
+        },
+        "analyst_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"User not found\"}"
+        },
+        "admin_token": {
+          "status": 422,
+          "body_preview": "{\"detail\":[{\"type\":\"int_parsing\",\"loc\":[\"path\",\"alert_id\"],\"msg\":\"Input should be a valid integer, unable to parse strin"
+        }
+      }
+    },
+    {
+      "path": "/api/v1/analytics/http",
+      "method": "GET",
+      "endpoint": "get_http_analytics_api_v1_analytics_http_get",
+      "is_public_by_design": false,
+      "is_service_to_service": false,
+      "classification": "ROLE_PROTECTED_ADMIN_ONLY",
+      "auth_enforced": true,
+      "responses": {
+        "anonymous": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Not authenticated\"}"
+        },
+        "invalid_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Invalid or expired token\"}"
+        },
+        "expired_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Invalid or expired token\"}"
+        },
+        "analyst_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"User not found\"}"
+        },
+        "admin_token": {
+          "status": 200,
+          "body_preview": "{\"protocol\":\"HTTP\",\"total_requests\":4,\"top_ips\":[{\"ip\":\"172.19.0.1\",\"count\":4}],\"potential_flooders\":[]}"
+        }
+      }
+    },
+    {
+      "path": "/api/v1/analytics/ssh",
+      "method": "GET",
+      "endpoint": "get_ssh_analytics_api_v1_analytics_ssh_get",
+      "is_public_by_design": false,
+      "is_service_to_service": false,
+      "classification": "ROLE_PROTECTED_ADMIN_ONLY",
+      "auth_enforced": true,
+      "responses": {
+        "anonymous": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Not authenticated\"}"
+        },
+        "invalid_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Invalid or expired token\"}"
+        },
+        "expired_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Invalid or expired token\"}"
+        },
+        "analyst_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"User not found\"}"
+        },
+        "admin_token": {
+          "status": 200,
+          "body_preview": "{\"protocol\":\"SSH\",\"total_events\":53,\"top_attackers\":[{\"ip\":\"172.19.0.1\",\"count\":53}],\"brute_force_suspects\":[{\"src_ip\":\""
+        }
+      }
+    },
+    {
+      "path": "/api/v1/analytics/trends",
+      "method": "GET",
+      "endpoint": "get_attack_trends_api_v1_analytics_trends_get",
+      "is_public_by_design": false,
+      "is_service_to_service": false,
+      "classification": "ROLE_PROTECTED_ADMIN_ONLY",
+      "auth_enforced": true,
+      "responses": {
+        "anonymous": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Not authenticated\"}"
+        },
+        "invalid_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Invalid or expired token\"}"
+        },
+        "expired_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Invalid or expired token\"}"
+        },
+        "analyst_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"User not found\"}"
+        },
+        "admin_token": {
+          "status": 200,
+          "body_preview": "[{\"date\":\"2026-09-19\",\"count\":50}]"
+        }
+      }
+    },
+    {
+      "path": "/api/v1/analyze/threat-score",
+      "method": "POST",
+      "endpoint": "analyze_threat_api_v1_analyze_threat_score_post",
+      "is_public_by_design": false,
+      "is_service_to_service": false,
+      "classification": "ROLE_PROTECTED_ADMIN_ONLY",
+      "auth_enforced": true,
+      "responses": {
+        "anonymous": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Not authenticated\"}"
+        },
+        "invalid_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Invalid or expired token\"}"
+        },
+        "expired_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Invalid or expired token\"}"
+        },
+        "analyst_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"User not found\"}"
+        },
+        "admin_token": {
+          "status": 422,
+          "body_preview": "{\"detail\":[{\"type\":\"missing\",\"loc\":[\"body\"],\"msg\":\"Field required\",\"input\":null}]}"
+        }
+      }
+    },
+    {
+      "path": "/api/v1/attribution/profile/{ip}",
+      "method": "GET",
+      "endpoint": "get_attacker_profile_api_v1_attribution_profile__ip__get",
+      "is_public_by_design": false,
+      "is_service_to_service": false,
+      "classification": "ROLE_PROTECTED_ADMIN_ONLY",
+      "auth_enforced": true,
+      "responses": {
+        "anonymous": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Not authenticated\"}"
+        },
+        "invalid_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Invalid or expired token\"}"
+        },
+        "expired_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Invalid or expired token\"}"
+        },
+        "analyst_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"User not found\"}"
+        },
+        "admin_token": {
+          "status": 200,
+          "body_preview": "{\"status\":\"not_found\",\"ip\":\"127.0.0.1\"}"
+        }
+      }
+    },
+    {
+      "path": "/api/v1/attribution/top-attackers",
+      "method": "GET",
+      "endpoint": "get_top_attackers_api_v1_attribution_top_attackers_get",
+      "is_public_by_design": false,
+      "is_service_to_service": false,
+      "classification": "ROLE_PROTECTED_ADMIN_ONLY",
+      "auth_enforced": true,
+      "responses": {
+        "anonymous": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Not authenticated\"}"
+        },
+        "invalid_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Invalid or expired token\"}"
+        },
+        "expired_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Invalid or expired token\"}"
+        },
+        "analyst_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"User not found\"}"
+        },
+        "admin_token": {
+          "status": 200,
+          "body_preview": "{\"status\":\"success\",\"count\":3,\"attackers\":[{\"ip\":\"172.19.0.1\",\"event_count\":46,\"avg_threat_score\":0.2,\"max_threat_score\""
+        }
+      }
+    },
+    {
+      "path": "/api/v1/cases/",
+      "method": "GET",
+      "endpoint": "get_cases_api_v1_cases__get",
+      "is_public_by_design": false,
+      "is_service_to_service": false,
+      "classification": "ROLE_PROTECTED_ADMIN_ONLY",
+      "auth_enforced": true,
+      "responses": {
+        "anonymous": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Not authenticated\"}"
+        },
+        "invalid_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Invalid or expired token\"}"
+        },
+        "expired_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Invalid or expired token\"}"
+        },
+        "analyst_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"User not found\"}"
+        },
+        "admin_token": {
+          "status": 200,
+          "body_preview": "[]"
+        }
+      }
+    },
+    {
+      "path": "/api/v1/cases/",
+      "method": "POST",
+      "endpoint": "create_case_api_v1_cases__post",
+      "is_public_by_design": false,
+      "is_service_to_service": false,
+      "classification": "ROLE_PROTECTED_ADMIN_ONLY",
+      "auth_enforced": true,
+      "responses": {
+        "anonymous": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Not authenticated\"}"
+        },
+        "invalid_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Invalid or expired token\"}"
+        },
+        "expired_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Invalid or expired token\"}"
+        },
+        "analyst_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"User not found\"}"
+        },
+        "admin_token": {
+          "status": 422,
+          "body_preview": "{\"detail\":[{\"type\":\"missing\",\"loc\":[\"body\"],\"msg\":\"Field required\",\"input\":null}]}"
+        }
+      }
+    },
+    {
+      "path": "/api/v1/cases/{case_id}",
+      "method": "GET",
+      "endpoint": "get_case_details_api_v1_cases__case_id__get",
+      "is_public_by_design": false,
+      "is_service_to_service": false,
+      "classification": "ROLE_PROTECTED_ADMIN_ONLY",
+      "auth_enforced": true,
+      "responses": {
+        "anonymous": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Not authenticated\"}"
+        },
+        "invalid_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Invalid or expired token\"}"
+        },
+        "expired_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Invalid or expired token\"}"
+        },
+        "analyst_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"User not found\"}"
+        },
+        "admin_token": {
+          "status": 422,
+          "body_preview": "{\"detail\":[{\"type\":\"int_parsing\",\"loc\":[\"path\",\"case_id\"],\"msg\":\"Input should be a valid integer, unable to parse string"
+        }
+      }
+    },
+    {
+      "path": "/api/v1/cases/{case_id}",
+      "method": "PUT",
+      "endpoint": "update_case_api_v1_cases__case_id__put",
+      "is_public_by_design": false,
+      "is_service_to_service": false,
+      "classification": "ROLE_PROTECTED_ADMIN_ONLY",
+      "auth_enforced": true,
+      "responses": {
+        "anonymous": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Not authenticated\"}"
+        },
+        "invalid_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Invalid or expired token\"}"
+        },
+        "expired_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Invalid or expired token\"}"
+        },
+        "analyst_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"User not found\"}"
+        },
+        "admin_token": {
+          "status": 422,
+          "body_preview": "{\"detail\":[{\"type\":\"int_parsing\",\"loc\":[\"path\",\"case_id\"],\"msg\":\"Input should be a valid integer, unable to parse string"
+        }
+      }
+    },
+    {
+      "path": "/api/v1/cases/{case_id}/evidence",
+      "method": "POST",
+      "endpoint": "add_evidence_api_v1_cases__case_id__evidence_post",
+      "is_public_by_design": false,
+      "is_service_to_service": false,
+      "classification": "ROLE_PROTECTED_ADMIN_ONLY",
+      "auth_enforced": true,
+      "responses": {
+        "anonymous": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Not authenticated\"}"
+        },
+        "invalid_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Invalid or expired token\"}"
+        },
+        "expired_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Invalid or expired token\"}"
+        },
+        "analyst_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"User not found\"}"
+        },
+        "admin_token": {
+          "status": 422,
+          "body_preview": "{\"detail\":[{\"type\":\"int_parsing\",\"loc\":[\"path\",\"case_id\"],\"msg\":\"Input should be a valid integer, unable to parse string"
+        }
+      }
+    },
+    {
+      "path": "/api/v1/enrich/ip/{ip}",
+      "method": "GET",
+      "endpoint": "enrich_ip_endpoint_api_v1_enrich_ip__ip__get",
+      "is_public_by_design": false,
+      "is_service_to_service": false,
+      "classification": "ROLE_PROTECTED_ADMIN_ONLY",
+      "auth_enforced": true,
+      "responses": {
+        "anonymous": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Not authenticated\"}"
+        },
+        "invalid_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Invalid or expired token\"}"
+        },
+        "expired_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Invalid or expired token\"}"
+        },
+        "analyst_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"User not found\"}"
+        },
+        "admin_token": {
+          "status": 200,
+          "body_preview": "{\"source\":\"local\",\"status\":\"trusted\",\"message\":\"Internal/Local IP\"}"
+        }
+      }
+    },
+    {
+      "path": "/api/v1/events/{event_id}/explanation",
+      "method": "GET",
+      "endpoint": "explain_threat_score_api_v1_events__event_id__explanation_get",
+      "is_public_by_design": false,
+      "is_service_to_service": false,
+      "classification": "ROLE_PROTECTED_ADMIN_ONLY",
+      "auth_enforced": true,
+      "responses": {
+        "anonymous": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Not authenticated\"}"
+        },
+        "invalid_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Invalid or expired token\"}"
+        },
+        "expired_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Invalid or expired token\"}"
+        },
+        "analyst_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"User not found\"}"
+        },
+        "admin_token": {
+          "status": 404,
+          "body_preview": "{\"detail\":\"Event not found\"}"
+        }
+      }
+    },
+    {
+      "path": "/api/v1/events/{event_id}/pcap",
+      "method": "GET",
+      "endpoint": "download_pcap_api_v1_events__event_id__pcap_get",
+      "is_public_by_design": false,
+      "is_service_to_service": false,
+      "classification": "ROLE_PROTECTED_ADMIN_ONLY",
+      "auth_enforced": true,
+      "responses": {
+        "anonymous": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Not authenticated\"}"
+        },
+        "invalid_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Invalid or expired token\"}"
+        },
+        "expired_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Invalid or expired token\"}"
+        },
+        "analyst_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"User not found\"}"
+        },
+        "admin_token": {
+          "status": 404,
+          "body_preview": "{\"detail\":\"Event not found\"}"
+        }
+      }
+    },
+    {
+      "path": "/api/v1/governance/retention/policies",
+      "method": "GET",
+      "endpoint": "get_retention_policies_api_v1_governance_retention_policies_get",
+      "is_public_by_design": false,
+      "is_service_to_service": false,
+      "classification": "ROLE_PROTECTED_ADMIN_ONLY",
+      "auth_enforced": true,
+      "responses": {
+        "anonymous": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Not authenticated\"}"
+        },
+        "invalid_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Invalid or expired token\"}"
+        },
+        "expired_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Invalid or expired token\"}"
+        },
+        "analyst_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"User not found\"}"
+        },
+        "admin_token": {
+          "status": 200,
+          "body_preview": "{\"packet_logs_days\":30,\"events_days\":30,\"alerts_days\":90,\"traffic_stats_days\":14,\"pcaps_days\":14,\"audit_logs_days\":365,\""
+        }
+      }
+    },
+    {
+      "path": "/api/v1/governance/retention/run",
+      "method": "POST",
+      "endpoint": "run_retention_cycle_endpoint_api_v1_governance_retention_run_post",
+      "is_public_by_design": false,
+      "is_service_to_service": false,
+      "classification": "ROLE_PROTECTED_ADMIN_ONLY",
+      "auth_enforced": true,
+      "responses": {
+        "anonymous": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Not authenticated\"}"
+        },
+        "invalid_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Invalid or expired token\"}"
+        },
+        "expired_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Invalid or expired token\"}"
+        },
+        "analyst_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"User not found\"}"
+        },
+        "admin_token": {
+          "status": 200,
+          "body_preview": "{\"timestamp\":\"2026-09-19T08:47:59.822460\",\"dry_run\":true,\"purged\":{\"packet_logs\":0,\"events\":0,\"alerts\":0,\"traffic_stats\""
+        }
+      }
+    },
+    {
+      "path": "/api/v1/hunting/analyze-patterns",
+      "method": "POST",
+      "endpoint": "analyze_patterns_api_v1_hunting_analyze_patterns_post",
+      "is_public_by_design": false,
+      "is_service_to_service": false,
+      "classification": "ROLE_PROTECTED_ADMIN_ONLY",
+      "auth_enforced": true,
+      "responses": {
+        "anonymous": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Not authenticated\"}"
+        },
+        "invalid_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Invalid or expired token\"}"
+        },
+        "expired_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Invalid or expired token\"}"
+        },
+        "analyst_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"User not found\"}"
+        },
+        "admin_token": {
+          "status": 422,
+          "body_preview": "{\"detail\":[{\"type\":\"missing\",\"loc\":[\"body\"],\"msg\":\"Field required\",\"input\":null}]}"
+        }
+      }
+    },
+    {
+      "path": "/api/v1/hunting/extract-iocs",
+      "method": "POST",
+      "endpoint": "extract_iocs_api_v1_hunting_extract_iocs_post",
+      "is_public_by_design": false,
+      "is_service_to_service": false,
+      "classification": "ROLE_PROTECTED_ADMIN_ONLY",
+      "auth_enforced": true,
+      "responses": {
+        "anonymous": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Not authenticated\"}"
+        },
+        "invalid_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Invalid or expired token\"}"
+        },
+        "expired_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Invalid or expired token\"}"
+        },
+        "analyst_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"User not found\"}"
+        },
+        "admin_token": {
+          "status": 422,
+          "body_preview": "{\"detail\":[{\"type\":\"missing\",\"loc\":[\"body\"],\"msg\":\"Field required\",\"input\":null}]}"
+        }
+      }
+    },
+    {
+      "path": "/api/v1/hunting/history",
+      "method": "GET",
+      "endpoint": "get_search_history_api_v1_hunting_history_get",
+      "is_public_by_design": false,
+      "is_service_to_service": false,
+      "classification": "ROLE_PROTECTED_ADMIN_ONLY",
+      "auth_enforced": true,
+      "responses": {
+        "anonymous": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Not authenticated\"}"
+        },
+        "invalid_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Invalid or expired token\"}"
+        },
+        "expired_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Invalid or expired token\"}"
+        },
+        "analyst_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"User not found\"}"
+        },
+        "admin_token": {
+          "status": 200,
+          "body_preview": "[{\"id\":6,\"query_json\":\"{\\\"logic\\\": \\\"AND\\\", \\\"conditions\\\": [{\\\"field\\\": \\\"protocol\\\", \\\"operator\\\": \\\"equals\\\", \\\"value"
+        }
+      }
+    },
+    {
+      "path": "/api/v1/hunting/related-events",
+      "method": "GET",
+      "endpoint": "get_related_events_api_v1_hunting_related_events_get",
+      "is_public_by_design": false,
+      "is_service_to_service": false,
+      "classification": "ROLE_PROTECTED_ADMIN_ONLY",
+      "auth_enforced": true,
+      "responses": {
+        "anonymous": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Not authenticated\"}"
+        },
+        "invalid_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Invalid or expired token\"}"
+        },
+        "expired_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Invalid or expired token\"}"
+        },
+        "analyst_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"User not found\"}"
+        },
+        "admin_token": {
+          "status": 200,
+          "body_preview": "[{\"id\":1410,\"timestamp\":\"2026-09-19T08:32:47.396780\",\"src_ip\":\"172.19.0.1\",\"dst_ip\":\"127.0.0.1\",\"src_port\":0,\"dst_port\":"
+        }
+      }
+    },
+    {
+      "path": "/api/v1/hunting/search",
+      "method": "POST",
+      "endpoint": "search_events_api_v1_hunting_search_post",
+      "is_public_by_design": false,
+      "is_service_to_service": false,
+      "classification": "ROLE_PROTECTED_ADMIN_ONLY",
+      "auth_enforced": true,
+      "responses": {
+        "anonymous": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Not authenticated\"}"
+        },
+        "invalid_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Invalid or expired token\"}"
+        },
+        "expired_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Invalid or expired token\"}"
+        },
+        "analyst_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"User not found\"}"
+        },
+        "admin_token": {
+          "status": 422,
+          "body_preview": "{\"detail\":[{\"type\":\"missing\",\"loc\":[\"body\"],\"msg\":\"Field required\",\"input\":null}]}"
+        }
+      }
+    },
+    {
+      "path": "/api/v1/hunting/templates",
+      "method": "GET",
+      "endpoint": "get_query_templates_api_v1_hunting_templates_get",
+      "is_public_by_design": false,
+      "is_service_to_service": false,
+      "classification": "ROLE_PROTECTED_ADMIN_ONLY",
+      "auth_enforced": true,
+      "responses": {
+        "anonymous": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Not authenticated\"}"
+        },
+        "invalid_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Invalid or expired token\"}"
+        },
+        "expired_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Invalid or expired token\"}"
+        },
+        "analyst_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"User not found\"}"
+        },
+        "admin_token": {
+          "status": 200,
+          "body_preview": "[{\"name\":\"All HIGH threats in 24h\",\"logic\":\"AND\",\"conditions\":[{\"field\":\"threat_level\",\"operator\":\"equals\",\"value\":\"HIGH"
+        }
+      }
+    },
+    {
+      "path": "/api/v1/ingest/batch",
+      "method": "POST",
+      "endpoint": "ingest_batch_api_v1_ingest_batch_post",
+      "is_public_by_design": false,
+      "is_service_to_service": true,
+      "classification": "SERVICE_TO_SERVICE_AUTHENTICATED",
+      "auth_enforced": true,
+      "responses": {
+        "anonymous": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Missing required honeypot origin signature headers\"}"
+        },
+        "invalid_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Missing required honeypot origin signature headers\"}"
+        },
+        "expired_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Missing required honeypot origin signature headers\"}"
+        },
+        "analyst_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Missing required honeypot origin signature headers\"}"
+        },
+        "admin_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Missing required honeypot origin signature headers\"}"
+        }
+      }
+    },
+    {
+      "path": "/api/v1/ingest/event",
+      "method": "POST",
+      "endpoint": "ingest_event_api_v1_ingest_event_post",
+      "is_public_by_design": false,
+      "is_service_to_service": true,
+      "classification": "SERVICE_TO_SERVICE_AUTHENTICATED",
+      "auth_enforced": true,
+      "responses": {
+        "anonymous": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Missing required honeypot origin signature headers\"}"
+        },
+        "invalid_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Missing required honeypot origin signature headers\"}"
+        },
+        "expired_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Missing required honeypot origin signature headers\"}"
+        },
+        "analyst_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Missing required honeypot origin signature headers\"}"
+        },
+        "admin_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Missing required honeypot origin signature headers\"}"
+        }
+      }
+    },
+    {
+      "path": "/api/v1/ingest/health",
+      "method": "GET",
+      "endpoint": "ingest_health_api_v1_ingest_health_get",
+      "is_public_by_design": false,
+      "is_service_to_service": false,
+      "classification": "ROLE_PROTECTED_ADMIN_ONLY",
+      "auth_enforced": true,
+      "responses": {
+        "anonymous": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Not authenticated\"}"
+        },
+        "invalid_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Invalid or expired token\"}"
+        },
+        "expired_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Invalid or expired token\"}"
+        },
+        "analyst_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"User not found\"}"
+        },
+        "admin_token": {
+          "status": 200,
+          "body_preview": "{\"status\":\"healthy\",\"queue_depth\":1544,\"max_queue_depth\":100000,\"stream_key\":\"events:stream\"}"
+        }
+      }
+    },
+    {
+      "path": "/api/v1/management/heartbeat",
+      "method": "POST",
+      "endpoint": "node_heartbeat_api_v1_management_heartbeat_post",
+      "is_public_by_design": false,
+      "is_service_to_service": false,
+      "classification": "ROLE_PROTECTED_ADMIN_ONLY",
+      "auth_enforced": true,
+      "responses": {
+        "anonymous": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Management endpoints require Admin role or valid X-API-Key header\"}"
+        },
+        "invalid_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Management endpoints require Admin role or valid X-API-Key header\"}"
+        },
+        "expired_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Management endpoints require Admin role or valid X-API-Key header\"}"
+        },
+        "analyst_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Management endpoints require Admin role or valid X-API-Key header\"}"
+        },
+        "admin_token": {
+          "status": 422,
+          "body_preview": "{\"detail\":[{\"type\":\"missing\",\"loc\":[\"body\"],\"msg\":\"Field required\",\"input\":null}]}"
+        }
+      }
+    },
+    {
+      "path": "/api/v1/management/nodes",
+      "method": "GET",
+      "endpoint": "list_nodes_api_v1_management_nodes_get",
+      "is_public_by_design": false,
+      "is_service_to_service": false,
+      "classification": "ROLE_PROTECTED_ADMIN_ONLY",
+      "auth_enforced": true,
+      "responses": {
+        "anonymous": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Management endpoints require Admin role or valid X-API-Key header\"}"
+        },
+        "invalid_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Management endpoints require Admin role or valid X-API-Key header\"}"
+        },
+        "expired_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Management endpoints require Admin role or valid X-API-Key header\"}"
+        },
+        "analyst_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Management endpoints require Admin role or valid X-API-Key header\"}"
+        },
+        "admin_token": {
+          "status": 200,
+          "body_preview": "[]"
+        }
+      }
+    },
+    {
+      "path": "/api/v1/management/policies",
+      "method": "GET",
+      "endpoint": "list_policies_api_v1_management_policies_get",
+      "is_public_by_design": false,
+      "is_service_to_service": false,
+      "classification": "ROLE_PROTECTED_ADMIN_ONLY",
+      "auth_enforced": true,
+      "responses": {
+        "anonymous": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Management endpoints require Admin role or valid X-API-Key header\"}"
+        },
+        "invalid_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Management endpoints require Admin role or valid X-API-Key header\"}"
+        },
+        "expired_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Management endpoints require Admin role or valid X-API-Key header\"}"
+        },
+        "analyst_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Management endpoints require Admin role or valid X-API-Key header\"}"
+        },
+        "admin_token": {
+          "status": 200,
+          "body_preview": "[]"
+        }
+      }
+    },
+    {
+      "path": "/api/v1/management/policies",
+      "method": "POST",
+      "endpoint": "create_policy_api_v1_management_policies_post",
+      "is_public_by_design": false,
+      "is_service_to_service": false,
+      "classification": "ROLE_PROTECTED_ADMIN_ONLY",
+      "auth_enforced": true,
+      "responses": {
+        "anonymous": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Management endpoints require Admin role or valid X-API-Key header\"}"
+        },
+        "invalid_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Management endpoints require Admin role or valid X-API-Key header\"}"
+        },
+        "expired_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Management endpoints require Admin role or valid X-API-Key header\"}"
+        },
+        "analyst_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Management endpoints require Admin role or valid X-API-Key header\"}"
+        },
+        "admin_token": {
+          "status": 422,
+          "body_preview": "{\"detail\":[{\"type\":\"missing\",\"loc\":[\"body\"],\"msg\":\"Field required\",\"input\":null}]}"
+        }
+      }
+    },
+    {
+      "path": "/api/v1/management/policies/assign",
+      "method": "POST",
+      "endpoint": "assign_policy_api_v1_management_policies_assign_post",
+      "is_public_by_design": false,
+      "is_service_to_service": false,
+      "classification": "ROLE_PROTECTED_ADMIN_ONLY",
+      "auth_enforced": true,
+      "responses": {
+        "anonymous": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Management endpoints require Admin role or valid X-API-Key header\"}"
+        },
+        "invalid_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Management endpoints require Admin role or valid X-API-Key header\"}"
+        },
+        "expired_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Management endpoints require Admin role or valid X-API-Key header\"}"
+        },
+        "analyst_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Management endpoints require Admin role or valid X-API-Key header\"}"
+        },
+        "admin_token": {
+          "status": 422,
+          "body_preview": "{\"detail\":[{\"type\":\"missing\",\"loc\":[\"body\"],\"msg\":\"Field required\",\"input\":null}]}"
+        }
+      }
+    },
+    {
+      "path": "/api/v1/management/register",
+      "method": "POST",
+      "endpoint": "register_node_api_v1_management_register_post",
+      "is_public_by_design": false,
+      "is_service_to_service": false,
+      "classification": "ROLE_PROTECTED_ADMIN_ONLY",
+      "auth_enforced": true,
+      "responses": {
+        "anonymous": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Management endpoints require Admin role or valid X-API-Key header\"}"
+        },
+        "invalid_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Management endpoints require Admin role or valid X-API-Key header\"}"
+        },
+        "expired_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Management endpoints require Admin role or valid X-API-Key header\"}"
+        },
+        "analyst_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Management endpoints require Admin role or valid X-API-Key header\"}"
+        },
+        "admin_token": {
+          "status": 422,
+          "body_preview": "{\"detail\":[{\"type\":\"missing\",\"loc\":[\"body\"],\"msg\":\"Field required\",\"input\":null}]}"
+        }
+      }
+    },
+    {
+      "path": "/api/v1/model/confidence-histogram",
+      "method": "GET",
+      "endpoint": "get_confidence_histogram_api_v1_model_confidence_histogram_get",
+      "is_public_by_design": false,
+      "is_service_to_service": false,
+      "classification": "ROLE_PROTECTED_ADMIN_ONLY",
+      "auth_enforced": true,
+      "responses": {
+        "anonymous": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Not authenticated\"}"
+        },
+        "invalid_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Invalid or expired token\"}"
+        },
+        "expired_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Invalid or expired token\"}"
+        },
+        "analyst_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"User not found\"}"
+        },
+        "admin_token": {
+          "status": 200,
+          "body_preview": "{\"buckets\":[{\"range\":\"0.0-0.2\",\"count\":17},{\"range\":\"0.2-0.4\",\"count\":91},{\"range\":\"0.4-0.6\",\"count\":6},{\"range\":\"0.6-0."
+        }
+      }
+    },
+    {
+      "path": "/api/v1/model/config",
+      "method": "GET",
+      "endpoint": "get_training_config_api_v1_model_config_get",
+      "is_public_by_design": false,
+      "is_service_to_service": false,
+      "classification": "ROLE_PROTECTED_ADMIN_ONLY",
+      "auth_enforced": true,
+      "responses": {
+        "anonymous": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Not authenticated\"}"
+        },
+        "invalid_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Invalid or expired token\"}"
+        },
+        "expired_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Invalid or expired token\"}"
+        },
+        "analyst_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"User not found\"}"
+        },
+        "admin_token": {
+          "status": 200,
+          "body_preview": "{\"model_type\":\"IsolationForest\",\"n_estimators\":100,\"contamination\":0.1,\"input_features\":[\"packet_length\",\"protocol_encod"
+        }
+      }
+    },
+    {
+      "path": "/api/v1/model/feature-importance",
+      "method": "GET",
+      "endpoint": "get_feature_importance_api_v1_model_feature_importance_get",
+      "is_public_by_design": false,
+      "is_service_to_service": false,
+      "classification": "ROLE_PROTECTED_ADMIN_ONLY",
+      "auth_enforced": true,
+      "responses": {
+        "anonymous": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Not authenticated\"}"
+        },
+        "invalid_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Invalid or expired token\"}"
+        },
+        "expired_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Invalid or expired token\"}"
+        },
+        "analyst_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"User not found\"}"
+        },
+        "admin_token": {
+          "status": 200,
+          "body_preview": "{\"features\":[{\"name\":\"Packet Length\",\"importance\":0.28},{\"name\":\"Protocol Encoding\",\"importance\":0.25},{\"name\":\"Source I"
+        }
+      }
+    },
+    {
+      "path": "/api/v1/model/metrics",
+      "method": "GET",
+      "endpoint": "get_model_metrics_api_v1_model_metrics_get",
+      "is_public_by_design": false,
+      "is_service_to_service": false,
+      "classification": "ROLE_PROTECTED_ADMIN_ONLY",
+      "auth_enforced": true,
+      "responses": {
+        "anonymous": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Not authenticated\"}"
+        },
+        "invalid_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Invalid or expired token\"}"
+        },
+        "expired_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Invalid or expired token\"}"
+        },
+        "analyst_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"User not found\"}"
+        },
+        "admin_token": {
+          "status": 200,
+          "body_preview": "{\"timestamp\":\"2026-02-13 09:55:42\",\"best_f1_score\":0.5408805031446541,\"best_params\":{\"n_estimators\":50,\"max_samples\":0.5"
+        }
+      }
+    },
+    {
+      "path": "/api/v1/model/predictions/recent",
+      "method": "GET",
+      "endpoint": "get_recent_predictions_api_v1_model_predictions_recent_get",
+      "is_public_by_design": false,
+      "is_service_to_service": false,
+      "classification": "ROLE_PROTECTED_ADMIN_ONLY",
+      "auth_enforced": true,
+      "responses": {
+        "anonymous": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Not authenticated\"}"
+        },
+        "invalid_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Invalid or expired token\"}"
+        },
+        "expired_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Invalid or expired token\"}"
+        },
+        "analyst_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"User not found\"}"
+        },
+        "admin_token": {
+          "status": 200,
+          "body_preview": "{\"data\":[{\"time\":\"03:48\",\"benign\":0,\"malicious\":0},{\"time\":\"04:48\",\"benign\":0,\"malicious\":0},{\"time\":\"05:48\",\"benign\":0,"
+        }
+      }
+    },
+    {
+      "path": "/api/v1/model/stats",
+      "method": "GET",
+      "endpoint": "get_stats_api_v1_model_stats_get",
+      "is_public_by_design": false,
+      "is_service_to_service": false,
+      "classification": "ROLE_PROTECTED_ADMIN_ONLY",
+      "auth_enforced": true,
+      "responses": {
+        "anonymous": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Not authenticated\"}"
+        },
+        "invalid_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Invalid or expired token\"}"
+        },
+        "expired_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Invalid or expired token\"}"
+        },
+        "analyst_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"User not found\"}"
+        },
+        "admin_token": {
+          "status": 200,
+          "body_preview": "{\"version\":\"v3.0.0\",\"name\":\"IsolationForest\",\"metrics\":{\"accuracy\":0.528,\"f1_score\":0.541,\"precision\":0.815,\"recall\":0.2"
+        }
+      }
+    },
+    {
+      "path": "/api/v1/patterns/advanced",
+      "method": "GET",
+      "endpoint": "get_advanced_patterns_api_v1_patterns_advanced_get",
+      "is_public_by_design": false,
+      "is_service_to_service": false,
+      "classification": "ROLE_PROTECTED_ADMIN_ONLY",
+      "auth_enforced": true,
+      "responses": {
+        "anonymous": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Not authenticated\"}"
+        },
+        "invalid_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Invalid or expired token\"}"
+        },
+        "expired_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Invalid or expired token\"}"
+        },
+        "analyst_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"User not found\"}"
+        },
+        "admin_token": {
+          "status": 200,
+          "body_preview": "{\"timestamp\":\"2026-09-19T08:48:01.350071\",\"distributed_brute_force_ssh\":[],\"low_and_slow_scans\":[]}"
+        }
+      }
+    },
+    {
+      "path": "/api/v1/pcap/analysis/{event_id}",
+      "method": "GET",
+      "endpoint": "get_pcap_analysis_api_v1_pcap_analysis__event_id__get",
+      "is_public_by_design": false,
+      "is_service_to_service": false,
+      "classification": "ROLE_PROTECTED_ADMIN_ONLY",
+      "auth_enforced": true,
+      "responses": {
+        "anonymous": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Not authenticated\"}"
+        },
+        "invalid_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Invalid or expired token\"}"
+        },
+        "expired_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Invalid or expired token\"}"
+        },
+        "analyst_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"User not found\"}"
+        },
+        "admin_token": {
+          "status": 200,
+          "body_preview": "{\"status\":\"success\",\"event_id\":1,\"source\":\"mock\",\"report\":{\"report_id\":\"d628eabcd3f3\",\"generated_at\":\"2026-09-19T08:48:0"
+        }
+      }
+    },
+    {
+      "path": "/api/v1/pcap/capture/{event_id}",
+      "method": "POST",
+      "endpoint": "trigger_capture_api_v1_pcap_capture__event_id__post",
+      "is_public_by_design": false,
+      "is_service_to_service": false,
+      "classification": "ROLE_PROTECTED_ADMIN_ONLY",
+      "auth_enforced": true,
+      "responses": {
+        "anonymous": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Not authenticated\"}"
+        },
+        "invalid_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Invalid or expired token\"}"
+        },
+        "expired_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Invalid or expired token\"}"
+        },
+        "analyst_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"User not found\"}"
+        },
+        "admin_token": {
+          "status": 404,
+          "body_preview": "{\"detail\":\"Event not found\"}"
+        }
+      }
+    },
+    {
+      "path": "/api/v1/pcap/capture/{event_id}/status",
+      "method": "GET",
+      "endpoint": "capture_status_api_v1_pcap_capture__event_id__status_get",
+      "is_public_by_design": false,
+      "is_service_to_service": false,
+      "classification": "ROLE_PROTECTED_ADMIN_ONLY",
+      "auth_enforced": true,
+      "responses": {
+        "anonymous": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Not authenticated\"}"
+        },
+        "invalid_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Invalid or expired token\"}"
+        },
+        "expired_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Invalid or expired token\"}"
+        },
+        "analyst_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"User not found\"}"
+        },
+        "admin_token": {
+          "status": 200,
+          "body_preview": "{\"status\":\"success\",\"capture\":{\"status\":\"not_found\",\"event_id\":1}}"
+        }
+      }
+    },
+    {
+      "path": "/api/v1/pcap/cleanup",
+      "method": "POST",
+      "endpoint": "run_cleanup_api_v1_pcap_cleanup_post",
+      "is_public_by_design": false,
+      "is_service_to_service": false,
+      "classification": "ROLE_PROTECTED_ADMIN_ONLY",
+      "auth_enforced": true,
+      "responses": {
+        "anonymous": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Not authenticated\"}"
+        },
+        "invalid_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Invalid or expired token\"}"
+        },
+        "expired_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Invalid or expired token\"}"
+        },
+        "analyst_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"User not found\"}"
+        },
+        "admin_token": {
+          "status": 200,
+          "body_preview": "{\"status\":\"success\",\"removed_files\":0,\"freed_bytes\":0,\"retention_days\":30}"
+        }
+      }
+    },
+    {
+      "path": "/api/v1/pcap/stats",
+      "method": "GET",
+      "endpoint": "pcap_stats_api_v1_pcap_stats_get",
+      "is_public_by_design": false,
+      "is_service_to_service": false,
+      "classification": "ROLE_PROTECTED_ADMIN_ONLY",
+      "auth_enforced": true,
+      "responses": {
+        "anonymous": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Not authenticated\"}"
+        },
+        "invalid_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Invalid or expired token\"}"
+        },
+        "expired_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Invalid or expired token\"}"
+        },
+        "analyst_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"User not found\"}"
+        },
+        "admin_token": {
+          "status": 200,
+          "body_preview": "{\"status\":\"success\",\"total_captures\":993,\"total_size_bytes\":3059460482,\"total_size_mb\":3059.46,\"active_captures\":0,\"comp"
+        }
+      }
+    },
+    {
+      "path": "/api/v1/predictive/forecast",
+      "method": "GET",
+      "endpoint": "get_forecast_api_v1_predictive_forecast_get",
+      "is_public_by_design": false,
+      "is_service_to_service": false,
+      "classification": "ROLE_PROTECTED_ADMIN_ONLY",
+      "auth_enforced": true,
+      "responses": {
+        "anonymous": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Not authenticated\"}"
+        },
+        "invalid_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Invalid or expired token\"}"
+        },
+        "expired_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Invalid or expired token\"}"
+        },
+        "analyst_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"User not found\"}"
+        },
+        "admin_token": {
+          "status": 200,
+          "body_preview": "{\"status\":\"success\",\"historical\":[{\"time\":\"20:48\",\"current\":0},{\"time\":\"21:48\",\"current\":0},{\"time\":\"22:48\",\"current\":0}"
+        }
+      }
+    },
+    {
+      "path": "/api/v1/predictive/next-attack",
+      "method": "GET",
+      "endpoint": "get_next_attack_prediction_api_v1_predictive_next_attack_get",
+      "is_public_by_design": false,
+      "is_service_to_service": false,
+      "classification": "ROLE_PROTECTED_ADMIN_ONLY",
+      "auth_enforced": true,
+      "responses": {
+        "anonymous": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Not authenticated\"}"
+        },
+        "invalid_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Invalid or expired token\"}"
+        },
+        "expired_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Invalid or expired token\"}"
+        },
+        "analyst_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"User not found\"}"
+        },
+        "admin_token": {
+          "status": 200,
+          "body_preview": "{\"status\":\"success\",\"target\":\"SMTP HONEYPOT (PORT 2525)\",\"confidence\":45,\"estimated_minutes\":16,\"model\":\"LSTM-V3\"}"
+        }
+      }
+    },
+    {
+      "path": "/api/v1/predictive/risk-score",
+      "method": "GET",
+      "endpoint": "get_risk_score_api_v1_predictive_risk_score_get",
+      "is_public_by_design": false,
+      "is_service_to_service": false,
+      "classification": "ROLE_PROTECTED_ADMIN_ONLY",
+      "auth_enforced": true,
+      "responses": {
+        "anonymous": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Not authenticated\"}"
+        },
+        "invalid_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Invalid or expired token\"}"
+        },
+        "expired_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Invalid or expired token\"}"
+        },
+        "analyst_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"User not found\"}"
+        },
+        "admin_token": {
+          "status": 200,
+          "body_preview": "{\"status\":\"success\",\"risk_score\":37.6,\"risk_level\":\"MEDIUM\",\"avg_threat_score\":0.2,\"max_threat_score\":0.2,\"event_count\":"
+        }
+      }
+    },
+    {
+      "path": "/api/v1/reports/generate",
+      "method": "GET",
+      "endpoint": "generate_report_api_v1_reports_generate_get",
+      "is_public_by_design": false,
+      "is_service_to_service": false,
+      "classification": "ROLE_PROTECTED_ADMIN_ONLY",
+      "auth_enforced": true,
+      "responses": {
+        "anonymous": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Not authenticated\"}"
+        },
+        "invalid_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Invalid or expired token\"}"
+        },
+        "expired_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Invalid or expired token\"}"
+        },
+        "analyst_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"User not found\"}"
+        },
+        "admin_token": {
+          "status": 200,
+          "body_preview": "{\"title\":\"Executive Summary Report\",\"generated_at\":\"2026-09-19 08:48:06\",\"filters_applied\":{\"date_range\":\"24h\",\"honeypot"
+        }
+      }
+    },
+    {
+      "path": "/api/v1/reports/schedule",
+      "method": "POST",
+      "endpoint": "schedule_report_api_v1_reports_schedule_post",
+      "is_public_by_design": false,
+      "is_service_to_service": false,
+      "classification": "ROLE_PROTECTED_ADMIN_ONLY",
+      "auth_enforced": true,
+      "responses": {
+        "anonymous": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Not authenticated\"}"
+        },
+        "invalid_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Invalid or expired token\"}"
+        },
+        "expired_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Invalid or expired token\"}"
+        },
+        "analyst_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"User not found\"}"
+        },
+        "admin_token": {
+          "status": 422,
+          "body_preview": "{\"detail\":[{\"type\":\"missing\",\"loc\":[\"body\"],\"msg\":\"Field required\",\"input\":null}]}"
+        }
+      }
+    },
+    {
+      "path": "/api/v1/reports/schedule/{report_id}",
+      "method": "DELETE",
+      "endpoint": "delete_schedule_api_v1_reports_schedule__report_id__delete",
+      "is_public_by_design": false,
+      "is_service_to_service": false,
+      "classification": "ROLE_PROTECTED_ADMIN_ONLY",
+      "auth_enforced": true,
+      "responses": {
+        "anonymous": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Not authenticated\"}"
+        },
+        "invalid_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Invalid or expired token\"}"
+        },
+        "expired_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Invalid or expired token\"}"
+        },
+        "analyst_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"User not found\"}"
+        },
+        "admin_token": {
+          "status": 422,
+          "body_preview": "{\"detail\":[{\"type\":\"int_parsing\",\"loc\":[\"path\",\"report_id\"],\"msg\":\"Input should be a valid integer, unable to parse stri"
+        }
+      }
+    },
+    {
+      "path": "/api/v1/reports/schedule/{report_id}",
+      "method": "PUT",
+      "endpoint": "update_schedule_api_v1_reports_schedule__report_id__put",
+      "is_public_by_design": false,
+      "is_service_to_service": false,
+      "classification": "ROLE_PROTECTED_ADMIN_ONLY",
+      "auth_enforced": true,
+      "responses": {
+        "anonymous": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Not authenticated\"}"
+        },
+        "invalid_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Invalid or expired token\"}"
+        },
+        "expired_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Invalid or expired token\"}"
+        },
+        "analyst_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"User not found\"}"
+        },
+        "admin_token": {
+          "status": 422,
+          "body_preview": "{\"detail\":[{\"type\":\"int_parsing\",\"loc\":[\"path\",\"report_id\"],\"msg\":\"Input should be a valid integer, unable to parse stri"
+        }
+      }
+    },
+    {
+      "path": "/api/v1/reports/schedules",
+      "method": "GET",
+      "endpoint": "get_schedules_api_v1_reports_schedules_get",
+      "is_public_by_design": false,
+      "is_service_to_service": false,
+      "classification": "ROLE_PROTECTED_ADMIN_ONLY",
+      "auth_enforced": true,
+      "responses": {
+        "anonymous": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Not authenticated\"}"
+        },
+        "invalid_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Invalid or expired token\"}"
+        },
+        "expired_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Invalid or expired token\"}"
+        },
+        "analyst_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"User not found\"}"
+        },
+        "admin_token": {
+          "status": 200,
+          "body_preview": "[]"
+        }
+      }
+    },
+    {
+      "path": "/api/v1/sentinel/audit-logs",
+      "method": "GET",
+      "endpoint": "get_v1_audit_logs_api_v1_sentinel_audit_logs_get",
+      "is_public_by_design": false,
+      "is_service_to_service": false,
+      "classification": "ROLE_PROTECTED_ADMIN_ONLY",
+      "auth_enforced": true,
+      "responses": {
+        "anonymous": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Not authenticated\"}"
+        },
+        "invalid_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Invalid or expired token\"}"
+        },
+        "expired_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Invalid or expired token\"}"
+        },
+        "analyst_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"User not found\"}"
+        },
+        "admin_token": {
+          "status": 200,
+          "body_preview": "{\"status\":\"success\",\"total\":0,\"limit\":50,\"offset\":0,\"logs\":[]}"
+        }
+      }
+    },
+    {
+      "path": "/api/v1/sentinel/templates",
+      "method": "GET",
+      "endpoint": "list_sentinel_templates_api_v1_sentinel_templates_get",
+      "is_public_by_design": false,
+      "is_service_to_service": false,
+      "classification": "ROLE_PROTECTED_ADMIN_ONLY",
+      "auth_enforced": true,
+      "responses": {
+        "anonymous": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Not authenticated\"}"
+        },
+        "invalid_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Invalid or expired token\"}"
+        },
+        "expired_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Invalid or expired token\"}"
+        },
+        "analyst_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"User not found\"}"
+        },
+        "admin_token": {
+          "status": 200,
+          "body_preview": "{\"status\":\"success\",\"templates\":[\"base_playbook.md.j2\",\"brute_force.md.j2\",\"brute_force_response.yaml.j2\",\"credential_re"
+        }
+      }
+    },
+    {
+      "path": "/api/v1/sentinel/templates/preview",
+      "method": "POST",
+      "endpoint": "preview_sentinel_template_api_v1_sentinel_templates_preview_post",
+      "is_public_by_design": false,
+      "is_service_to_service": false,
+      "classification": "ROLE_PROTECTED_ADMIN_ONLY",
+      "auth_enforced": true,
+      "responses": {
+        "anonymous": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Not authenticated\"}"
+        },
+        "invalid_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Invalid or expired token\"}"
+        },
+        "expired_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"Invalid or expired token\"}"
+        },
+        "analyst_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":\"User not found\"}"
+        },
+        "admin_token": {
+          "status": 422,
+          "body_preview": "{\"detail\":[{\"type\":\"missing\",\"loc\":[\"body\"],\"msg\":\"Field required\",\"input\":null}]}"
+        }
+      }
+    },
+    {
+      "path": "/health/live",
+      "method": "GET",
+      "endpoint": "liveness_probe_health_live_get",
+      "is_public_by_design": true,
+      "is_service_to_service": false,
+      "classification": "PUBLIC_BY_DESIGN",
+      "auth_enforced": true,
+      "responses": {
+        "anonymous": {
+          "status": 200,
+          "body_preview": "{\"status\":\"alive\",\"timestamp\":\"2026-09-19T08:48:06.731429\",\"uptime_seconds\":105.97}"
+        },
+        "invalid_token": {
+          "status": 200,
+          "body_preview": "{\"status\":\"alive\",\"timestamp\":\"2026-09-19T08:48:06.734853\",\"uptime_seconds\":105.98}"
+        },
+        "expired_token": {
+          "status": 200,
+          "body_preview": "{\"status\":\"alive\",\"timestamp\":\"2026-09-19T08:48:06.738044\",\"uptime_seconds\":105.98}"
+        },
+        "analyst_token": {
+          "status": 200,
+          "body_preview": "{\"status\":\"alive\",\"timestamp\":\"2026-09-19T08:48:06.755287\",\"uptime_seconds\":106.0}"
+        },
+        "admin_token": {
+          "status": 200,
+          "body_preview": "{\"status\":\"alive\",\"timestamp\":\"2026-09-19T08:48:06.759069\",\"uptime_seconds\":106.0}"
+        }
+      }
+    },
+    {
+      "path": "/health/ready",
+      "method": "GET",
+      "endpoint": "readiness_probe_health_ready_get",
+      "is_public_by_design": true,
+      "is_service_to_service": false,
+      "classification": "PUBLIC_BY_DESIGN",
+      "auth_enforced": true,
+      "responses": {
+        "anonymous": {
+          "status": 200,
+          "body_preview": "{\"status\":\"ready\",\"ready\":true,\"degraded\":false,\"checks\":{\"postgres\":\"healthy\",\"redis\":\"healthy\",\"ml_threat_scoring\":\"op"
+        },
+        "invalid_token": {
+          "status": 200,
+          "body_preview": "{\"status\":\"ready\",\"ready\":true,\"degraded\":false,\"checks\":{\"postgres\":\"healthy\",\"redis\":\"healthy\",\"ml_threat_scoring\":\"op"
+        },
+        "expired_token": {
+          "status": 200,
+          "body_preview": "{\"status\":\"ready\",\"ready\":true,\"degraded\":false,\"checks\":{\"postgres\":\"healthy\",\"redis\":\"healthy\",\"ml_threat_scoring\":\"op"
+        },
+        "analyst_token": {
+          "status": 200,
+          "body_preview": "{\"status\":\"ready\",\"ready\":true,\"degraded\":false,\"checks\":{\"postgres\":\"healthy\",\"redis\":\"healthy\",\"ml_threat_scoring\":\"op"
+        },
+        "admin_token": {
+          "status": 200,
+          "body_preview": "{\"status\":\"ready\",\"ready\":true,\"degraded\":false,\"checks\":{\"postgres\":\"healthy\",\"redis\":\"healthy\",\"ml_threat_scoring\":\"op"
+        }
+      }
+    },
+    {
+      "path": "/health/startup",
+      "method": "GET",
+      "endpoint": "startup_probe_health_startup_get",
+      "is_public_by_design": true,
+      "is_service_to_service": false,
+      "classification": "PUBLIC_BY_DESIGN",
+      "auth_enforced": true,
+      "responses": {
+        "anonymous": {
+          "status": 200,
+          "body_preview": "{\"status\":\"started\",\"database_initialized\":true,\"timestamp\":\"2026-09-19T08:48:06.833114\"}"
+        },
+        "invalid_token": {
+          "status": 200,
+          "body_preview": "{\"status\":\"started\",\"database_initialized\":true,\"timestamp\":\"2026-09-19T08:48:06.839682\"}"
+        },
+        "expired_token": {
+          "status": 200,
+          "body_preview": "{\"status\":\"started\",\"database_initialized\":true,\"timestamp\":\"2026-09-19T08:48:06.846304\"}"
+        },
+        "analyst_token": {
+          "status": 200,
+          "body_preview": "{\"status\":\"started\",\"database_initialized\":true,\"timestamp\":\"2026-09-19T08:48:06.852462\"}"
+        },
+        "admin_token": {
+          "status": 200,
+          "body_preview": "{\"status\":\"started\",\"database_initialized\":true,\"timestamp\":\"2026-09-19T08:48:06.857990\"}"
+        }
+      }
+    },
+    {
+      "path": "/metrics",
+      "method": "GET",
+      "endpoint": "prometheus_metrics_metrics_get",
+      "is_public_by_design": true,
+      "is_service_to_service": false,
+      "classification": "PUBLIC_BY_DESIGN",
+      "auth_enforced": true,
+      "responses": {
+        "anonymous": {
+          "status": 200,
+          "body_preview": "# HELP phantomnet_events_total Total events processed by Ingestion Gateway\n# TYPE phantomnet_events_total counter\n# HELP"
+        },
+        "invalid_token": {
+          "status": 200,
+          "body_preview": "# HELP phantomnet_events_total Total events processed by Ingestion Gateway\n# TYPE phantomnet_events_total counter\n# HELP"
+        },
+        "expired_token": {
+          "status": 200,
+          "body_preview": "# HELP phantomnet_events_total Total events processed by Ingestion Gateway\n# TYPE phantomnet_events_total counter\n# HELP"
+        },
+        "analyst_token": {
+          "status": 200,
+          "body_preview": "# HELP phantomnet_events_total Total events processed by Ingestion Gateway\n# TYPE phantomnet_events_total counter\n# HELP"
+        },
+        "admin_token": {
+          "status": 200,
+          "body_preview": "# HELP phantomnet_events_total Total events processed by Ingestion Gateway\n# TYPE phantomnet_events_total counter\n# HELP"
+        }
+      }
+    },
+    {
+      "path": "/taxii2/",
+      "method": "GET",
+      "endpoint": "taxii_discovery_taxii2__get",
+      "is_public_by_design": false,
+      "is_service_to_service": false,
+      "classification": "ROLE_PROTECTED_ADMIN_ONLY",
+      "auth_enforced": true,
+      "responses": {
+        "anonymous": {
+          "status": 401,
+          "body_preview": "{\"detail\":{\"title\":\"Unauthorized\",\"description\":\"Invalid or missing authentication credentials.\",\"error_id\":null,\"error_"
+        },
+        "invalid_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":{\"title\":\"Unauthorized\",\"description\":\"Invalid or missing authentication credentials.\",\"error_id\":null,\"error_"
+        },
+        "expired_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":{\"title\":\"Unauthorized\",\"description\":\"Invalid or missing authentication credentials.\",\"error_id\":null,\"error_"
+        },
+        "analyst_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":{\"title\":\"Unauthorized\",\"description\":\"Invalid or missing authentication credentials.\",\"error_id\":null,\"error_"
+        },
+        "admin_token": {
+          "status": 200,
+          "body_preview": "{\"title\":\"PhantomNet TAXII 2.1 Server\",\"description\":\"TAXII 2.1 Feed Server exposing Sentinel STIX 2.1 threat intelligen"
+        }
+      }
+    },
+    {
+      "path": "/taxii2/phantomnet/",
+      "method": "GET",
+      "endpoint": "taxii_api_root_taxii2_phantomnet__get",
+      "is_public_by_design": false,
+      "is_service_to_service": false,
+      "classification": "ROLE_PROTECTED_ADMIN_ONLY",
+      "auth_enforced": true,
+      "responses": {
+        "anonymous": {
+          "status": 401,
+          "body_preview": "{\"detail\":{\"title\":\"Unauthorized\",\"description\":\"Invalid or missing authentication credentials.\",\"error_id\":null,\"error_"
+        },
+        "invalid_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":{\"title\":\"Unauthorized\",\"description\":\"Invalid or missing authentication credentials.\",\"error_id\":null,\"error_"
+        },
+        "expired_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":{\"title\":\"Unauthorized\",\"description\":\"Invalid or missing authentication credentials.\",\"error_id\":null,\"error_"
+        },
+        "analyst_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":{\"title\":\"Unauthorized\",\"description\":\"Invalid or missing authentication credentials.\",\"error_id\":null,\"error_"
+        },
+        "admin_token": {
+          "status": 200,
+          "body_preview": "{\"title\":\"PhantomNet Sentinel API Root\",\"description\":\"Primary API Root providing access to approved Sentinel threat pla"
+        }
+      }
+    },
+    {
+      "path": "/taxii2/phantomnet/collections/",
+      "method": "GET",
+      "endpoint": "list_collections_taxii2_phantomnet_collections__get",
+      "is_public_by_design": false,
+      "is_service_to_service": false,
+      "classification": "ROLE_PROTECTED_ADMIN_ONLY",
+      "auth_enforced": true,
+      "responses": {
+        "anonymous": {
+          "status": 401,
+          "body_preview": "{\"detail\":{\"title\":\"Unauthorized\",\"description\":\"Invalid or missing authentication credentials.\",\"error_id\":null,\"error_"
+        },
+        "invalid_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":{\"title\":\"Unauthorized\",\"description\":\"Invalid or missing authentication credentials.\",\"error_id\":null,\"error_"
+        },
+        "expired_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":{\"title\":\"Unauthorized\",\"description\":\"Invalid or missing authentication credentials.\",\"error_id\":null,\"error_"
+        },
+        "analyst_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":{\"title\":\"Unauthorized\",\"description\":\"Invalid or missing authentication credentials.\",\"error_id\":null,\"error_"
+        },
+        "admin_token": {
+          "status": 200,
+          "body_preview": "{\"collections\":[{\"id\":\"sentinel-playbooks-approved\",\"title\":\"Approved Sentinel Playbooks\",\"description\":\"STIX 2.1 bundle"
+        }
+      }
+    },
+    {
+      "path": "/taxii2/phantomnet/collections/{collection_id}/",
+      "method": "GET",
+      "endpoint": "get_collection_detail_taxii2_phantomnet_collections__collection_id___get",
+      "is_public_by_design": false,
+      "is_service_to_service": false,
+      "classification": "ROLE_PROTECTED_ADMIN_ONLY",
+      "auth_enforced": true,
+      "responses": {
+        "anonymous": {
+          "status": 401,
+          "body_preview": "{\"detail\":{\"title\":\"Unauthorized\",\"description\":\"Invalid or missing authentication credentials.\",\"error_id\":null,\"error_"
+        },
+        "invalid_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":{\"title\":\"Unauthorized\",\"description\":\"Invalid or missing authentication credentials.\",\"error_id\":null,\"error_"
+        },
+        "expired_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":{\"title\":\"Unauthorized\",\"description\":\"Invalid or missing authentication credentials.\",\"error_id\":null,\"error_"
+        },
+        "analyst_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":{\"title\":\"Unauthorized\",\"description\":\"Invalid or missing authentication credentials.\",\"error_id\":null,\"error_"
+        },
+        "admin_token": {
+          "status": 404,
+          "body_preview": "{\"title\":\"Collection Not Found\",\"description\":\"Collection 'default' was not found on this TAXII server.\",\"error_id\":null"
+        }
+      }
+    },
+    {
+      "path": "/taxii2/phantomnet/collections/{id}/objects/",
+      "method": "GET",
+      "endpoint": "get_collection_objects_taxii2_phantomnet_collections__id__objects__get",
+      "is_public_by_design": false,
+      "is_service_to_service": false,
+      "classification": "ROLE_PROTECTED_ADMIN_ONLY",
+      "auth_enforced": true,
+      "responses": {
+        "anonymous": {
+          "status": 401,
+          "body_preview": "{\"detail\":{\"title\":\"Unauthorized\",\"description\":\"Invalid or missing authentication credentials.\",\"error_id\":null,\"error_"
+        },
+        "invalid_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":{\"title\":\"Unauthorized\",\"description\":\"Invalid or missing authentication credentials.\",\"error_id\":null,\"error_"
+        },
+        "expired_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":{\"title\":\"Unauthorized\",\"description\":\"Invalid or missing authentication credentials.\",\"error_id\":null,\"error_"
+        },
+        "analyst_token": {
+          "status": 401,
+          "body_preview": "{\"detail\":{\"title\":\"Unauthorized\",\"description\":\"Invalid or missing authentication credentials.\",\"error_id\":null,\"error_"
+        },
+        "admin_token": {
+          "status": 200,
+          "body_preview": "{\"type\":\"bundle\",\"id\":\"bundle--a2535b85-0003-426d-8f85-b98aa11950e4\",\"objects\":[{\"type\":\"identity\",\"id\":\"identity--0b784"
+        }
+      }
+    }
+  ]
+}

@@ -5,11 +5,16 @@ from sqlalchemy.orm import Session
 from sqlalchemy import func, desc
 from database.database import get_db
 from database.models import PacketLog
+from middleware.auth import get_current_user
 from datetime import datetime, timedelta, timezone
 import random
 
 logger = logging.getLogger("api.attack_attribution")
-router = APIRouter(prefix="/api/v1/attribution", tags=["AttackAttribution"])
+router = APIRouter(
+    prefix="/api/v1/attribution",
+    tags=["AttackAttribution"],
+    dependencies=[Depends(get_current_user)],
+)
 
 
 def _detect_tools(protocol: str, attack_type: str, threat_score: float):

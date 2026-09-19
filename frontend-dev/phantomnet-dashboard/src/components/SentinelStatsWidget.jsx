@@ -44,7 +44,6 @@ const SentinelStatsWidget = ({ stats, loading, error }) => {
   return (
     <div className="sentinel-stats-section">
       <div className="sentinel-stats-header">
-        <div className="sentinel-header-badge hud-font">SENTINEL_LAYER</div>
         <h3 className="sentinel-header-title glow-text">
           Playbook Intelligence
         </h3>

@@ -44,7 +44,6 @@ const PremiumMetricCard = ({ title, value, variant = "blue", subtitle = "LIVE TE
                     <span className="premium-value">
                         {typeof value === 'number' ? value.toLocaleString() : value}
                     </span>
-                    <span className="premium-unit">UNIT_01</span>
                 </div>
 
                 <div className="premium-progress-container">

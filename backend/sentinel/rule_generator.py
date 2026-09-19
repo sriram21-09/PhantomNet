@@ -942,7 +942,7 @@ def deduplicate_rules(rule_list: list[str]) -> list[str]:
 
         # Normalize rule string (strip whitespace, lower case for fingerprinting)
         normalized = " ".join(normalized.strip().split()).lower()
-        fingerprint = hashlib.md5(normalized.encode("utf-8")).hexdigest()
+        fingerprint = hashlib.sha256(normalized.encode("utf-8")).hexdigest()
 
         if fingerprint not in seen_hashes:
             seen_hashes.add(fingerprint)

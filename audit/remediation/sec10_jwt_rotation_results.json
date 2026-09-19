@@ -1,0 +1,32 @@
+{
+  "timestamp": "2026-09-19T09:00:54.964918",
+  "dimension": "SEC-10",
+  "description": "Dual-key JWT verification during zero-downtime rotation",
+  "steps": {
+    "step1_baseline": {
+      "token_created": "eyJhbGciOiJIUzI1NiIsInR5c...",
+      "decoded_successfully": true,
+      "sub": "analyst1"
+    },
+    "step2_rotation_window": {
+      "active_secret": "Secret B",
+      "previous_secret": "Secret A",
+      "existing_token_a_valid": true,
+      "new_token_b_valid": true
+    },
+    "step3_retired_secret": {
+      "active_secret": "Secret C",
+      "previous_secret": "Secret B",
+      "token_b_still_valid": true,
+      "retired_token_a_rejected": true
+    }
+  },
+  "properties_verified": {
+    "existing_sessions_valid_during_rotation": true,
+    "new_tokens_use_active_secret": true,
+    "previous_tokens_temporarily_verifiable": true,
+    "old_secret_eventually_invalid": true,
+    "zero_downtime_rotation_supported": true
+  },
+  "overall_verdict": "VERIFIED"
+}

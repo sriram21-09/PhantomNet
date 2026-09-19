@@ -22,11 +22,11 @@ import asyncio
 import ipaddress
 import logging
 from datetime import datetime, timedelta
-from typing import Dict, List, Any, Set, Tuple
+from typing import Dict, List, Any, Set, Tuple, Optional, Literal
 
 import psutil
 from dotenv import load_dotenv
-from fastapi import FastAPI, Depends, HTTPException, Query, Path, Request
+from fastapi import FastAPI, Depends, HTTPException, Query, Path, Request, Header
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import func, or_, and_
@@ -70,8 +70,15 @@ from ml_engine.explainability import explainer_service
 from middleware.profiling import ProfilingMiddleware
 from middleware.metrics_collector import MetricsMiddleware
 from middleware.cache import cache_response, api_cache
-from middleware.auth import seed_default_admin
+from middleware.auth import (
+    seed_default_admin,
+    get_current_user,
+    require_role,
+    verify_step_up_auth,
+)
 from middleware.logging_middleware import SecurityLoggingMiddleware
+from middleware.security_headers import SecurityHeadersAndCSRFMiddleware, ALLOWED_ORIGINS
+from services.audit_service import audit_log
 
 # =========================
 # API ROUTERS
@@ -85,6 +92,7 @@ from api.pcap import router as pcap_router
 from api.attack_attribution import router as attack_attribution_router
 from api.predictive import router as predictive_router
 from api.admin import router as admin_router
+from api.taxii_admin import router as taxii_admin_router
 from api.threat_scoring import router as threat_router
 from api.sentinel import router as sentinel_router, v1_router as v1_sentinel_router
 from ml.threat_scoring_service import _FEATURE_EXTRACTOR
@@ -98,13 +106,17 @@ from api.alerts import router as alerts_router
 from api.honeypots import get_honeypot_status, router as honeypots_router
 from api.taxii import router as taxii_router, TaxiiContentNegotiationMiddleware
 from api.rate_limiter import get_rate_limit_status
+from api.ingest import router as ingest_router
+from api.governance import router as governance_router
+from api.health import router as health_router
 
 # =========================
 # ENVIRONMENT SETUP
-# =========================
 _env_preset = os.getenv("ENVIRONMENT")
-load_dotenv()
-ENVIRONMENT = _env_preset or os.getenv("ENVIRONMENT", "local")
+load_dotenv(override=False)
+if _env_preset:
+    os.environ["ENVIRONMENT"] = _env_preset
+ENVIRONMENT = os.getenv("ENVIRONMENT", "local")
 logger = logging.getLogger("phantomnet")
 
 # =========================
@@ -122,7 +134,10 @@ async def lifespan(_app: FastAPI):
     Lifespan context manager for FastAPI.
     Handles startup and shutdown events.
     """
-    Base.metadata.create_all(bind=engine)
+    # In production, database schemas are managed strictly via Alembic migrations (GOV-01).
+    # In local/test/CI environments, ensure tables are available as a fallback.
+    if os.getenv("ENVIRONMENT", "local").lower() in ["ci", "test", "dev", "local"]:
+        Base.metadata.create_all(bind=engine)
 
     if os.getenv("ENVIRONMENT", "local").lower() not in ["ci", "test"]:
         sniffer: RealTimeSniffer = RealTimeSniffer()
@@ -503,16 +518,27 @@ app = FastAPI(
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost:3000",
-        "http://127.0.0.1:3000",
-        "http://localhost:5173",
-        "http://127.0.0.1:5173",
-    ],
+    allow_origins=list(ALLOWED_ORIGINS),
     allow_credentials=True,
-    allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE"],
-    allow_headers=["*"],
+    allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    allow_headers=[
+        "Authorization",
+        "Content-Type",
+        "Accept",
+        "X-Request-ID",
+        "X-CSRF-Token",
+        "X-Requested-With",
+        "X-Step-Up-Token",
+        "X-TAXII-Key-ID",
+        "X-TAXII-Secret",
+        "X-PhantomNet-Honeypot-ID",
+        "X-PhantomNet-Timestamp",
+        "X-PhantomNet-Signature",
+    ],
 )
+
+# Security Headers & CSRF Protection (Phase 1)
+app.add_middleware(SecurityHeadersAndCSRFMiddleware)
 
 # Performance Middleware
 app.add_middleware(ProfilingMiddleware, enable_memory_tracking=False)
@@ -554,6 +580,7 @@ app.include_router(pcap_router)
 app.include_router(attack_attribution_router)
 app.include_router(predictive_router)
 app.include_router(admin_router)
+app.include_router(taxii_admin_router)
 
 app.include_router(threat_router)
 app.include_router(analytics_router)
@@ -567,6 +594,9 @@ app.include_router(sentinel_router)
 app.include_router(v1_sentinel_router)
 app.include_router(honeypots_router)
 app.include_router(taxii_router)
+app.include_router(ingest_router)
+app.include_router(governance_router)
+app.include_router(health_router)
 
 
 # =========================
@@ -588,7 +618,10 @@ def health_check() -> dict:
 # LIVE TRAFFIC
 # =========================
 @app.get("/analyze-traffic")
-def get_real_traffic(db: Session = Depends(get_db)) -> dict:
+def get_real_traffic(
+    db: Session = Depends(get_db),
+    _user: User = Depends(get_current_user),
+) -> dict:
     """
     Fetches the latest packet logs and enriches them with AI analysis results.
 
@@ -643,7 +676,10 @@ def get_real_traffic(db: Session = Depends(get_db)) -> dict:
 # =========================
 @app.get("/api/stats")
 @cache_response(ttl_seconds=15)
-def get_api_stats(db: Session = Depends(get_db)) -> dict:
+def get_api_stats(
+    db: Session = Depends(get_db),
+    _user: User = Depends(get_current_user),
+) -> dict:
     """
     Retrieves aggregated dashboard statistics.
     Returns a dictionary of counts and metrics for the dashboard.
@@ -672,7 +708,7 @@ def prometheus_metrics() -> str:
 
 
 @app.get("/api/cache/stats")
-def cache_stats() -> dict:
+def cache_stats(_user: User = Depends(get_current_user)) -> dict:
     """
     Return API cache statistics.
     """
@@ -684,10 +720,11 @@ def cache_stats() -> dict:
 # =========================
 @app.get("/api/events")
 def get_events(
-    threat: str = "ALL",
-    protocol: str = "ALL",
+    threat: Literal["ALL", "MALICIOUS", "SUSPICIOUS", "BENIGN"] = "ALL",
+    protocol: Literal["ALL", "TCP", "UDP", "ICMP", "HTTP", "SSH", "FTP", "SMTP"] = "ALL",
     limit: int = Query(100, ge=1, le=1000, description="Max events to return (1-1000)"),
     db: Session = Depends(get_db),
+    _user: User = Depends(get_current_user),
 ) -> list:
     """
     Query event logs with filtering for protocol and threat levels.
@@ -750,7 +787,10 @@ def get_events(
 
 
 @app.get("/api/features/live")
-def get_live_features(db: Session = Depends(get_db)):
+def get_live_features(
+    db: Session = Depends(get_db),
+    _user: User = Depends(get_current_user),
+):
     """
     Pulls the latest packet log from the database, runs it through the
     internal ML FeatureExtractor, and returns the live feature vector dict.
@@ -802,30 +842,64 @@ def get_live_features(db: Session = Depends(get_db)):
 # =========================
 @app.post("/active-defense/block/{ip}")
 def block_ip_address(
-    ip: str = Path(..., min_length=1, max_length=50, description="IP address to block")
+    request: Request,
+    ip: str = Path(..., min_length=1, max_length=50, description="IP address to block"),
+    reason: Optional[str] = Query(None, description="Analyst justification"),
+    step_up_token: Optional[str] = Header(None, alias="X-Step-Up-Token"),
+    admin: User = Depends(require_role("Admin")),
+    db: Session = Depends(get_db),
 ) -> dict:
     """
     Blocks a specific IP address using the firewall service.
-
-    Args:
-        ip: The IP address to block.
-
-    Returns:
-        dict: The result of the blocking operation.
+    Requires Admin role, active step-up authentication, safety guardrails, and audit logging.
     """
-    ip_clean = ip.strip()
-    if ip_clean in ["127.0.0.1", "phantomnet_postgres", "::1", "localhost"]:
-        return {"status": "error", "message": "Cannot block protected host or loopback"}
+    # 1. Step-Up Authentication Check
+    if not verify_step_up_auth(step_up_token, admin):
+        raise HTTPException(
+            status_code=403,
+            detail="Step-up authentication required for active defense operations. Obtain a token via POST /api/v1/admin/step-up",
+        )
 
+    ip_clean = ip.strip()
     try:
-        ipaddress.ip_address(ip_clean)
+        addr = ipaddress.ip_address(ip_clean)
     except ValueError:
         raise HTTPException(status_code=400, detail=f"Invalid IP address format: {ip}")
 
+    # 2. Safety Guardrails: Cannot block private RFC1918, loopback, reserved, or link-local subnets
+    if addr.is_loopback or addr.is_private or addr.is_reserved or addr.is_link_local:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Security guardrail: Cannot block private, loopback, or reserved IP address: {ip_clean}",
+        )
+
+    # 3. Execute Block
     result = FirewallService.block_ip(ip_clean)
-    if result["status"] == "error":
+    if result.get("status") == "error":
         logging.getLogger("main").error("Firewall block error: %s", result.get('message'))
+        audit_log(
+            actor=admin.username,
+            action="BLOCK_IP",
+            target=ip_clean,
+            result="failure",
+            reason=reason or "Manual active defense block",
+            source_ip=request.client.host if request.client else None,
+            details={"error": result.get("message")},
+            db=db,
+        )
         raise HTTPException(status_code=500, detail="Firewall block operation failed.")
+
+    # 4. Structured Audit Record
+    audit_log(
+        actor=admin.username,
+        action="BLOCK_IP",
+        target=ip_clean,
+        result="success",
+        reason=reason or "Manual active defense block",
+        source_ip=request.client.host if request.client else None,
+        details=result,
+        db=db,
+    )
 
     return result
 
@@ -898,7 +972,8 @@ def _process_attack_map_logs(logs: List[PacketLog]) -> Tuple[List[Dict[str, Any]
 @app.get("/api/analytics/attack-map")
 def get_attack_map(
     limit: int = Query(200, ge=1, le=1000, description="Max events to analyze"),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    _user: User = Depends(get_current_user),
 ) -> dict:
     """Returns geo-enriched attack data for map visualization."""
     logs = db.query(PacketLog).filter(PacketLog.src_ip.isnot(None))\
@@ -919,7 +994,8 @@ def get_attack_map(
 
 @app.get("/api/geoip/lookup/{ip}")
 def geoip_lookup(
-    ip: str = Path(..., min_length=1, max_length=50, description="IP address to lookup")
+    ip: str = Path(..., min_length=1, max_length=50, description="IP address to lookup"),
+    _user: User = Depends(get_current_user),
 ) -> dict:
     """Look up geolocation for a single IP address."""
     ip_clean = ip.strip()
@@ -934,7 +1010,7 @@ def geoip_lookup(
 
 
 @app.get("/api/geoip/status")
-def geoip_status() -> dict:
+def geoip_status(_user: User = Depends(get_current_user)) -> dict:
     """Return GeoIP service health status."""
     return geoip_service.stats
 
@@ -944,7 +1020,8 @@ def geoip_status() -> dict:
 # =========================
 @app.get("/api/response/history")
 def response_history(
-    limit: int = Query(50, ge=1, le=500, description="Max history records to return")
+    limit: int = Query(50, ge=1, le=500, description="Max history records to return"),
+    _user: User = Depends(get_current_user),
 ) -> dict:
     """View response action audit log."""
     return {
@@ -955,7 +1032,7 @@ def response_history(
 
 
 @app.get("/api/response/blocked-ips")
-def blocked_ips() -> dict:
+def blocked_ips(_user: User = Depends(get_current_user)) -> dict:
     """List currently blocked IPs."""
     blocked = response_executor.get_blocked_ips()
     return {
@@ -967,9 +1044,20 @@ def blocked_ips() -> dict:
 
 @app.post("/api/response/unblock/{ip}")
 def unblock_ip(
-    ip: str = Path(..., min_length=1, max_length=50, description="IP address to unblock")
+    request: Request,
+    ip: str = Path(..., min_length=1, max_length=50, description="IP address to unblock"),
+    reason: Optional[str] = Query(None, description="Analyst justification"),
+    step_up_token: Optional[str] = Header(None, alias="X-Step-Up-Token"),
+    admin: User = Depends(require_role("Admin")),
+    db: Session = Depends(get_db),
 ) -> dict:
-    """Manually unblock an IP address."""
+    """Manually unblock an IP address with Admin role, step-up verification, and audit logging."""
+    if not verify_step_up_auth(step_up_token, admin):
+        raise HTTPException(
+            status_code=403,
+            detail="Step-up authentication required for active defense operations. Obtain a token via POST /api/v1/admin/step-up",
+        )
+
     ip_clean = ip.strip()
     if ip_clean not in ["127.0.0.1", "::1", "localhost", "phantomnet_postgres"]:
         try:
@@ -979,12 +1067,33 @@ def unblock_ip(
 
     result = response_executor.unblock_ip(ip_clean)
     if result["status"] == "not_found":
+        audit_log(
+            actor=admin.username,
+            action="UNBLOCK_IP",
+            target=ip_clean,
+            result="failure",
+            reason=reason or "Manual unblock attempt",
+            source_ip=request.client.host if request.client else None,
+            details={"error": "IP not found in blocked list"},
+            db=db,
+        )
         raise HTTPException(status_code=404, detail=f"IP {ip_clean} is not blocked")
+
+    audit_log(
+        actor=admin.username,
+        action="UNBLOCK_IP",
+        target=ip_clean,
+        result="success",
+        reason=reason or "Manual unblock",
+        source_ip=request.client.host if request.client else None,
+        details=result,
+        db=db,
+    )
     return result
 
 
 @app.get("/api/response/policy")
-def get_response_policy() -> dict:
+def get_response_policy(_user: User = Depends(get_current_user)) -> dict:
     """View current automated response policy."""
     return {
         "status": "success",
@@ -993,23 +1102,58 @@ def get_response_policy() -> dict:
 
 
 @app.put("/api/response/policy")
-def update_response_policy(updates: dict) -> dict:
-    """Update response policy thresholds."""
+def update_response_policy(
+    request: Request,
+    updates: dict,
+    reason: Optional[str] = Query(None, description="Change reason"),
+    step_up_token: Optional[str] = Header(None, alias="X-Step-Up-Token"),
+    admin: User = Depends(require_role("Admin")),
+    db: Session = Depends(get_db),
+) -> dict:
+    """Update response policy thresholds with Admin authorization, step-up auth, and audit logging."""
+    if not verify_step_up_auth(step_up_token, admin):
+        raise HTTPException(
+            status_code=403,
+            detail="Step-up authentication required for response policy changes. Obtain a token via POST /api/v1/admin/step-up",
+        )
+
     if not isinstance(updates, dict):
         raise HTTPException(status_code=400, detail="Policy updates must be a JSON dictionary")
+
+    before_policy = response_executor.get_policy()
     try:
         updated = response_executor.update_policy(updates)
+        audit_log(
+            actor=admin.username,
+            action="UPDATE_RESPONSE_POLICY",
+            target="response_policy",
+            result="success",
+            reason=reason or "Policy threshold update",
+            source_ip=request.client.host if request.client else None,
+            details={"before": before_policy, "after": updated},
+            db=db,
+        )
         return {
             "status": "success",
             "policy": updated,
         }
     except Exception as e:
         logging.getLogger("main").error(f"Failed to update policy: {e}")
+        audit_log(
+            actor=admin.username,
+            action="UPDATE_RESPONSE_POLICY",
+            target="response_policy",
+            result="failure",
+            reason=reason or "Policy threshold update",
+            source_ip=request.client.host if request.client else None,
+            details={"error": str(e)},
+            db=db,
+        )
         raise HTTPException(status_code=500, detail="Failed to update response policy.")
 
 
 @app.get("/api/response/stats")
-def response_stats() -> dict:
+def response_stats(_user: User = Depends(get_current_user)) -> dict:
     """Return automated response system statistics."""
     return response_executor.stats
 
@@ -1020,7 +1164,8 @@ def response_stats() -> dict:
 @app.get("/api/v1/advanced/campaigns", tags=["Advanced ML"])
 def get_attack_campaigns(
     hours_back: int = Query(24, ge=1, le=168, description="Time window in hours (1-168)"),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    _user: User = Depends(get_current_user),
 ) -> dict:
     """Analyze recent threats and cluster coordinated attack campaigns."""
     try:
@@ -1039,7 +1184,8 @@ def get_attack_campaigns(
 @app.get("/api/v1/events/{event_id}/explanation", tags=["Advanced ML"])
 def explain_threat_score(
     event_id: int = Path(..., ge=1, description="Event database ID"),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    _user: User = Depends(get_current_user),
 ) -> dict:
     """Generate SHAP feature explanations for a specific scored event."""
     log = db.query(PacketLog).filter(PacketLog.id == event_id).first()

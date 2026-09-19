@@ -780,7 +780,13 @@ const PlaybookViewer = ({
   const [exportRefreshTrigger, setExportRefreshTrigger] = useState(0);
   const dropdownRef = useRef(null);
 
-  // Read current logged-in user role from localStorage
+  const [currentNarrative, setCurrentNarrative] = useState(llm_narrative);
+
+  useEffect(() => {
+    setCurrentNarrative(llm_narrative);
+  }, [llm_narrative]);
+
+  // Read current logged-in user role from localStorage or /api/v1/admin/me
   useEffect(() => {
     try {
       const stored = localStorage.getItem("admin_user");
@@ -788,10 +794,18 @@ const PlaybookViewer = ({
         const parsed = JSON.parse(stored);
         if (parsed.role) {
           setUserRole(parsed.role);
+          return;
         }
       }
+      // Fallback: check session via HttpOnly cookie
+      fetch("/api/v1/admin/me", { credentials: "include" })
+        .then((res) => res.ok ? res.json() : null)
+        .then((user) => {
+          if (user && user.role) setUserRole(user.role);
+        })
+        .catch(() => {});
     } catch {
-      // Ignore localStorage read errors gracefully
+      // Ignore read errors gracefully
     }
   }, []);
 
@@ -835,16 +849,17 @@ const PlaybookViewer = ({
 
   const handleRegenerateLLM = async () => {
     if (isRegeneratingLLM) return;
-    if (!isAdminOrAnalyst) {
-      return;
-    }
     setIsRegeneratingLLM(true);
     try {
       const response = await fetch(`/api/sentinel/playbooks/${id}/regenerate-llm`, {
         method: "POST",
+        headers: {
+          "X-Requested-With": "XMLHttpRequest",
+        },
       });
       const data = await response.json();
       if (response.ok && data.status === "success") {
+        setCurrentNarrative(data.llm_narrative);
         onLLMNarrativeUpdate?.(id, data.llm_narrative);
       }
     } catch {
@@ -984,6 +999,9 @@ const PlaybookViewer = ({
     try {
       const response = await fetch(`/api/sentinel/playbooks/${id}/export?format=${format}`, {
         method: "POST",
+        headers: {
+          "X-Requested-With": "XMLHttpRequest",
+        },
       });
       if (!response.ok) {
         throw new Error(`Export failed with status ${response.status}`);
@@ -1301,9 +1319,9 @@ const PlaybookViewer = ({
                   <MarkdownRenderer
                     key={resolvedMarkdown}
                     content={resolvedMarkdown}
-                    llm_narrative={llm_narrative}
+                    llm_narrative={currentNarrative}
                     isRegeneratingLLM={isRegeneratingLLM}
-                    onRegenerateLLM={isAdminOrAnalyst ? handleRegenerateLLM : undefined}
+                    onRegenerateLLM={handleRegenerateLLM}
                     llmModel={llmModel}
                   />
                 </div>

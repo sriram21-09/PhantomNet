@@ -6,9 +6,14 @@ from sqlalchemy.orm import Session
 # Local imports
 from database.database import get_db
 from ml_engine.pattern_detector import AdvancedPatternDetector
+from middleware.auth import get_current_user
 
 logger = logging.getLogger("api.pattern_analytics")
-router = APIRouter(prefix="/api/v1/patterns", tags=["Advanced Patterns"])
+router = APIRouter(
+    prefix="/api/v1/patterns",
+    tags=["Advanced Patterns"],
+    dependencies=[Depends(get_current_user)],
+)
 
 
 @router.get("/advanced", response_model=Dict[str, Any])

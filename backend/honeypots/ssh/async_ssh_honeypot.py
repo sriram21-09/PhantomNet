@@ -2,7 +2,15 @@ import asyncio
 import asyncssh
 import json
 import os
+import sys
 from datetime import datetime, timezone
+
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+try:
+    from credential_sanitizer import sanitize_credential_payload
+except ImportError:
+    def sanitize_credential_payload(username="", password=""):
+        return {"username": str(username), "password_length": len(str(password))}
 
 # ---------------- CONFIG ----------------
 HOST = ""
@@ -187,7 +195,7 @@ class SSHHoneypot(asyncssh.SSHServer):
                 "honeypot_type": "ssh",
                 "port": PORT,
                 "event": "login_attempt",
-                "data": {"username": username, "password": password},
+                "data": sanitize_credential_payload(username, password),
                 "level": "WARN",
             }
         )

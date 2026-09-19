@@ -42,6 +42,12 @@ class PacketLog(Base):
     email_subject = Column(String(512), nullable=True)
     body_len = Column(Integer, nullable=True)
 
+    # Durability & Origin Tracking (Phase 2)
+    event_id = Column(String(36), unique=True, index=True, nullable=True)
+    canonical_fingerprint = Column(String(64), index=True, nullable=True)
+    honeypot_id = Column(String(64), index=True, nullable=True)
+    raw_payload = Column(Text, nullable=True)
+
     # GeoIP Enrichment
     country = Column(String, nullable=True)
     city = Column(String, nullable=True)
@@ -270,3 +276,58 @@ class SystemConfig(Base):
     )  # threat_detection, honeypot, siem, performance
     sentinel_llm_enabled = Column(Boolean, default=False, nullable=True)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+
+class RefreshToken(Base):
+    """Stores hashed refresh tokens organized into token families for rotation & replay detection."""
+    __tablename__ = "refresh_tokens"
+    __table_args__ = {"extend_existing": True}
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), index=True, nullable=False)
+    family_id = Column(String(36), index=True, nullable=False)  # UUID grouping token succession
+    parent_id = Column(Integer, ForeignKey("refresh_tokens.id"), nullable=True)
+    token_hash = Column(String(64), unique=True, index=True, nullable=False)  # SHA-256
+    expires_at = Column(DateTime, nullable=False)
+    rotated_at = Column(DateTime, nullable=True)
+    revoked_at = Column(DateTime, nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+    user = relationship("User")
+
+
+class TaxiiClient(Base):
+    """Machine-to-Machine credential store for TAXII threat intelligence feeds."""
+    __tablename__ = "taxii_clients"
+    __table_args__ = {"extend_existing": True}
+
+    id = Column(Integer, primary_key=True, index=True)
+    client_name = Column(String, unique=True, index=True, nullable=False)
+    key_id = Column(String(36), unique=True, index=True, nullable=False)  # Public API key ID
+    secret_hash = Column(String, nullable=False)  # bcrypt/argon2 hash of secret
+    scopes = Column(Text, nullable=False)  # JSON array of scopes e.g. ["taxii:read"]
+    allowed_collections = Column(Text, nullable=True)  # JSON array of collection IDs or null for all
+    created_at = Column(DateTime, default=datetime.utcnow)
+    expires_at = Column(DateTime, nullable=True)
+    last_used_at = Column(DateTime, nullable=True)
+    revoked_at = Column(DateTime, nullable=True)
+
+
+class AuditLog(Base):
+    """Tamper-evident audit log with SHA-256 cryptographic hash chaining."""
+    __tablename__ = "audit_logs"
+    __table_args__ = {"extend_existing": True}
+
+    id = Column(Integer, primary_key=True, index=True)
+    actor = Column(String, index=True, nullable=False)
+    action = Column(String, index=True, nullable=False)  # BLOCK_IP, UNBLOCK_IP, USER_CREATE, etc.
+    target = Column(String, nullable=True)
+    result = Column(String, nullable=False)  # success, failure, denied
+    request_id = Column(String, index=True, nullable=True)
+    source_ip = Column(String, nullable=True)
+    reason = Column(String, nullable=True)
+    details = Column(Text, nullable=True)  # JSON string
+    previous_hash = Column(String(64), nullable=True)  # Hash of previous record in chain
+    record_hash = Column(String(64), nullable=True)  # Hash of this record
+    timestamp = Column(DateTime, default=datetime.utcnow, index=True)
+

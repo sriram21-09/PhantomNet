@@ -1,0 +1,338 @@
+[
+  {
+    "dimension": "SEC-01",
+    "test_file": "tests/api/test_auth.py",
+    "status": "PASSED",
+    "exit_code": 0,
+    "duration_s": 35.07,
+    "output_log": "audit/logs/SEC-01_test_auth.log"
+  },
+  {
+    "dimension": "SEC-02",
+    "test_file": "tests/api/test_rbac.py",
+    "status": "PASSED",
+    "exit_code": 0,
+    "duration_s": 33.81,
+    "output_log": "audit/logs/SEC-02_test_rbac.log"
+  },
+  {
+    "dimension": "SEC-03",
+    "test_file": "tests/api/test_websocket_auth.py",
+    "status": "PASSED",
+    "exit_code": 0,
+    "duration_s": 32.19,
+    "output_log": "audit/logs/SEC-03_test_websocket_auth.log"
+  },
+  {
+    "dimension": "SEC-04",
+    "test_file": "tests/api/test_active_defense.py",
+    "status": "PASSED",
+    "exit_code": 0,
+    "duration_s": 32.43,
+    "output_log": "audit/logs/SEC-04_test_active_defense.log"
+  },
+  {
+    "dimension": "SEC-05",
+    "test_file": "tests/api/test_origin_auth.py",
+    "status": "PASSED",
+    "exit_code": 0,
+    "duration_s": 31.88,
+    "output_log": "audit/logs/SEC-05_test_origin_auth.log"
+  },
+  {
+    "dimension": "SEC-06",
+    "test_file": "tests/api/test_csrf.py",
+    "status": "PASSED",
+    "exit_code": 0,
+    "duration_s": 31.42,
+    "output_log": "audit/logs/SEC-06_test_csrf.log"
+  },
+  {
+    "dimension": "SEC-07",
+    "test_file": "tests/api/test_token_lifecycle.py",
+    "status": "PASSED",
+    "exit_code": 0,
+    "duration_s": 33.96,
+    "output_log": "audit/logs/SEC-07_test_token_lifecycle.log"
+  },
+  {
+    "dimension": "SEC-08",
+    "test_file": "tests/api/test_audit_ledger.py",
+    "status": "PASSED",
+    "exit_code": 0,
+    "duration_s": 31.67,
+    "output_log": "audit/logs/SEC-08_test_audit_ledger.log"
+  },
+  {
+    "dimension": "SEC-09",
+    "test_file": "tests/api/test_credential_redaction.py",
+    "status": "PASSED",
+    "exit_code": 0,
+    "duration_s": 32.57,
+    "output_log": "audit/logs/SEC-09_test_credential_redaction.log"
+  },
+  {
+    "dimension": "SEC-10",
+    "test_file": "tests/api/test_taxii.py",
+    "status": "PASSED",
+    "exit_code": 0,
+    "duration_s": 32.9,
+    "output_log": "audit/logs/SEC-10_test_taxii.log"
+  },
+  {
+    "dimension": "SEC-11",
+    "test_file": "tests/ops/test_network_isolation.py",
+    "status": "PASSED",
+    "exit_code": 0,
+    "duration_s": 1.19,
+    "output_log": "audit/logs/SEC-11_test_network_isolation.log"
+  },
+  {
+    "dimension": "DUR-01",
+    "test_file": "tests/load_tests/test_sustained_500eps.py",
+    "status": "PASSED",
+    "exit_code": 0,
+    "duration_s": 1.67,
+    "output_log": "audit/logs/DUR-01_test_sustained_500eps.log"
+  },
+  {
+    "dimension": "DUR-02",
+    "test_file": "tests/test_idempotent_ingest.py",
+    "status": "PASSED",
+    "exit_code": 0,
+    "duration_s": 4.25,
+    "output_log": "audit/logs/DUR-02_test_idempotent_ingest.log"
+  },
+  {
+    "dimension": "DUR-03",
+    "test_file": "tests/test_redis_durability.py",
+    "status": "PASSED",
+    "exit_code": 0,
+    "duration_s": 0.61,
+    "output_log": "audit/logs/DUR-03_test_redis_durability.log"
+  },
+  {
+    "dimension": "DUR-04",
+    "test_file": "tests/test_event_consumer.py",
+    "status": "PASSED",
+    "exit_code": 0,
+    "duration_s": 3.99,
+    "output_log": "audit/logs/DUR-04_test_event_consumer.log"
+  },
+  {
+    "dimension": "DUR-05",
+    "test_file": "tests/resilience/test_spool_drain.py",
+    "status": "PASSED",
+    "exit_code": 0,
+    "duration_s": 0.75,
+    "output_log": "audit/logs/DUR-05_test_spool_drain.log"
+  },
+  {
+    "dimension": "DUR-06",
+    "test_file": "tests/test_catastrophic_loss.py",
+    "status": "PASSED",
+    "exit_code": 0,
+    "duration_s": 0.62,
+    "output_log": "audit/logs/DUR-06_test_catastrophic_loss.log"
+  },
+  {
+    "dimension": "DUR-07",
+    "test_file": "tests/resilience/test_component_chaos.py",
+    "status": "PASSED",
+    "exit_code": 0,
+    "duration_s": 12.13,
+    "output_log": "audit/logs/DUR-07_test_component_chaos.log"
+  },
+  {
+    "dimension": "GOV-01",
+    "test_file": "tests/test_alembic_migrations.py",
+    "status": "PASSED",
+    "exit_code": 0,
+    "duration_s": 1.84,
+    "output_log": "audit/logs/GOV-01_test_alembic_migrations.log"
+  },
+  {
+    "dimension": "GOV-02",
+    "test_file": "tests/test_pitr_recovery.py",
+    "status": "PASSED",
+    "exit_code": 0,
+    "duration_s": 0.55,
+    "output_log": "audit/logs/GOV-02_test_pitr_recovery.log"
+  },
+  {
+    "dimension": "GOV-03",
+    "test_file": "tests/test_retention.py",
+    "status": "PASSED",
+    "exit_code": 0,
+    "duration_s": 0.99,
+    "output_log": "audit/logs/GOV-03_test_retention.log"
+  },
+  {
+    "dimension": "OBS-01",
+    "test_file": "tests/api/test_health_semantics.py",
+    "status": "PASSED",
+    "exit_code": 0,
+    "duration_s": 32.21,
+    "output_log": "audit/logs/OBS-01_test_health_semantics.log"
+  },
+  {
+    "dimension": "OBS-02",
+    "test_file": "tests/resilience/test_degraded_mode.py",
+    "status": "PASSED",
+    "exit_code": 0,
+    "duration_s": 58.18,
+    "output_log": "audit/logs/OBS-02_test_degraded_mode.log"
+  },
+  {
+    "dimension": "OBS-03",
+    "test_file": "tests/api/test_health_semantics.py",
+    "status": "PASSED",
+    "exit_code": 0,
+    "duration_s": 32.21,
+    "output_log": "audit/logs/OBS-01_test_health_semantics.log"
+  },
+  {
+    "dimension": "OBS-04",
+    "test_file": "tests/test_latency_tracing.py",
+    "status": "PASSED",
+    "exit_code": 0,
+    "duration_s": 0.61,
+    "output_log": "audit/logs/OBS-04_test_latency_tracing.log"
+  },
+  {
+    "dimension": "RT-01",
+    "test_file": "tests/api/test_realtime.py",
+    "status": "PASSED",
+    "exit_code": 0,
+    "duration_s": 32.59,
+    "output_log": "audit/logs/RT-01_test_realtime.log"
+  },
+  {
+    "dimension": "RT-02",
+    "test_file": "tests/test_ws_reconnect.py",
+    "status": "PASSED",
+    "exit_code": 0,
+    "duration_s": 0.58,
+    "output_log": "audit/logs/RT-02_test_ws_reconnect.log"
+  },
+  {
+    "dimension": "RT-03",
+    "test_file": "tests/api/test_ws_limits.py",
+    "status": "PASSED",
+    "exit_code": 0,
+    "duration_s": 32.61,
+    "output_log": "audit/logs/RT-03_test_ws_limits.log"
+  },
+  {
+    "dimension": "PERF-01",
+    "test_file": "tests/load_tests/test_sustained_500eps.py",
+    "status": "PASSED",
+    "exit_code": 0,
+    "duration_s": 1.67,
+    "output_log": "audit/logs/DUR-01_test_sustained_500eps.log"
+  },
+  {
+    "dimension": "PERF-02",
+    "test_file": "tests/load_tests/test_broadcast_slo.py",
+    "status": "PASSED",
+    "exit_code": 0,
+    "duration_s": 1.27,
+    "output_log": "audit/logs/PERF-02_test_broadcast_slo.log"
+  },
+  {
+    "dimension": "PERF-03",
+    "test_file": "tests/load_tests/test_resource_saturation.py",
+    "status": "PASSED",
+    "exit_code": 0,
+    "duration_s": 5.26,
+    "output_log": "audit/logs/PERF-03_test_resource_saturation.log"
+  },
+  {
+    "dimension": "ML-01",
+    "test_file": "tests/ml/test_walk_forward_benchmark.py",
+    "status": "PASSED",
+    "exit_code": 0,
+    "duration_s": 1.65,
+    "output_log": "audit/logs/ML-01_test_walk_forward_benchmark.log"
+  },
+  {
+    "dimension": "ML-02",
+    "test_file": "tests/ml/test_walk_forward_benchmark.py",
+    "status": "PASSED",
+    "exit_code": 0,
+    "duration_s": 1.65,
+    "output_log": "audit/logs/ML-01_test_walk_forward_benchmark.log"
+  },
+  {
+    "dimension": "ML-03",
+    "test_file": "tests/ml/test_adversarial.py",
+    "status": "PASSED",
+    "exit_code": 0,
+    "duration_s": 30.05,
+    "output_log": "audit/logs/ML-03_test_adversarial.log"
+  },
+  {
+    "dimension": "ML-04",
+    "test_file": "tests/ml/test_shap_consistency.py",
+    "status": "PASSED",
+    "exit_code": 0,
+    "duration_s": 28.48,
+    "output_log": "audit/logs/ML-04_test_shap_consistency.log"
+  },
+  {
+    "dimension": "ML-05",
+    "test_file": "tests/resilience/test_llm_isolation.py",
+    "status": "PASSED",
+    "exit_code": 0,
+    "duration_s": 30.18,
+    "output_log": "audit/logs/ML-05_test_llm_isolation.log"
+  },
+  {
+    "dimension": "OPS-01",
+    "test_file": "tests/ops/test_container_hardening.py",
+    "status": "PASSED",
+    "exit_code": 0,
+    "duration_s": 0.57,
+    "output_log": "audit/logs/OPS-01_test_container_hardening.log"
+  },
+  {
+    "dimension": "OPS-02",
+    "test_file": "tests/ops/test_ci_security_gates.py",
+    "status": "PASSED",
+    "exit_code": 0,
+    "duration_s": 2.03,
+    "output_log": "audit/logs/OPS-02_test_ci_security_gates.log"
+  },
+  {
+    "dimension": "OPS-03",
+    "test_file": "tests/ops/test_sbom_generation.py",
+    "status": "PASSED",
+    "exit_code": 0,
+    "duration_s": 0.58,
+    "output_log": "audit/logs/OPS-03_test_sbom_generation.log"
+  },
+  {
+    "dimension": "OPS-04",
+    "test_file": "tests/ops/test_backup_restore_e2e.py",
+    "status": "PASSED",
+    "exit_code": 0,
+    "duration_s": 1.65,
+    "output_log": "audit/logs/OPS-04_test_backup_restore_e2e.log"
+  },
+  {
+    "dimension": "OPS-05",
+    "test_file": "tests/ops/test_secret_rotation.py",
+    "status": "PASSED",
+    "exit_code": 0,
+    "duration_s": 1.35,
+    "output_log": "audit/logs/OPS-05_test_secret_rotation.log"
+  },
+  {
+    "dimension": "OPS-06",
+    "test_file": "tests/ops/test_migration_rollback_e2e.py",
+    "status": "PASSED",
+    "exit_code": 0,
+    "duration_s": 32.18,
+    "output_log": "audit/logs/OPS-06_test_migration_rollback_e2e.log"
+  }
+]

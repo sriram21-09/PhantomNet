@@ -7,8 +7,13 @@ from datetime import datetime
 # Local imports
 from database.database import get_db
 from database.models import PacketLog
+from middleware.auth import get_current_user
 
-router = APIRouter(prefix="/api", tags=["Metrics"])
+router = APIRouter(
+    prefix="/api",
+    tags=["Metrics"],
+    dependencies=[Depends(get_current_user)],
+)
 
 
 @router.get("/threat-metrics")

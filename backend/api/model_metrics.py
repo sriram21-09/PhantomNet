@@ -7,9 +7,14 @@ import os
 import json
 from database.database import get_db
 from database.models import PacketLog
+from middleware.auth import get_current_user
 
 logger = logging.getLogger("api.model_metrics")
-router = APIRouter(prefix="/api/v1/model", tags=["Model Metrics"])
+router = APIRouter(
+    prefix="/api/v1/model",
+    tags=["Model Metrics"],
+    dependencies=[Depends(get_current_user)],
+)
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 MODELS_DIR = os.path.abspath(os.path.join(BASE_DIR, "..", "..", "models"))

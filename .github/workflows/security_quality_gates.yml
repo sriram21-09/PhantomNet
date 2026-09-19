@@ -1,0 +1,94 @@
+name: Security Quality Gates
+
+"on":
+  push:
+    branches: [ "main", "develop" ]
+  pull_request:
+    branches: [ "main", "develop" ]
+  workflow_dispatch:
+
+jobs:
+  gitleaks-secret-scan:
+    name: 1. Gitleaks Secret Scanner
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Run Gitleaks
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITLEAKS_ENABLE_SUMMARY: true
+
+  bandit-sast:
+    name: 2. Bandit Python SAST Scan
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install Bandit
+        run: |
+          python -m pip install --upgrade pip
+          pip install bandit
+
+      - name: Run Bandit Analysis
+        run: |
+          bandit -r backend/ -x backend/venv,backend/tests,tests -ll --format custom --msg-template "{abspath}:{line}: {test_id}[bandit]: {severity}: {msg}"
+
+  semgrep-owasp:
+    name: 3. Semgrep OWASP Top 10 SAST
+    runs-on: ubuntu-latest
+    container:
+      image: returntocorp/semgrep
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Run Semgrep Rules
+        run: |
+          semgrep scan --config auto --config p/owasp-top-ten --error --exclude "backend/venv" --exclude "tests" --exclude "frontend-dev/node_modules"
+
+  pip-audit-cve:
+    name: 4. Dependency Vulnerability Audit
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install Dependencies and pip-audit
+        run: |
+          python -m pip install --upgrade pip
+          pip install pip-audit
+
+      - name: Audit Backend Dependencies
+        run: |
+          pip-audit -r requirements.txt --desc on
+
+  trivy-container-scan:
+    name: 5. Trivy Container & Config Audit
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Run Trivy Config Vulnerability Scan
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'config'
+          scan-ref: '.'
+          severity: 'HIGH,CRITICAL'
+          exit-code: '0'

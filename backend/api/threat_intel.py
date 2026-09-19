@@ -1,11 +1,16 @@
 import ipaddress
 import logging
-from fastapi import APIRouter, HTTPException, Path
+from fastapi import APIRouter, Depends, HTTPException, Path
 from typing import Dict, Any
 from services.threat_intel import threat_intel_service
+from middleware.auth import get_current_user
 
 logger = logging.getLogger("api.threat_intel")
-router = APIRouter(prefix="/api/v1/enrich", tags=["Enrichment"])
+router = APIRouter(
+    prefix="/api/v1/enrich",
+    tags=["Enrichment"],
+    dependencies=[Depends(get_current_user)],
+)
 
 
 @router.get("/ip/{ip}", response_model=Dict[str, Any])

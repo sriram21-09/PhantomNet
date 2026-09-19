@@ -1,0 +1,41 @@
+[
+  {
+    "source": "phantomnet_api",
+    "destination": "postgres",
+    "port": 5432,
+    "expected_connectivity": true,
+    "actual_connected": true,
+    "raw_output": {
+      "exit_code": 0,
+      "socket_result": "0",
+      "connected": true
+    },
+    "status": "PASS"
+  },
+  {
+    "source": "phantomnet_api",
+    "destination": "redis",
+    "port": 6379,
+    "expected_connectivity": true,
+    "actual_connected": true,
+    "raw_output": {
+      "exit_code": 0,
+      "socket_result": "0",
+      "connected": true
+    },
+    "status": "PASS"
+  },
+  {
+    "source": "phantomnet_api",
+    "destination": "ollama",
+    "port": 11434,
+    "expected_connectivity": true,
+    "actual_connected": true,
+    "raw_output": {
+      "exit_code": 0,
+      "socket_result": "0",
+      "connected": true
+    },
+    "status": "PASS"
+  }
+]

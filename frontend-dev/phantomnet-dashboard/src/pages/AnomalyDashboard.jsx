@@ -64,7 +64,6 @@ const AnomalyDashboard = () => {
           HEADER
       ========================== */}
       <div className="anomaly-header">
-        <div className="anomaly-badge hud-font">SECURITY_MONITOR_V1.2</div>
         <h1 className="anomaly-title">Anomaly Dashboard</h1>
         <p className="anomaly-subtitle">
           MONITOR UNUSUAL BEHAVIOR, ANOMALY SCORES, AND POTENTIAL NETWORK THREATS

@@ -2,7 +2,8 @@ import logging
 from fastapi import APIRouter, Depends, HTTPException, Path
 from sqlalchemy.orm import Session
 from database.database import get_db
-from database.models import InvestigationCase, CaseEvidence, IOC
+from database.models import InvestigationCase, CaseEvidence, IOC, User
+from middleware.auth import get_current_user, require_role
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 from typing import List, Optional
 from datetime import datetime, timezone
@@ -82,12 +83,19 @@ class CaseResponse(BaseModel):
 
 
 @router.get("/", response_model=List[CaseResponse])
-def get_cases(db: Session = Depends(get_db)):
+def get_cases(
+    db: Session = Depends(get_db),
+    _user: User = Depends(get_current_user),
+):
     return db.query(InvestigationCase).order_by(InvestigationCase.created_at.desc()).all()
 
 
 @router.post("/", response_model=CaseResponse)
-def create_case(case_data: CaseCreate, db: Session = Depends(get_db)):
+def create_case(
+    case_data: CaseCreate,
+    db: Session = Depends(get_db),
+    _user: User = Depends(require_role("Admin", "Analyst")),
+):
     try:
         data = case_data.model_dump()
         db_case = InvestigationCase(**data)
@@ -104,7 +112,8 @@ def create_case(case_data: CaseCreate, db: Session = Depends(get_db)):
 @router.get("/{case_id}", response_model=CaseResponse)
 def get_case_details(
     case_id: int = Path(..., ge=1, description="Case database ID"),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    _user: User = Depends(get_current_user),
 ):
     db_case = (
         db.query(InvestigationCase).filter(InvestigationCase.id == case_id).first()
@@ -118,7 +127,8 @@ def get_case_details(
 def update_case(
     case_id: int = Path(..., ge=1, description="Case database ID"),
     updates: CaseUpdate = ...,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    _user: User = Depends(require_role("Admin", "Analyst")),
 ):
     db_case = (
         db.query(InvestigationCase).filter(InvestigationCase.id == case_id).first()
@@ -147,7 +157,8 @@ def update_case(
 def add_evidence(
     case_id: int = Path(..., ge=1, description="Case database ID"),
     evidence: EvidenceCreate = ...,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    _user: User = Depends(require_role("Admin", "Analyst")),
 ):
     db_case = (
         db.query(InvestigationCase).filter(InvestigationCase.id == case_id).first()

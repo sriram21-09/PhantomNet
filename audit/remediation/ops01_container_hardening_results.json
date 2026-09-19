@@ -1,0 +1,46 @@
+{
+  "timestamp": "2026-09-19T09:04:09.889232",
+  "dimension": "OPS-01",
+  "description": "Container runtime security posture (non-root UID, dropped capabilities, no-new-privileges, read-only rootfs with tmpfs mounts)",
+  "inspected_container": "phantomnet_api",
+  "container_config": {
+    "user": "10001:10001",
+    "cap_drop": [
+      "ALL"
+    ],
+    "security_opt": [
+      "no-new-privileges:true"
+    ],
+    "readonly_rootfs": true,
+    "tmpfs_mounts": {
+      "/app/backend/logs": "rw,noexec,nosuid,size=64m",
+      "/run": "rw,noexec,nosuid,size=32m",
+      "/tmp": "rw,noexec,nosuid,size=128m"
+    }
+  },
+  "filesystem_write_tests": {
+    "authorized_tmpfs_write": {
+      "path": "/app/backend/logs/audit_hardening_test.log",
+      "status": "SUCCESS"
+    },
+    "unauthorized_root_write": {
+      "path": "/unauthorized.txt",
+      "status": "BLOCKED",
+      "error": "[Errno 30] Read-only file system: '/unauthorized.txt'"
+    },
+    "unauthorized_app_write": {
+      "path": "/app/unauthorized.py",
+      "status": "BLOCKED",
+      "error": "[Errno 30] Read-only file system: '/app/unauthorized.py'"
+    }
+  },
+  "properties_verified": {
+    "non_root_uid_10001": true,
+    "cap_drop_all": true,
+    "no_new_privileges_enforced": true,
+    "readonly_rootfs_enforced": true,
+    "authorized_tmpfs_write_permitted": true,
+    "unauthorized_rootfs_write_blocked": true
+  },
+  "overall_verdict": "VERIFIED"
+}

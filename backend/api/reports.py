@@ -3,7 +3,8 @@ import re
 from fastapi import APIRouter, Depends, HTTPException, Path
 from sqlalchemy.orm import Session
 from database.database import get_db
-from database.models import ScheduledReport
+from database.models import ScheduledReport, User
+from middleware.auth import get_current_user, require_role
 from services.report_service import ReportService
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 from typing import List, Optional
@@ -76,6 +77,7 @@ def generate_report(
     protocol: str = "ALL",
     include_sections: str = "",
     db: Session = Depends(get_db),
+    _user: User = Depends(get_current_user),
 ):
     try:
         service = ReportService(db)
@@ -93,7 +95,11 @@ def generate_report(
 
 
 @router.post("/schedule", response_model=ScheduledReportResponse)
-def schedule_report(report_data: ScheduledReportCreate, db: Session = Depends(get_db)):
+def schedule_report(
+    report_data: ScheduledReportCreate,
+    db: Session = Depends(get_db),
+    _user: User = Depends(require_role("Admin", "Analyst")),
+):
     try:
         db_report = ScheduledReport(
             name=report_data.name,
@@ -116,14 +122,18 @@ def schedule_report(report_data: ScheduledReportCreate, db: Session = Depends(ge
 
 
 @router.get("/schedules", response_model=List[ScheduledReportResponse])
-def get_schedules(db: Session = Depends(get_db)):
+def get_schedules(
+    db: Session = Depends(get_db),
+    _user: User = Depends(get_current_user),
+):
     return db.query(ScheduledReport).order_by(ScheduledReport.id.desc()).all()
 
 
 @router.delete("/schedule/{report_id}")
 def delete_schedule(
     report_id: int = Path(..., ge=1, description="Report schedule database ID"),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    _user: User = Depends(require_role("Admin", "Analyst")),
 ):
     db_report = (
         db.query(ScheduledReport).filter(ScheduledReport.id == report_id).first()
@@ -144,7 +154,8 @@ def delete_schedule(
 def update_schedule(
     report_id: int = Path(..., ge=1, description="Report schedule database ID"),
     report_data: ScheduledReportCreate = ...,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    _user: User = Depends(require_role("Admin", "Analyst")),
 ):
     db_report = (
         db.query(ScheduledReport).filter(ScheduledReport.id == report_id).first()

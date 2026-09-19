@@ -1,0 +1,3424 @@
+{
+  "total_routes": 134,
+  "http_routes_count": 132,
+  "ws_routes_count": 2,
+  "public_routes_count": 3,
+  "authenticated_routes_count": 52,
+  "unprotected_non_public_count": 79,
+  "unprotected_routes": [
+    {
+      "type": "HTTP",
+      "path": "/api/v1/model/metrics",
+      "methods": [
+        "GET"
+      ],
+      "name": "get_model_metrics",
+      "endpoint": "api.model_metrics.get_model_metrics",
+      "dependencies": [],
+      "auth_dependencies": [],
+      "is_public_by_design": false,
+      "auth_required": false
+    },
+    {
+      "type": "HTTP",
+      "path": "/api/v1/model/config",
+      "methods": [
+        "GET"
+      ],
+      "name": "get_training_config",
+      "endpoint": "api.model_metrics.get_training_config",
+      "dependencies": [],
+      "auth_dependencies": [],
+      "is_public_by_design": false,
+      "auth_required": false
+    },
+    {
+      "type": "HTTP",
+      "path": "/api/v1/model/stats",
+      "methods": [
+        "GET"
+      ],
+      "name": "get_stats",
+      "endpoint": "api.model_metrics.get_stats",
+      "dependencies": [],
+      "auth_dependencies": [],
+      "is_public_by_design": false,
+      "auth_required": false
+    },
+    {
+      "type": "HTTP",
+      "path": "/api/v1/model/feature-importance",
+      "methods": [
+        "GET"
+      ],
+      "name": "get_feature_importance",
+      "endpoint": "api.model_metrics.get_feature_importance",
+      "dependencies": [],
+      "auth_dependencies": [],
+      "is_public_by_design": false,
+      "auth_required": false
+    },
+    {
+      "type": "HTTP",
+      "path": "/api/v1/model/predictions/recent",
+      "methods": [
+        "GET"
+      ],
+      "name": "get_recent_predictions",
+      "endpoint": "api.model_metrics.get_recent_predictions",
+      "dependencies": [
+        "get_db"
+      ],
+      "auth_dependencies": [],
+      "is_public_by_design": false,
+      "auth_required": false
+    },
+    {
+      "type": "HTTP",
+      "path": "/api/v1/model/confidence-histogram",
+      "methods": [
+        "GET"
+      ],
+      "name": "get_confidence_histogram",
+      "endpoint": "api.model_metrics.get_confidence_histogram",
+      "dependencies": [
+        "get_db"
+      ],
+      "auth_dependencies": [],
+      "is_public_by_design": false,
+      "auth_required": false
+    },
+    {
+      "type": "HTTP",
+      "path": "/api/v1/enrich/ip/{ip}",
+      "methods": [
+        "GET"
+      ],
+      "name": "enrich_ip_endpoint",
+      "endpoint": "api.threat_intel.enrich_ip_endpoint",
+      "dependencies": [],
+      "auth_dependencies": [],
+      "is_public_by_design": false,
+      "auth_required": false
+    },
+    {
+      "type": "HTTP",
+      "path": "/api/v1/events/{event_id}/pcap",
+      "methods": [
+        "GET"
+      ],
+      "name": "download_pcap",
+      "endpoint": "api.pcap.download_pcap",
+      "dependencies": [
+        "_check",
+        "_check",
+        "get_db"
+      ],
+      "auth_dependencies": [],
+      "is_public_by_design": false,
+      "auth_required": false
+    },
+    {
+      "type": "HTTP",
+      "path": "/api/v1/pcap/analysis/{event_id}",
+      "methods": [
+        "GET"
+      ],
+      "name": "get_pcap_analysis",
+      "endpoint": "api.pcap.get_pcap_analysis",
+      "dependencies": [
+        "_check",
+        "_check",
+        "get_db"
+      ],
+      "auth_dependencies": [],
+      "is_public_by_design": false,
+      "auth_required": false
+    },
+    {
+      "type": "HTTP",
+      "path": "/api/v1/pcap/stats",
+      "methods": [
+        "GET"
+      ],
+      "name": "pcap_stats",
+      "endpoint": "api.pcap.pcap_stats",
+      "dependencies": [
+        "_check",
+        "_check"
+      ],
+      "auth_dependencies": [],
+      "is_public_by_design": false,
+      "auth_required": false
+    },
+    {
+      "type": "HTTP",
+      "path": "/api/v1/pcap/capture/{event_id}",
+      "methods": [
+        "POST"
+      ],
+      "name": "trigger_capture",
+      "endpoint": "api.pcap.trigger_capture",
+      "dependencies": [
+        "_check",
+        "_check",
+        "get_db"
+      ],
+      "auth_dependencies": [],
+      "is_public_by_design": false,
+      "auth_required": false
+    },
+    {
+      "type": "HTTP",
+      "path": "/api/v1/pcap/capture/{event_id}/status",
+      "methods": [
+        "GET"
+      ],
+      "name": "capture_status",
+      "endpoint": "api.pcap.capture_status",
+      "dependencies": [
+        "_check",
+        "_check"
+      ],
+      "auth_dependencies": [],
+      "is_public_by_design": false,
+      "auth_required": false
+    },
+    {
+      "type": "HTTP",
+      "path": "/api/v1/pcap/cleanup",
+      "methods": [
+        "POST"
+      ],
+      "name": "run_cleanup",
+      "endpoint": "api.pcap.run_cleanup",
+      "dependencies": [
+        "_check",
+        "_check"
+      ],
+      "auth_dependencies": [],
+      "is_public_by_design": false,
+      "auth_required": false
+    },
+    {
+      "type": "HTTP",
+      "path": "/api/v1/admin/login",
+      "methods": [
+        "POST"
+      ],
+      "name": "admin_login",
+      "endpoint": "api.admin.admin_login",
+      "dependencies": [
+        "get_db"
+      ],
+      "auth_dependencies": [],
+      "is_public_by_design": false,
+      "auth_required": false
+    },
+    {
+      "type": "HTTP",
+      "path": "/api/v1/admin/refresh",
+      "methods": [
+        "POST"
+      ],
+      "name": "refresh_token_endpoint",
+      "endpoint": "api.admin.refresh_token_endpoint",
+      "dependencies": [
+        "get_db"
+      ],
+      "auth_dependencies": [],
+      "is_public_by_design": false,
+      "auth_required": false
+    },
+    {
+      "type": "HTTP",
+      "path": "/api/v1/admin/logout",
+      "methods": [
+        "POST"
+      ],
+      "name": "logout_endpoint",
+      "endpoint": "api.admin.logout_endpoint",
+      "dependencies": [
+        "get_db"
+      ],
+      "auth_dependencies": [],
+      "is_public_by_design": false,
+      "auth_required": false
+    },
+    {
+      "type": "HTTP",
+      "path": "/api/v1/admin/users",
+      "methods": [
+        "GET"
+      ],
+      "name": "list_users",
+      "endpoint": "api.admin.list_users",
+      "dependencies": [
+        "get_db",
+        "_check"
+      ],
+      "auth_dependencies": [],
+      "is_public_by_design": false,
+      "auth_required": false
+    },
+    {
+      "type": "HTTP",
+      "path": "/api/v1/admin/users",
+      "methods": [
+        "POST"
+      ],
+      "name": "create_user",
+      "endpoint": "api.admin.create_user",
+      "dependencies": [
+        "get_db",
+        "_check"
+      ],
+      "auth_dependencies": [],
+      "is_public_by_design": false,
+      "auth_required": false
+    },
+    {
+      "type": "HTTP",
+      "path": "/api/v1/admin/users/{user_id}",
+      "methods": [
+        "PUT"
+      ],
+      "name": "update_user",
+      "endpoint": "api.admin.update_user",
+      "dependencies": [
+        "get_db",
+        "_check"
+      ],
+      "auth_dependencies": [],
+      "is_public_by_design": false,
+      "auth_required": false
+    },
+    {
+      "type": "HTTP",
+      "path": "/api/v1/admin/users/{user_id}",
+      "methods": [
+        "DELETE"
+      ],
+      "name": "delete_user",
+      "endpoint": "api.admin.delete_user",
+      "dependencies": [
+        "get_db",
+        "_check"
+      ],
+      "auth_dependencies": [],
+      "is_public_by_design": false,
+      "auth_required": false
+    },
+    {
+      "type": "HTTP",
+      "path": "/api/v1/admin/config",
+      "methods": [
+        "GET"
+      ],
+      "name": "get_config",
+      "endpoint": "api.admin.get_config",
+      "dependencies": [
+        "get_db",
+        "_check"
+      ],
+      "auth_dependencies": [],
+      "is_public_by_design": false,
+      "auth_required": false
+    },
+    {
+      "type": "HTTP",
+      "path": "/api/v1/admin/config",
+      "methods": [
+        "PUT"
+      ],
+      "name": "update_config",
+      "endpoint": "api.admin.update_config",
+      "dependencies": [
+        "get_db",
+        "_check"
+      ],
+      "auth_dependencies": [],
+      "is_public_by_design": false,
+      "auth_required": false
+    },
+    {
+      "type": "HTTP",
+      "path": "/api/v1/admin/system-overview",
+      "methods": [
+        "GET"
+      ],
+      "name": "system_overview",
+      "endpoint": "api.admin.system_overview",
+      "dependencies": [
+        "get_db",
+        "_check"
+      ],
+      "auth_dependencies": [],
+      "is_public_by_design": false,
+      "auth_required": false
+    },
+    {
+      "type": "HTTP",
+      "path": "/api/v1/admin/backup",
+      "methods": [
+        "POST"
+      ],
+      "name": "create_backup",
+      "endpoint": "api.admin.create_backup",
+      "dependencies": [
+        "get_db",
+        "_check"
+      ],
+      "auth_dependencies": [],
+      "is_public_by_design": false,
+      "auth_required": false
+    },
+    {
+      "type": "HTTP",
+      "path": "/api/v1/admin/backups",
+      "methods": [
+        "GET"
+      ],
+      "name": "list_backups",
+      "endpoint": "api.admin.list_backups",
+      "dependencies": [
+        "_check"
+      ],
+      "auth_dependencies": [],
+      "is_public_by_design": false,
+      "auth_required": false
+    },
+    {
+      "type": "HTTP",
+      "path": "/api/v1/admin/vacuum",
+      "methods": [
+        "POST"
+      ],
+      "name": "vacuum_db",
+      "endpoint": "api.admin.vacuum_db",
+      "dependencies": [
+        "get_db",
+        "_check"
+      ],
+      "auth_dependencies": [],
+      "is_public_by_design": false,
+      "auth_required": false
+    },
+    {
+      "type": "HTTP",
+      "path": "/api/v1/admin/events/old",
+      "methods": [
+        "DELETE"
+      ],
+      "name": "delete_old_events",
+      "endpoint": "api.admin.delete_old_events",
+      "dependencies": [
+        "get_db",
+        "_check"
+      ],
+      "auth_dependencies": [],
+      "is_public_by_design": false,
+      "auth_required": false
+    },
+    {
+      "type": "HTTP",
+      "path": "/api/v1/admin/taxii/clients",
+      "methods": [
+        "POST"
+      ],
+      "name": "create_taxii_client",
+      "endpoint": "api.taxii_admin.create_taxii_client",
+      "dependencies": [
+        "get_db",
+        "_check"
+      ],
+      "auth_dependencies": [],
+      "is_public_by_design": false,
+      "auth_required": false
+    },
+    {
+      "type": "HTTP",
+      "path": "/api/v1/admin/taxii/clients",
+      "methods": [
+        "GET"
+      ],
+      "name": "list_taxii_clients",
+      "endpoint": "api.taxii_admin.list_taxii_clients",
+      "dependencies": [
+        "get_db",
+        "_check"
+      ],
+      "auth_dependencies": [],
+      "is_public_by_design": false,
+      "auth_required": false
+    },
+    {
+      "type": "HTTP",
+      "path": "/api/v1/admin/taxii/clients/{key_id}",
+      "methods": [
+        "DELETE"
+      ],
+      "name": "revoke_taxii_client",
+      "endpoint": "api.taxii_admin.revoke_taxii_client",
+      "dependencies": [
+        "get_db",
+        "_check"
+      ],
+      "auth_dependencies": [],
+      "is_public_by_design": false,
+      "auth_required": false
+    },
+    {
+      "type": "HTTP",
+      "path": "/api/v1/analyze/threat-score",
+      "methods": [
+        "POST"
+      ],
+      "name": "analyze_threat",
+      "endpoint": "api.threat_scoring.analyze_threat",
+      "dependencies": [],
+      "auth_dependencies": [],
+      "is_public_by_design": false,
+      "auth_required": false
+    },
+    {
+      "type": "HTTP",
+      "path": "/api/v1/patterns/advanced",
+      "methods": [
+        "GET"
+      ],
+      "name": "get_advanced_patterns",
+      "endpoint": "api.pattern_analytics.get_advanced_patterns",
+      "dependencies": [
+        "get_db"
+      ],
+      "auth_dependencies": [],
+      "is_public_by_design": false,
+      "auth_required": false
+    },
+    {
+      "type": "HTTP",
+      "path": "/api/v1/reports/schedule",
+      "methods": [
+        "POST"
+      ],
+      "name": "schedule_report",
+      "endpoint": "api.reports.schedule_report",
+      "dependencies": [
+        "get_db",
+        "_check"
+      ],
+      "auth_dependencies": [],
+      "is_public_by_design": false,
+      "auth_required": false
+    },
+    {
+      "type": "HTTP",
+      "path": "/api/v1/reports/schedule/{report_id}",
+      "methods": [
+        "DELETE"
+      ],
+      "name": "delete_schedule",
+      "endpoint": "api.reports.delete_schedule",
+      "dependencies": [
+        "get_db",
+        "_check"
+      ],
+      "auth_dependencies": [],
+      "is_public_by_design": false,
+      "auth_required": false
+    },
+    {
+      "type": "HTTP",
+      "path": "/api/v1/reports/schedule/{report_id}",
+      "methods": [
+        "PUT"
+      ],
+      "name": "update_schedule",
+      "endpoint": "api.reports.update_schedule",
+      "dependencies": [
+        "get_db",
+        "_check"
+      ],
+      "auth_dependencies": [],
+      "is_public_by_design": false,
+      "auth_required": false
+    },
+    {
+      "type": "HTTP",
+      "path": "/api/v1/hunting/search",
+      "methods": [
+        "POST"
+      ],
+      "name": "search_events",
+      "endpoint": "api.hunting.search_events",
+      "dependencies": [
+        "_check",
+        "_check",
+        "get_db"
+      ],
+      "auth_dependencies": [],
+      "is_public_by_design": false,
+      "auth_required": false
+    },
+    {
+      "type": "HTTP",
+      "path": "/api/v1/hunting/extract-iocs",
+      "methods": [
+        "POST"
+      ],
+      "name": "extract_iocs",
+      "endpoint": "api.hunting.extract_iocs",
+      "dependencies": [
+        "_check",
+        "_check",
+        "get_db"
+      ],
+      "auth_dependencies": [],
+      "is_public_by_design": false,
+      "auth_required": false
+    },
+    {
+      "type": "HTTP",
+      "path": "/api/v1/hunting/related-events",
+      "methods": [
+        "GET"
+      ],
+      "name": "get_related_events",
+      "endpoint": "api.hunting.get_related_events",
+      "dependencies": [
+        "_check",
+        "_check",
+        "get_db"
+      ],
+      "auth_dependencies": [],
+      "is_public_by_design": false,
+      "auth_required": false
+    },
+    {
+      "type": "HTTP",
+      "path": "/api/v1/hunting/history",
+      "methods": [
+        "GET"
+      ],
+      "name": "get_search_history",
+      "endpoint": "api.hunting.get_search_history",
+      "dependencies": [
+        "_check",
+        "_check",
+        "get_db"
+      ],
+      "auth_dependencies": [],
+      "is_public_by_design": false,
+      "auth_required": false
+    },
+    {
+      "type": "HTTP",
+      "path": "/api/v1/hunting/analyze-patterns",
+      "methods": [
+        "POST"
+      ],
+      "name": "analyze_patterns",
+      "endpoint": "api.hunting.analyze_patterns",
+      "dependencies": [
+        "_check",
+        "_check",
+        "get_db"
+      ],
+      "auth_dependencies": [],
+      "is_public_by_design": false,
+      "auth_required": false
+    },
+    {
+      "type": "HTTP",
+      "path": "/api/v1/hunting/templates",
+      "methods": [
+        "GET"
+      ],
+      "name": "get_query_templates",
+      "endpoint": "api.hunting.get_query_templates",
+      "dependencies": [
+        "_check",
+        "_check"
+      ],
+      "auth_dependencies": [],
+      "is_public_by_design": false,
+      "auth_required": false
+    },
+    {
+      "type": "HTTP",
+      "path": "/api/v1/cases/",
+      "methods": [
+        "POST"
+      ],
+      "name": "create_case",
+      "endpoint": "api.cases.create_case",
+      "dependencies": [
+        "get_db",
+        "_check"
+      ],
+      "auth_dependencies": [],
+      "is_public_by_design": false,
+      "auth_required": false
+    },
+    {
+      "type": "HTTP",
+      "path": "/api/v1/cases/{case_id}",
+      "methods": [
+        "PUT"
+      ],
+      "name": "update_case",
+      "endpoint": "api.cases.update_case",
+      "dependencies": [
+        "get_db",
+        "_check"
+      ],
+      "auth_dependencies": [],
+      "is_public_by_design": false,
+      "auth_required": false
+    },
+    {
+      "type": "HTTP",
+      "path": "/api/v1/cases/{case_id}/evidence",
+      "methods": [
+        "POST"
+      ],
+      "name": "add_evidence",
+      "endpoint": "api.cases.add_evidence",
+      "dependencies": [
+        "get_db",
+        "_check"
+      ],
+      "auth_dependencies": [],
+      "is_public_by_design": false,
+      "auth_required": false
+    },
+    {
+      "type": "HTTP",
+      "path": "/api/v1/alerts/{alert_id}/resolve",
+      "methods": [
+        "PATCH"
+      ],
+      "name": "resolve_alert",
+      "endpoint": "api.alerts.resolve_alert",
+      "dependencies": [
+        "get_db",
+        "_check"
+      ],
+      "auth_dependencies": [],
+      "is_public_by_design": false,
+      "auth_required": false
+    },
+    {
+      "type": "HTTP",
+      "path": "/api/sentinel/playbooks",
+      "methods": [
+        "GET"
+      ],
+      "name": "list_playbooks",
+      "endpoint": "api.sentinel.list_playbooks",
+      "dependencies": [
+        "get_db"
+      ],
+      "auth_dependencies": [],
+      "is_public_by_design": false,
+      "auth_required": false
+    },
+    {
+      "type": "HTTP",
+      "path": "/api/sentinel/playbooks/{playbook_id}",
+      "methods": [
+        "GET"
+      ],
+      "name": "get_playbook",
+      "endpoint": "api.sentinel.get_playbook",
+      "dependencies": [
+        "get_db"
+      ],
+      "auth_dependencies": [],
+      "is_public_by_design": false,
+      "auth_required": false
+    },
+    {
+      "type": "HTTP",
+      "path": "/api/sentinel/stats",
+      "methods": [
+        "GET"
+      ],
+      "name": "get_sentinel_stats",
+      "endpoint": "api.sentinel.get_sentinel_stats",
+      "dependencies": [
+        "get_db"
+      ],
+      "auth_dependencies": [],
+      "is_public_by_design": false,
+      "auth_required": false
+    },
+    {
+      "type": "HTTP",
+      "path": "/api/sentinel/mitre/mapping",
+      "methods": [
+        "GET"
+      ],
+      "name": "get_mitre_mappings",
+      "endpoint": "api.sentinel.get_mitre_mappings",
+      "dependencies": [],
+      "auth_dependencies": [],
+      "is_public_by_design": false,
+      "auth_required": false
+    },
+    {
+      "type": "HTTP",
+      "path": "/api/sentinel/generate",
+      "methods": [
+        "POST"
+      ],
+      "name": "generate_playbook",
+      "endpoint": "api.sentinel.generate_playbook",
+      "dependencies": [
+        "check_rate_limit",
+        "check_rate_limit",
+        "get_db"
+      ],
+      "auth_dependencies": [],
+      "is_public_by_design": false,
+      "auth_required": false
+    },
+    {
+      "type": "HTTP",
+      "path": "/api/sentinel/playbooks/{playbook_id}/approve",
+      "methods": [
+        "PATCH"
+      ],
+      "name": "approve_playbook",
+      "endpoint": "api.sentinel.approve_playbook",
+      "dependencies": [
+        "get_db",
+        "_check"
+      ],
+      "auth_dependencies": [],
+      "is_public_by_design": false,
+      "auth_required": false
+    },
+    {
+      "type": "HTTP",
+      "path": "/api/sentinel/playbooks/{playbook_id}/reject",
+      "methods": [
+        "PATCH"
+      ],
+      "name": "reject_playbook",
+      "endpoint": "api.sentinel.reject_playbook",
+      "dependencies": [
+        "get_db",
+        "_check"
+      ],
+      "auth_dependencies": [],
+      "is_public_by_design": false,
+      "auth_required": false
+    },
+    {
+      "type": "HTTP",
+      "path": "/api/sentinel/rules/snort",
+      "methods": [
+        "GET"
+      ],
+      "name": "list_snort_rules",
+      "endpoint": "api.sentinel.list_snort_rules",
+      "dependencies": [
+        "get_db"
+      ],
+      "auth_dependencies": [],
+      "is_public_by_design": false,
+      "auth_required": false
+    },
+    {
+      "type": "HTTP",
+      "path": "/api/sentinel/rules/sigma",
+      "methods": [
+        "GET"
+      ],
+      "name": "list_sigma_rules",
+      "endpoint": "api.sentinel.list_sigma_rules",
+      "dependencies": [
+        "get_db"
+      ],
+      "auth_dependencies": [],
+      "is_public_by_design": false,
+      "auth_required": false
+    },
+    {
+      "type": "HTTP",
+      "path": "/api/sentinel/llm/status",
+      "methods": [
+        "GET"
+      ],
+      "name": "get_llm_status",
+      "endpoint": "api.sentinel.get_llm_status",
+      "dependencies": [],
+      "auth_dependencies": [],
+      "is_public_by_design": false,
+      "auth_required": false
+    },
+    {
+      "type": "HTTP",
+      "path": "/api/sentinel/playbooks/{playbook_id}/regenerate-llm",
+      "methods": [
+        "POST"
+      ],
+      "name": "regenerate_playbook_llm",
+      "endpoint": "api.sentinel.regenerate_playbook_llm",
+      "dependencies": [
+        "check_rate_limit",
+        "check_rate_limit",
+        "get_db"
+      ],
+      "auth_dependencies": [],
+      "is_public_by_design": false,
+      "auth_required": false
+    },
+    {
+      "type": "HTTP",
+      "path": "/api/sentinel/mitre/matrix",
+      "methods": [
+        "GET"
+      ],
+      "name": "get_mitre_matrix",
+      "endpoint": "api.sentinel.get_mitre_matrix",
+      "dependencies": [
+        "get_db"
+      ],
+      "auth_dependencies": [],
+      "is_public_by_design": false,
+      "auth_required": false
+    },
+    {
+      "type": "HTTP",
+      "path": "/api/sentinel/playbooks/batch/approve",
+      "methods": [
+        "POST"
+      ],
+      "name": "batch_approve_playbooks",
+      "endpoint": "api.sentinel.batch_approve_playbooks",
+      "dependencies": [
+        "get_db",
+        "_check",
+        "rate_limit_dependency"
+      ],
+      "auth_dependencies": [],
+      "is_public_by_design": false,
+      "auth_required": false
+    },
+    {
+      "type": "HTTP",
+      "path": "/api/sentinel/playbooks/batch/reject",
+      "methods": [
+        "POST"
+      ],
+      "name": "batch_reject_playbooks",
+      "endpoint": "api.sentinel.batch_reject_playbooks",
+      "dependencies": [
+        "get_db",
+        "_check",
+        "rate_limit_dependency"
+      ],
+      "auth_dependencies": [],
+      "is_public_by_design": false,
+      "auth_required": false
+    },
+    {
+      "type": "HTTP",
+      "path": "/api/sentinel/playbooks/{playbook_id}/regenerate",
+      "methods": [
+        "POST"
+      ],
+      "name": "regenerate_playbook",
+      "endpoint": "api.sentinel.regenerate_playbook",
+      "dependencies": [
+        "get_db"
+      ],
+      "auth_dependencies": [],
+      "is_public_by_design": false,
+      "auth_required": false
+    },
+    {
+      "type": "HTTP",
+      "path": "/api/sentinel/playbooks/{playbook_id}/versions",
+      "methods": [
+        "GET"
+      ],
+      "name": "get_playbook_versions",
+      "endpoint": "api.sentinel.get_playbook_versions",
+      "dependencies": [
+        "get_db"
+      ],
+      "auth_dependencies": [],
+      "is_public_by_design": false,
+      "auth_required": false
+    },
+    {
+      "type": "HTTP",
+      "path": "/api/sentinel/rules/export-all",
+      "methods": [
+        "GET"
+      ],
+      "name": "export_all_rules",
+      "endpoint": "api.sentinel.export_all_rules",
+      "dependencies": [
+        "get_db"
+      ],
+      "auth_dependencies": [],
+      "is_public_by_design": false,
+      "auth_required": false
+    },
+    {
+      "type": "HTTP",
+      "path": "/api/sentinel/campaigns/{campaign_id}/timeline",
+      "methods": [
+        "GET"
+      ],
+      "name": "get_campaign_timeline",
+      "endpoint": "api.sentinel.get_campaign_timeline",
+      "dependencies": [
+        "get_db"
+      ],
+      "auth_dependencies": [],
+      "is_public_by_design": false,
+      "auth_required": false
+    },
+    {
+      "type": "HTTP",
+      "path": "/api/sentinel/playbooks/{playbook_id}/export-history",
+      "methods": [
+        "GET"
+      ],
+      "name": "get_playbook_export_history",
+      "endpoint": "api.sentinel.get_playbook_export_history",
+      "dependencies": [
+        "get_db"
+      ],
+      "auth_dependencies": [],
+      "is_public_by_design": false,
+      "auth_required": false
+    },
+    {
+      "type": "HTTP",
+      "path": "/api/v1/sentinel/templates",
+      "methods": [
+        "GET"
+      ],
+      "name": "list_sentinel_templates",
+      "endpoint": "api.sentinel.list_sentinel_templates",
+      "dependencies": [],
+      "auth_dependencies": [],
+      "is_public_by_design": false,
+      "auth_required": false
+    },
+    {
+      "type": "HTTP",
+      "path": "/api/v1/sentinel/templates/preview",
+      "methods": [
+        "POST"
+      ],
+      "name": "preview_sentinel_template",
+      "endpoint": "api.sentinel.preview_sentinel_template",
+      "dependencies": [],
+      "auth_dependencies": [],
+      "is_public_by_design": false,
+      "auth_required": false
+    },
+    {
+      "type": "HTTP",
+      "path": "/api/v1/ingest/event",
+      "methods": [
+        "POST"
+      ],
+      "name": "ingest_event",
+      "endpoint": "api.ingest.ingest_event",
+      "dependencies": [
+        "get_ingestion_gateway"
+      ],
+      "auth_dependencies": [],
+      "is_public_by_design": false,
+      "auth_required": false
+    },
+    {
+      "type": "HTTP",
+      "path": "/api/v1/ingest/batch",
+      "methods": [
+        "POST"
+      ],
+      "name": "ingest_batch",
+      "endpoint": "api.ingest.ingest_batch",
+      "dependencies": [
+        "get_ingestion_gateway"
+      ],
+      "auth_dependencies": [],
+      "is_public_by_design": false,
+      "auth_required": false
+    },
+    {
+      "type": "HTTP",
+      "path": "/api/v1/ingest/health",
+      "methods": [
+        "GET"
+      ],
+      "name": "ingest_health",
+      "endpoint": "api.ingest.ingest_health",
+      "dependencies": [
+        "get_ingestion_gateway"
+      ],
+      "auth_dependencies": [],
+      "is_public_by_design": false,
+      "auth_required": false
+    },
+    {
+      "type": "HTTP",
+      "path": "/api/v1/governance/retention/policies",
+      "methods": [
+        "GET"
+      ],
+      "name": "get_retention_policies",
+      "endpoint": "api.governance.get_retention_policies",
+      "dependencies": [
+        "_check"
+      ],
+      "auth_dependencies": [],
+      "is_public_by_design": false,
+      "auth_required": false
+    },
+    {
+      "type": "HTTP",
+      "path": "/api/v1/governance/retention/run",
+      "methods": [
+        "POST"
+      ],
+      "name": "run_retention_cycle_endpoint",
+      "endpoint": "api.governance.run_retention_cycle_endpoint",
+      "dependencies": [
+        "get_db",
+        "_check"
+      ],
+      "auth_dependencies": [],
+      "is_public_by_design": false,
+      "auth_required": false
+    },
+    {
+      "type": "HTTP",
+      "path": "/metrics",
+      "methods": [
+        "GET"
+      ],
+      "name": "prometheus_metrics",
+      "endpoint": "api.health.prometheus_metrics",
+      "dependencies": [],
+      "auth_dependencies": [],
+      "is_public_by_design": false,
+      "auth_required": false
+    },
+    {
+      "type": "HTTP",
+      "path": "/api/health",
+      "methods": [
+        "GET"
+      ],
+      "name": "health_check",
+      "endpoint": "backend.main.health_check",
+      "dependencies": [],
+      "auth_dependencies": [],
+      "is_public_by_design": false,
+      "auth_required": false
+    },
+    {
+      "type": "HTTP",
+      "path": "/analyze-traffic",
+      "methods": [
+        "GET"
+      ],
+      "name": "get_real_traffic",
+      "endpoint": "backend.main.get_real_traffic",
+      "dependencies": [
+        "get_db"
+      ],
+      "auth_dependencies": [],
+      "is_public_by_design": false,
+      "auth_required": false
+    },
+    {
+      "type": "HTTP",
+      "path": "/api/stats",
+      "methods": [
+        "GET"
+      ],
+      "name": "get_api_stats",
+      "endpoint": "backend.main.get_api_stats",
+      "dependencies": [
+        "get_db"
+      ],
+      "auth_dependencies": [],
+      "is_public_by_design": false,
+      "auth_required": false
+    },
+    {
+      "type": "HTTP",
+      "path": "/metrics",
+      "methods": [
+        "GET"
+      ],
+      "name": "prometheus_metrics",
+      "endpoint": "backend.main.prometheus_metrics",
+      "dependencies": [],
+      "auth_dependencies": [],
+      "is_public_by_design": false,
+      "auth_required": false
+    },
+    {
+      "type": "HTTP",
+      "path": "/active-defense/block/{ip}",
+      "methods": [
+        "POST"
+      ],
+      "name": "block_ip_address",
+      "endpoint": "backend.main.block_ip_address",
+      "dependencies": [
+        "_check",
+        "get_db"
+      ],
+      "auth_dependencies": [],
+      "is_public_by_design": false,
+      "auth_required": false
+    },
+    {
+      "type": "HTTP",
+      "path": "/api/response/unblock/{ip}",
+      "methods": [
+        "POST"
+      ],
+      "name": "unblock_ip",
+      "endpoint": "backend.main.unblock_ip",
+      "dependencies": [
+        "_check",
+        "get_db"
+      ],
+      "auth_dependencies": [],
+      "is_public_by_design": false,
+      "auth_required": false
+    },
+    {
+      "type": "HTTP",
+      "path": "/api/response/policy",
+      "methods": [
+        "PUT"
+      ],
+      "name": "update_response_policy",
+      "endpoint": "backend.main.update_response_policy",
+      "dependencies": [
+        "_check",
+        "get_db"
+      ],
+      "auth_dependencies": [],
+      "is_public_by_design": false,
+      "auth_required": false
+    }
+  ],
+  "all_routes": [
+    {
+      "type": "HTTP",
+      "path": "/api/v1/model/metrics",
+      "methods": [
+        "GET"
+      ],
+      "name": "get_model_metrics",
+      "endpoint": "api.model_metrics.get_model_metrics",
+      "dependencies": [],
+      "auth_dependencies": [],
+      "is_public_by_design": false,
+      "auth_required": false
+    },
+    {
+      "type": "HTTP",
+      "path": "/api/v1/model/config",
+      "methods": [
+        "GET"
+      ],
+      "name": "get_training_config",
+      "endpoint": "api.model_metrics.get_training_config",
+      "dependencies": [],
+      "auth_dependencies": [],
+      "is_public_by_design": false,
+      "auth_required": false
+    },
+    {
+      "type": "HTTP",
+      "path": "/api/v1/model/stats",
+      "methods": [
+        "GET"
+      ],
+      "name": "get_stats",
+      "endpoint": "api.model_metrics.get_stats",
+      "dependencies": [],
+      "auth_dependencies": [],
+      "is_public_by_design": false,
+      "auth_required": false
+    },
+    {
+      "type": "HTTP",
+      "path": "/api/v1/model/feature-importance",
+      "methods": [
+        "GET"
+      ],
+      "name": "get_feature_importance",
+      "endpoint": "api.model_metrics.get_feature_importance",
+      "dependencies": [],
+      "auth_dependencies": [],
+      "is_public_by_design": false,
+      "auth_required": false
+    },
+    {
+      "type": "HTTP",
+      "path": "/api/v1/model/predictions/recent",
+      "methods": [
+        "GET"
+      ],
+      "name": "get_recent_predictions",
+      "endpoint": "api.model_metrics.get_recent_predictions",
+      "dependencies": [
+        "get_db"
+      ],
+      "auth_dependencies": [],
+      "is_public_by_design": false,
+      "auth_required": false
+    },
+    {
+      "type": "HTTP",
+      "path": "/api/v1/model/confidence-histogram",
+      "methods": [
+        "GET"
+      ],
+      "name": "get_confidence_histogram",
+      "endpoint": "api.model_metrics.get_confidence_histogram",
+      "dependencies": [
+        "get_db"
+      ],
+      "auth_dependencies": [],
+      "is_public_by_design": false,
+      "auth_required": false
+    },
+    {
+      "type": "HTTP",
+      "path": "/api/v1/enrich/ip/{ip}",
+      "methods": [
+        "GET"
+      ],
+      "name": "enrich_ip_endpoint",
+      "endpoint": "api.threat_intel.enrich_ip_endpoint",
+      "dependencies": [],
+      "auth_dependencies": [],
+      "is_public_by_design": false,
+      "auth_required": false
+    },
+    {
+      "type": "WebSocket",
+      "path": "/api/v1/topology/ws",
+      "methods": [
+        "WS"
+      ],
+      "name": "topology_ws_endpoint",
+      "endpoint": "api.topology.topology_ws_endpoint",
+      "dependencies": [],
+      "auth_dependencies": [
+        "ws_authenticate"
+      ],
+      "is_public_by_design": false,
+      "auth_required": true
+    },
+    {
+      "type": "HTTP",
+      "path": "/api/v1/management/register",
+      "methods": [
+        "POST"
+      ],
+      "name": "register_node",
+      "endpoint": "api.management.register_node",
+      "dependencies": [
+        "get_db",
+        "require_management_auth"
+      ],
+      "auth_dependencies": [
+        "require_management_auth"
+      ],
+      "is_public_by_design": false,
+      "auth_required": true
+    },
+    {
+      "type": "HTTP",
+      "path": "/api/v1/management/heartbeat",
+      "methods": [
+        "POST"
+      ],
+      "name": "node_heartbeat",
+      "endpoint": "api.management.node_heartbeat",
+      "dependencies": [
+        "get_db",
+        "require_management_auth"
+      ],
+      "auth_dependencies": [
+        "require_management_auth"
+      ],
+      "is_public_by_design": false,
+      "auth_required": true
+    },
+    {
+      "type": "HTTP",
+      "path": "/api/v1/management/nodes",
+      "methods": [
+        "GET"
+      ],
+      "name": "list_nodes",
+      "endpoint": "api.management.list_nodes",
+      "dependencies": [
+        "get_db",
+        "require_management_auth"
+      ],
+      "auth_dependencies": [
+        "require_management_auth"
+      ],
+      "is_public_by_design": false,
+      "auth_required": true
+    },
+    {
+      "type": "HTTP",
+      "path": "/api/v1/management/policies",
+      "methods": [
+        "GET"
+      ],
+      "name": "list_policies",
+      "endpoint": "api.management.list_policies",
+      "dependencies": [
+        "get_db",
+        "require_management_auth"
+      ],
+      "auth_dependencies": [
+        "require_management_auth"
+      ],
+      "is_public_by_design": false,
+      "auth_required": true
+    },
+    {
+      "type": "HTTP",
+      "path": "/api/v1/management/policies",
+      "methods": [
+        "POST"
+      ],
+      "name": "create_policy",
+      "endpoint": "api.management.create_policy",
+      "dependencies": [
+        "get_db",
+        "require_management_auth"
+      ],
+      "auth_dependencies": [
+        "require_management_auth"
+      ],
+      "is_public_by_design": false,
+      "auth_required": true
+    },
+    {
+      "type": "HTTP",
+      "path": "/api/v1/management/policies/assign",
+      "methods": [
+        "POST"
+      ],
+      "name": "assign_policy",
+      "endpoint": "api.management.assign_policy",
+      "dependencies": [
+        "get_db",
+        "require_management_auth"
+      ],
+      "auth_dependencies": [
+        "require_management_auth"
+      ],
+      "is_public_by_design": false,
+      "auth_required": true
+    },
+    {
+      "type": "WebSocket",
+      "path": "/api/v1/realtime/ws",
+      "methods": [
+        "WS"
+      ],
+      "name": "realtime_ws_endpoint",
+      "endpoint": "api.realtime.realtime_ws_endpoint",
+      "dependencies": [],
+      "auth_dependencies": [
+        "ws_authenticate"
+      ],
+      "is_public_by_design": false,
+      "auth_required": true
+    },
+    {
+      "type": "HTTP",
+      "path": "/api/v1/events/{event_id}/pcap",
+      "methods": [
+        "GET"
+      ],
+      "name": "download_pcap",
+      "endpoint": "api.pcap.download_pcap",
+      "dependencies": [
+        "_check",
+        "_check",
+        "get_db"
+      ],
+      "auth_dependencies": [],
+      "is_public_by_design": false,
+      "auth_required": false
+    },
+    {
+      "type": "HTTP",
+      "path": "/api/v1/pcap/analysis/{event_id}",
+      "methods": [
+        "GET"
+      ],
+      "name": "get_pcap_analysis",
+      "endpoint": "api.pcap.get_pcap_analysis",
+      "dependencies": [
+        "_check",
+        "_check",
+        "get_db"
+      ],
+      "auth_dependencies": [],
+      "is_public_by_design": false,
+      "auth_required": false
+    },
+    {
+      "type": "HTTP",
+      "path": "/api/v1/pcap/stats",
+      "methods": [
+        "GET"
+      ],
+      "name": "pcap_stats",
+      "endpoint": "api.pcap.pcap_stats",
+      "dependencies": [
+        "_check",
+        "_check"
+      ],
+      "auth_dependencies": [],
+      "is_public_by_design": false,
+      "auth_required": false
+    },
+    {
+      "type": "HTTP",
+      "path": "/api/v1/pcap/capture/{event_id}",
+      "methods": [
+        "POST"
+      ],
+      "name": "trigger_capture",
+      "endpoint": "api.pcap.trigger_capture",
+      "dependencies": [
+        "_check",
+        "_check",
+        "get_db"
+      ],
+      "auth_dependencies": [],
+      "is_public_by_design": false,
+      "auth_required": false
+    },
+    {
+      "type": "HTTP",
+      "path": "/api/v1/pcap/capture/{event_id}/status",
+      "methods": [
+        "GET"
+      ],
+      "name": "capture_status",
+      "endpoint": "api.pcap.capture_status",
+      "dependencies": [
+        "_check",
+        "_check"
+      ],
+      "auth_dependencies": [],
+      "is_public_by_design": false,
+      "auth_required": false
+    },
+    {
+      "type": "HTTP",
+      "path": "/api/v1/pcap/cleanup",
+      "methods": [
+        "POST"
+      ],
+      "name": "run_cleanup",
+      "endpoint": "api.pcap.run_cleanup",
+      "dependencies": [
+        "_check",
+        "_check"
+      ],
+      "auth_dependencies": [],
+      "is_public_by_design": false,
+      "auth_required": false
+    },
+    {
+      "type": "HTTP",
+      "path": "/api/v1/attribution/profile/{ip}",
+      "methods": [
+        "GET"
+      ],
+      "name": "get_attacker_profile",
+      "endpoint": "api.attack_attribution.get_attacker_profile",
+      "dependencies": [
+        "get_current_user",
+        "get_current_user",
+        "get_db"
+      ],
+      "auth_dependencies": [
+        "get_current_user",
+        "get_current_user"
+      ],
+      "is_public_by_design": false,
+      "auth_required": true
+    },
+    {
+      "type": "HTTP",
+      "path": "/api/v1/attribution/top-attackers",
+      "methods": [
+        "GET"
+      ],
+      "name": "get_top_attackers",
+      "endpoint": "api.attack_attribution.get_top_attackers",
+      "dependencies": [
+        "get_current_user",
+        "get_current_user",
+        "get_db"
+      ],
+      "auth_dependencies": [
+        "get_current_user",
+        "get_current_user"
+      ],
+      "is_public_by_design": false,
+      "auth_required": true
+    },
+    {
+      "type": "HTTP",
+      "path": "/api/v1/predictive/forecast",
+      "methods": [
+        "GET"
+      ],
+      "name": "get_forecast",
+      "endpoint": "api.predictive.get_forecast",
+      "dependencies": [
+        "get_current_user",
+        "get_current_user",
+        "get_db"
+      ],
+      "auth_dependencies": [
+        "get_current_user",
+        "get_current_user"
+      ],
+      "is_public_by_design": false,
+      "auth_required": true
+    },
+    {
+      "type": "HTTP",
+      "path": "/api/v1/predictive/risk-score",
+      "methods": [
+        "GET"
+      ],
+      "name": "get_risk_score",
+      "endpoint": "api.predictive.get_risk_score",
+      "dependencies": [
+        "get_current_user",
+        "get_current_user",
+        "get_db"
+      ],
+      "auth_dependencies": [
+        "get_current_user",
+        "get_current_user"
+      ],
+      "is_public_by_design": false,
+      "auth_required": true
+    },
+    {
+      "type": "HTTP",
+      "path": "/api/v1/predictive/next-attack",
+      "methods": [
+        "GET"
+      ],
+      "name": "get_next_attack_prediction",
+      "endpoint": "api.predictive.get_next_attack_prediction",
+      "dependencies": [
+        "get_current_user",
+        "get_current_user",
+        "get_db"
+      ],
+      "auth_dependencies": [
+        "get_current_user",
+        "get_current_user"
+      ],
+      "is_public_by_design": false,
+      "auth_required": true
+    },
+    {
+      "type": "HTTP",
+      "path": "/api/v1/admin/login",
+      "methods": [
+        "POST"
+      ],
+      "name": "admin_login",
+      "endpoint": "api.admin.admin_login",
+      "dependencies": [
+        "get_db"
+      ],
+      "auth_dependencies": [],
+      "is_public_by_design": false,
+      "auth_required": false
+    },
+    {
+      "type": "HTTP",
+      "path": "/api/v1/admin/refresh",
+      "methods": [
+        "POST"
+      ],
+      "name": "refresh_token_endpoint",
+      "endpoint": "api.admin.refresh_token_endpoint",
+      "dependencies": [
+        "get_db"
+      ],
+      "auth_dependencies": [],
+      "is_public_by_design": false,
+      "auth_required": false
+    },
+    {
+      "type": "HTTP",
+      "path": "/api/v1/admin/logout",
+      "methods": [
+        "POST"
+      ],
+      "name": "logout_endpoint",
+      "endpoint": "api.admin.logout_endpoint",
+      "dependencies": [
+        "get_db"
+      ],
+      "auth_dependencies": [],
+      "is_public_by_design": false,
+      "auth_required": false
+    },
+    {
+      "type": "HTTP",
+      "path": "/api/v1/admin/step-up",
+      "methods": [
+        "POST"
+      ],
+      "name": "request_step_up_token",
+      "endpoint": "api.admin.request_step_up_token",
+      "dependencies": [
+        "get_current_user",
+        "get_db"
+      ],
+      "auth_dependencies": [
+        "get_current_user"
+      ],
+      "is_public_by_design": false,
+      "auth_required": true
+    },
+    {
+      "type": "HTTP",
+      "path": "/api/v1/admin/users",
+      "methods": [
+        "GET"
+      ],
+      "name": "list_users",
+      "endpoint": "api.admin.list_users",
+      "dependencies": [
+        "get_db",
+        "_check"
+      ],
+      "auth_dependencies": [],
+      "is_public_by_design": false,
+      "auth_required": false
+    },
+    {
+      "type": "HTTP",
+      "path": "/api/v1/admin/users",
+      "methods": [
+        "POST"
+      ],
+      "name": "create_user",
+      "endpoint": "api.admin.create_user",
+      "dependencies": [
+        "get_db",
+        "_check"
+      ],
+      "auth_dependencies": [],
+      "is_public_by_design": false,
+      "auth_required": false
+    },
+    {
+      "type": "HTTP",
+      "path": "/api/v1/admin/users/{user_id}",
+      "methods": [
+        "PUT"
+      ],
+      "name": "update_user",
+      "endpoint": "api.admin.update_user",
+      "dependencies": [
+        "get_db",
+        "_check"
+      ],
+      "auth_dependencies": [],
+      "is_public_by_design": false,
+      "auth_required": false
+    },
+    {
+      "type": "HTTP",
+      "path": "/api/v1/admin/users/{user_id}",
+      "methods": [
+        "DELETE"
+      ],
+      "name": "delete_user",
+      "endpoint": "api.admin.delete_user",
+      "dependencies": [
+        "get_db",
+        "_check"
+      ],
+      "auth_dependencies": [],
+      "is_public_by_design": false,
+      "auth_required": false
+    },
+    {
+      "type": "HTTP",
+      "path": "/api/v1/admin/config",
+      "methods": [
+        "GET"
+      ],
+      "name": "get_config",
+      "endpoint": "api.admin.get_config",
+      "dependencies": [
+        "get_db",
+        "_check"
+      ],
+      "auth_dependencies": [],
+      "is_public_by_design": false,
+      "auth_required": false
+    },
+    {
+      "type": "HTTP",
+      "path": "/api/v1/admin/config",
+      "methods": [
+        "PUT"
+      ],
+      "name": "update_config",
+      "endpoint": "api.admin.update_config",
+      "dependencies": [
+        "get_db",
+        "_check"
+      ],
+      "auth_dependencies": [],
+      "is_public_by_design": false,
+      "auth_required": false
+    },
+    {
+      "type": "HTTP",
+      "path": "/api/v1/admin/system-overview",
+      "methods": [
+        "GET"
+      ],
+      "name": "system_overview",
+      "endpoint": "api.admin.system_overview",
+      "dependencies": [
+        "get_db",
+        "_check"
+      ],
+      "auth_dependencies": [],
+      "is_public_by_design": false,
+      "auth_required": false
+    },
+    {
+      "type": "HTTP",
+      "path": "/api/v1/admin/backup",
+      "methods": [
+        "POST"
+      ],
+      "name": "create_backup",
+      "endpoint": "api.admin.create_backup",
+      "dependencies": [
+        "get_db",
+        "_check"
+      ],
+      "auth_dependencies": [],
+      "is_public_by_design": false,
+      "auth_required": false
+    },
+    {
+      "type": "HTTP",
+      "path": "/api/v1/admin/backups",
+      "methods": [
+        "GET"
+      ],
+      "name": "list_backups",
+      "endpoint": "api.admin.list_backups",
+      "dependencies": [
+        "_check"
+      ],
+      "auth_dependencies": [],
+      "is_public_by_design": false,
+      "auth_required": false
+    },
+    {
+      "type": "HTTP",
+      "path": "/api/v1/admin/vacuum",
+      "methods": [
+        "POST"
+      ],
+      "name": "vacuum_db",
+      "endpoint": "api.admin.vacuum_db",
+      "dependencies": [
+        "get_db",
+        "_check"
+      ],
+      "auth_dependencies": [],
+      "is_public_by_design": false,
+      "auth_required": false
+    },
+    {
+      "type": "HTTP",
+      "path": "/api/v1/admin/events/old",
+      "methods": [
+        "DELETE"
+      ],
+      "name": "delete_old_events",
+      "endpoint": "api.admin.delete_old_events",
+      "dependencies": [
+        "get_db",
+        "_check"
+      ],
+      "auth_dependencies": [],
+      "is_public_by_design": false,
+      "auth_required": false
+    },
+    {
+      "type": "HTTP",
+      "path": "/api/v1/admin/taxii/clients",
+      "methods": [
+        "POST"
+      ],
+      "name": "create_taxii_client",
+      "endpoint": "api.taxii_admin.create_taxii_client",
+      "dependencies": [
+        "get_db",
+        "_check"
+      ],
+      "auth_dependencies": [],
+      "is_public_by_design": false,
+      "auth_required": false
+    },
+    {
+      "type": "HTTP",
+      "path": "/api/v1/admin/taxii/clients",
+      "methods": [
+        "GET"
+      ],
+      "name": "list_taxii_clients",
+      "endpoint": "api.taxii_admin.list_taxii_clients",
+      "dependencies": [
+        "get_db",
+        "_check"
+      ],
+      "auth_dependencies": [],
+      "is_public_by_design": false,
+      "auth_required": false
+    },
+    {
+      "type": "HTTP",
+      "path": "/api/v1/admin/taxii/clients/{key_id}",
+      "methods": [
+        "DELETE"
+      ],
+      "name": "revoke_taxii_client",
+      "endpoint": "api.taxii_admin.revoke_taxii_client",
+      "dependencies": [
+        "get_db",
+        "_check"
+      ],
+      "auth_dependencies": [],
+      "is_public_by_design": false,
+      "auth_required": false
+    },
+    {
+      "type": "HTTP",
+      "path": "/api/v1/analyze/threat-score",
+      "methods": [
+        "POST"
+      ],
+      "name": "analyze_threat",
+      "endpoint": "api.threat_scoring.analyze_threat",
+      "dependencies": [],
+      "auth_dependencies": [],
+      "is_public_by_design": false,
+      "auth_required": false
+    },
+    {
+      "type": "HTTP",
+      "path": "/api/v1/analytics/ssh",
+      "methods": [
+        "GET"
+      ],
+      "name": "get_ssh_analytics",
+      "endpoint": "api.protocol_analytics.get_ssh_analytics",
+      "dependencies": [
+        "get_current_user",
+        "get_current_user",
+        "get_db"
+      ],
+      "auth_dependencies": [
+        "get_current_user",
+        "get_current_user"
+      ],
+      "is_public_by_design": false,
+      "auth_required": true
+    },
+    {
+      "type": "HTTP",
+      "path": "/api/v1/analytics/http",
+      "methods": [
+        "GET"
+      ],
+      "name": "get_http_analytics",
+      "endpoint": "api.protocol_analytics.get_http_analytics",
+      "dependencies": [
+        "get_current_user",
+        "get_current_user",
+        "get_db"
+      ],
+      "auth_dependencies": [
+        "get_current_user",
+        "get_current_user"
+      ],
+      "is_public_by_design": false,
+      "auth_required": true
+    },
+    {
+      "type": "HTTP",
+      "path": "/api/v1/analytics/trends",
+      "methods": [
+        "GET"
+      ],
+      "name": "get_attack_trends",
+      "endpoint": "api.protocol_analytics.get_attack_trends",
+      "dependencies": [
+        "get_current_user",
+        "get_current_user",
+        "get_db"
+      ],
+      "auth_dependencies": [
+        "get_current_user",
+        "get_current_user"
+      ],
+      "is_public_by_design": false,
+      "auth_required": true
+    },
+    {
+      "type": "HTTP",
+      "path": "/api/threat-metrics",
+      "methods": [
+        "GET"
+      ],
+      "name": "get_threat_metrics",
+      "endpoint": "api.metrics.get_threat_metrics",
+      "dependencies": [
+        "get_current_user",
+        "get_current_user",
+        "get_db"
+      ],
+      "auth_dependencies": [
+        "get_current_user",
+        "get_current_user"
+      ],
+      "is_public_by_design": false,
+      "auth_required": true
+    },
+    {
+      "type": "HTTP",
+      "path": "/api/v1/patterns/advanced",
+      "methods": [
+        "GET"
+      ],
+      "name": "get_advanced_patterns",
+      "endpoint": "api.pattern_analytics.get_advanced_patterns",
+      "dependencies": [
+        "get_db"
+      ],
+      "auth_dependencies": [],
+      "is_public_by_design": false,
+      "auth_required": false
+    },
+    {
+      "type": "HTTP",
+      "path": "/api/v1/reports/generate",
+      "methods": [
+        "GET"
+      ],
+      "name": "generate_report",
+      "endpoint": "api.reports.generate_report",
+      "dependencies": [
+        "get_db",
+        "get_current_user"
+      ],
+      "auth_dependencies": [
+        "get_current_user"
+      ],
+      "is_public_by_design": false,
+      "auth_required": true
+    },
+    {
+      "type": "HTTP",
+      "path": "/api/v1/reports/schedule",
+      "methods": [
+        "POST"
+      ],
+      "name": "schedule_report",
+      "endpoint": "api.reports.schedule_report",
+      "dependencies": [
+        "get_db",
+        "_check"
+      ],
+      "auth_dependencies": [],
+      "is_public_by_design": false,
+      "auth_required": false
+    },
+    {
+      "type": "HTTP",
+      "path": "/api/v1/reports/schedules",
+      "methods": [
+        "GET"
+      ],
+      "name": "get_schedules",
+      "endpoint": "api.reports.get_schedules",
+      "dependencies": [
+        "get_db",
+        "get_current_user"
+      ],
+      "auth_dependencies": [
+        "get_current_user"
+      ],
+      "is_public_by_design": false,
+      "auth_required": true
+    },
+    {
+      "type": "HTTP",
+      "path": "/api/v1/reports/schedule/{report_id}",
+      "methods": [
+        "DELETE"
+      ],
+      "name": "delete_schedule",
+      "endpoint": "api.reports.delete_schedule",
+      "dependencies": [
+        "get_db",
+        "_check"
+      ],
+      "auth_dependencies": [],
+      "is_public_by_design": false,
+      "auth_required": false
+    },
+    {
+      "type": "HTTP",
+      "path": "/api/v1/reports/schedule/{report_id}",
+      "methods": [
+        "PUT"
+      ],
+      "name": "update_schedule",
+      "endpoint": "api.reports.update_schedule",
+      "dependencies": [
+        "get_db",
+        "_check"
+      ],
+      "auth_dependencies": [],
+      "is_public_by_design": false,
+      "auth_required": false
+    },
+    {
+      "type": "HTTP",
+      "path": "/api/v1/hunting/search",
+      "methods": [
+        "POST"
+      ],
+      "name": "search_events",
+      "endpoint": "api.hunting.search_events",
+      "dependencies": [
+        "_check",
+        "_check",
+        "get_db"
+      ],
+      "auth_dependencies": [],
+      "is_public_by_design": false,
+      "auth_required": false
+    },
+    {
+      "type": "HTTP",
+      "path": "/api/v1/hunting/extract-iocs",
+      "methods": [
+        "POST"
+      ],
+      "name": "extract_iocs",
+      "endpoint": "api.hunting.extract_iocs",
+      "dependencies": [
+        "_check",
+        "_check",
+        "get_db"
+      ],
+      "auth_dependencies": [],
+      "is_public_by_design": false,
+      "auth_required": false
+    },
+    {
+      "type": "HTTP",
+      "path": "/api/v1/hunting/related-events",
+      "methods": [
+        "GET"
+      ],
+      "name": "get_related_events",
+      "endpoint": "api.hunting.get_related_events",
+      "dependencies": [
+        "_check",
+        "_check",
+        "get_db"
+      ],
+      "auth_dependencies": [],
+      "is_public_by_design": false,
+      "auth_required": false
+    },
+    {
+      "type": "HTTP",
+      "path": "/api/v1/hunting/history",
+      "methods": [
+        "GET"
+      ],
+      "name": "get_search_history",
+      "endpoint": "api.hunting.get_search_history",
+      "dependencies": [
+        "_check",
+        "_check",
+        "get_db"
+      ],
+      "auth_dependencies": [],
+      "is_public_by_design": false,
+      "auth_required": false
+    },
+    {
+      "type": "HTTP",
+      "path": "/api/v1/hunting/analyze-patterns",
+      "methods": [
+        "POST"
+      ],
+      "name": "analyze_patterns",
+      "endpoint": "api.hunting.analyze_patterns",
+      "dependencies": [
+        "_check",
+        "_check",
+        "get_db"
+      ],
+      "auth_dependencies": [],
+      "is_public_by_design": false,
+      "auth_required": false
+    },
+    {
+      "type": "HTTP",
+      "path": "/api/v1/hunting/templates",
+      "methods": [
+        "GET"
+      ],
+      "name": "get_query_templates",
+      "endpoint": "api.hunting.get_query_templates",
+      "dependencies": [
+        "_check",
+        "_check"
+      ],
+      "auth_dependencies": [],
+      "is_public_by_design": false,
+      "auth_required": false
+    },
+    {
+      "type": "HTTP",
+      "path": "/api/v1/cases/",
+      "methods": [
+        "GET"
+      ],
+      "name": "get_cases",
+      "endpoint": "api.cases.get_cases",
+      "dependencies": [
+        "get_db",
+        "get_current_user"
+      ],
+      "auth_dependencies": [
+        "get_current_user"
+      ],
+      "is_public_by_design": false,
+      "auth_required": true
+    },
+    {
+      "type": "HTTP",
+      "path": "/api/v1/cases/",
+      "methods": [
+        "POST"
+      ],
+      "name": "create_case",
+      "endpoint": "api.cases.create_case",
+      "dependencies": [
+        "get_db",
+        "_check"
+      ],
+      "auth_dependencies": [],
+      "is_public_by_design": false,
+      "auth_required": false
+    },
+    {
+      "type": "HTTP",
+      "path": "/api/v1/cases/{case_id}",
+      "methods": [
+        "GET"
+      ],
+      "name": "get_case_details",
+      "endpoint": "api.cases.get_case_details",
+      "dependencies": [
+        "get_db",
+        "get_current_user"
+      ],
+      "auth_dependencies": [
+        "get_current_user"
+      ],
+      "is_public_by_design": false,
+      "auth_required": true
+    },
+    {
+      "type": "HTTP",
+      "path": "/api/v1/cases/{case_id}",
+      "methods": [
+        "PUT"
+      ],
+      "name": "update_case",
+      "endpoint": "api.cases.update_case",
+      "dependencies": [
+        "get_db",
+        "_check"
+      ],
+      "auth_dependencies": [],
+      "is_public_by_design": false,
+      "auth_required": false
+    },
+    {
+      "type": "HTTP",
+      "path": "/api/v1/cases/{case_id}/evidence",
+      "methods": [
+        "POST"
+      ],
+      "name": "add_evidence",
+      "endpoint": "api.cases.add_evidence",
+      "dependencies": [
+        "get_db",
+        "_check"
+      ],
+      "auth_dependencies": [],
+      "is_public_by_design": false,
+      "auth_required": false
+    },
+    {
+      "type": "HTTP",
+      "path": "/api/v1/alerts",
+      "methods": [
+        "GET"
+      ],
+      "name": "list_alerts",
+      "endpoint": "api.alerts.list_alerts",
+      "dependencies": [
+        "get_db",
+        "get_current_user"
+      ],
+      "auth_dependencies": [
+        "get_current_user"
+      ],
+      "is_public_by_design": false,
+      "auth_required": true
+    },
+    {
+      "type": "HTTP",
+      "path": "/api/v1/alerts/{alert_id}/resolve",
+      "methods": [
+        "PATCH"
+      ],
+      "name": "resolve_alert",
+      "endpoint": "api.alerts.resolve_alert",
+      "dependencies": [
+        "get_db",
+        "_check"
+      ],
+      "auth_dependencies": [],
+      "is_public_by_design": false,
+      "auth_required": false
+    },
+    {
+      "type": "HTTP",
+      "path": "/api/sentinel/playbooks",
+      "methods": [
+        "GET"
+      ],
+      "name": "list_playbooks",
+      "endpoint": "api.sentinel.list_playbooks",
+      "dependencies": [
+        "get_db"
+      ],
+      "auth_dependencies": [],
+      "is_public_by_design": false,
+      "auth_required": false
+    },
+    {
+      "type": "HTTP",
+      "path": "/api/sentinel/playbooks/compare",
+      "methods": [
+        "GET"
+      ],
+      "name": "compare_playbooks",
+      "endpoint": "api.sentinel.compare_playbooks",
+      "dependencies": [
+        "get_db",
+        "get_current_user"
+      ],
+      "auth_dependencies": [
+        "get_current_user"
+      ],
+      "is_public_by_design": false,
+      "auth_required": true
+    },
+    {
+      "type": "HTTP",
+      "path": "/api/sentinel/playbooks/{playbook_id}",
+      "methods": [
+        "GET"
+      ],
+      "name": "get_playbook",
+      "endpoint": "api.sentinel.get_playbook",
+      "dependencies": [
+        "get_db"
+      ],
+      "auth_dependencies": [],
+      "is_public_by_design": false,
+      "auth_required": false
+    },
+    {
+      "type": "HTTP",
+      "path": "/api/sentinel/stats",
+      "methods": [
+        "GET"
+      ],
+      "name": "get_sentinel_stats",
+      "endpoint": "api.sentinel.get_sentinel_stats",
+      "dependencies": [
+        "get_db"
+      ],
+      "auth_dependencies": [],
+      "is_public_by_design": false,
+      "auth_required": false
+    },
+    {
+      "type": "HTTP",
+      "path": "/api/sentinel/mitre/mapping",
+      "methods": [
+        "GET"
+      ],
+      "name": "get_mitre_mappings",
+      "endpoint": "api.sentinel.get_mitre_mappings",
+      "dependencies": [],
+      "auth_dependencies": [],
+      "is_public_by_design": false,
+      "auth_required": false
+    },
+    {
+      "type": "HTTP",
+      "path": "/api/sentinel/generate",
+      "methods": [
+        "POST"
+      ],
+      "name": "generate_playbook",
+      "endpoint": "api.sentinel.generate_playbook",
+      "dependencies": [
+        "check_rate_limit",
+        "check_rate_limit",
+        "get_db"
+      ],
+      "auth_dependencies": [],
+      "is_public_by_design": false,
+      "auth_required": false
+    },
+    {
+      "type": "HTTP",
+      "path": "/api/sentinel/playbooks/{playbook_id}/approve",
+      "methods": [
+        "PATCH"
+      ],
+      "name": "approve_playbook",
+      "endpoint": "api.sentinel.approve_playbook",
+      "dependencies": [
+        "get_db",
+        "_check"
+      ],
+      "auth_dependencies": [],
+      "is_public_by_design": false,
+      "auth_required": false
+    },
+    {
+      "type": "HTTP",
+      "path": "/api/sentinel/playbooks/{playbook_id}/reject",
+      "methods": [
+        "PATCH"
+      ],
+      "name": "reject_playbook",
+      "endpoint": "api.sentinel.reject_playbook",
+      "dependencies": [
+        "get_db",
+        "_check"
+      ],
+      "auth_dependencies": [],
+      "is_public_by_design": false,
+      "auth_required": false
+    },
+    {
+      "type": "HTTP",
+      "path": "/api/sentinel/playbooks/{playbook_id}/export",
+      "methods": [
+        "POST"
+      ],
+      "name": "export_playbook",
+      "endpoint": "api.sentinel.export_playbook",
+      "dependencies": [
+        "get_db",
+        "get_current_user",
+        "rate_limit_dependency"
+      ],
+      "auth_dependencies": [
+        "get_current_user"
+      ],
+      "is_public_by_design": false,
+      "auth_required": true
+    },
+    {
+      "type": "HTTP",
+      "path": "/api/sentinel/playbooks/{playbook_id}/export/pdf",
+      "methods": [
+        "POST"
+      ],
+      "name": "export_playbook_pdf",
+      "endpoint": "api.sentinel.export_playbook_pdf",
+      "dependencies": [
+        "get_db",
+        "get_current_user",
+        "rate_limit_dependency"
+      ],
+      "auth_dependencies": [
+        "get_current_user"
+      ],
+      "is_public_by_design": false,
+      "auth_required": true
+    },
+    {
+      "type": "HTTP",
+      "path": "/api/sentinel/rules/snort",
+      "methods": [
+        "GET"
+      ],
+      "name": "list_snort_rules",
+      "endpoint": "api.sentinel.list_snort_rules",
+      "dependencies": [
+        "get_db"
+      ],
+      "auth_dependencies": [],
+      "is_public_by_design": false,
+      "auth_required": false
+    },
+    {
+      "type": "HTTP",
+      "path": "/api/sentinel/rules/sigma",
+      "methods": [
+        "GET"
+      ],
+      "name": "list_sigma_rules",
+      "endpoint": "api.sentinel.list_sigma_rules",
+      "dependencies": [
+        "get_db"
+      ],
+      "auth_dependencies": [],
+      "is_public_by_design": false,
+      "auth_required": false
+    },
+    {
+      "type": "HTTP",
+      "path": "/api/sentinel/llm/status",
+      "methods": [
+        "GET"
+      ],
+      "name": "get_llm_status",
+      "endpoint": "api.sentinel.get_llm_status",
+      "dependencies": [],
+      "auth_dependencies": [],
+      "is_public_by_design": false,
+      "auth_required": false
+    },
+    {
+      "type": "HTTP",
+      "path": "/api/sentinel/playbooks/{playbook_id}/regenerate-llm",
+      "methods": [
+        "POST"
+      ],
+      "name": "regenerate_playbook_llm",
+      "endpoint": "api.sentinel.regenerate_playbook_llm",
+      "dependencies": [
+        "check_rate_limit",
+        "check_rate_limit",
+        "get_db"
+      ],
+      "auth_dependencies": [],
+      "is_public_by_design": false,
+      "auth_required": false
+    },
+    {
+      "type": "HTTP",
+      "path": "/api/sentinel/mitre/matrix",
+      "methods": [
+        "GET"
+      ],
+      "name": "get_mitre_matrix",
+      "endpoint": "api.sentinel.get_mitre_matrix",
+      "dependencies": [
+        "get_db"
+      ],
+      "auth_dependencies": [],
+      "is_public_by_design": false,
+      "auth_required": false
+    },
+    {
+      "type": "HTTP",
+      "path": "/api/sentinel/playbooks/batch/approve",
+      "methods": [
+        "POST"
+      ],
+      "name": "batch_approve_playbooks",
+      "endpoint": "api.sentinel.batch_approve_playbooks",
+      "dependencies": [
+        "get_db",
+        "_check",
+        "rate_limit_dependency"
+      ],
+      "auth_dependencies": [],
+      "is_public_by_design": false,
+      "auth_required": false
+    },
+    {
+      "type": "HTTP",
+      "path": "/api/sentinel/playbooks/batch/reject",
+      "methods": [
+        "POST"
+      ],
+      "name": "batch_reject_playbooks",
+      "endpoint": "api.sentinel.batch_reject_playbooks",
+      "dependencies": [
+        "get_db",
+        "_check",
+        "rate_limit_dependency"
+      ],
+      "auth_dependencies": [],
+      "is_public_by_design": false,
+      "auth_required": false
+    },
+    {
+      "type": "HTTP",
+      "path": "/api/sentinel/playbooks/{playbook_id}/regenerate",
+      "methods": [
+        "POST"
+      ],
+      "name": "regenerate_playbook",
+      "endpoint": "api.sentinel.regenerate_playbook",
+      "dependencies": [
+        "get_db"
+      ],
+      "auth_dependencies": [],
+      "is_public_by_design": false,
+      "auth_required": false
+    },
+    {
+      "type": "HTTP",
+      "path": "/api/sentinel/playbooks/{playbook_id}/versions",
+      "methods": [
+        "GET"
+      ],
+      "name": "get_playbook_versions",
+      "endpoint": "api.sentinel.get_playbook_versions",
+      "dependencies": [
+        "get_db"
+      ],
+      "auth_dependencies": [],
+      "is_public_by_design": false,
+      "auth_required": false
+    },
+    {
+      "type": "HTTP",
+      "path": "/api/sentinel/rules/export-all",
+      "methods": [
+        "GET"
+      ],
+      "name": "export_all_rules",
+      "endpoint": "api.sentinel.export_all_rules",
+      "dependencies": [
+        "get_db"
+      ],
+      "auth_dependencies": [],
+      "is_public_by_design": false,
+      "auth_required": false
+    },
+    {
+      "type": "HTTP",
+      "path": "/api/sentinel/campaigns/{campaign_id}/timeline",
+      "methods": [
+        "GET"
+      ],
+      "name": "get_campaign_timeline",
+      "endpoint": "api.sentinel.get_campaign_timeline",
+      "dependencies": [
+        "get_db"
+      ],
+      "auth_dependencies": [],
+      "is_public_by_design": false,
+      "auth_required": false
+    },
+    {
+      "type": "HTTP",
+      "path": "/api/sentinel/audit-logs",
+      "methods": [
+        "GET"
+      ],
+      "name": "get_audit_logs",
+      "endpoint": "api.sentinel.get_audit_logs",
+      "dependencies": [
+        "get_db",
+        "get_optional_current_user"
+      ],
+      "auth_dependencies": [
+        "get_optional_current_user"
+      ],
+      "is_public_by_design": false,
+      "auth_required": true
+    },
+    {
+      "type": "HTTP",
+      "path": "/api/sentinel/playbooks/{playbook_id}/export-history",
+      "methods": [
+        "GET"
+      ],
+      "name": "get_playbook_export_history",
+      "endpoint": "api.sentinel.get_playbook_export_history",
+      "dependencies": [
+        "get_db"
+      ],
+      "auth_dependencies": [],
+      "is_public_by_design": false,
+      "auth_required": false
+    },
+    {
+      "type": "HTTP",
+      "path": "/api/v1/sentinel/audit-logs",
+      "methods": [
+        "GET"
+      ],
+      "name": "get_v1_audit_logs",
+      "endpoint": "api.sentinel.get_v1_audit_logs",
+      "dependencies": [
+        "get_db",
+        "get_current_user"
+      ],
+      "auth_dependencies": [
+        "get_current_user"
+      ],
+      "is_public_by_design": false,
+      "auth_required": true
+    },
+    {
+      "type": "HTTP",
+      "path": "/api/v1/sentinel/templates",
+      "methods": [
+        "GET"
+      ],
+      "name": "list_sentinel_templates",
+      "endpoint": "api.sentinel.list_sentinel_templates",
+      "dependencies": [],
+      "auth_dependencies": [],
+      "is_public_by_design": false,
+      "auth_required": false
+    },
+    {
+      "type": "HTTP",
+      "path": "/api/v1/sentinel/templates/preview",
+      "methods": [
+        "POST"
+      ],
+      "name": "preview_sentinel_template",
+      "endpoint": "api.sentinel.preview_sentinel_template",
+      "dependencies": [],
+      "auth_dependencies": [],
+      "is_public_by_design": false,
+      "auth_required": false
+    },
+    {
+      "type": "HTTP",
+      "path": "/api/honeypots",
+      "methods": [
+        "GET"
+      ],
+      "name": "get_honeypot_status",
+      "endpoint": "api.honeypots.get_honeypot_status",
+      "dependencies": [
+        "get_current_user",
+        "get_current_user",
+        "get_db"
+      ],
+      "auth_dependencies": [
+        "get_current_user",
+        "get_current_user"
+      ],
+      "is_public_by_design": false,
+      "auth_required": true
+    },
+    {
+      "type": "HTTP",
+      "path": "/api/honeypots/status",
+      "methods": [
+        "GET"
+      ],
+      "name": "get_honeypot_status_alias",
+      "endpoint": "api.honeypots.get_honeypot_status_alias",
+      "dependencies": [
+        "get_current_user",
+        "get_current_user",
+        "get_db"
+      ],
+      "auth_dependencies": [
+        "get_current_user",
+        "get_current_user"
+      ],
+      "is_public_by_design": false,
+      "auth_required": true
+    },
+    {
+      "type": "HTTP",
+      "path": "/taxii2",
+      "methods": [
+        "GET"
+      ],
+      "name": "taxii_discovery",
+      "endpoint": "api.taxii.taxii_discovery",
+      "dependencies": [
+        "get_taxii_user"
+      ],
+      "auth_dependencies": [
+        "get_taxii_user"
+      ],
+      "is_public_by_design": false,
+      "auth_required": true
+    },
+    {
+      "type": "HTTP",
+      "path": "/taxii2/",
+      "methods": [
+        "GET"
+      ],
+      "name": "taxii_discovery",
+      "endpoint": "api.taxii.taxii_discovery",
+      "dependencies": [
+        "get_taxii_user"
+      ],
+      "auth_dependencies": [
+        "get_taxii_user"
+      ],
+      "is_public_by_design": false,
+      "auth_required": true
+    },
+    {
+      "type": "HTTP",
+      "path": "/taxii2/phantomnet",
+      "methods": [
+        "GET"
+      ],
+      "name": "taxii_api_root",
+      "endpoint": "api.taxii.taxii_api_root",
+      "dependencies": [
+        "get_taxii_user"
+      ],
+      "auth_dependencies": [
+        "get_taxii_user"
+      ],
+      "is_public_by_design": false,
+      "auth_required": true
+    },
+    {
+      "type": "HTTP",
+      "path": "/taxii2/phantomnet/",
+      "methods": [
+        "GET"
+      ],
+      "name": "taxii_api_root",
+      "endpoint": "api.taxii.taxii_api_root",
+      "dependencies": [
+        "get_taxii_user"
+      ],
+      "auth_dependencies": [
+        "get_taxii_user"
+      ],
+      "is_public_by_design": false,
+      "auth_required": true
+    },
+    {
+      "type": "HTTP",
+      "path": "/taxii2/phantomnet/collections",
+      "methods": [
+        "GET"
+      ],
+      "name": "list_collections",
+      "endpoint": "api.taxii.list_collections",
+      "dependencies": [
+        "get_db",
+        "get_taxii_user"
+      ],
+      "auth_dependencies": [
+        "get_taxii_user"
+      ],
+      "is_public_by_design": false,
+      "auth_required": true
+    },
+    {
+      "type": "HTTP",
+      "path": "/taxii2/phantomnet/collections/",
+      "methods": [
+        "GET"
+      ],
+      "name": "list_collections",
+      "endpoint": "api.taxii.list_collections",
+      "dependencies": [
+        "get_db",
+        "get_taxii_user"
+      ],
+      "auth_dependencies": [
+        "get_taxii_user"
+      ],
+      "is_public_by_design": false,
+      "auth_required": true
+    },
+    {
+      "type": "HTTP",
+      "path": "/taxii2/phantomnet/collections/{collection_id}",
+      "methods": [
+        "GET"
+      ],
+      "name": "get_collection_detail",
+      "endpoint": "api.taxii.get_collection_detail",
+      "dependencies": [
+        "get_db",
+        "get_taxii_user"
+      ],
+      "auth_dependencies": [
+        "get_taxii_user"
+      ],
+      "is_public_by_design": false,
+      "auth_required": true
+    },
+    {
+      "type": "HTTP",
+      "path": "/taxii2/phantomnet/collections/{collection_id}/",
+      "methods": [
+        "GET"
+      ],
+      "name": "get_collection_detail",
+      "endpoint": "api.taxii.get_collection_detail",
+      "dependencies": [
+        "get_db",
+        "get_taxii_user"
+      ],
+      "auth_dependencies": [
+        "get_taxii_user"
+      ],
+      "is_public_by_design": false,
+      "auth_required": true
+    },
+    {
+      "type": "HTTP",
+      "path": "/taxii2/phantomnet/collections/{id}/objects",
+      "methods": [
+        "GET"
+      ],
+      "name": "get_collection_objects",
+      "endpoint": "api.taxii.get_collection_objects",
+      "dependencies": [
+        "get_db",
+        "get_taxii_user"
+      ],
+      "auth_dependencies": [
+        "get_taxii_user"
+      ],
+      "is_public_by_design": false,
+      "auth_required": true
+    },
+    {
+      "type": "HTTP",
+      "path": "/taxii2/phantomnet/collections/{id}/objects/",
+      "methods": [
+        "GET"
+      ],
+      "name": "get_collection_objects",
+      "endpoint": "api.taxii.get_collection_objects",
+      "dependencies": [
+        "get_db",
+        "get_taxii_user"
+      ],
+      "auth_dependencies": [
+        "get_taxii_user"
+      ],
+      "is_public_by_design": false,
+      "auth_required": true
+    },
+    {
+      "type": "HTTP",
+      "path": "/api/v1/ingest/event",
+      "methods": [
+        "POST"
+      ],
+      "name": "ingest_event",
+      "endpoint": "api.ingest.ingest_event",
+      "dependencies": [
+        "get_ingestion_gateway"
+      ],
+      "auth_dependencies": [],
+      "is_public_by_design": false,
+      "auth_required": false
+    },
+    {
+      "type": "HTTP",
+      "path": "/api/v1/ingest/batch",
+      "methods": [
+        "POST"
+      ],
+      "name": "ingest_batch",
+      "endpoint": "api.ingest.ingest_batch",
+      "dependencies": [
+        "get_ingestion_gateway"
+      ],
+      "auth_dependencies": [],
+      "is_public_by_design": false,
+      "auth_required": false
+    },
+    {
+      "type": "HTTP",
+      "path": "/api/v1/ingest/health",
+      "methods": [
+        "GET"
+      ],
+      "name": "ingest_health",
+      "endpoint": "api.ingest.ingest_health",
+      "dependencies": [
+        "get_ingestion_gateway"
+      ],
+      "auth_dependencies": [],
+      "is_public_by_design": false,
+      "auth_required": false
+    },
+    {
+      "type": "HTTP",
+      "path": "/api/v1/governance/retention/policies",
+      "methods": [
+        "GET"
+      ],
+      "name": "get_retention_policies",
+      "endpoint": "api.governance.get_retention_policies",
+      "dependencies": [
+        "_check"
+      ],
+      "auth_dependencies": [],
+      "is_public_by_design": false,
+      "auth_required": false
+    },
+    {
+      "type": "HTTP",
+      "path": "/api/v1/governance/retention/run",
+      "methods": [
+        "POST"
+      ],
+      "name": "run_retention_cycle_endpoint",
+      "endpoint": "api.governance.run_retention_cycle_endpoint",
+      "dependencies": [
+        "get_db",
+        "_check"
+      ],
+      "auth_dependencies": [],
+      "is_public_by_design": false,
+      "auth_required": false
+    },
+    {
+      "type": "HTTP",
+      "path": "/health/live",
+      "methods": [
+        "GET"
+      ],
+      "name": "liveness_probe",
+      "endpoint": "api.health.liveness_probe",
+      "dependencies": [],
+      "auth_dependencies": [],
+      "is_public_by_design": true,
+      "auth_required": false
+    },
+    {
+      "type": "HTTP",
+      "path": "/health/ready",
+      "methods": [
+        "GET"
+      ],
+      "name": "readiness_probe",
+      "endpoint": "api.health.readiness_probe",
+      "dependencies": [
+        "get_db"
+      ],
+      "auth_dependencies": [],
+      "is_public_by_design": true,
+      "auth_required": false
+    },
+    {
+      "type": "HTTP",
+      "path": "/health/startup",
+      "methods": [
+        "GET"
+      ],
+      "name": "startup_probe",
+      "endpoint": "api.health.startup_probe",
+      "dependencies": [
+        "get_db"
+      ],
+      "auth_dependencies": [],
+      "is_public_by_design": true,
+      "auth_required": false
+    },
+    {
+      "type": "HTTP",
+      "path": "/metrics",
+      "methods": [
+        "GET"
+      ],
+      "name": "prometheus_metrics",
+      "endpoint": "api.health.prometheus_metrics",
+      "dependencies": [],
+      "auth_dependencies": [],
+      "is_public_by_design": false,
+      "auth_required": false
+    },
+    {
+      "type": "HTTP",
+      "path": "/api/health",
+      "methods": [
+        "GET"
+      ],
+      "name": "health_check",
+      "endpoint": "backend.main.health_check",
+      "dependencies": [],
+      "auth_dependencies": [],
+      "is_public_by_design": false,
+      "auth_required": false
+    },
+    {
+      "type": "HTTP",
+      "path": "/analyze-traffic",
+      "methods": [
+        "GET"
+      ],
+      "name": "get_real_traffic",
+      "endpoint": "backend.main.get_real_traffic",
+      "dependencies": [
+        "get_db"
+      ],
+      "auth_dependencies": [],
+      "is_public_by_design": false,
+      "auth_required": false
+    },
+    {
+      "type": "HTTP",
+      "path": "/api/stats",
+      "methods": [
+        "GET"
+      ],
+      "name": "get_api_stats",
+      "endpoint": "backend.main.get_api_stats",
+      "dependencies": [
+        "get_db"
+      ],
+      "auth_dependencies": [],
+      "is_public_by_design": false,
+      "auth_required": false
+    },
+    {
+      "type": "HTTP",
+      "path": "/metrics",
+      "methods": [
+        "GET"
+      ],
+      "name": "prometheus_metrics",
+      "endpoint": "backend.main.prometheus_metrics",
+      "dependencies": [],
+      "auth_dependencies": [],
+      "is_public_by_design": false,
+      "auth_required": false
+    },
+    {
+      "type": "HTTP",
+      "path": "/api/cache/stats",
+      "methods": [
+        "GET"
+      ],
+      "name": "cache_stats",
+      "endpoint": "backend.main.cache_stats",
+      "dependencies": [
+        "get_current_user"
+      ],
+      "auth_dependencies": [
+        "get_current_user"
+      ],
+      "is_public_by_design": false,
+      "auth_required": true
+    },
+    {
+      "type": "HTTP",
+      "path": "/api/events",
+      "methods": [
+        "GET"
+      ],
+      "name": "get_events",
+      "endpoint": "backend.main.get_events",
+      "dependencies": [
+        "get_db",
+        "get_current_user"
+      ],
+      "auth_dependencies": [
+        "get_current_user"
+      ],
+      "is_public_by_design": false,
+      "auth_required": true
+    },
+    {
+      "type": "HTTP",
+      "path": "/api/features/live",
+      "methods": [
+        "GET"
+      ],
+      "name": "get_live_features",
+      "endpoint": "backend.main.get_live_features",
+      "dependencies": [
+        "get_db",
+        "get_current_user"
+      ],
+      "auth_dependencies": [
+        "get_current_user"
+      ],
+      "is_public_by_design": false,
+      "auth_required": true
+    },
+    {
+      "type": "HTTP",
+      "path": "/active-defense/block/{ip}",
+      "methods": [
+        "POST"
+      ],
+      "name": "block_ip_address",
+      "endpoint": "backend.main.block_ip_address",
+      "dependencies": [
+        "_check",
+        "get_db"
+      ],
+      "auth_dependencies": [],
+      "is_public_by_design": false,
+      "auth_required": false
+    },
+    {
+      "type": "HTTP",
+      "path": "/api/analytics/attack-map",
+      "methods": [
+        "GET"
+      ],
+      "name": "get_attack_map",
+      "endpoint": "backend.main.get_attack_map",
+      "dependencies": [
+        "get_db",
+        "get_current_user"
+      ],
+      "auth_dependencies": [
+        "get_current_user"
+      ],
+      "is_public_by_design": false,
+      "auth_required": true
+    },
+    {
+      "type": "HTTP",
+      "path": "/api/geoip/lookup/{ip}",
+      "methods": [
+        "GET"
+      ],
+      "name": "geoip_lookup",
+      "endpoint": "backend.main.geoip_lookup",
+      "dependencies": [
+        "get_current_user"
+      ],
+      "auth_dependencies": [
+        "get_current_user"
+      ],
+      "is_public_by_design": false,
+      "auth_required": true
+    },
+    {
+      "type": "HTTP",
+      "path": "/api/geoip/status",
+      "methods": [
+        "GET"
+      ],
+      "name": "geoip_status",
+      "endpoint": "backend.main.geoip_status",
+      "dependencies": [
+        "get_current_user"
+      ],
+      "auth_dependencies": [
+        "get_current_user"
+      ],
+      "is_public_by_design": false,
+      "auth_required": true
+    },
+    {
+      "type": "HTTP",
+      "path": "/api/response/history",
+      "methods": [
+        "GET"
+      ],
+      "name": "response_history",
+      "endpoint": "backend.main.response_history",
+      "dependencies": [
+        "get_current_user"
+      ],
+      "auth_dependencies": [
+        "get_current_user"
+      ],
+      "is_public_by_design": false,
+      "auth_required": true
+    },
+    {
+      "type": "HTTP",
+      "path": "/api/response/blocked-ips",
+      "methods": [
+        "GET"
+      ],
+      "name": "blocked_ips",
+      "endpoint": "backend.main.blocked_ips",
+      "dependencies": [
+        "get_current_user"
+      ],
+      "auth_dependencies": [
+        "get_current_user"
+      ],
+      "is_public_by_design": false,
+      "auth_required": true
+    },
+    {
+      "type": "HTTP",
+      "path": "/api/response/unblock/{ip}",
+      "methods": [
+        "POST"
+      ],
+      "name": "unblock_ip",
+      "endpoint": "backend.main.unblock_ip",
+      "dependencies": [
+        "_check",
+        "get_db"
+      ],
+      "auth_dependencies": [],
+      "is_public_by_design": false,
+      "auth_required": false
+    },
+    {
+      "type": "HTTP",
+      "path": "/api/response/policy",
+      "methods": [
+        "GET"
+      ],
+      "name": "get_response_policy",
+      "endpoint": "backend.main.get_response_policy",
+      "dependencies": [
+        "get_current_user"
+      ],
+      "auth_dependencies": [
+        "get_current_user"
+      ],
+      "is_public_by_design": false,
+      "auth_required": true
+    },
+    {
+      "type": "HTTP",
+      "path": "/api/response/policy",
+      "methods": [
+        "PUT"
+      ],
+      "name": "update_response_policy",
+      "endpoint": "backend.main.update_response_policy",
+      "dependencies": [
+        "_check",
+        "get_db"
+      ],
+      "auth_dependencies": [],
+      "is_public_by_design": false,
+      "auth_required": false
+    },
+    {
+      "type": "HTTP",
+      "path": "/api/response/stats",
+      "methods": [
+        "GET"
+      ],
+      "name": "response_stats",
+      "endpoint": "backend.main.response_stats",
+      "dependencies": [
+        "get_current_user"
+      ],
+      "auth_dependencies": [
+        "get_current_user"
+      ],
+      "is_public_by_design": false,
+      "auth_required": true
+    },
+    {
+      "type": "HTTP",
+      "path": "/api/v1/advanced/campaigns",
+      "methods": [
+        "GET"
+      ],
+      "name": "get_attack_campaigns",
+      "endpoint": "backend.main.get_attack_campaigns",
+      "dependencies": [
+        "get_db",
+        "get_current_user"
+      ],
+      "auth_dependencies": [
+        "get_current_user"
+      ],
+      "is_public_by_design": false,
+      "auth_required": true
+    },
+    {
+      "type": "HTTP",
+      "path": "/api/v1/events/{event_id}/explanation",
+      "methods": [
+        "GET"
+      ],
+      "name": "explain_threat_score",
+      "endpoint": "backend.main.explain_threat_score",
+      "dependencies": [
+        "get_db",
+        "get_current_user"
+      ],
+      "auth_dependencies": [
+        "get_current_user"
+      ],
+      "is_public_by_design": false,
+      "auth_required": true
+    }
+  ]
+}

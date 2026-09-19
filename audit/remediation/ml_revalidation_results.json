@@ -1,0 +1,99 @@
+{
+  "timestamp": "2026-09-19T08:55:43.929663",
+  "methodology": "Strict chronological train/val/test split with zero temporal leakage",
+  "ground_truth_file": "data/ground_truth.csv",
+  "models_evaluated": {
+    "AnomalyDetector": {
+      "test_sample_count": 30,
+      "tp": 7,
+      "tn": 22,
+      "fp": 0,
+      "fn": 1,
+      "precision": 1.0,
+      "recall": 0.875,
+      "f1_score": 0.9333,
+      "fpr": 0.0,
+      "pr_auc": 0.2,
+      "confusion_matrix": [
+        [
+          22,
+          0
+        ],
+        [
+          1,
+          7
+        ]
+      ],
+      "meets_slo": true
+    },
+    "AttackClassifier_Enhanced": {
+      "test_sample_count": 30,
+      "tp": 0,
+      "tn": 22,
+      "fp": 0,
+      "fn": 8,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1_score": 0.0,
+      "fpr": 0.0,
+      "pr_auc": 0.3951,
+      "roc_auc": 0.5597,
+      "confusion_matrix": [
+        [
+          22,
+          0
+        ],
+        [
+          8,
+          0
+        ]
+      ],
+      "meets_slo": false
+    }
+  },
+  "chronological_split": {
+    "total_records": 200,
+    "train_count": 140,
+    "val_count": 30,
+    "test_count": 30,
+    "train_range": [
+      "2026-02-12 14:32:17.979603+00:00",
+      "2026-02-12 14:38:29.366943+00:00"
+    ],
+    "val_range": [
+      "2026-02-12 14:38:31.507555+00:00",
+      "2026-02-12 14:39:55.975421+00:00"
+    ],
+    "test_range": [
+      "2026-02-12 14:40:00.024262+00:00",
+      "2026-02-12 14:41:25.554644+00:00"
+    ],
+    "zero_temporal_leakage": true
+  },
+  "threat_scoring_evasion_test": [
+    {
+      "payload_name": "mutated_exploit_payload",
+      "score": 0.7,
+      "threat_level": "MEDIUM",
+      "confidence": 0.7,
+      "decision": "ALERT",
+      "evaded": false
+    },
+    {
+      "payload_name": "slow_ssh_brute_force",
+      "score": 0.7,
+      "threat_level": "HIGH",
+      "confidence": 0.7,
+      "decision": "ALERT",
+      "evaded": false
+    },
+    {
+      "payload_name": "distributed_sqli_botnet",
+      "score": 0.7,
+      "threat_level": "MEDIUM",
+      "confidence": 0.7,
+      "decision": "ALERT",
+      "evaded": false
+    }
+  ]
+}

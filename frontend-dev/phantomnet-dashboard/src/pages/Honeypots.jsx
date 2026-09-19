@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { FaTerminal, FaGlobe, FaDatabase, FaEnvelope, FaServer } from "react-icons/fa";
+import { FaTerminal, FaGlobe, FaEnvelope, FaServer } from "react-icons/fa";
 import "../Styles/pages/Honeypots.css";
 import "../Styles/honeypot.css";
 
@@ -93,17 +93,6 @@ const Honeypots = () => {
             packetCount: hp.packet_count || 0
           }));
           
-          // Append planned honeypot for roadmap visual representation
-          mapped.push({
-            title: "Database Honeypot",
-            port: "3306",
-            status: "PLANNED",
-            icon: FaDatabase,
-            description: "SQL injection and credential theft detection.",
-            lastSeen: "Not Scheduled",
-            packetCount: 0
-          });
-
           setHoneypots(mapped);
         }
       } catch {
@@ -130,7 +119,6 @@ const Honeypots = () => {
   return (
     <div className="honeypots-wrapper">
       <div className="honeypots-header">
-        <div className="header-badge hud-font">DECEPTION_GRID_V2.0</div>
         <h1 className="honeypots-title glow-text">Honeypot Network</h1>
         <p className="honeypots-subtitle text-dim">LIVE STATUS | ACTIVE DEFENSE DECEPTION TOPOLOGY</p>
       </div>

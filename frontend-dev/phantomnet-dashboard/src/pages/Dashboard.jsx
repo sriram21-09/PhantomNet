@@ -105,7 +105,6 @@ const Dashboard = () => {
         <div className="header-content">
           <div className="header-title">
             <div className="dashboard-header-premium">
-              <div className="header-badge hud-font">NODE_DELTA_V.2</div>
               <h1 className="dashboard-title glow-text">Command Center</h1>
               <p className="dashboard-subtitle text-dim">GLOBAL THREAT DEFENSE MESH | LIVE FEED SYNCHRONIZED</p>
             </div>
@@ -183,19 +182,19 @@ const Dashboard = () => {
                 <CyberMeshMap />
               </div>
               <div className="threat-intelligence-group">
-                {threatMetrics ? (
-                  <OptimizedThreatLevel threatLevel={threatMetrics.threatLevel} />
+                {threatMetrics || stats ? (
+                  <OptimizedThreatLevel threatLevel={threatMetrics?.avgThreatScore ?? stats?.avgThreatScore ?? 0} />
                 ) : (
                   <div className="skeleton-card"></div>
                 )}
-                {threatMetrics ? (
+                {threatMetrics || stats ? (
                   <PremiumGaugeCard
                     title="Anomaly Score"
-                    value={`${Math.round((threatMetrics?.anomalyScore || 0) * 100)}% RISK`}
-                    progress={Math.round((threatMetrics?.anomalyScore || 0) * 100)}
+                    value={`${Math.round(threatMetrics?.avgThreatScore ?? stats?.avgThreatScore ?? 0)}% RISK`}
+                    progress={Math.round(threatMetrics?.avgThreatScore ?? stats?.avgThreatScore ?? 0)}
                     variant="orange"
                     subtitle="SENSORY FEED"
-                    status="IDENTIFYING"
+                    status={(threatMetrics?.avgThreatScore ?? stats?.avgThreatScore ?? 0) > 70 ? "CRITICAL" : (threatMetrics?.avgThreatScore ?? stats?.avgThreatScore ?? 0) > 40 ? "WARNING" : "OPTIMAL"}
                   />
                 ) : (
                   <div className="skeleton-card"></div>

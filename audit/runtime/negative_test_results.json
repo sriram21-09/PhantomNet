@@ -1,0 +1,137 @@
+[
+  {
+    "test_name": "Malformed JSON on Ingestion Gateway",
+    "method": "POST",
+    "path": "/api/v1/ingest/event",
+    "actual_status": 422,
+    "expected_status": [
+      400,
+      422
+    ],
+    "pass": true,
+    "response_sample": "{\"detail\":\"Malformed JSON body\"}"
+  },
+  {
+    "test_name": "Malformed JSON on Login",
+    "method": "POST",
+    "path": "/api/v1/admin/login",
+    "actual_status": 422,
+    "expected_status": [
+      422
+    ],
+    "pass": true,
+    "response_sample": "{\"detail\":[{\"type\":\"json_invalid\",\"loc\":[\"body\",1],\"msg\":\"JSON decode error\",\"input\":{},\"ctx\":{\"error\":\"Expecting value\"}}]}"
+  },
+  {
+    "test_name": "Missing password in Login",
+    "method": "POST",
+    "path": "/api/v1/admin/login",
+    "actual_status": 422,
+    "expected_status": [
+      422
+    ],
+    "pass": true,
+    "response_sample": "{\"detail\":[{\"type\":\"missing\",\"loc\":[\"body\",\"password\"],\"msg\":\"Field required\",\"input\":{\"username\":\"admin_test\"}}]}"
+  },
+  {
+    "test_name": "Missing title in Cases creation",
+    "method": "POST",
+    "path": "/api/v1/cases/",
+    "actual_status": 422,
+    "expected_status": [
+      422
+    ],
+    "pass": true,
+    "response_sample": "{\"detail\":[{\"type\":\"missing\",\"loc\":[\"body\",\"title\"],\"msg\":\"Field required\",\"input\":{\"description\":\"Missing title\"}}]}"
+  },
+  {
+    "test_name": "String for integer port in Report schedule",
+    "method": "POST",
+    "path": "/api/v1/reports/schedule",
+    "actual_status": 422,
+    "expected_status": [
+      422
+    ],
+    "pass": true,
+    "response_sample": "{\"detail\":[{\"type\":\"string_type\",\"loc\":[\"body\",\"day_of_week\"],\"msg\":\"Input should be a valid string\",\"input\":12345}]}"
+  },
+  {
+    "test_name": "Invalid frequency enum in Report schedule",
+    "method": "POST",
+    "path": "/api/v1/reports/schedule",
+    "actual_status": 422,
+    "expected_status": [
+      422
+    ],
+    "pass": true,
+    "response_sample": "{\"detail\":[{\"type\":\"value_error\",\"loc\":[\"body\",\"frequency\"],\"msg\":\"Value error, Invalid frequency 'every_second'. Allowed: daily, monthly, weekly\",\"input\":\"every_second\",\"ctx\":{\"error\":{}}}]}"
+  },
+  {
+    "test_name": "SQL Injection in IP block endpoint",
+    "method": "POST",
+    "path": "/active-defense/block/' OR '1'='1",
+    "actual_status": 400,
+    "expected_status": [
+      400
+    ],
+    "pass": true,
+    "response_sample": "{\"detail\":\"Invalid IP address format: ' OR '1'='1\"}"
+  },
+  {
+    "test_name": "SQL Injection in User Search query",
+    "method": "GET",
+    "path": "/api/v1/alerts?level=' UNION SELECT * FROM users--",
+    "actual_status": 200,
+    "expected_status": [
+      200,
+      400
+    ],
+    "pass": true,
+    "response_sample": "{\"status\":\"success\",\"total\":0,\"limit\":100,\"offset\":0,\"alerts\":[]}"
+  },
+  {
+    "test_name": "Path traversal in PCAP download",
+    "method": "GET",
+    "path": "/api/v1/events/..%2F..%2Fetc%2Fpasswd/pcap",
+    "actual_status": 404,
+    "expected_status": [
+      400,
+      404
+    ],
+    "pass": true,
+    "response_sample": "{\"detail\":\"Not Found\"}"
+  },
+  {
+    "test_name": "Oversized JSON payload on Report schedule",
+    "method": "POST",
+    "path": "/api/v1/reports/schedule",
+    "actual_status": 422,
+    "expected_status": [
+      422
+    ],
+    "pass": true,
+    "response_sample": "{\"detail\":[{\"type\":\"string_too_long\",\"loc\":[\"body\",\"name\"],\"msg\":\"String should have at most 100 characters\",\"input\":\"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+  },
+  {
+    "test_name": "Unauthenticated access to Alerts",
+    "method": "GET",
+    "path": "/api/v1/alerts",
+    "actual_status": 401,
+    "expected_status": [
+      401
+    ],
+    "pass": true,
+    "response_sample": "{\"detail\":\"Not authenticated\"}"
+  },
+  {
+    "test_name": "Viewer attempting User deletion",
+    "method": "DELETE",
+    "path": "/api/v1/admin/users/1",
+    "actual_status": 403,
+    "expected_status": [
+      403
+    ],
+    "pass": true,
+    "response_sample": "{\"detail\":\"Requires role: Admin\"}"
+  }
+]

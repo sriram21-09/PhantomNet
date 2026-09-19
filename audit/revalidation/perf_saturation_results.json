@@ -1,0 +1,97 @@
+{
+  "timestamp": "2026-09-19T07:33:30.627776",
+  "telemetry_500eps": [
+    {
+      "time_sec": 0.0,
+      "cpu_percent": 99.7,
+      "mem_percent": 93.5,
+      "submitted_so_far": 0
+    },
+    {
+      "time_sec": 1.01,
+      "cpu_percent": 98.3,
+      "mem_percent": 93.6,
+      "submitted_so_far": 500
+    },
+    {
+      "time_sec": 2.0,
+      "cpu_percent": 99.0,
+      "mem_percent": 93.6,
+      "submitted_so_far": 1000
+    },
+    {
+      "time_sec": 3.0,
+      "cpu_percent": 93.3,
+      "mem_percent": 93.6,
+      "submitted_so_far": 1500
+    },
+    {
+      "time_sec": 4.01,
+      "cpu_percent": 76.4,
+      "mem_percent": 93.6,
+      "submitted_so_far": 2000
+    },
+    {
+      "time_sec": 5.0,
+      "cpu_percent": 99.6,
+      "mem_percent": 94.0,
+      "submitted_so_far": 2500
+    },
+    {
+      "time_sec": 6.1,
+      "cpu_percent": 99.6,
+      "mem_percent": 93.7,
+      "submitted_so_far": 3000
+    },
+    {
+      "time_sec": 7.01,
+      "cpu_percent": 99.0,
+      "mem_percent": 93.4,
+      "submitted_so_far": 3500
+    },
+    {
+      "time_sec": 8.01,
+      "cpu_percent": 99.9,
+      "mem_percent": 93.5,
+      "submitted_so_far": 4000
+    },
+    {
+      "time_sec": 9.07,
+      "cpu_percent": 99.3,
+      "mem_percent": 93.7,
+      "submitted_so_far": 4500
+    }
+  ],
+  "telemetry_1000eps": [
+    {
+      "time_sec": 0.0,
+      "cpu_percent": 34.9,
+      "mem_percent": 95.4,
+      "submitted_so_far": 0
+    },
+    {
+      "time_sec": 1.0,
+      "cpu_percent": 19.0,
+      "mem_percent": 95.2,
+      "submitted_so_far": 1000
+    },
+    {
+      "time_sec": 2.0,
+      "cpu_percent": 22.7,
+      "mem_percent": 95.3,
+      "submitted_so_far": 2000
+    },
+    {
+      "time_sec": 3.0,
+      "cpu_percent": 23.1,
+      "mem_percent": 95.2,
+      "submitted_so_far": 3000
+    },
+    {
+      "time_sec": 4.0,
+      "cpu_percent": 17.3,
+      "mem_percent": 94.9,
+      "submitted_so_far": 4000
+    }
+  ]
+}

@@ -114,6 +114,7 @@ const PlaybookList = ({
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          "X-Requested-With": "XMLHttpRequest",
         },
         body: JSON.stringify({
           playbook_ids: selectedIds,

@@ -1,0 +1,1476 @@
+[
+  {
+    "methods": [
+      "GET"
+    ],
+    "path": "/api/v1/model/metrics",
+    "name": "get_model_metrics",
+    "is_public": false,
+    "auth_required": false,
+    "roles": [],
+    "step_up": false
+  },
+  {
+    "methods": [
+      "GET"
+    ],
+    "path": "/api/v1/model/config",
+    "name": "get_training_config",
+    "is_public": false,
+    "auth_required": false,
+    "roles": [],
+    "step_up": false
+  },
+  {
+    "methods": [
+      "GET"
+    ],
+    "path": "/api/v1/model/stats",
+    "name": "get_stats",
+    "is_public": false,
+    "auth_required": false,
+    "roles": [],
+    "step_up": false
+  },
+  {
+    "methods": [
+      "GET"
+    ],
+    "path": "/api/v1/model/feature-importance",
+    "name": "get_feature_importance",
+    "is_public": false,
+    "auth_required": false,
+    "roles": [],
+    "step_up": false
+  },
+  {
+    "methods": [
+      "GET"
+    ],
+    "path": "/api/v1/model/predictions/recent",
+    "name": "get_recent_predictions",
+    "is_public": false,
+    "auth_required": false,
+    "roles": [],
+    "step_up": false
+  },
+  {
+    "methods": [
+      "GET"
+    ],
+    "path": "/api/v1/model/confidence-histogram",
+    "name": "get_confidence_histogram",
+    "is_public": false,
+    "auth_required": false,
+    "roles": [],
+    "step_up": false
+  },
+  {
+    "methods": [
+      "GET"
+    ],
+    "path": "/api/v1/enrich/ip/{ip}",
+    "name": "enrich_ip_endpoint",
+    "is_public": false,
+    "auth_required": false,
+    "roles": [],
+    "step_up": false
+  },
+  {
+    "methods": [
+      "WEBSOCKET"
+    ],
+    "path": "/api/v1/topology/ws",
+    "name": "topology_ws_endpoint",
+    "is_public": false,
+    "auth_required": true,
+    "roles": [],
+    "step_up": false
+  },
+  {
+    "methods": [
+      "POST"
+    ],
+    "path": "/api/v1/management/register",
+    "name": "register_node",
+    "is_public": false,
+    "auth_required": false,
+    "roles": [],
+    "step_up": false
+  },
+  {
+    "methods": [
+      "POST"
+    ],
+    "path": "/api/v1/management/heartbeat",
+    "name": "node_heartbeat",
+    "is_public": false,
+    "auth_required": false,
+    "roles": [],
+    "step_up": false
+  },
+  {
+    "methods": [
+      "GET"
+    ],
+    "path": "/api/v1/management/nodes",
+    "name": "list_nodes",
+    "is_public": false,
+    "auth_required": false,
+    "roles": [],
+    "step_up": false
+  },
+  {
+    "methods": [
+      "GET"
+    ],
+    "path": "/api/v1/management/policies",
+    "name": "list_policies",
+    "is_public": false,
+    "auth_required": false,
+    "roles": [],
+    "step_up": false
+  },
+  {
+    "methods": [
+      "POST"
+    ],
+    "path": "/api/v1/management/policies",
+    "name": "create_policy",
+    "is_public": false,
+    "auth_required": false,
+    "roles": [],
+    "step_up": false
+  },
+  {
+    "methods": [
+      "POST"
+    ],
+    "path": "/api/v1/management/policies/assign",
+    "name": "assign_policy",
+    "is_public": false,
+    "auth_required": false,
+    "roles": [],
+    "step_up": false
+  },
+  {
+    "methods": [
+      "WEBSOCKET"
+    ],
+    "path": "/api/v1/realtime/ws",
+    "name": "realtime_ws_endpoint",
+    "is_public": false,
+    "auth_required": true,
+    "roles": [],
+    "step_up": false
+  },
+  {
+    "methods": [
+      "GET"
+    ],
+    "path": "/api/v1/events/{event_id}/pcap",
+    "name": "download_pcap",
+    "is_public": false,
+    "auth_required": false,
+    "roles": [],
+    "step_up": false
+  },
+  {
+    "methods": [
+      "GET"
+    ],
+    "path": "/api/v1/pcap/analysis/{event_id}",
+    "name": "get_pcap_analysis",
+    "is_public": false,
+    "auth_required": false,
+    "roles": [],
+    "step_up": false
+  },
+  {
+    "methods": [
+      "GET"
+    ],
+    "path": "/api/v1/pcap/stats",
+    "name": "pcap_stats",
+    "is_public": false,
+    "auth_required": false,
+    "roles": [],
+    "step_up": false
+  },
+  {
+    "methods": [
+      "POST"
+    ],
+    "path": "/api/v1/pcap/capture/{event_id}",
+    "name": "trigger_capture",
+    "is_public": false,
+    "auth_required": false,
+    "roles": [],
+    "step_up": false
+  },
+  {
+    "methods": [
+      "GET"
+    ],
+    "path": "/api/v1/pcap/capture/{event_id}/status",
+    "name": "capture_status",
+    "is_public": false,
+    "auth_required": false,
+    "roles": [],
+    "step_up": false
+  },
+  {
+    "methods": [
+      "POST"
+    ],
+    "path": "/api/v1/pcap/cleanup",
+    "name": "run_cleanup",
+    "is_public": false,
+    "auth_required": false,
+    "roles": [],
+    "step_up": false
+  },
+  {
+    "methods": [
+      "GET"
+    ],
+    "path": "/api/v1/attribution/profile/{ip}",
+    "name": "get_attacker_profile",
+    "is_public": false,
+    "auth_required": true,
+    "roles": [],
+    "step_up": false
+  },
+  {
+    "methods": [
+      "GET"
+    ],
+    "path": "/api/v1/attribution/top-attackers",
+    "name": "get_top_attackers",
+    "is_public": false,
+    "auth_required": true,
+    "roles": [],
+    "step_up": false
+  },
+  {
+    "methods": [
+      "GET"
+    ],
+    "path": "/api/v1/predictive/forecast",
+    "name": "get_forecast",
+    "is_public": false,
+    "auth_required": true,
+    "roles": [],
+    "step_up": false
+  },
+  {
+    "methods": [
+      "GET"
+    ],
+    "path": "/api/v1/predictive/risk-score",
+    "name": "get_risk_score",
+    "is_public": false,
+    "auth_required": true,
+    "roles": [],
+    "step_up": false
+  },
+  {
+    "methods": [
+      "GET"
+    ],
+    "path": "/api/v1/predictive/next-attack",
+    "name": "get_next_attack_prediction",
+    "is_public": false,
+    "auth_required": true,
+    "roles": [],
+    "step_up": false
+  },
+  {
+    "methods": [
+      "POST"
+    ],
+    "path": "/api/v1/admin/login",
+    "name": "admin_login",
+    "is_public": true,
+    "auth_required": false,
+    "roles": [],
+    "step_up": false
+  },
+  {
+    "methods": [
+      "POST"
+    ],
+    "path": "/api/v1/admin/refresh",
+    "name": "refresh_token_endpoint",
+    "is_public": true,
+    "auth_required": false,
+    "roles": [],
+    "step_up": false
+  },
+  {
+    "methods": [
+      "POST"
+    ],
+    "path": "/api/v1/admin/logout",
+    "name": "logout_endpoint",
+    "is_public": false,
+    "auth_required": false,
+    "roles": [],
+    "step_up": false
+  },
+  {
+    "methods": [
+      "POST"
+    ],
+    "path": "/api/v1/admin/step-up",
+    "name": "request_step_up_token",
+    "is_public": false,
+    "auth_required": true,
+    "roles": [],
+    "step_up": false
+  },
+  {
+    "methods": [
+      "GET"
+    ],
+    "path": "/api/v1/admin/users",
+    "name": "list_users",
+    "is_public": false,
+    "auth_required": false,
+    "roles": [],
+    "step_up": false
+  },
+  {
+    "methods": [
+      "POST"
+    ],
+    "path": "/api/v1/admin/users",
+    "name": "create_user",
+    "is_public": false,
+    "auth_required": false,
+    "roles": [],
+    "step_up": false
+  },
+  {
+    "methods": [
+      "PUT"
+    ],
+    "path": "/api/v1/admin/users/{user_id}",
+    "name": "update_user",
+    "is_public": false,
+    "auth_required": false,
+    "roles": [],
+    "step_up": false
+  },
+  {
+    "methods": [
+      "DELETE"
+    ],
+    "path": "/api/v1/admin/users/{user_id}",
+    "name": "delete_user",
+    "is_public": false,
+    "auth_required": false,
+    "roles": [],
+    "step_up": false
+  },
+  {
+    "methods": [
+      "GET"
+    ],
+    "path": "/api/v1/admin/config",
+    "name": "get_config",
+    "is_public": false,
+    "auth_required": false,
+    "roles": [],
+    "step_up": false
+  },
+  {
+    "methods": [
+      "PUT"
+    ],
+    "path": "/api/v1/admin/config",
+    "name": "update_config",
+    "is_public": false,
+    "auth_required": false,
+    "roles": [],
+    "step_up": false
+  },
+  {
+    "methods": [
+      "GET"
+    ],
+    "path": "/api/v1/admin/system-overview",
+    "name": "system_overview",
+    "is_public": false,
+    "auth_required": false,
+    "roles": [],
+    "step_up": false
+  },
+  {
+    "methods": [
+      "POST"
+    ],
+    "path": "/api/v1/admin/backup",
+    "name": "create_backup",
+    "is_public": false,
+    "auth_required": false,
+    "roles": [],
+    "step_up": false
+  },
+  {
+    "methods": [
+      "GET"
+    ],
+    "path": "/api/v1/admin/backups",
+    "name": "list_backups",
+    "is_public": false,
+    "auth_required": false,
+    "roles": [],
+    "step_up": false
+  },
+  {
+    "methods": [
+      "POST"
+    ],
+    "path": "/api/v1/admin/vacuum",
+    "name": "vacuum_db",
+    "is_public": false,
+    "auth_required": false,
+    "roles": [],
+    "step_up": false
+  },
+  {
+    "methods": [
+      "DELETE"
+    ],
+    "path": "/api/v1/admin/events/old",
+    "name": "delete_old_events",
+    "is_public": false,
+    "auth_required": false,
+    "roles": [],
+    "step_up": false
+  },
+  {
+    "methods": [
+      "POST"
+    ],
+    "path": "/api/v1/admin/taxii/clients",
+    "name": "create_taxii_client",
+    "is_public": false,
+    "auth_required": false,
+    "roles": [],
+    "step_up": false
+  },
+  {
+    "methods": [
+      "GET"
+    ],
+    "path": "/api/v1/admin/taxii/clients",
+    "name": "list_taxii_clients",
+    "is_public": false,
+    "auth_required": false,
+    "roles": [],
+    "step_up": false
+  },
+  {
+    "methods": [
+      "DELETE"
+    ],
+    "path": "/api/v1/admin/taxii/clients/{key_id}",
+    "name": "revoke_taxii_client",
+    "is_public": false,
+    "auth_required": false,
+    "roles": [],
+    "step_up": false
+  },
+  {
+    "methods": [
+      "POST"
+    ],
+    "path": "/api/v1/analyze/threat-score",
+    "name": "analyze_threat",
+    "is_public": false,
+    "auth_required": false,
+    "roles": [],
+    "step_up": false
+  },
+  {
+    "methods": [
+      "GET"
+    ],
+    "path": "/api/v1/analytics/ssh",
+    "name": "get_ssh_analytics",
+    "is_public": false,
+    "auth_required": true,
+    "roles": [],
+    "step_up": false
+  },
+  {
+    "methods": [
+      "GET"
+    ],
+    "path": "/api/v1/analytics/http",
+    "name": "get_http_analytics",
+    "is_public": false,
+    "auth_required": true,
+    "roles": [],
+    "step_up": false
+  },
+  {
+    "methods": [
+      "GET"
+    ],
+    "path": "/api/v1/analytics/trends",
+    "name": "get_attack_trends",
+    "is_public": false,
+    "auth_required": true,
+    "roles": [],
+    "step_up": false
+  },
+  {
+    "methods": [
+      "GET"
+    ],
+    "path": "/api/threat-metrics",
+    "name": "get_threat_metrics",
+    "is_public": false,
+    "auth_required": true,
+    "roles": [],
+    "step_up": false
+  },
+  {
+    "methods": [
+      "GET"
+    ],
+    "path": "/api/v1/patterns/advanced",
+    "name": "get_advanced_patterns",
+    "is_public": false,
+    "auth_required": false,
+    "roles": [],
+    "step_up": false
+  },
+  {
+    "methods": [
+      "GET"
+    ],
+    "path": "/api/v1/reports/generate",
+    "name": "generate_report",
+    "is_public": false,
+    "auth_required": true,
+    "roles": [],
+    "step_up": false
+  },
+  {
+    "methods": [
+      "POST"
+    ],
+    "path": "/api/v1/reports/schedule",
+    "name": "schedule_report",
+    "is_public": false,
+    "auth_required": false,
+    "roles": [],
+    "step_up": false
+  },
+  {
+    "methods": [
+      "GET"
+    ],
+    "path": "/api/v1/reports/schedules",
+    "name": "get_schedules",
+    "is_public": false,
+    "auth_required": true,
+    "roles": [],
+    "step_up": false
+  },
+  {
+    "methods": [
+      "DELETE"
+    ],
+    "path": "/api/v1/reports/schedule/{report_id}",
+    "name": "delete_schedule",
+    "is_public": false,
+    "auth_required": false,
+    "roles": [],
+    "step_up": false
+  },
+  {
+    "methods": [
+      "PUT"
+    ],
+    "path": "/api/v1/reports/schedule/{report_id}",
+    "name": "update_schedule",
+    "is_public": false,
+    "auth_required": false,
+    "roles": [],
+    "step_up": false
+  },
+  {
+    "methods": [
+      "POST"
+    ],
+    "path": "/api/v1/hunting/search",
+    "name": "search_events",
+    "is_public": false,
+    "auth_required": false,
+    "roles": [],
+    "step_up": false
+  },
+  {
+    "methods": [
+      "POST"
+    ],
+    "path": "/api/v1/hunting/extract-iocs",
+    "name": "extract_iocs",
+    "is_public": false,
+    "auth_required": false,
+    "roles": [],
+    "step_up": false
+  },
+  {
+    "methods": [
+      "GET"
+    ],
+    "path": "/api/v1/hunting/related-events",
+    "name": "get_related_events",
+    "is_public": false,
+    "auth_required": false,
+    "roles": [],
+    "step_up": false
+  },
+  {
+    "methods": [
+      "GET"
+    ],
+    "path": "/api/v1/hunting/history",
+    "name": "get_search_history",
+    "is_public": false,
+    "auth_required": false,
+    "roles": [],
+    "step_up": false
+  },
+  {
+    "methods": [
+      "POST"
+    ],
+    "path": "/api/v1/hunting/analyze-patterns",
+    "name": "analyze_patterns",
+    "is_public": false,
+    "auth_required": false,
+    "roles": [],
+    "step_up": false
+  },
+  {
+    "methods": [
+      "GET"
+    ],
+    "path": "/api/v1/hunting/templates",
+    "name": "get_query_templates",
+    "is_public": false,
+    "auth_required": false,
+    "roles": [],
+    "step_up": false
+  },
+  {
+    "methods": [
+      "GET"
+    ],
+    "path": "/api/v1/cases/",
+    "name": "get_cases",
+    "is_public": false,
+    "auth_required": true,
+    "roles": [],
+    "step_up": false
+  },
+  {
+    "methods": [
+      "POST"
+    ],
+    "path": "/api/v1/cases/",
+    "name": "create_case",
+    "is_public": false,
+    "auth_required": false,
+    "roles": [],
+    "step_up": false
+  },
+  {
+    "methods": [
+      "GET"
+    ],
+    "path": "/api/v1/cases/{case_id}",
+    "name": "get_case_details",
+    "is_public": false,
+    "auth_required": true,
+    "roles": [],
+    "step_up": false
+  },
+  {
+    "methods": [
+      "PUT"
+    ],
+    "path": "/api/v1/cases/{case_id}",
+    "name": "update_case",
+    "is_public": false,
+    "auth_required": false,
+    "roles": [],
+    "step_up": false
+  },
+  {
+    "methods": [
+      "POST"
+    ],
+    "path": "/api/v1/cases/{case_id}/evidence",
+    "name": "add_evidence",
+    "is_public": false,
+    "auth_required": false,
+    "roles": [],
+    "step_up": false
+  },
+  {
+    "methods": [
+      "GET"
+    ],
+    "path": "/api/v1/alerts",
+    "name": "list_alerts",
+    "is_public": false,
+    "auth_required": true,
+    "roles": [],
+    "step_up": false
+  },
+  {
+    "methods": [
+      "PATCH"
+    ],
+    "path": "/api/v1/alerts/{alert_id}/resolve",
+    "name": "resolve_alert",
+    "is_public": false,
+    "auth_required": false,
+    "roles": [],
+    "step_up": false
+  },
+  {
+    "methods": [
+      "GET"
+    ],
+    "path": "/api/sentinel/playbooks",
+    "name": "list_playbooks",
+    "is_public": false,
+    "auth_required": false,
+    "roles": [],
+    "step_up": false
+  },
+  {
+    "methods": [
+      "GET"
+    ],
+    "path": "/api/sentinel/playbooks/compare",
+    "name": "compare_playbooks",
+    "is_public": false,
+    "auth_required": true,
+    "roles": [],
+    "step_up": false
+  },
+  {
+    "methods": [
+      "GET"
+    ],
+    "path": "/api/sentinel/playbooks/{playbook_id}",
+    "name": "get_playbook",
+    "is_public": false,
+    "auth_required": false,
+    "roles": [],
+    "step_up": false
+  },
+  {
+    "methods": [
+      "GET"
+    ],
+    "path": "/api/sentinel/stats",
+    "name": "get_sentinel_stats",
+    "is_public": false,
+    "auth_required": false,
+    "roles": [],
+    "step_up": false
+  },
+  {
+    "methods": [
+      "GET"
+    ],
+    "path": "/api/sentinel/mitre/mapping",
+    "name": "get_mitre_mappings",
+    "is_public": false,
+    "auth_required": false,
+    "roles": [],
+    "step_up": false
+  },
+  {
+    "methods": [
+      "POST"
+    ],
+    "path": "/api/sentinel/generate",
+    "name": "generate_playbook",
+    "is_public": false,
+    "auth_required": false,
+    "roles": [],
+    "step_up": false
+  },
+  {
+    "methods": [
+      "PATCH"
+    ],
+    "path": "/api/sentinel/playbooks/{playbook_id}/approve",
+    "name": "approve_playbook",
+    "is_public": false,
+    "auth_required": false,
+    "roles": [],
+    "step_up": false
+  },
+  {
+    "methods": [
+      "PATCH"
+    ],
+    "path": "/api/sentinel/playbooks/{playbook_id}/reject",
+    "name": "reject_playbook",
+    "is_public": false,
+    "auth_required": false,
+    "roles": [],
+    "step_up": false
+  },
+  {
+    "methods": [
+      "POST"
+    ],
+    "path": "/api/sentinel/playbooks/{playbook_id}/export",
+    "name": "export_playbook",
+    "is_public": false,
+    "auth_required": true,
+    "roles": [],
+    "step_up": false
+  },
+  {
+    "methods": [
+      "POST"
+    ],
+    "path": "/api/sentinel/playbooks/{playbook_id}/export/pdf",
+    "name": "export_playbook_pdf",
+    "is_public": false,
+    "auth_required": true,
+    "roles": [],
+    "step_up": false
+  },
+  {
+    "methods": [
+      "GET"
+    ],
+    "path": "/api/sentinel/rules/snort",
+    "name": "list_snort_rules",
+    "is_public": false,
+    "auth_required": false,
+    "roles": [],
+    "step_up": false
+  },
+  {
+    "methods": [
+      "GET"
+    ],
+    "path": "/api/sentinel/rules/sigma",
+    "name": "list_sigma_rules",
+    "is_public": false,
+    "auth_required": false,
+    "roles": [],
+    "step_up": false
+  },
+  {
+    "methods": [
+      "GET"
+    ],
+    "path": "/api/sentinel/llm/status",
+    "name": "get_llm_status",
+    "is_public": false,
+    "auth_required": false,
+    "roles": [],
+    "step_up": false
+  },
+  {
+    "methods": [
+      "POST"
+    ],
+    "path": "/api/sentinel/playbooks/{playbook_id}/regenerate-llm",
+    "name": "regenerate_playbook_llm",
+    "is_public": false,
+    "auth_required": false,
+    "roles": [],
+    "step_up": false
+  },
+  {
+    "methods": [
+      "GET"
+    ],
+    "path": "/api/sentinel/mitre/matrix",
+    "name": "get_mitre_matrix",
+    "is_public": false,
+    "auth_required": false,
+    "roles": [],
+    "step_up": false
+  },
+  {
+    "methods": [
+      "POST"
+    ],
+    "path": "/api/sentinel/playbooks/batch/approve",
+    "name": "batch_approve_playbooks",
+    "is_public": false,
+    "auth_required": false,
+    "roles": [],
+    "step_up": false
+  },
+  {
+    "methods": [
+      "POST"
+    ],
+    "path": "/api/sentinel/playbooks/batch/reject",
+    "name": "batch_reject_playbooks",
+    "is_public": false,
+    "auth_required": false,
+    "roles": [],
+    "step_up": false
+  },
+  {
+    "methods": [
+      "POST"
+    ],
+    "path": "/api/sentinel/playbooks/{playbook_id}/regenerate",
+    "name": "regenerate_playbook",
+    "is_public": false,
+    "auth_required": false,
+    "roles": [],
+    "step_up": false
+  },
+  {
+    "methods": [
+      "GET"
+    ],
+    "path": "/api/sentinel/playbooks/{playbook_id}/versions",
+    "name": "get_playbook_versions",
+    "is_public": false,
+    "auth_required": false,
+    "roles": [],
+    "step_up": false
+  },
+  {
+    "methods": [
+      "GET"
+    ],
+    "path": "/api/sentinel/rules/export-all",
+    "name": "export_all_rules",
+    "is_public": false,
+    "auth_required": false,
+    "roles": [],
+    "step_up": false
+  },
+  {
+    "methods": [
+      "GET"
+    ],
+    "path": "/api/sentinel/campaigns/{campaign_id}/timeline",
+    "name": "get_campaign_timeline",
+    "is_public": false,
+    "auth_required": false,
+    "roles": [],
+    "step_up": false
+  },
+  {
+    "methods": [
+      "GET"
+    ],
+    "path": "/api/sentinel/audit-logs",
+    "name": "get_audit_logs",
+    "is_public": false,
+    "auth_required": false,
+    "roles": [],
+    "step_up": false
+  },
+  {
+    "methods": [
+      "GET"
+    ],
+    "path": "/api/sentinel/playbooks/{playbook_id}/export-history",
+    "name": "get_playbook_export_history",
+    "is_public": false,
+    "auth_required": false,
+    "roles": [],
+    "step_up": false
+  },
+  {
+    "methods": [
+      "GET"
+    ],
+    "path": "/api/v1/sentinel/audit-logs",
+    "name": "get_v1_audit_logs",
+    "is_public": false,
+    "auth_required": true,
+    "roles": [],
+    "step_up": false
+  },
+  {
+    "methods": [
+      "GET"
+    ],
+    "path": "/api/v1/sentinel/templates",
+    "name": "list_sentinel_templates",
+    "is_public": false,
+    "auth_required": false,
+    "roles": [],
+    "step_up": false
+  },
+  {
+    "methods": [
+      "POST"
+    ],
+    "path": "/api/v1/sentinel/templates/preview",
+    "name": "preview_sentinel_template",
+    "is_public": false,
+    "auth_required": false,
+    "roles": [],
+    "step_up": false
+  },
+  {
+    "methods": [
+      "GET"
+    ],
+    "path": "/api/honeypots",
+    "name": "get_honeypot_status",
+    "is_public": false,
+    "auth_required": true,
+    "roles": [],
+    "step_up": false
+  },
+  {
+    "methods": [
+      "GET"
+    ],
+    "path": "/api/honeypots/status",
+    "name": "get_honeypot_status_alias",
+    "is_public": false,
+    "auth_required": true,
+    "roles": [],
+    "step_up": false
+  },
+  {
+    "methods": [
+      "GET"
+    ],
+    "path": "/taxii2",
+    "name": "taxii_discovery",
+    "is_public": false,
+    "auth_required": false,
+    "roles": [],
+    "step_up": false
+  },
+  {
+    "methods": [
+      "GET"
+    ],
+    "path": "/taxii2/",
+    "name": "taxii_discovery",
+    "is_public": false,
+    "auth_required": false,
+    "roles": [],
+    "step_up": false
+  },
+  {
+    "methods": [
+      "GET"
+    ],
+    "path": "/taxii2/phantomnet",
+    "name": "taxii_api_root",
+    "is_public": false,
+    "auth_required": false,
+    "roles": [],
+    "step_up": false
+  },
+  {
+    "methods": [
+      "GET"
+    ],
+    "path": "/taxii2/phantomnet/",
+    "name": "taxii_api_root",
+    "is_public": false,
+    "auth_required": false,
+    "roles": [],
+    "step_up": false
+  },
+  {
+    "methods": [
+      "GET"
+    ],
+    "path": "/taxii2/phantomnet/collections",
+    "name": "list_collections",
+    "is_public": false,
+    "auth_required": false,
+    "roles": [],
+    "step_up": false
+  },
+  {
+    "methods": [
+      "GET"
+    ],
+    "path": "/taxii2/phantomnet/collections/",
+    "name": "list_collections",
+    "is_public": false,
+    "auth_required": false,
+    "roles": [],
+    "step_up": false
+  },
+  {
+    "methods": [
+      "GET"
+    ],
+    "path": "/taxii2/phantomnet/collections/{collection_id}",
+    "name": "get_collection_detail",
+    "is_public": false,
+    "auth_required": false,
+    "roles": [],
+    "step_up": false
+  },
+  {
+    "methods": [
+      "GET"
+    ],
+    "path": "/taxii2/phantomnet/collections/{collection_id}/",
+    "name": "get_collection_detail",
+    "is_public": false,
+    "auth_required": false,
+    "roles": [],
+    "step_up": false
+  },
+  {
+    "methods": [
+      "GET"
+    ],
+    "path": "/taxii2/phantomnet/collections/{id}/objects",
+    "name": "get_collection_objects",
+    "is_public": false,
+    "auth_required": false,
+    "roles": [],
+    "step_up": false
+  },
+  {
+    "methods": [
+      "GET"
+    ],
+    "path": "/taxii2/phantomnet/collections/{id}/objects/",
+    "name": "get_collection_objects",
+    "is_public": false,
+    "auth_required": false,
+    "roles": [],
+    "step_up": false
+  },
+  {
+    "methods": [
+      "POST"
+    ],
+    "path": "/api/v1/ingest/event",
+    "name": "ingest_event",
+    "is_public": true,
+    "auth_required": false,
+    "roles": [],
+    "step_up": false
+  },
+  {
+    "methods": [
+      "POST"
+    ],
+    "path": "/api/v1/ingest/batch",
+    "name": "ingest_batch",
+    "is_public": true,
+    "auth_required": false,
+    "roles": [],
+    "step_up": false
+  },
+  {
+    "methods": [
+      "GET"
+    ],
+    "path": "/api/v1/ingest/health",
+    "name": "ingest_health",
+    "is_public": true,
+    "auth_required": false,
+    "roles": [],
+    "step_up": false
+  },
+  {
+    "methods": [
+      "GET"
+    ],
+    "path": "/api/v1/governance/retention/policies",
+    "name": "get_retention_policies",
+    "is_public": false,
+    "auth_required": false,
+    "roles": [],
+    "step_up": false
+  },
+  {
+    "methods": [
+      "POST"
+    ],
+    "path": "/api/v1/governance/retention/run",
+    "name": "run_retention_cycle_endpoint",
+    "is_public": false,
+    "auth_required": false,
+    "roles": [],
+    "step_up": false
+  },
+  {
+    "methods": [
+      "GET"
+    ],
+    "path": "/health/live",
+    "name": "liveness_probe",
+    "is_public": true,
+    "auth_required": false,
+    "roles": [],
+    "step_up": false
+  },
+  {
+    "methods": [
+      "GET"
+    ],
+    "path": "/health/ready",
+    "name": "readiness_probe",
+    "is_public": true,
+    "auth_required": false,
+    "roles": [],
+    "step_up": false
+  },
+  {
+    "methods": [
+      "GET"
+    ],
+    "path": "/health/startup",
+    "name": "startup_probe",
+    "is_public": true,
+    "auth_required": false,
+    "roles": [],
+    "step_up": false
+  },
+  {
+    "methods": [
+      "GET"
+    ],
+    "path": "/metrics",
+    "name": "prometheus_metrics",
+    "is_public": true,
+    "auth_required": false,
+    "roles": [],
+    "step_up": false
+  },
+  {
+    "methods": [
+      "GET"
+    ],
+    "path": "/api/health",
+    "name": "health_check",
+    "is_public": true,
+    "auth_required": false,
+    "roles": [],
+    "step_up": false
+  },
+  {
+    "methods": [
+      "GET"
+    ],
+    "path": "/analyze-traffic",
+    "name": "get_real_traffic",
+    "is_public": false,
+    "auth_required": false,
+    "roles": [],
+    "step_up": false
+  },
+  {
+    "methods": [
+      "GET"
+    ],
+    "path": "/api/stats",
+    "name": "get_api_stats",
+    "is_public": false,
+    "auth_required": false,
+    "roles": [],
+    "step_up": false
+  },
+  {
+    "methods": [
+      "GET"
+    ],
+    "path": "/metrics",
+    "name": "prometheus_metrics",
+    "is_public": true,
+    "auth_required": false,
+    "roles": [],
+    "step_up": false
+  },
+  {
+    "methods": [
+      "GET"
+    ],
+    "path": "/api/cache/stats",
+    "name": "cache_stats",
+    "is_public": false,
+    "auth_required": true,
+    "roles": [],
+    "step_up": false
+  },
+  {
+    "methods": [
+      "GET"
+    ],
+    "path": "/api/events",
+    "name": "get_events",
+    "is_public": false,
+    "auth_required": true,
+    "roles": [],
+    "step_up": false
+  },
+  {
+    "methods": [
+      "GET"
+    ],
+    "path": "/api/features/live",
+    "name": "get_live_features",
+    "is_public": false,
+    "auth_required": true,
+    "roles": [],
+    "step_up": false
+  },
+  {
+    "methods": [
+      "POST"
+    ],
+    "path": "/active-defense/block/{ip}",
+    "name": "block_ip_address",
+    "is_public": false,
+    "auth_required": false,
+    "roles": [],
+    "step_up": true
+  },
+  {
+    "methods": [
+      "GET"
+    ],
+    "path": "/api/analytics/attack-map",
+    "name": "get_attack_map",
+    "is_public": false,
+    "auth_required": true,
+    "roles": [],
+    "step_up": false
+  },
+  {
+    "methods": [
+      "GET"
+    ],
+    "path": "/api/geoip/lookup/{ip}",
+    "name": "geoip_lookup",
+    "is_public": false,
+    "auth_required": true,
+    "roles": [],
+    "step_up": false
+  },
+  {
+    "methods": [
+      "GET"
+    ],
+    "path": "/api/geoip/status",
+    "name": "geoip_status",
+    "is_public": false,
+    "auth_required": true,
+    "roles": [],
+    "step_up": false
+  },
+  {
+    "methods": [
+      "GET"
+    ],
+    "path": "/api/response/history",
+    "name": "response_history",
+    "is_public": false,
+    "auth_required": true,
+    "roles": [],
+    "step_up": false
+  },
+  {
+    "methods": [
+      "GET"
+    ],
+    "path": "/api/response/blocked-ips",
+    "name": "blocked_ips",
+    "is_public": false,
+    "auth_required": true,
+    "roles": [],
+    "step_up": false
+  },
+  {
+    "methods": [
+      "POST"
+    ],
+    "path": "/api/response/unblock/{ip}",
+    "name": "unblock_ip",
+    "is_public": false,
+    "auth_required": false,
+    "roles": [],
+    "step_up": true
+  },
+  {
+    "methods": [
+      "GET"
+    ],
+    "path": "/api/response/policy",
+    "name": "get_response_policy",
+    "is_public": false,
+    "auth_required": true,
+    "roles": [],
+    "step_up": false
+  },
+  {
+    "methods": [
+      "PUT"
+    ],
+    "path": "/api/response/policy",
+    "name": "update_response_policy",
+    "is_public": false,
+    "auth_required": false,
+    "roles": [],
+    "step_up": true
+  },
+  {
+    "methods": [
+      "GET"
+    ],
+    "path": "/api/response/stats",
+    "name": "response_stats",
+    "is_public": false,
+    "auth_required": true,
+    "roles": [],
+    "step_up": false
+  },
+  {
+    "methods": [
+      "GET"
+    ],
+    "path": "/api/v1/advanced/campaigns",
+    "name": "get_attack_campaigns",
+    "is_public": false,
+    "auth_required": true,
+    "roles": [],
+    "step_up": false
+  },
+  {
+    "methods": [
+      "GET"
+    ],
+    "path": "/api/v1/events/{event_id}/explanation",
+    "name": "explain_threat_score",
+    "is_public": false,
+    "auth_required": true,
+    "roles": [],
+    "step_up": false
+  }
+]

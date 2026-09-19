@@ -3,10 +3,15 @@ from sqlalchemy.orm import Session
 from sqlalchemy import func
 from database.database import get_db
 from database.models import PacketLog
+from middleware.auth import get_current_user
 from datetime import datetime, timedelta
 import math
 
-router = APIRouter(prefix="/api/v1/predictive", tags=["Predictive"])
+router = APIRouter(
+    prefix="/api/v1/predictive",
+    tags=["Predictive"],
+    dependencies=[Depends(get_current_user)],
+)
 
 
 def _generate_forecast(hourly_counts: list, hours_ahead: int = 6):

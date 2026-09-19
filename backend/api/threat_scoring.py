@@ -1,9 +1,10 @@
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status
 from schemas.threat_schema import ThreatInput, ThreatResponse
 from ml.threat_scoring_service import score_threat
 import ml.model_loader as model_loader
+from middleware.auth import get_current_user
 
-router = APIRouter()
+router = APIRouter(dependencies=[Depends(get_current_user)])
 
 
 @router.post(

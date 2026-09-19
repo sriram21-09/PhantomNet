@@ -538,7 +538,7 @@ class PcapAnalyzer:
             severity = "MEDIUM"
 
         return {
-            "report_id": hashlib.md5(
+            "report_id": hashlib.sha256(
                 json.dumps(analysis, default=str).encode()
             ).hexdigest()[:12],
             "generated_at": datetime.utcnow().isoformat(),

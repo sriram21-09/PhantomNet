@@ -95,61 +95,16 @@ from sqlalchemy import inspect
 # Create the engine globally
 engine = get_db_engine()
 
-# Dynamically upgrade DB schema if columns are missing
+# Dynamic schema migration is deprecated in favor of Alembic migrations (GOV-01).
+# Kept for backward compatibility but disabled at import time.
 def upgrade_db_schema(engine):
-    try:
-        with engine.connect() as conn:
-            inspector = inspect(conn)
-            tables = inspector.get_table_names()
-            
-            if "packet_logs" in tables:
-                columns = [c["name"] for c in inspector.get_columns("packet_logs")]
-                if "anomaly_score" not in columns:
-                    conn.execute(text("ALTER TABLE packet_logs ADD COLUMN anomaly_score FLOAT DEFAULT 0.0"))
-                if "mail_from" not in columns:
-                    conn.execute(text("ALTER TABLE packet_logs ADD COLUMN mail_from VARCHAR(256)"))
-                if "rcpt_to" not in columns:
-                    conn.execute(text("ALTER TABLE packet_logs ADD COLUMN rcpt_to VARCHAR(256)"))
-                if "email_subject" not in columns:
-                    conn.execute(text("ALTER TABLE packet_logs ADD COLUMN email_subject VARCHAR(512)"))
-                if "body_len" not in columns:
-                    conn.execute(text("ALTER TABLE packet_logs ADD COLUMN body_len INTEGER"))
-                # Add missing GeoIP enrichment columns if they do not exist
-                if "country" not in columns:
-                    conn.execute(text("ALTER TABLE packet_logs ADD COLUMN country VARCHAR"))
-                if "city" not in columns:
-                    conn.execute(text("ALTER TABLE packet_logs ADD COLUMN city VARCHAR"))
-                if "latitude" not in columns:
-                    conn.execute(text("ALTER TABLE packet_logs ADD COLUMN latitude FLOAT"))
-                if "longitude" not in columns:
-                    conn.execute(text("ALTER TABLE packet_logs ADD COLUMN longitude FLOAT"))
+    """
+    Deprecated: Schema migrations are managed by Alembic.
+    To upgrade the database schema, run `alembic upgrade head`.
+    """
+    logger.info("ℹ️ Database schema management handled via Alembic migrations.")
 
-            if "sentinel_playbooks" in tables:
-                sp_columns = [c["name"] for c in inspector.get_columns("sentinel_playbooks")]
-                if "version" not in sp_columns:
-                    conn.execute(text("ALTER TABLE sentinel_playbooks ADD COLUMN version INTEGER NOT NULL DEFAULT 1"))
-                if "parent_id" not in sp_columns:
-                    conn.execute(text("ALTER TABLE sentinel_playbooks ADD COLUMN parent_id INTEGER"))
-                if "is_latest" not in sp_columns:
-                    conn.execute(text("ALTER TABLE sentinel_playbooks ADD COLUMN is_latest BOOLEAN NOT NULL DEFAULT TRUE"))
-                if "regeneration_reason" not in sp_columns:
-                    conn.execute(text("ALTER TABLE sentinel_playbooks ADD COLUMN regeneration_reason VARCHAR(512)"))
-                if "quality_score" not in sp_columns:
-                    conn.execute(text("ALTER TABLE sentinel_playbooks ADD COLUMN quality_score FLOAT"))
-                if "llm_narrative" not in sp_columns:
-                    conn.execute(text("ALTER TABLE sentinel_playbooks ADD COLUMN llm_narrative TEXT"))
-                    logger.info("✅ Database schema migration: added llm_narrative to sentinel_playbooks")
-
-            if "system_config" in tables:
-                sc_columns = [c["name"] for c in inspector.get_columns("system_config")]
-                if "sentinel_llm_enabled" not in sc_columns:
-                    conn.execute(text("ALTER TABLE system_config ADD COLUMN sentinel_llm_enabled BOOLEAN DEFAULT FALSE"))
-                    logger.info("✅ Database schema migration: added sentinel_llm_enabled to system_config")
-            conn.commit()
-    except Exception as e:
-        logger.warning(f"Schema upgrade check failed/skipped: {e}")
-
-upgrade_db_schema(engine)
+# In V3, migrations are strictly managed via Alembic (alembic upgrade head).
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 

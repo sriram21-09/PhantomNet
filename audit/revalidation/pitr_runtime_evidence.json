@@ -1,0 +1,29 @@
+{
+  "dimension": "GOV-02",
+  "name": "Continuous Archiving & Point-in-Time Recovery (PITR)",
+  "timestamp": "2026-09-19T07:26:41.086557",
+  "steps": [
+    {
+      "step": "Insert State 1",
+      "id": "pitr_state_1_1789802801",
+      "timestamp_t1": "2026-09-19 07:26:41.616398+00"
+    },
+    {
+      "step": "Insert State 2",
+      "id": "pitr_state_2_1789802804",
+      "timestamp_t2": "2026-09-19 07:26:45.060394+00"
+    },
+    {
+      "step": "Force WAL switch",
+      "wal_file": "0/6004C78"
+    }
+  ],
+  "archive_directory_contents": "total 81928\ndrwxr-xr-x    2 postgres postgres      4096 Sep 19 07:26 .\ndrwxrwxrwt    1 postgres postgres      4096 Sep 19 06:14 ..\n-rw-------    1 postgres postgres  16777216 Sep 19 07:18 000000010000000000000002\n-rw-------    1 postgres postgres  16777216 Sep 19 07:18 000000010000000000000003\n-rw-------    1 postgres postgres  16777216 Sep 19 07:18 000000010000000000000004\n-rw-------    1 postgres postgres  16777216 Sep 19 07:18 000000010000000000000005\n-rw-------    1 postgres postgres  16777216 Sep 19 07:26 000000010000000000000006",
+  "restore_script_exists": true,
+  "current_database_state": {
+    "state_1_count": "1",
+    "state_2_count": "1"
+  },
+  "automated_pitr_drill_supported": false,
+  "status": "PARTIALLY_VERIFIED_ARCHIVING_OPERATIONAL"
+}

@@ -63,21 +63,68 @@ STIX_MEDIA_TYPE = "application/stix+json;version=2.1"
 
 router = APIRouter(prefix="/taxii2", tags=["TAXII 2.1 Feed"])
 
+from database.models import User, TaxiiClient
+from services.audit_service import audit_log
+
 basic_auth = HTTPBasic(auto_error=False)
 bearer_auth = HTTPBearer(auto_error=False)
 
 def get_taxii_user(
+    request: Request,
     basic: Optional[HTTPBasicCredentials] = Depends(basic_auth),
     bearer: Optional[HTTPAuthorizationCredentials] = Depends(bearer_auth),
     db: Session = Depends(get_db)
-) -> User:
+) -> Any:
+    # 1. Check for dedicated TAXII M2M headers
+    taxii_key = request.headers.get("x-taxii-key-id")
+    taxii_secret = request.headers.get("x-taxii-secret")
+    if taxii_key and taxii_secret:
+        client = db.query(TaxiiClient).filter(
+            TaxiiClient.key_id == taxii_key,
+            TaxiiClient.revoked_at.is_(None),
+        ).first()
+        if client and verify_password(taxii_secret, client.secret_hash):
+            client.last_used_at = datetime.utcnow()
+            db.commit()
+            audit_log(
+                actor=f"taxii:{client.client_name}",
+                action="TAXII_FEED_ACCESS",
+                result="success",
+                target=request.url.path,
+                source_ip=request.client.host if request.client else None,
+                db=db,
+            )
+            return client
+
+    # 2. Check Bearer token (JWT or key:secret)
     if bearer:
+        if ":" in bearer.credentials:
+            k, s = bearer.credentials.split(":", 1)
+            client = db.query(TaxiiClient).filter(
+                TaxiiClient.key_id == k,
+                TaxiiClient.revoked_at.is_(None),
+            ).first()
+            if client and verify_password(s, client.secret_hash):
+                client.last_used_at = datetime.utcnow()
+                db.commit()
+                return client
         token_data = decode_token(bearer.credentials)
         if token_data:
             user = db.query(User).filter(User.username == token_data.get("sub")).first()
             if user and user.status == "active":
                 return user
+
+    # 3. Check Basic Auth (supports user account or key_id:secret)
     if basic:
+        client = db.query(TaxiiClient).filter(
+            TaxiiClient.key_id == basic.username,
+            TaxiiClient.revoked_at.is_(None),
+        ).first()
+        if client and verify_password(basic.password, client.secret_hash):
+            client.last_used_at = datetime.utcnow()
+            db.commit()
+            return client
+
         user = db.query(User).filter(User.username == basic.username).first()
         if user and user.status == "active" and verify_password(basic.password, user.hashed_password):
             return user

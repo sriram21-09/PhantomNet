@@ -6,6 +6,9 @@ import PremiumMetricCard from "./PremiumMetricCard";
  * re-renders when the thread level actually changes.
  */
 const OptimizedThreatLevel = React.memo(({ threatLevel }) => {
+    const numericLevel = typeof threatLevel === "number" && !isNaN(threatLevel)
+        ? Math.round(threatLevel)
+        : (Number(threatLevel) && !isNaN(Number(threatLevel)) ? Math.round(Number(threatLevel)) : 0);
 
     const getVariant = (level) => {
         if (level < 40) return "green";
@@ -22,11 +25,11 @@ const OptimizedThreatLevel = React.memo(({ threatLevel }) => {
     return (
         <PremiumMetricCard
             title="Threat Level"
-            value={`${threatLevel}%`}
-            variant={getVariant(threatLevel)}
-            progress={threatLevel}
+            value={`${numericLevel}%`}
+            variant={getVariant(numericLevel)}
+            progress={numericLevel}
             subtitle="REAL-TIME MONITOR"
-            status={getStatus(threatLevel)}
+            status={getStatus(numericLevel)}
         />
     );
 });

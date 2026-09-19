@@ -2,15 +2,22 @@ services:
   postgres:
     image: postgres:15-alpine
     container_name: phantomnet_postgres
+    command: >
+      postgres
+      -c wal_level=replica
+      -c archive_mode=on
+      -c "archive_command=test ! -f /var/lib/postgresql/archive/%f && cp %p /var/lib/postgresql/archive/%f"
+      -c archive_timeout=300
     environment:
       POSTGRES_USER: ${POSTGRES_USER:-postgres}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
       POSTGRES_DB: ${POSTGRES_DB:-phantomnet}
     volumes:
       - postgres_data:/var/lib/postgresql/data
+      - postgres_archive:/var/lib/postgresql/archive
+      - postgres_backups:/var/lib/postgresql/backups
     networks:
       - app_net
-      - honeypot_net
     healthcheck:
       test: [ "CMD-SHELL", "pg_isready -U postgres" ]
       interval: 5s
@@ -26,28 +33,61 @@ services:
       com.phantomnet.version: "3.0.0"
       com.phantomnet.service: "postgres"
 
+  redis:
+    image: redis:7-alpine
+    container_name: phantomnet_redis
+    command: >
+      redis-server
+      --appendonly yes
+      --appendfsync everysec
+      --maxmemory-policy noeviction
+      --maxmemory 512mb
+    volumes:
+      - redis_data:/data
+    networks:
+      - app_net
+      - internal_broker_net
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+    labels:
+      com.phantomnet.version: "3.0.0"
+      com.phantomnet.service: "redis"
+
   ssh_honeypot:
     build:
       context: .
       dockerfile: backend/honeypots/ssh/Dockerfile
     container_name: phantomnet_ssh
+    user: "10001:10001"
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    read_only: true
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,size=64m
+      - /run:rw,noexec,nosuid,size=16m
     ports:
       - "2722:2222"
     environment:
-      DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/${POSTGRES_DB:-phantomnet}
-      DB_HOST: postgres
-      DB_USER: ${POSTGRES_USER:-postgres}
-      DB_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
-      DB_NAME: ${POSTGRES_DB:-phantomnet}
-      DB_PORT: 5432
+      INGESTION_GATEWAY_URL: http://api:8000/api/v1/ingest/event
+      HONEYPOT_SECRET_KEY: ${HONEYPOT_SECRET_KEY:-phantomnet-honeypot-secret-change-in-prod}
+      HONEYPOT_ID: ssh-honeypot-01
     volumes:
-      - ./backend/logs:/logs
+      - ./backend/logs:/app/backend/logs
     networks:
-      - app_net
       - honeypot_net
     depends_on:
-      postgres:
-        condition: service_healthy
+      - api
     restart: unless-stopped
     deploy:
       resources:
@@ -63,23 +103,27 @@ services:
       context: .
       dockerfile: backend/honeypots/http/Dockerfile
     container_name: phantomnet_http
+    user: "10001:10001"
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    read_only: true
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,size=64m
+      - /run:rw,noexec,nosuid,size=16m
     ports:
       - "8080:8080"
     environment:
-      DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/${POSTGRES_DB:-phantomnet}
-      DB_HOST: postgres
-      DB_USER: ${POSTGRES_USER:-postgres}
-      DB_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
-      DB_NAME: ${POSTGRES_DB:-phantomnet}
-      DB_PORT: 5432
+      INGESTION_GATEWAY_URL: http://api:8000/api/v1/ingest/event
+      HONEYPOT_SECRET_KEY: ${HONEYPOT_SECRET_KEY:-phantomnet-honeypot-secret-change-in-prod}
+      HONEYPOT_ID: http-honeypot-01
     volumes:
-      - ./backend/logs:/logs
+      - ./backend/logs:/app/backend/logs
     networks:
-      - app_net
       - honeypot_net
     depends_on:
-      postgres:
-        condition: service_healthy
+      - api
     restart: unless-stopped
     deploy:
       resources:
@@ -95,24 +139,29 @@ services:
       context: .
       dockerfile: backend/honeypots/ftp/Dockerfile
     container_name: phantomnet_ftp
+    user: "10001:10001"
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    read_only: true
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,size=64m
+      - /run:rw,noexec,nosuid,size=16m
+      - /app/backend/honeypots/ftp/ftp_root:rw,noexec,nosuid,size=64m
     ports:
       - "2721:2121"
       - "30000-30020:30000-30020"
     environment:
-      DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/${POSTGRES_DB:-phantomnet}
-      DB_HOST: postgres
-      DB_USER: ${POSTGRES_USER:-postgres}
-      DB_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
-      DB_NAME: ${POSTGRES_DB:-phantomnet}
-      DB_PORT: 5432
+      INGESTION_GATEWAY_URL: http://api:8000/api/v1/ingest/event
+      HONEYPOT_SECRET_KEY: ${HONEYPOT_SECRET_KEY:-phantomnet-honeypot-secret-change-in-prod}
+      HONEYPOT_ID: ftp-honeypot-01
     volumes:
-      - ./backend/logs:/logs
+      - ./backend/logs:/app/backend/logs
     networks:
-      - app_net
       - honeypot_net
     depends_on:
-      postgres:
-        condition: service_healthy
+      - api
     restart: unless-stopped
     deploy:
       resources:
@@ -128,23 +177,27 @@ services:
       context: .
       dockerfile: backend/honeypots/smtp/Dockerfile
     container_name: phantomnet_smtp
+    user: "10001:10001"
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    read_only: true
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,size=64m
+      - /run:rw,noexec,nosuid,size=16m
     ports:
       - "2725:2525"
     environment:
-      DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/${POSTGRES_DB:-phantomnet}
-      DB_HOST: postgres
-      DB_USER: ${POSTGRES_USER:-postgres}
-      DB_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
-      DB_NAME: ${POSTGRES_DB:-phantomnet}
-      DB_PORT: 5432
+      INGESTION_GATEWAY_URL: http://api:8000/api/v1/ingest/event
+      HONEYPOT_SECRET_KEY: ${HONEYPOT_SECRET_KEY:-phantomnet-honeypot-secret-change-in-prod}
+      HONEYPOT_ID: smtp-honeypot-01
     volumes:
-      - ./backend/logs:/logs
+      - ./backend/logs:/app/backend/logs
     networks:
-      - app_net
       - honeypot_net
     depends_on:
-      postgres:
-        condition: service_healthy
+      - api
     restart: unless-stopped
     deploy:
       resources:
@@ -160,8 +213,18 @@ services:
       context: ./frontend-dev/phantomnet-dashboard
       dockerfile: Dockerfile
     container_name: phantomnet_frontend
+    user: "10001:10001"
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    read_only: true
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,size=32m
+      - /run:rw,noexec,nosuid,size=16m
+      - /var/cache/nginx:rw,noexec,nosuid,size=32m
     ports:
-      - "3000:8080"
+      - "${FRONTEND_PORT:-3000}:8080"
     networks:
       - app_net
     depends_on:
@@ -181,6 +244,16 @@ services:
       context: .
       dockerfile: backend/api/Dockerfile
     container_name: phantomnet_api
+    user: "10001:10001"
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    read_only: true
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,size=128m
+      - /run:rw,noexec,nosuid,size=32m
+      - /app/backend/logs:rw,noexec,nosuid,size=64m
     ports:
       - "8000:8000"
     environment:
@@ -191,18 +264,25 @@ services:
       DB_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
       DB_NAME: ${POSTGRES_DB:-phantomnet}
       DB_PORT: 5432
+      REDIS_URL: redis://redis:6379/0
+      HONEYPOT_SECRET_KEY: ${HONEYPOT_SECRET_KEY:-phantomnet-honeypot-secret-change-in-prod}
       JWT_SECRET: ${JWT_SECRET:-supersecret}
       API_KEY: ${API_KEY:-default_key}
       SENTINEL_LLM_HOST: ${SENTINEL_LLM_HOST:-http://ollama:11434}
       SENTINEL_LLM_MODEL: ${SENTINEL_LLM_MODEL:-mistral}
-      SENTINEL_LLM_ENABLED: ${SENTINEL_LLM_ENABLED:-false}
+      SENTINEL_LLM_ENABLED: ${SENTINEL_LLM_ENABLED:-true}
+      SENTINEL_ENABLED: ${SENTINEL_ENABLED:-true}
+      SENTINEL_AUTO_GEN_ENABLED: ${SENTINEL_AUTO_GEN_ENABLED:-true}
     networks:
       - app_net
       - honeypot_net
+      - internal_broker_net
     volumes:
       - ./data/pcaps:/app/data/pcaps
     depends_on:
       postgres:
+        condition: service_healthy
+      redis:
         condition: service_healthy
       ollama:
         condition: service_healthy
@@ -225,13 +305,6 @@ services:
       - ollama_data:/root/.ollama
     networks:
       - app_net
-    # deploy:
-    #   resources:
-    #     reservations:
-    #       devices:
-    #         - driver: nvidia
-    #           count: all
-    #           capabilities: [gpu]
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "ollama", "list"]
@@ -249,7 +322,13 @@ networks:
   honeypot_net:
     driver: bridge
     internal: true
+  internal_broker_net:
+    driver: bridge
+    internal: true
 
 volumes:
   postgres_data:
+  redis_data:
   ollama_data:
+  postgres_archive:
+  postgres_backups:
