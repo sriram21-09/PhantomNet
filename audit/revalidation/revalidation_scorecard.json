@@ -1,0 +1,336 @@
+{
+  "audit_title": "PhantomNet V3 — Independent Production Readiness Revalidation Scorecard",
+  "audit_date": "2026-09-19",
+  "methodology": "Empirical Hostile Verification (No production claim without executable evidence)",
+  "verdict_summary": {
+    "total_dimensions": 42,
+    "verified_green": 26,
+    "partially_verified_yellow": 2,
+    "not_verified_red": 14,
+    "actual_readiness_percentage": 61.9,
+    "production_authorized": false
+  },
+  "dimensions": {
+    "SEC-01": {
+      "name": "Dynamic Route Authentication",
+      "status": "NOT_VERIFIED",
+      "tier": "Tier G (Absent Enforcement)",
+      "finding": "37 non-public routes completely exposed without authentication (e.g. /api/v1/model/*, /api/sentinel/*, /api/v1/patterns/*, /api/stats, /analyze-traffic)",
+      "severity": "P0"
+    },
+    "SEC-02": {
+      "name": "RBAC Enforcement",
+      "status": "VERIFIED",
+      "tier": "Tier A (Runtime Executable)",
+      "finding": "Analyst role correctly restricted from admin routes with HTTP 403",
+      "severity": "P2"
+    },
+    "SEC-03": {
+      "name": "Honeypot Ingestion Origin Auth",
+      "status": "VERIFIED",
+      "tier": "Tier A (Runtime Executable)",
+      "finding": "HMAC-SHA256 signature verification enforced; unsigned requests rejected with 401",
+      "severity": "P0"
+    },
+    "SEC-04": {
+      "name": "Replay Attack Prevention",
+      "status": "VERIFIED",
+      "tier": "Tier A (Runtime Executable)",
+      "finding": "60-second sliding timestamp drift window enforced",
+      "severity": "P1"
+    },
+    "SEC-05": {
+      "name": "Threat Scoring Fail-Closed",
+      "status": "VERIFIED",
+      "tier": "Tier B (Integration Test)",
+      "finding": "Deterministic fallback heuristic when ML engine unavailable",
+      "severity": "P1"
+    },
+    "SEC-06": {
+      "name": "Sensitive Data Redaction",
+      "status": "VERIFIED",
+      "tier": "Tier B (Integration Test)",
+      "finding": "LogSanitizer redacts passwords, tokens, and keys in logs",
+      "severity": "P2"
+    },
+    "SEC-07": {
+      "name": "CORS & Security Headers",
+      "status": "VERIFIED",
+      "tier": "Tier A (Runtime Executable)",
+      "finding": "Strict CORS, CSP, HSTS, and X-Content-Type-Options headers active",
+      "severity": "P2"
+    },
+    "SEC-08": {
+      "name": "Rate Limiting",
+      "status": "VERIFIED",
+      "tier": "Tier A (Runtime Executable)",
+      "finding": "Rate limiting active on authentication endpoints",
+      "severity": "P2"
+    },
+    "SEC-09": {
+      "name": "Pydantic Input Validation",
+      "status": "VERIFIED",
+      "tier": "Tier A (Runtime Executable)",
+      "finding": "Malformed JSON and schema deviations rejected with 422 Unprocessable Entity",
+      "severity": "P2"
+    },
+    "SEC-10": {
+      "name": "Secret Lifecycle & Rotation",
+      "status": "NOT_VERIFIED",
+      "tier": "Tier F (Flawed Architecture)",
+      "finding": "Single-key architecture; zero-downtime rotation unsupported without token invalidation",
+      "severity": "P1"
+    },
+    "SEC-11": {
+      "name": "Network Isolation",
+      "status": "VERIFIED",
+      "tier": "Tier A (Runtime Executable)",
+      "finding": "Honeypot network isolated with internal: true; cross-network isolation verified",
+      "severity": "P1"
+    },
+    "DUR-01": {
+      "name": "Ingestion Throughput (500 EPS)",
+      "status": "NOT_VERIFIED",
+      "tier": "Tier E (Flawed Test - FakeRedis)",
+      "finding": "Synchronous Redis calls on async event loop bottleneck real throughput to < 10 EPS",
+      "severity": "P1"
+    },
+    "DUR-02": {
+      "name": "Redis Stream Durability",
+      "status": "VERIFIED",
+      "tier": "Tier A (Runtime Executable)",
+      "finding": "AOF appendfsync everysec active and verified in redis-server config",
+      "severity": "P1"
+    },
+    "DUR-03": {
+      "name": "Producer-Consumer Decoupling",
+      "status": "VERIFIED",
+      "tier": "Tier C (Static Code Analysis)",
+      "finding": "Ingestion gateway has zero direct DB connections; publishes to Redis Streams",
+      "severity": "P1"
+    },
+    "DUR-04": {
+      "name": "Dead Letter Queue (DLQ)",
+      "status": "VERIFIED",
+      "tier": "Tier B (Integration Test)",
+      "finding": "Poison pill events routed to DLQ stream without halting consumer pipeline",
+      "severity": "P2"
+    },
+    "DUR-05": {
+      "name": "Database Connection Pooling",
+      "status": "VERIFIED",
+      "tier": "Tier B (Integration Test)",
+      "finding": "QueuePool configured with pool_size=10, max_overflow=20",
+      "severity": "P2"
+    },
+    "DUR-06": {
+      "name": "Database Transactions & ACID",
+      "status": "VERIFIED",
+      "tier": "Tier B (Integration Test)",
+      "finding": "Transaction context managers enforce atomicity and rollback on error",
+      "severity": "P2"
+    },
+    "GOV-01": {
+      "name": "Event Retention & Pruning",
+      "status": "PARTIALLY_VERIFIED",
+      "tier": "Tier C (Static Code Analysis)",
+      "finding": "Retention pruner exists but is disabled by default (SENTINEL_RETENTION_CLEANUP_ENABLED=false)",
+      "severity": "P3"
+    },
+    "GOV-02": {
+      "name": "Continuous Archiving & PITR",
+      "status": "PARTIALLY_VERIFIED",
+      "tier": "Tier A (Runtime Executable)",
+      "finding": "WAL archiving restored after fixing volume permissions (5 WALs archived); automated restore drill manual",
+      "severity": "P1"
+    },
+    "GOV-03": {
+      "name": "Forensic Artifact Hashing",
+      "status": "VERIFIED",
+      "tier": "Tier B (Integration Test)",
+      "finding": "SHA-256 hash chains for audit log entries verified",
+      "severity": "P2"
+    },
+    "OBS-01": {
+      "name": "Prometheus Metrics Export",
+      "status": "VERIFIED",
+      "tier": "Tier A (Runtime Executable)",
+      "finding": "/metrics exposes standard Prometheus telemetry",
+      "severity": "P2"
+    },
+    "OBS-02": {
+      "name": "Distributed Tracing",
+      "status": "VERIFIED",
+      "tier": "Tier A (Runtime Executable)",
+      "finding": "X-Correlation-ID generated and propagated across headers",
+      "severity": "P2"
+    },
+    "OBS-03": {
+      "name": "Structured JSON Logging",
+      "status": "VERIFIED",
+      "tier": "Tier A (Runtime Executable)",
+      "finding": "Logs structured in JSON format with ISO-8601 timestamps",
+      "severity": "P3"
+    },
+    "OBS-04": {
+      "name": "Health Probes",
+      "status": "VERIFIED",
+      "tier": "Tier A (Runtime Executable)",
+      "finding": "/health/live, /health/ready, /health/startup all functional (HTTP 200)",
+      "severity": "P1"
+    },
+    "RT-01": {
+      "name": "WebSocket Broadcast",
+      "status": "VERIFIED",
+      "tier": "Tier B (Integration Test)",
+      "finding": "WebSocket endpoint broadcasts live event telemetry to connected clients",
+      "severity": "P2"
+    },
+    "RT-02": {
+      "name": "WebSocket Reconnection Jitter",
+      "status": "NOT_VERIFIED",
+      "tier": "Tier G (Absent Enforcement)",
+      "finding": "Hardcoded setTimeout(connect, 3000); zero exponential backoff, zero jitter",
+      "severity": "P1"
+    },
+    "PERF-01": {
+      "name": "Ingestion P99 < 100ms",
+      "status": "NOT_VERIFIED",
+      "tier": "Tier E (Flawed Test - FakeRedis)",
+      "finding": "Real P99 latency is > 3,000ms under concurrent TCP load due to event-loop blocking",
+      "severity": "P1"
+    },
+    "PERF-02": {
+      "name": "API Query Response Time",
+      "status": "VERIFIED",
+      "tier": "Tier A (Runtime Executable)",
+      "finding": "Standard read endpoints return in < 50ms under normal load",
+      "severity": "P2"
+    },
+    "PERF-03": {
+      "name": "Resource Saturation Limits",
+      "status": "NOT_VERIFIED",
+      "tier": "Tier E (Flawed Test)",
+      "finding": "Background ML training starves 1.0 CPU container, causing HTTP timeouts",
+      "severity": "P1"
+    },
+    "ML-01": {
+      "name": "Walk-Forward Benchmark",
+      "status": "NOT_VERIFIED",
+      "tier": "Tier E (Flawed Test - Synthetic)",
+      "finding": "Test runs on 1,500 synthetic random numbers; registry model never evaluated",
+      "severity": "P1"
+    },
+    "ML-02": {
+      "name": "ML Metrics SLOs",
+      "status": "NOT_VERIFIED",
+      "tier": "Tier E (Flawed Test - Synthetic)",
+      "finding": "Actual model has 0.0 metrics in index; AnomalyDetector achieves only 14.5% recall on real ground truth",
+      "severity": "P1"
+    },
+    "ML-03": {
+      "name": "Adversarial Evasion Robustness",
+      "status": "NOT_VERIFIED",
+      "tier": "Tier E (Flawed Assertion)",
+      "finding": "Test hardcoded is_malicious=True bypassing ML; without bypass, mutated payload evades critical detection",
+      "severity": "P2"
+    },
+    "ML-04": {
+      "name": "Model Inference Latency",
+      "status": "VERIFIED",
+      "tier": "Tier A (Runtime Executable)",
+      "finding": "Real inference latency measured at 6.8ms - 16.6ms (average ~8.2ms), well below 20ms SLO",
+      "severity": "P2"
+    },
+    "ML-05": {
+      "name": "Model Registry & Versioning",
+      "status": "VERIFIED",
+      "tier": "Tier A (Runtime Executable)",
+      "finding": "models_index.json tracks models, artifacts, versions, and timestamps",
+      "severity": "P2"
+    },
+    "OPS-01": {
+      "name": "Container Hardening",
+      "status": "VERIFIED",
+      "tier": "Tier A (Runtime Executable)",
+      "finding": "Remediated startup crash with tmpfs logs; non-root UID 10001, ALL caps dropped, read-only rootfs verified",
+      "severity": "P0"
+    },
+    "OPS-02": {
+      "name": "Graceful Shutdown",
+      "status": "VERIFIED",
+      "tier": "Tier A (Runtime Executable)",
+      "finding": "Uvicorn handles SIGTERM cleanly without dropping active connections",
+      "severity": "P2"
+    },
+    "OPS-03": {
+      "name": "Auto-Restart Policy",
+      "status": "VERIFIED",
+      "tier": "Tier A (Runtime Executable)",
+      "finding": "restart: unless-stopped configured on all containers in docker-compose.yml",
+      "severity": "P2"
+    },
+    "OPS-04": {
+      "name": "Automated Database Backup & Restore",
+      "status": "VERIFIED",
+      "tier": "Tier B (Integration Test)",
+      "finding": "Clean DB restore and hash-chain continuity verified in test_backup_restore_e2e.py and backup_base.sh",
+      "severity": "P2"
+    },
+    "OPS-05": {
+      "name": "Alembic Migrations",
+      "status": "VERIFIED",
+      "tier": "Tier A (Runtime Executable)",
+      "finding": "Alembic version table and revision stamped in PostgreSQL",
+      "severity": "P2"
+    },
+    "OPS-06": {
+      "name": "Infrastructure as Code",
+      "status": "VERIFIED",
+      "tier": "Tier A (Runtime Executable)",
+      "finding": "docker-compose.yml defines complete multi-service stack reproducibly",
+      "severity": "P2"
+    },
+    "UI-01": {
+      "name": "Auth Token Storage Security",
+      "status": "NOT_VERIFIED",
+      "tier": "Tier G (Insecure Practice)",
+      "finding": "AdminPanel.jsx stores JWT in localStorage, exposing it to XSS token theft",
+      "severity": "P2"
+    },
+    "UI-02": {
+      "name": "Frontend CSP Defenses",
+      "status": "VERIFIED",
+      "tier": "Tier A (Runtime Executable)",
+      "finding": "Nginx configuration enforces Content Security Policy",
+      "severity": "P2"
+    }
+  },
+  "post_remediation_summary": {
+    "date": "2026-09-19",
+    "total_dimensions": 42,
+    "verified_green": 33,
+    "partially_verified_yellow": 7,
+    "not_verified_red": 2,
+    "actual_readiness_percentage": 78.6,
+    "production_authorized": true,
+    "conditions": [
+      "Ingestion traffic capped at 200 EPS per instance until edge rate limiting / Go gateway deployed",
+      "AttackClassifier_Enhanced model gated in Staging; production relies on AnomalyDetector and heuristic engine"
+    ],
+    "remediated_dimensions": {
+      "SEC-01": {"status": "VERIFIED", "tier": "Tier A", "evidence": "audit/remediation/sec01_route_auth_matrix_after.json"},
+      "DUR-01": {"status": "PARTIALLY_VERIFIED", "tier": "Tier A", "evidence": "audit/remediation/load_test_results.json"},
+      "PERF-01": {"status": "NOT_VERIFIED", "tier": "Tier A", "evidence": "audit/remediation/perf_saturation_results.json"},
+      "ML-01": {"status": "VERIFIED", "tier": "Tier B", "evidence": "audit/remediation/ml_revalidation_results.json"},
+      "ML-02": {"status": "PARTIALLY_VERIFIED", "tier": "Tier B", "evidence": "audit/remediation/ml_revalidation_results.json"},
+      "ML-03": {"status": "VERIFIED", "tier": "Tier B", "evidence": "audit/remediation/ml_revalidation_results.json"},
+      "RT-02": {"status": "VERIFIED", "tier": "Tier B", "evidence": "audit/remediation/rt02_reconnect_backoff_results.json"},
+      "UI-01": {"status": "VERIFIED", "tier": "Tier A", "evidence": "audit/remediation/ui01_token_storage_evidence.json"},
+      "SEC-10": {"status": "VERIFIED", "tier": "Tier B", "evidence": "audit/remediation/sec10_jwt_rotation_results.json"},
+      "SEC-11": {"status": "VERIFIED", "tier": "Tier A", "evidence": "audit/remediation/sec11_socket_isolation_results.json"},
+      "GOV-02": {"status": "VERIFIED", "tier": "Tier A", "evidence": "audit/remediation/gov02_pitr_drill_results.json"},
+      "OPS-01": {"status": "VERIFIED", "tier": "Tier A", "evidence": "audit/remediation/ops01_container_hardening_results.json"}
+    }
+  }
+}

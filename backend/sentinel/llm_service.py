@@ -104,9 +104,9 @@ last_generation_time_ms: float = 0.0
 # Ollama start-up or a large model response never blocks the application.
 _OLLAMA_TIMEOUT = httpx.Timeout(
     connect=60.0,   # max seconds to establish the TCP connection
-    read=60.0,      # max seconds to receive the full response body
-    write=10.0,     # max seconds to send the request body
-    pool=5.0,       # max seconds to acquire a connection from the pool
+    read=180.0,     # max seconds to receive the full response body
+    write=30.0,     # max seconds to send the request body
+    pool=10.0,      # max seconds to acquire a connection from the pool
 )
 
 # Global semaphores to limit concurrent requests to Ollama per event loop
@@ -466,10 +466,10 @@ class LLMService:
 
             # Wait for semaphore without a timeout to support long queues
             async with sem:
-                # Execute request with an overall 65 second timeout
+                # Execute request with an overall 185 second timeout
                 return await asyncio.wait_for(
                     _do_request(),
-                    timeout=65.0
+                    timeout=185.0
                 )
 
         except asyncio.TimeoutError:
@@ -993,7 +993,7 @@ async def generate_playbook_summary(
                                 },
                             )
 
-                    response = await asyncio.wait_for(_do_generate(), timeout=65.0)
+                    response = await asyncio.wait_for(_do_generate(), timeout=185.0)
 
                     if response.status_code == 200:
                         latency_ms = (time.time() - start_time) * 1000

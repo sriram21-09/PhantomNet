@@ -9,7 +9,6 @@ const Topology = () => {
                 <div className="header-content">
                     <div className="header-title">
                         <div className="dashboard-header-premium">
-                            <div className="header-badge hud-font">NODE_DELTA_V.2</div>
                             <h1 className="dashboard-title glow-text">Network Topology</h1>
                             <p className="dashboard-subtitle text-dim">INFRASTRUCTURE VISUALIZATION | REAL-TIME MESH STATUS</p>
                         </div>

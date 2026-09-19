@@ -1,0 +1,83 @@
+{
+  "timestamp": "2026-09-19T07:24:42.251845",
+  "dimensions": [
+    "ML-01",
+    "ML-02",
+    "ML-03",
+    "ML-04",
+    "ML-05"
+  ],
+  "artifacts_inspected": {
+    "models_index": {
+      "models": {
+        "v1.0.0": {
+          "version": "v1.0.0",
+          "name": "AttackClassifier_Enhanced",
+          "training_date": "2026-03-13T13:03:33.420460",
+          "path": "ml_models/registry/AttackClassifier_Enhanced_v1.0.0.pkl",
+          "status": "Staging",
+          "metrics": {
+            "accuracy": 0.6976,
+            "precision": 0.0,
+            "recall": 0.0,
+            "f1_score": 0.0,
+            "timestamp": "2026-03-13T13:07:14.338906",
+            "model_version": "v1.0.0",
+            "auc": 0.6988350648936944
+          },
+          "features": [],
+          "hyperparameters": {}
+        }
+      }
+    },
+    "pkl_exists": true,
+    "model_type": "<class 'sklearn.ensemble._forest.RandomForestClassifier'>",
+    "classes": [
+      "0",
+      "1"
+    ],
+    "ground_truth_count": 200,
+    "ground_truth_columns": [
+      "timestamp",
+      "src_ip",
+      "dst_ip",
+      "dst_port",
+      "protocol",
+      "length",
+      "attack_type",
+      "honeypot_type",
+      "threat_score",
+      "is_malicious"
+    ]
+  },
+  "evaluations": {
+    "anomaly_detector_loaded": true,
+    "anomaly_detector": {
+      "precision": 1.0,
+      "recall": 0.1449,
+      "f1_score": 0.2532,
+      "fpr": 0.0,
+      "confusion_matrix": {
+        "tn": 131,
+        "fp": 0,
+        "fn": 59,
+        "tp": 10
+      },
+      "meets_slo": false
+    },
+    "adversarial_without_bypass": {
+      "score": 0.7,
+      "threat_level": "MEDIUM",
+      "decision": "ALERT",
+      "is_critical": false,
+      "evasion_success": true
+    },
+    "walk_forward_real_data": {
+      "train_samples": 140,
+      "test_samples": 60,
+      "max_train_timestamp": "2026-02-12T14:38:29.366943+00:00",
+      "min_test_timestamp": "2026-02-12T14:38:31.507555+00:00",
+      "zero_temporal_leakage": true
+    }
+  }
+}

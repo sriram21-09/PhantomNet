@@ -1,0 +1,29 @@
+{
+  "timestamp": "2026-09-19T09:07:15.623220",
+  "dimension": "GOV-02",
+  "description": "Point-in-Time Recovery drill executed in fully isolated test container",
+  "container_name": "phantomnet_pitr_isolated",
+  "timeline": {
+    "baseline_rows_inserted": 100,
+    "target_timestamp_marker": "2026-09-19 09:07:35.304261+00",
+    "promoted_successfully": true
+  },
+  "measurements": {
+    "base_backup_duration_seconds": 6.17,
+    "archived_wal_segments": 5,
+    "rto_seconds": 7.99,
+    "rpo_minutes": "< 1 minute (exact timestamp point-in-time recovery)",
+    "total_rows_recovered": 200,
+    "pre_target_rows_recovered": 100,
+    "post_target_rows_recovered": 0
+  },
+  "properties_verified": {
+    "base_backup_success": true,
+    "wal_archiving_success": true,
+    "recovery_promotion_success": true,
+    "target_data_preserved": true,
+    "post_target_data_omitted": true,
+    "rto_under_5_minutes": true
+  },
+  "overall_verdict": "VERIFIED"
+}

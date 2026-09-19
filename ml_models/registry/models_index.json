@@ -7,16 +7,20 @@
             "path": "ml_models/registry/AttackClassifier_Enhanced_v1.0.0.pkl",
             "status": "Staging",
             "metrics": {
-                "accuracy": 0.6976,
+                "accuracy": 0.7333,
                 "precision": 0.0,
                 "recall": 0.0,
                 "f1_score": 0.0,
-                "timestamp": "2026-03-13T13:07:14.338906",
+                "fpr": 0.0,
+                "pr_auc": 0.3951,
+                "auc": 0.5597,
+                "timestamp": "2026-09-19T08:56:04.606853",
                 "model_version": "v1.0.0",
-                "auc": 0.6988350648936944
+                "evaluation_dataset": "data/ground_truth.csv (strict chronological test split)",
+                "evaluation_samples": 30
             },
             "features": [],
             "hyperparameters": {}
         }
     }
-}
+}

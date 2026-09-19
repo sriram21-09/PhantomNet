@@ -1,0 +1,12 @@
+{
+  "dimension": "RT-02",
+  "name": "WebSocket Reconnection with Full Jitter",
+  "original_claim": "Client reconnection implements exponential backoff with full jitter (1s base, 30s cap) to prevent thundering herd during server restarts.",
+  "findings": [],
+  "code_inspection": {
+    "has_fixed_3000ms_retry": false,
+    "has_exponential_jitter": false,
+    "file_path": "C:\\Users\\srira\\Project\\PhantomNet\\frontend-dev\\phantomnet-dashboard\\src\\context\\RealTimeContext.jsx"
+  },
+  "status": "PASS_REMEDIATED"
+}

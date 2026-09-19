@@ -1,0 +1,102 @@
+{
+  "timestamp": "2026-09-19T08:57:26.297632",
+  "dimension": "RT-02",
+  "description": "Bounded exponential backoff with full jitter for WebSocket reconnection",
+  "parameters": {
+    "base_delay_ms": 1000,
+    "max_delay_ms": 30000,
+    "backoff_factor": 2
+  },
+  "attempt_evaluations": {
+    "attempt_0": {
+      "attempt_number": 0,
+      "theoretical_max_ms": 1000,
+      "min_observed_ms": 1,
+      "max_observed_ms": 998,
+      "avg_observed_ms": 489.28,
+      "expected_avg_ms": 500.0,
+      "unique_values_count": 625,
+      "strictly_bounded": true
+    },
+    "attempt_1": {
+      "attempt_number": 1,
+      "theoretical_max_ms": 2000,
+      "min_observed_ms": 0,
+      "max_observed_ms": 1996,
+      "avg_observed_ms": 996.13,
+      "expected_avg_ms": 1000.0,
+      "unique_values_count": 783,
+      "strictly_bounded": true
+    },
+    "attempt_2": {
+      "attempt_number": 2,
+      "theoretical_max_ms": 4000,
+      "min_observed_ms": 1,
+      "max_observed_ms": 3997,
+      "avg_observed_ms": 1976.43,
+      "expected_avg_ms": 2000.0,
+      "unique_values_count": 886,
+      "strictly_bounded": true
+    },
+    "attempt_3": {
+      "attempt_number": 3,
+      "theoretical_max_ms": 8000,
+      "min_observed_ms": 2,
+      "max_observed_ms": 7998,
+      "avg_observed_ms": 3978.05,
+      "expected_avg_ms": 4000.0,
+      "unique_values_count": 948,
+      "strictly_bounded": true
+    },
+    "attempt_4": {
+      "attempt_number": 4,
+      "theoretical_max_ms": 16000,
+      "min_observed_ms": 15,
+      "max_observed_ms": 15980,
+      "avg_observed_ms": 7914.06,
+      "expected_avg_ms": 8000.0,
+      "unique_values_count": 976,
+      "strictly_bounded": true
+    },
+    "attempt_5": {
+      "attempt_number": 5,
+      "theoretical_max_ms": 30000,
+      "min_observed_ms": 22,
+      "max_observed_ms": 29985,
+      "avg_observed_ms": 14977.43,
+      "expected_avg_ms": 15000.0,
+      "unique_values_count": 987,
+      "strictly_bounded": true
+    },
+    "attempt_6": {
+      "attempt_number": 6,
+      "theoretical_max_ms": 30000,
+      "min_observed_ms": 0,
+      "max_observed_ms": 29974,
+      "avg_observed_ms": 14689.72,
+      "expected_avg_ms": 15000.0,
+      "unique_values_count": 984,
+      "strictly_bounded": true
+    },
+    "attempt_10": {
+      "attempt_number": 10,
+      "theoretical_max_ms": 30000,
+      "min_observed_ms": 30,
+      "max_observed_ms": 29963,
+      "avg_observed_ms": 14668.09,
+      "expected_avg_ms": 15000.0,
+      "unique_values_count": 985,
+      "strictly_bounded": true
+    }
+  },
+  "properties_verified": {
+    "bounded_delay": true,
+    "exponential_growth": true,
+    "maximum_cap_30000ms": true,
+    "full_jitter_randomness": true,
+    "successful_connection_reset": true,
+    "timer_cleanup_on_unmount": true,
+    "lifecycle_simulation_pass": true
+  },
+  "overall_verdict": "VERIFIED"
+}

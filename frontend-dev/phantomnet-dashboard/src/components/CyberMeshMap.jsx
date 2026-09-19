@@ -84,16 +84,12 @@ const CyberMeshMap = () => {
             <div className="card-header hud-font small-hdr">
                 <div className="header-left">
                     <div className="header-title-group">
-                        <span className="glow-text mega-title">GLOBAL THREAT MESH <span className="v-tag">v2.1</span></span>
+                        <span className="glow-text mega-title">GLOBAL THREAT MESH</span>
                         <div className="status-indicator">
                             <span className="pulse-dot"></span>
-                            <span className="live-status">CALIBRATED // REAL-TIME_FEED</span>
+                            <span className="live-status">LIVE DEFENSE MESH</span>
                         </div>
                     </div>
-                </div>
-                <div className="mesh-ticker">
-                    <span className="ticker-item blink">RADAR: ACTIVE</span>
-                    <span className="ticker-item">SIG_STR: 98%</span>
                 </div>
             </div>
 

@@ -15,4 +15,10 @@ COPY backend/honeypots/ftp /app/backend/honeypots/ftp
 EXPOSE 2121
 ENV PYTHONPATH=/app/backend
 
+# Create unprivileged non-root user
+RUN groupadd -g 10001 honeypot && useradd -m -u 10001 -g 10001 honeypot && \
+    mkdir -p /app/backend/logs && chown -R honeypot:honeypot /app
+
+USER 10001:10001
+
 CMD ["python", "backend/honeypots/ftp/ftp_honeypot.py"]

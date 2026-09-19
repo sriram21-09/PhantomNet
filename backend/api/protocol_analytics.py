@@ -8,9 +8,14 @@ from datetime import datetime, timedelta
 from database.database import get_db
 from services.attack_detection import AttackDetectionService
 from database.models import PacketLog
+from middleware.auth import get_current_user
 
 logger = logging.getLogger("api.protocol_analytics")
-router = APIRouter(prefix="/api/v1/analytics", tags=["Analytics"])
+router = APIRouter(
+    prefix="/api/v1/analytics",
+    tags=["Analytics"],
+    dependencies=[Depends(get_current_user)],
+)
 
 
 @router.get("/ssh", response_model=Dict[str, Any])

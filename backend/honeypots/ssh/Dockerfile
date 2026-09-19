@@ -15,4 +15,10 @@ COPY backend/honeypots/ssh /app/backend/honeypots/ssh
 EXPOSE 2222
 ENV PYTHONPATH=/app/backend
 
+# Create unprivileged non-root user
+RUN groupadd -g 10001 honeypot && useradd -m -u 10001 -g 10001 honeypot && \
+    mkdir -p /app/backend/logs && chown -R honeypot:honeypot /app
+
+USER 10001:10001
+
 CMD ["python", "backend/honeypots/ssh/ssh_honeypot.py"]

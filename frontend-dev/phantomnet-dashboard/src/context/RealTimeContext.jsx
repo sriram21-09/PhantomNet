@@ -2,6 +2,15 @@ import React, { createContext, useContext, useEffect, useState, useRef, useCallb
 
 const RealTimeContext = createContext(null);
 
+const BASE_DELAY = 1000;
+const MAX_DELAY = 30000;
+const BACKOFF_FACTOR = 2;
+
+export const calculateBackoffWithJitter = (attempt, base = BASE_DELAY, max = MAX_DELAY, factor = BACKOFF_FACTOR) => {
+    const expDelay = Math.min(max, base * Math.pow(factor, attempt));
+    return Math.floor(Math.random() * expDelay);
+};
+
 export const RealTimeProvider = ({ children }) => {
     const [events, setEvents] = useState([]);
     const [metrics, setMetrics] = useState(null);
@@ -9,7 +18,21 @@ export const RealTimeProvider = ({ children }) => {
     const [reconnectCount, setReconnectCount] = useState(0);
     const ws = useRef(null);
     const reconnectTimer = useRef(null);
+    const reconnectAttempts = useRef(0);
     const connectRef = useRef(null);
+
+    const scheduleReconnect = useCallback(() => {
+        if (reconnectTimer.current) {
+            clearTimeout(reconnectTimer.current);
+            reconnectTimer.current = null;
+        }
+        const delay = calculateBackoffWithJitter(reconnectAttempts.current);
+        reconnectAttempts.current += 1;
+        setReconnectCount(reconnectAttempts.current);
+        reconnectTimer.current = setTimeout(() => {
+            if (connectRef.current) connectRef.current();
+        }, delay);
+    }, []);
 
     const connect = useCallback(() => {
         const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
@@ -20,7 +43,12 @@ export const RealTimeProvider = ({ children }) => {
 
             ws.current.onopen = () => {
                 setIsConnected(true);
+                reconnectAttempts.current = 0;
                 setReconnectCount(0);
+                if (reconnectTimer.current) {
+                    clearTimeout(reconnectTimer.current);
+                    reconnectTimer.current = null;
+                }
             };
 
             ws.current.onmessage = (event) => {
@@ -38,10 +66,7 @@ export const RealTimeProvider = ({ children }) => {
 
             ws.current.onclose = () => {
                 setIsConnected(false);
-                setReconnectCount(prev => prev + 1);
-                reconnectTimer.current = setTimeout(() => {
-                    if (connectRef.current) connectRef.current();
-                }, 3000);
+                scheduleReconnect();
             };
 
             ws.current.onerror = () => {
@@ -49,11 +74,9 @@ export const RealTimeProvider = ({ children }) => {
             };
         } catch {
             setIsConnected(false);
-            reconnectTimer.current = setTimeout(() => {
-                if (connectRef.current) connectRef.current();
-            }, 3000);
+            scheduleReconnect();
         }
-    }, []);
+    }, [scheduleReconnect]);
 
     useEffect(() => {
         connectRef.current = connect;

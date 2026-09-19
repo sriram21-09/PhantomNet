@@ -72,8 +72,16 @@ logger = logging.getLogger("api.sentinel")
 # ---------------------------------------------------------------------------
 # Router
 # ---------------------------------------------------------------------------
-router = APIRouter(prefix="/api/sentinel", tags=["Sentinel"])
-v1_router = APIRouter(prefix="/api/v1/sentinel", tags=["Sentinel Compliance"])
+router = APIRouter(
+    prefix="/api/sentinel",
+    tags=["Sentinel"],
+    dependencies=[Depends(get_current_user)],
+)
+v1_router = APIRouter(
+    prefix="/api/v1/sentinel",
+    tags=["Sentinel Compliance"],
+    dependencies=[Depends(get_current_user)],
+)
 
 
 
@@ -873,11 +881,11 @@ def reject_playbook(
             detail=f"Playbook with id={playbook_id} not found",
         )
 
-    if row.status not in ("pending", "approved"):
+    if row.status not in ("pending", "approved", "exported"):
         raise HTTPException(
             status_code=409,
             detail=f"Cannot reject playbook with status='{row.status}'. "
-                   f"Only 'pending' or 'approved' playbooks can be rejected.",
+                   f"Only 'pending', 'approved', or 'exported' playbooks can be rejected.",
         )
 
     try:
@@ -2009,8 +2017,15 @@ def get_campaign_timeline(
         ).first()
 
         # Push the aggregation down to the database using group_by
+        dialect_name = db.bind.dialect.name if db.bind else ""
+        if dialect_name == "postgresql":
+            pg_format = "YYYY-MM-DD HH24:00:00" if interval == "hourly" else "YYYY-MM-DD 00:00:00"
+            bucket_expr = func.to_char(PacketLog.timestamp, pg_format)
+        else:
+            bucket_expr = func.strftime(format_str, PacketLog.timestamp)
+
         query = db.query(
-            func.strftime(format_str, PacketLog.timestamp).label("bucket"),
+            bucket_expr.label("bucket"),
             func.count(PacketLog.id).label("count")
         )
         if pb and pb.src_ip:

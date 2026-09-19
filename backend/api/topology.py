@@ -3,6 +3,9 @@ from typing import List, Dict, Any
 import asyncio
 import json
 import logging
+from database.database import get_db, SessionLocal
+from middleware.auth import ws_authenticate
+from middleware.security_headers import ALLOWED_ORIGINS
 
 logger = logging.getLogger("topology_ws")
 router = APIRouter(prefix="/api/v1/topology", tags=["Topology"])
@@ -20,14 +23,15 @@ class TopologyManager:
         )
 
     def disconnect(self, websocket: WebSocket):
-        self.active_connections.remove(websocket)
-        logger.info(
-            f"Topology client disconnected. Total: {len(self.active_connections)}"
-        )
+        if websocket in self.active_connections:
+            self.active_connections.remove(websocket)
+            logger.info(
+                f"Topology client disconnected. Total: {len(self.active_connections)}"
+            )
 
     async def broadcast(self, data: Dict[str, Any]):
         message = json.dumps(data)
-        for connection in self.active_connections:
+        for connection in list(self.active_connections):
             try:
                 await connection.send_text(message)
             except Exception as e:
@@ -39,13 +43,38 @@ topology_manager = TopologyManager()
 
 @router.websocket("/ws")
 async def topology_ws_endpoint(websocket: WebSocket):
-    await topology_manager.connect(websocket)
+    # 1. Validate Origin header to guard against CSWSH
+    origin = websocket.headers.get("origin")
+    if origin:
+        norm_origin = origin.rstrip("/")
+        if norm_origin not in ALLOWED_ORIGINS:
+            logger.warning("Rejected topology WS from unauthorized origin: %s", origin)
+            await websocket.close(code=4003, reason="Forbidden origin")
+            return
+
+    # 2. Authenticate session via cookie or Authorization header
+    override = websocket.app.dependency_overrides.get(get_db) if hasattr(websocket, "app") else None
+    if override:
+        db_gen = override()
+        db = next(db_gen)
+    else:
+        db = SessionLocal()
+
     try:
+        user = ws_authenticate(websocket, db)
+        if not user:
+            logger.warning("Rejected unauthenticated topology WS connection")
+            await websocket.close(code=4001, reason="Unauthorized")
+            return
+
+        await topology_manager.connect(websocket)
         # Initial State Push: Dynamic Node Discovery
         from api.honeypots import get_honeypot_status
+        honeypots = get_honeypot_status(db=db)
+    finally:
+        db.close()
 
-        honeypots = get_honeypot_status()
-
+    try:
         nodes = [
             {
                 "id": "controller",

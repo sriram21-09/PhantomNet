@@ -534,7 +534,6 @@ const SentinelDashboard = () => {
       {/* Header */}
       <div className="sentinel-header">
         <div style={{ display: "flex", gap: "0.75rem", flexWrap: "wrap", marginBottom: "0.75rem" }}>
-          <div className="sentinel-badge hud-font">SENTINEL_ENGINE_V1.0</div>
           <div 
             className={`sentinel-badge hud-font sentinel-ai-status-badge ${aiStatus === "online" ? "ai-online" : "ai-offline"}`}
             style={{ cursor: "pointer", userSelect: "none" }}

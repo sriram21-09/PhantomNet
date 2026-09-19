@@ -10,10 +10,16 @@ from pyftpdlib.servers import FTPServer
 try:
     sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
     from db_logger import log_ftp_activity
+    from credential_sanitizer import sanitize_credential_payload
 
     DB_ENABLED = True
 except ImportError:
     DB_ENABLED = False
+    try:
+        from credential_sanitizer import sanitize_credential_payload
+    except ImportError:
+        def sanitize_credential_payload(username="", password=""):
+            return {"username": str(username), "password_length": len(str(password))}
     print("[FTP] Database logger not available, using file-only logging")
 
 # ======================
@@ -119,7 +125,7 @@ class HoneypotFTPHandler(FTPHandler):
         log_event(
             self.remote_ip,
             "login_failed",
-            {"username": username, "password": password},
+            sanitize_credential_payload(username, password),
             "WARN",
         )
 

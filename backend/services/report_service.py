@@ -146,8 +146,14 @@ class ReportService:
 
     def _get_attack_timeline(self, start_time, filters):
         # Group by hour
+        dialect_name = self.db.bind.dialect.name if self.db.bind else ""
+        if dialect_name == "postgresql":
+            hour_expr = func.to_char(PacketLog.timestamp, "YYYY-MM-DD HH24:00:00")
+        else:
+            hour_expr = func.strftime("%Y-%m-%d %H:00:00", PacketLog.timestamp)
+
         query = self.db.query(
-            func.strftime("%Y-%m-%d %H:00:00", PacketLog.timestamp).label("hour"),
+            hour_expr.label("hour"),
             func.count(PacketLog.id),
         ).filter(PacketLog.timestamp >= start_time)
         query = self._apply_filters(query, filters)

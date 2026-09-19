@@ -393,7 +393,6 @@ const NetworkTopology = () => {
             {/* Header */}
             <div className="topology-header">
                 <div className="topo-title-row">
-                    <div className="topo-badge hud-font">NODE_DELTA</div>
                     <h3 className="topo-title">Network Infrastructure Topology</h3>
                 </div>
                 <div className="topo-status-row">

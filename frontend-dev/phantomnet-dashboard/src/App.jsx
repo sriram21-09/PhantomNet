@@ -1,7 +1,10 @@
 import "./Styles/App.css";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import ThemeProvider from "./context/ThemeProvider";
+import { AuthProvider } from "./context/AuthContext";
+import ProtectedRoute from "./components/ProtectedRoute";
 import Navbar from "./components/Navbar";
+import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import ErrorBoundary from "./components/ErrorBoundary";
 import Events from "./pages/Events";
@@ -10,7 +13,6 @@ import FeatureAnalysis from "./pages/FeatureAnalysis";
 import ThreatAnalysis from "./pages/ThreatAnalysis";
 import AnomalyDashboard from "./pages/AnomalyDashboard";
 import Topology from "./pages/Topology";
-import GeoDashboard from "./pages/GeoDashboard";
 import AdvancedAnalytics from "./pages/AdvancedAnalytics";
 import ThreatHunting from "./pages/ThreatHunting";
 import AdvancedDashboard from "./pages/AdvancedDashboard";
@@ -26,32 +28,39 @@ function App() {
   return (
     <ThemeProvider>
       <ErrorBoundary>
-        <BrowserRouter>
-          <div className="page-container">
-            <Navbar />
-            <Routes>
-              <Route path="/" element={<Dashboard />} />
-              <Route path="/dashboard" element={<Dashboard />} />
-              <Route path="/dashboard/features" element={<FeatureAnalysis />} />
-              <Route path="/features" element={<FeatureAnalysis />} />
-              <Route path="/events" element={<Events />} />
-              <Route path="/about" element={<About />} />
-              <Route path="/threat-analysis" element={<ThreatAnalysis />} />
-              <Route path="/anomalies" element={<AnomalyDashboard />} />
-              <Route path="/topology" element={<Topology />} />
-              <Route path="/geo-stats" element={<GeoDashboard />} />
-              <Route path="/analytics" element={<AdvancedAnalytics />} />
-              <Route path="/hunting" element={<ThreatHunting />} />
-              <Route path="/advanced-dashboard" element={<AdvancedDashboard />} />
-              <Route path="/packet-analysis" element={<PacketAnalysis />} />
-              <Route path="/admin" element={<AdminPanel />} />
-              <Route path="/ml-insights" element={<MLInsights />} />
-              <Route path="/honeypots" element={<Honeypots />} />
-              <Route path="/sentinel" element={<SentinelDashboard />} />
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </div>
-        </BrowserRouter>
+        <AuthProvider>
+          <BrowserRouter>
+            <div className="page-container">
+              <Navbar />
+              <Routes>
+                {/* Public Route */}
+                <Route path="/login" element={<Login />} />
+                <Route path="/about" element={<About />} />
+
+                {/* Protected Routes */}
+                <Route path="/" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+                <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+                <Route path="/dashboard/features" element={<ProtectedRoute><FeatureAnalysis /></ProtectedRoute>} />
+                <Route path="/features" element={<ProtectedRoute><FeatureAnalysis /></ProtectedRoute>} />
+                <Route path="/events" element={<ProtectedRoute><Events /></ProtectedRoute>} />
+                <Route path="/threat-analysis" element={<ProtectedRoute><ThreatAnalysis /></ProtectedRoute>} />
+                <Route path="/anomalies" element={<ProtectedRoute><AnomalyDashboard /></ProtectedRoute>} />
+                <Route path="/topology" element={<ProtectedRoute><Topology /></ProtectedRoute>} />
+                <Route path="/analytics" element={<ProtectedRoute><AdvancedAnalytics /></ProtectedRoute>} />
+                <Route path="/hunting" element={<ProtectedRoute><ThreatHunting /></ProtectedRoute>} />
+                <Route path="/advanced-dashboard" element={<ProtectedRoute><AdvancedDashboard /></ProtectedRoute>} />
+                <Route path="/packet-analysis" element={<ProtectedRoute><PacketAnalysis /></ProtectedRoute>} />
+                <Route path="/admin" element={<ProtectedRoute><AdminPanel /></ProtectedRoute>} />
+                <Route path="/ml-insights" element={<ProtectedRoute><MLInsights /></ProtectedRoute>} />
+                <Route path="/honeypots" element={<ProtectedRoute><Honeypots /></ProtectedRoute>} />
+                <Route path="/sentinel" element={<ProtectedRoute><SentinelDashboard /></ProtectedRoute>} />
+                
+                {/* Fallback */}
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </div>
+          </BrowserRouter>
+        </AuthProvider>
       </ErrorBoundary>
     </ThemeProvider>
   );

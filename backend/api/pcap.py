@@ -12,11 +12,16 @@ from fastapi.responses import FileResponse
 from sqlalchemy.orm import Session
 
 from database.database import get_db
-from database.models import Event, PcapCapture
+from database.models import Event, PcapCapture, User
+from middleware.auth import require_role
 from services.pcap_analyzer import pcap_analyzer
 
 logger = logging.getLogger("api.pcap")
-router = APIRouter(prefix="/api/v1", tags=["PCAP Analysis"])
+router = APIRouter(
+    prefix="/api/v1",
+    tags=["PCAP Analysis"],
+    dependencies=[Depends(require_role("Admin", "Analyst"))],
+)
 
 PCAP_DIR = os.path.abspath(
     os.path.join(os.path.dirname(os.path.dirname(__file__)), "..", "data", "pcaps")

@@ -49,10 +49,10 @@ def map_score_to_level(score: float, context: ThreatInput = None) -> str:
     high_max = 0.90
 
     if context:
-        # Check source reputation
-        if context.is_malicious:
+        # Contextual adjustment: Known malicious reputation is an automatic CRITICAL
+        if getattr(context, "is_malicious", False):
             return "CRITICAL"
-            
+
         # Contextual adjustment: more sensitive at night (00:00 - 05:00 UTC)
         if context.timestamp:
             try:
@@ -104,7 +104,7 @@ def score_threat(input_data: ThreatInput) -> ThreatResponse:
         event_str = json.dumps(
             input_data.model_dump(exclude={"timestamp"}), sort_keys=True
         )
-        event_hash = "pred_cache:" + hashlib.md5(event_str.encode()).hexdigest()
+        event_hash = "pred_cache:" + hashlib.sha256(event_str.encode()).hexdigest()
 
         cached_result = redis_client.get(event_hash)
         if cached_result:
@@ -118,7 +118,7 @@ def score_threat(input_data: ThreatInput) -> ThreatResponse:
         event_str = json.dumps(
             input_data.model_dump(exclude={"timestamp"}), sort_keys=True
         )
-        event_hash = "pred_cache:" + hashlib.md5(event_str.encode()).hexdigest()
+        event_hash = "pred_cache:" + hashlib.sha256(event_str.encode()).hexdigest()
         if event_hash in _LOCAL_PRED_CACHE:
             entry = _LOCAL_PRED_CACHE[event_hash]
             if time.time() < entry['exp']:
@@ -236,7 +236,7 @@ def score_threat_batch(inputs: List[ThreatInput]) -> List[ThreatResponse]:
             event_str = json.dumps(
                 inp.model_dump(exclude={"timestamp"}), sort_keys=True
             )
-            hashes.append("pred_cache:" + hashlib.md5(event_str.encode()).hexdigest())
+            hashes.append("pred_cache:" + hashlib.sha256(event_str.encode()).hexdigest())
 
         try:
             cached_results = redis_client.mget(hashes)
@@ -253,7 +253,7 @@ def score_threat_batch(inputs: List[ThreatInput]) -> List[ThreatResponse]:
     else:
         for i, inp in enumerate(inputs):
             event_str = json.dumps(inp.model_dump(exclude={"timestamp"}), sort_keys=True)
-            h = "pred_cache:" + hashlib.md5(event_str.encode()).hexdigest()
+            h = "pred_cache:" + hashlib.sha256(event_str.encode()).hexdigest()
             hashes.append(h)
             if h in _LOCAL_PRED_CACHE and time.time() < _LOCAL_PRED_CACHE[h]['exp']:
                 responses[i] = ThreatResponse(**json.loads(_LOCAL_PRED_CACHE[h]['data']))

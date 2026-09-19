@@ -47,20 +47,49 @@ def log_to_database(
     """
     Log honeypot activity to the database.
     """
-    if not DB_AVAILABLE:
-        return False
-
     if is_healthcheck(src_ip):
         return False
 
+    # Check if Ingestion Gateway is configured (Phase 2 Durable Architecture)
+    gateway_url = os.getenv("INGESTION_GATEWAY_URL")
+    if gateway_url:
+        try:
+            from honeypots.event_dispatcher import default_dispatcher
+            return default_dispatcher.dispatch(
+                protocol=protocol,
+                src_ip=src_ip,
+                event_type=event_type,
+                length=length,
+                is_malicious=is_malicious,
+                threat_score=threat_score,
+                attack_type=attack_type,
+            )
+        except Exception as ge:
+            print(f"[DB Logger] Error dispatching to gateway: {ge}")
+
+    if not DB_AVAILABLE:
+        return False
+
     try:
+        from schemas.event_envelope import generate_uuidv7, compute_canonical_fingerprint
         db = SessionLocal()
 
         # GeoIP Enrichment
         geo = geoip_service.lookup(src_ip)
+        now = datetime.utcnow()
+        event_uuid = generate_uuidv7()
+        fp = compute_canonical_fingerprint(
+            honeypot_id=protocol.lower(),
+            event_type=event_type,
+            src_ip=src_ip,
+            dst_port=0,
+            protocol=protocol,
+            payload={},
+            timestamp_ns=int(now.timestamp() * 1_000_000_000),
+        )
 
         log_entry = PacketLog(
-            timestamp=datetime.utcnow(),
+            timestamp=now,
             src_ip=src_ip,
             dst_ip="127.0.0.1",
             protocol=protocol.upper(),  # Ensure uppercase: HTTP, FTP, SMTP, SSH
@@ -68,6 +97,9 @@ def log_to_database(
             is_malicious=is_malicious,
             threat_score=threat_score,
             attack_type=attack_type or event_type.upper(),
+            event_id=event_uuid,
+            canonical_fingerprint=fp,
+            honeypot_id=protocol.lower(),
             country=geo.get("country"),
             city=geo.get("city"),
             latitude=geo.get("lat"),

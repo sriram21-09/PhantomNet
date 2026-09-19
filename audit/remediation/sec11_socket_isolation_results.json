@@ -1,0 +1,115 @@
+{
+  "timestamp": "2026-09-19T09:03:12.879212",
+  "dimension": "SEC-11",
+  "description": "Real Docker network namespace socket-level isolation tests from running honeypot containers",
+  "tested_containers": {
+    "phantomnet_ssh": [
+      {
+        "test": "PostgreSQL Hostname",
+        "target": "postgres",
+        "port": 5432,
+        "result": "BLOCKED_DNS",
+        "expected": "BLOCKED",
+        "passed": true
+      },
+      {
+        "test": "PostgreSQL Direct IP",
+        "target": "172.19.0.2",
+        "port": 5432,
+        "result": "BLOCKED_NO_ROUTE",
+        "expected": "BLOCKED",
+        "passed": true
+      },
+      {
+        "test": "Redis Hostname",
+        "target": "redis",
+        "port": 6379,
+        "result": "BLOCKED_DNS",
+        "expected": "BLOCKED",
+        "passed": true
+      },
+      {
+        "test": "Redis Direct IP",
+        "target": "172.19.0.3",
+        "port": 6379,
+        "result": "BLOCKED_NO_ROUTE",
+        "expected": "BLOCKED",
+        "passed": true
+      },
+      {
+        "test": "Prometheus Hostname",
+        "target": "prometheus",
+        "port": 9090,
+        "result": "BLOCKED_DNS",
+        "expected": "BLOCKED",
+        "passed": true
+      },
+      {
+        "test": "API Hostname",
+        "target": "api",
+        "port": 8000,
+        "result": "ALLOWED",
+        "expected": "ALLOWED",
+        "passed": true
+      }
+    ],
+    "phantomnet_http": [
+      {
+        "test": "PostgreSQL Hostname",
+        "target": "postgres",
+        "port": 5432,
+        "result": "BLOCKED_DNS",
+        "expected": "BLOCKED",
+        "passed": true
+      },
+      {
+        "test": "PostgreSQL Direct IP",
+        "target": "172.19.0.2",
+        "port": 5432,
+        "result": "BLOCKED_NO_ROUTE",
+        "expected": "BLOCKED",
+        "passed": true
+      },
+      {
+        "test": "Redis Hostname",
+        "target": "redis",
+        "port": 6379,
+        "result": "BLOCKED_DNS",
+        "expected": "BLOCKED",
+        "passed": true
+      },
+      {
+        "test": "Redis Direct IP",
+        "target": "172.19.0.3",
+        "port": 6379,
+        "result": "BLOCKED_NO_ROUTE",
+        "expected": "BLOCKED",
+        "passed": true
+      },
+      {
+        "test": "Prometheus Hostname",
+        "target": "prometheus",
+        "port": 9090,
+        "result": "BLOCKED_DNS",
+        "expected": "BLOCKED",
+        "passed": true
+      },
+      {
+        "test": "API Hostname",
+        "target": "api",
+        "port": 8000,
+        "result": "ALLOWED",
+        "expected": "ALLOWED",
+        "passed": true
+      }
+    ]
+  },
+  "properties_verified": {
+    "postgres_5432_blocked": true,
+    "redis_6379_blocked": true,
+    "prometheus_9090_blocked": true,
+    "api_8000_allowed": true,
+    "all_socket_isolation_tests_passed": true
+  },
+  "overall_verdict": "VERIFIED"
+}

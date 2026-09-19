@@ -63,6 +63,12 @@ data/predictions.csv
 
 # Scratch / Temporary
 scratch/
+tests/pdf_outputs/*.pdf
+tests/pdf_outputs/*.txt
+audit/logs/
+empty_baseline.*
+PRODUCTION_BASELINE_*.txt
+validation_test_report*
 
 # ─────────────────────────────────────────────
 # GSD / Agent Tooling (not project source code)

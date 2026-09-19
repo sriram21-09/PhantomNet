@@ -27,9 +27,6 @@ const DashboardContent = () => {
         <div className="advanced-dashboard-container">
             <div className="dashboard-header-premium">
                 <div className="header-content">
-                    <div className="header-badge hud-font">
-                        <Shield size={12} /> PROTOCOL_ACTIVE
-                    </div>
                     <h1 className="dashboard-title glow-text">Neural Operations Center</h1>
                     <p className="dashboard-subtitle text-dim">
                         REAL-TIME THREAT SYNCHRONIZATION | AI-DRIVEN PREDICTION ENGINE

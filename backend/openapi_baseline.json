@@ -1,0 +1,6687 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "PhantomNet Sentinel & Cyber Defense API",
+    "description": "PhantomNet V3 -- AI-Driven Active Defense, Automated Incident Response Playbooks, MITRE ATT&CK Mapping, IDS Rule Generation, and TAXII 2.1 Threat Sharing Platform",
+    "version": "3.0.0"
+  },
+  "paths": {
+    "/api/v1/model/metrics": {
+      "get": {
+        "tags": [
+          "Model Metrics"
+        ],
+        "summary": "Get Model Metrics",
+        "description": "Retrieve the latest model performance metrics.",
+        "operationId": "get_model_metrics_api_v1_model_metrics_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/model/config": {
+      "get": {
+        "tags": [
+          "Model Metrics"
+        ],
+        "summary": "Get Training Config",
+        "description": "Retrieve the training configuration.",
+        "operationId": "get_training_config_api_v1_model_config_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/model/stats": {
+      "get": {
+        "tags": [
+          "Model Metrics"
+        ],
+        "summary": "Get Stats",
+        "description": "Retrieve model statistics and metrics for the Model Insights Dashboard.",
+        "operationId": "get_stats_api_v1_model_stats_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/model/feature-importance": {
+      "get": {
+        "tags": [
+          "Model Metrics"
+        ],
+        "summary": "Get Feature Importance",
+        "description": "Retrieve feature importance scores.",
+        "operationId": "get_feature_importance_api_v1_model_feature_importance_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/model/predictions/recent": {
+      "get": {
+        "tags": [
+          "Model Metrics"
+        ],
+        "summary": "Get Recent Predictions",
+        "description": "Fetch count of benign vs malicious packet logs from database grouped by hour.",
+        "operationId": "get_recent_predictions_api_v1_model_predictions_recent_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/model/confidence-histogram": {
+      "get": {
+        "tags": [
+          "Model Metrics"
+        ],
+        "summary": "Get Confidence Histogram",
+        "description": "Build real confidence score buckets from database.",
+        "operationId": "get_confidence_histogram_api_v1_model_confidence_histogram_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/enrich/ip/{ip}": {
+      "get": {
+        "tags": [
+          "Enrichment"
+        ],
+        "summary": "Enrich Ip Endpoint",
+        "description": "Async endpoint to enrich an IP address with external threat intelligence.",
+        "operationId": "enrich_ip_endpoint_api_v1_enrich_ip__ip__get",
+        "parameters": [
+          {
+            "name": "ip",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 50,
+              "description": "IP address to enrich",
+              "title": "Ip"
+            },
+            "description": "IP address to enrich"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response Enrich Ip Endpoint Api V1 Enrich Ip  Ip  Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/management/register": {
+      "post": {
+        "tags": [
+          "Management"
+        ],
+        "summary": "Register Node",
+        "operationId": "register_node_api_v1_management_register_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/NodeRegisterRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "APIKeyHeader": []
+          }
+        ]
+      }
+    },
+    "/api/v1/management/heartbeat": {
+      "post": {
+        "tags": [
+          "Management"
+        ],
+        "summary": "Node Heartbeat",
+        "operationId": "node_heartbeat_api_v1_management_heartbeat_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/NodeHeartbeatRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "APIKeyHeader": []
+          }
+        ]
+      }
+    },
+    "/api/v1/management/nodes": {
+      "get": {
+        "tags": [
+          "Management"
+        ],
+        "summary": "List Nodes",
+        "operationId": "list_nodes_api_v1_management_nodes_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "APIKeyHeader": []
+          }
+        ]
+      }
+    },
+    "/api/v1/management/policies": {
+      "get": {
+        "tags": [
+          "Management"
+        ],
+        "summary": "List Policies",
+        "operationId": "list_policies_api_v1_management_policies_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "APIKeyHeader": []
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "Management"
+        ],
+        "summary": "Create Policy",
+        "operationId": "create_policy_api_v1_management_policies_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PolicyCreateRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "APIKeyHeader": []
+          }
+        ]
+      }
+    },
+    "/api/v1/management/policies/assign": {
+      "post": {
+        "tags": [
+          "Management"
+        ],
+        "summary": "Assign Policy",
+        "operationId": "assign_policy_api_v1_management_policies_assign_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PolicyAssignRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "APIKeyHeader": []
+          }
+        ]
+      }
+    },
+    "/api/v1/events/{event_id}/pcap": {
+      "get": {
+        "tags": [
+          "PCAP Analysis"
+        ],
+        "summary": "Download Pcap",
+        "description": "Download the PCAP file associated with an event.",
+        "operationId": "download_pcap_api_v1_events__event_id__pcap_get",
+        "parameters": [
+          {
+            "name": "event_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "description": "Event database ID",
+              "title": "Event Id"
+            },
+            "description": "Event database ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/pcap/analysis/{event_id}": {
+      "get": {
+        "tags": [
+          "PCAP Analysis"
+        ],
+        "summary": "Get Pcap Analysis",
+        "description": "Return the deep packet analysis for a given event's PCAP.",
+        "operationId": "get_pcap_analysis_api_v1_pcap_analysis__event_id__get",
+        "parameters": [
+          {
+            "name": "event_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "description": "Event database ID",
+              "title": "Event Id"
+            },
+            "description": "Event database ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/pcap/stats": {
+      "get": {
+        "tags": [
+          "PCAP Analysis"
+        ],
+        "summary": "Pcap Stats",
+        "description": "Return overall PCAP capture statistics.",
+        "operationId": "pcap_stats_api_v1_pcap_stats_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/pcap/capture/{event_id}": {
+      "post": {
+        "tags": [
+          "PCAP Analysis"
+        ],
+        "summary": "Trigger Capture",
+        "description": "Manually trigger a packet capture for an event.",
+        "operationId": "trigger_capture_api_v1_pcap_capture__event_id__post",
+        "parameters": [
+          {
+            "name": "event_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "description": "Event database ID",
+              "title": "Event Id"
+            },
+            "description": "Event database ID"
+          },
+          {
+            "name": "duration",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 3600,
+              "minimum": 1,
+              "description": "Capture duration in seconds",
+              "default": 60,
+              "title": "Duration"
+            },
+            "description": "Capture duration in seconds"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/pcap/capture/{event_id}/status": {
+      "get": {
+        "tags": [
+          "PCAP Analysis"
+        ],
+        "summary": "Capture Status",
+        "description": "Check the status of an active or completed capture.",
+        "operationId": "capture_status_api_v1_pcap_capture__event_id__status_get",
+        "parameters": [
+          {
+            "name": "event_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "description": "Event database ID",
+              "title": "Event Id"
+            },
+            "description": "Event database ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/pcap/cleanup": {
+      "post": {
+        "tags": [
+          "PCAP Analysis"
+        ],
+        "summary": "Run Cleanup",
+        "description": "Manually trigger PCAP retention cleanup.",
+        "operationId": "run_cleanup_api_v1_pcap_cleanup_post",
+        "parameters": [
+          {
+            "name": "retention_days",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 365,
+              "minimum": 1,
+              "description": "Retention window in days",
+              "default": 30,
+              "title": "Retention Days"
+            },
+            "description": "Retention window in days"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/attribution/profile/{ip}": {
+      "get": {
+        "tags": [
+          "AttackAttribution"
+        ],
+        "summary": "Get Attacker Profile",
+        "description": "Full attacker profile for a given IP address.",
+        "operationId": "get_attacker_profile_api_v1_attribution_profile__ip__get",
+        "parameters": [
+          {
+            "name": "ip",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 50,
+              "description": "IP address to profile",
+              "title": "Ip"
+            },
+            "description": "IP address to profile"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/attribution/top-attackers": {
+      "get": {
+        "tags": [
+          "AttackAttribution"
+        ],
+        "summary": "Get Top Attackers",
+        "description": "Return top attackers ranked by event count and threat score.",
+        "operationId": "get_top_attackers_api_v1_attribution_top_attackers_get",
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 100,
+              "minimum": 1,
+              "description": "Max top attackers to return",
+              "default": 10,
+              "title": "Limit"
+            },
+            "description": "Max top attackers to return"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/predictive/forecast": {
+      "get": {
+        "tags": [
+          "Predictive"
+        ],
+        "summary": "Get Forecast",
+        "description": "Return time-series forecast for the next 6 hours.",
+        "operationId": "get_forecast_api_v1_predictive_forecast_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/predictive/risk-score": {
+      "get": {
+        "tags": [
+          "Predictive"
+        ],
+        "summary": "Get Risk Score",
+        "description": "Aggregate risk score across all honeypots.",
+        "operationId": "get_risk_score_api_v1_predictive_risk_score_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/predictive/next-attack": {
+      "get": {
+        "tags": [
+          "Predictive"
+        ],
+        "summary": "Get Next Attack Prediction",
+        "description": "Predict the most likely next attack target based on recent patterns.",
+        "operationId": "get_next_attack_prediction_api_v1_predictive_next_attack_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/login": {
+      "post": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Admin Login",
+        "operationId": "admin_login_api_v1_admin_login_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/users": {
+      "get": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "List Users",
+        "operationId": "list_users_api_v1_admin_users_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Create User",
+        "operationId": "create_user_api_v1_admin_users_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserCreate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/admin/users/{user_id}": {
+      "put": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Update User",
+        "operationId": "update_user_api_v1_admin_users__user_id__put",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "user_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "User Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserUpdate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Delete User",
+        "operationId": "delete_user_api_v1_admin_users__user_id__delete",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "user_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "User Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/config": {
+      "get": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Get Config",
+        "operationId": "get_config_api_v1_admin_config_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      },
+      "put": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Update Config",
+        "operationId": "update_config_api_v1_admin_config_put",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ConfigUpdate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/admin/system-overview": {
+      "get": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "System Overview",
+        "operationId": "system_overview_api_v1_admin_system_overview_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/admin/backup": {
+      "post": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Create Backup",
+        "operationId": "create_backup_api_v1_admin_backup_post",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/admin/backups": {
+      "get": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "List Backups",
+        "operationId": "list_backups_api_v1_admin_backups_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/admin/vacuum": {
+      "post": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Vacuum Db",
+        "operationId": "vacuum_db_api_v1_admin_vacuum_post",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/admin/events/old": {
+      "delete": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Delete Old Events",
+        "operationId": "delete_old_events_api_v1_admin_events_old_delete",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "days",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 30,
+              "title": "Days"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/analyze/threat-score": {
+      "post": {
+        "tags": [
+          "Analysis"
+        ],
+        "summary": "Analyze Threat Score",
+        "description": "Analyzes network traffic features and returns a threat score (0-100) and classification.",
+        "operationId": "analyze_threat_api_v1_analyze_threat_score_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ThreatInput"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ThreatResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/analytics/ssh": {
+      "get": {
+        "tags": [
+          "Analytics"
+        ],
+        "summary": "Get Ssh Analytics",
+        "description": "Returns SSH attack statistics including brute-force attempts.",
+        "operationId": "get_ssh_analytics_api_v1_analytics_ssh_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object",
+                  "title": "Response Get Ssh Analytics Api V1 Analytics Ssh Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/analytics/http": {
+      "get": {
+        "tags": [
+          "Analytics"
+        ],
+        "summary": "Get Http Analytics",
+        "description": "Returns HTTP attack statistics.",
+        "operationId": "get_http_analytics_api_v1_analytics_http_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object",
+                  "title": "Response Get Http Analytics Api V1 Analytics Http Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/analytics/trends": {
+      "get": {
+        "tags": [
+          "Analytics"
+        ],
+        "summary": "Get Attack Trends",
+        "description": "Returns daily attack volume for the last N days.",
+        "operationId": "get_attack_trends_api_v1_analytics_trends_get",
+        "parameters": [
+          {
+            "name": "days",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 30,
+              "minimum": 1,
+              "description": "Trend window in days (1-30)",
+              "default": 7,
+              "title": "Days"
+            },
+            "description": "Trend window in days (1-30)"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "additionalProperties": true
+                  },
+                  "title": "Response Get Attack Trends Api V1 Analytics Trends Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/threat-metrics": {
+      "get": {
+        "tags": [
+          "Metrics"
+        ],
+        "summary": "Get Threat Metrics",
+        "description": "Returns aggregated threat metrics for the dashboard.\nExpected format by frontend:\n{\n  \"threatLevel\": int (0-100),\n  \"anomalyScore\": int (0-100)\n}",
+        "operationId": "get_threat_metrics_api_threat_metrics_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/patterns/advanced": {
+      "get": {
+        "tags": [
+          "Advanced Patterns"
+        ],
+        "summary": "Get Advanced Patterns",
+        "description": "Analyzes historical packet logs to detect complex, multi-stage,\nor covert threats that evade standard threshold detection.",
+        "operationId": "get_advanced_patterns_api_v1_patterns_advanced_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object",
+                  "title": "Response Get Advanced Patterns Api V1 Patterns Advanced Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/reports/generate": {
+      "get": {
+        "tags": [
+          "Reports"
+        ],
+        "summary": "Generate Report",
+        "operationId": "generate_report_api_v1_reports_generate_get",
+        "parameters": [
+          {
+            "name": "template_type",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "Executive Summary",
+              "title": "Template Type"
+            }
+          },
+          {
+            "name": "date_range",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "24h",
+              "title": "Date Range"
+            }
+          },
+          {
+            "name": "honeypot",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "ALL",
+              "title": "Honeypot"
+            }
+          },
+          {
+            "name": "threat_level",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "ALL",
+              "title": "Threat Level"
+            }
+          },
+          {
+            "name": "protocol",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "ALL",
+              "title": "Protocol"
+            }
+          },
+          {
+            "name": "include_sections",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "",
+              "title": "Include Sections"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response Generate Report Api V1 Reports Generate Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/reports/schedule": {
+      "post": {
+        "tags": [
+          "Reports"
+        ],
+        "summary": "Schedule Report",
+        "operationId": "schedule_report_api_v1_reports_schedule_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ScheduledReportCreate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ScheduledReportResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/reports/schedules": {
+      "get": {
+        "tags": [
+          "Reports"
+        ],
+        "summary": "Get Schedules",
+        "operationId": "get_schedules_api_v1_reports_schedules_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/ScheduledReportResponse"
+                  },
+                  "type": "array",
+                  "title": "Response Get Schedules Api V1 Reports Schedules Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/reports/schedule/{report_id}": {
+      "delete": {
+        "tags": [
+          "Reports"
+        ],
+        "summary": "Delete Schedule",
+        "operationId": "delete_schedule_api_v1_reports_schedule__report_id__delete",
+        "parameters": [
+          {
+            "name": "report_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "description": "Report schedule database ID",
+              "title": "Report Id"
+            },
+            "description": "Report schedule database ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Reports"
+        ],
+        "summary": "Update Schedule",
+        "operationId": "update_schedule_api_v1_reports_schedule__report_id__put",
+        "parameters": [
+          {
+            "name": "report_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "description": "Report schedule database ID",
+              "title": "Report Id"
+            },
+            "description": "Report schedule database ID"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ScheduledReportCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ScheduledReportResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/hunting/search": {
+      "post": {
+        "tags": [
+          "Threat Hunting"
+        ],
+        "summary": "Search Events",
+        "operationId": "search_events_api_v1_hunting_search_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AdvancedQuery"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/hunting/extract-iocs": {
+      "post": {
+        "tags": [
+          "Threat Hunting"
+        ],
+        "summary": "Extract Iocs",
+        "operationId": "extract_iocs_api_v1_hunting_extract_iocs_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TextPayload"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/IOCOutput"
+                  },
+                  "type": "array",
+                  "title": "Response Extract Iocs Api V1 Hunting Extract Iocs Post"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/hunting/related-events": {
+      "get": {
+        "tags": [
+          "Threat Hunting"
+        ],
+        "summary": "Get Related Events",
+        "operationId": "get_related_events_api_v1_hunting_related_events_get",
+        "parameters": [
+          {
+            "name": "ip",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 50
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Ip"
+            }
+          },
+          {
+            "name": "honeypot",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 50
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Honeypot"
+            }
+          },
+          {
+            "name": "window",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "maximum": 43200,
+                  "minimum": 1
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": 1440,
+              "title": "Window"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/hunting/history": {
+      "get": {
+        "tags": [
+          "Threat Hunting"
+        ],
+        "summary": "Get Search History",
+        "operationId": "get_search_history_api_v1_hunting_history_get",
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 100,
+              "minimum": 1,
+              "default": 20,
+              "title": "Limit"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/SearchHistoryResponse"
+                  },
+                  "title": "Response Get Search History Api V1 Hunting History Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/hunting/analyze-patterns": {
+      "post": {
+        "tags": [
+          "Threat Hunting"
+        ],
+        "summary": "Analyze Patterns",
+        "operationId": "analyze_patterns_api_v1_hunting_analyze_patterns_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TextPayload"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/hunting/templates": {
+      "get": {
+        "tags": [
+          "Threat Hunting"
+        ],
+        "summary": "Get Query Templates",
+        "operationId": "get_query_templates_api_v1_hunting_templates_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/cases/": {
+      "get": {
+        "tags": [
+          "Case Management"
+        ],
+        "summary": "Get Cases",
+        "operationId": "get_cases_api_v1_cases__get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/CaseResponse"
+                  },
+                  "type": "array",
+                  "title": "Response Get Cases Api V1 Cases  Get"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Case Management"
+        ],
+        "summary": "Create Case",
+        "operationId": "create_case_api_v1_cases__post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CaseCreate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CaseResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/cases/{case_id}": {
+      "get": {
+        "tags": [
+          "Case Management"
+        ],
+        "summary": "Get Case Details",
+        "operationId": "get_case_details_api_v1_cases__case_id__get",
+        "parameters": [
+          {
+            "name": "case_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "description": "Case database ID",
+              "title": "Case Id"
+            },
+            "description": "Case database ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CaseResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Case Management"
+        ],
+        "summary": "Update Case",
+        "operationId": "update_case_api_v1_cases__case_id__put",
+        "parameters": [
+          {
+            "name": "case_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "description": "Case database ID",
+              "title": "Case Id"
+            },
+            "description": "Case database ID"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CaseUpdate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CaseResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/cases/{case_id}/evidence": {
+      "post": {
+        "tags": [
+          "Case Management"
+        ],
+        "summary": "Add Evidence",
+        "operationId": "add_evidence_api_v1_cases__case_id__evidence_post",
+        "parameters": [
+          {
+            "name": "case_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "description": "Case database ID",
+              "title": "Case Id"
+            },
+            "description": "Case database ID"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EvidenceCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/alerts": {
+      "get": {
+        "tags": [
+          "Alerts"
+        ],
+        "summary": "List Alerts",
+        "description": "Get a list of security alerts with pagination and filtering.",
+        "operationId": "list_alerts_api_v1_alerts_get",
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 1000,
+              "minimum": 1,
+              "description": "Max alerts to return (1-1000)",
+              "default": 100,
+              "title": "Limit"
+            },
+            "description": "Max alerts to return (1-1000)"
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "Pagination offset",
+              "default": 0,
+              "title": "Offset"
+            },
+            "description": "Pagination offset"
+          },
+          {
+            "name": "level",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 50
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Level"
+            }
+          },
+          {
+            "name": "type",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 50
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Type"
+            }
+          },
+          {
+            "name": "resolved",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "boolean"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Resolved"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response List Alerts Api V1 Alerts Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/alerts/{alert_id}/resolve": {
+      "patch": {
+        "tags": [
+          "Alerts"
+        ],
+        "summary": "Resolve Alert",
+        "description": "Mark a security alert as resolved.",
+        "operationId": "resolve_alert_api_v1_alerts__alert_id__resolve_patch",
+        "parameters": [
+          {
+            "name": "alert_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "description": "Alert ID to resolve",
+              "title": "Alert Id"
+            },
+            "description": "Alert ID to resolve"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/sentinel/playbooks": {
+      "get": {
+        "tags": [
+          "Sentinel"
+        ],
+        "summary": "List Playbooks",
+        "description": "List all Sentinel playbooks with page-based pagination and multi-criteria filtering (status, severity, attack type, technique, search query, date range).",
+        "operationId": "list_playbooks_api_sentinel_playbooks_get",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "description": "Page number (1-indexed, default 1)",
+              "default": 1,
+              "title": "Page"
+            },
+            "description": "Page number (1-indexed, default 1)"
+          },
+          {
+            "name": "per_page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 100,
+              "minimum": 1,
+              "description": "Results per page (1\u2013100, default 20)",
+              "default": 20,
+              "title": "Per Page"
+            },
+            "description": "Results per page (1\u2013100, default 20)"
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Filter by status: pending|approved|rejected|exported",
+              "title": "Status"
+            },
+            "description": "Filter by status: pending|approved|rejected|exported"
+          },
+          {
+            "name": "attack_type",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Filter by attack type",
+              "title": "Attack Type"
+            },
+            "description": "Filter by attack type"
+          },
+          {
+            "name": "technique",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Filter by MITRE technique ID or Name",
+              "title": "Technique"
+            },
+            "description": "Filter by MITRE technique ID or Name"
+          },
+          {
+            "name": "severity",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Filter by severity: critical|high|medium|low",
+              "title": "Severity"
+            },
+            "description": "Filter by severity: critical|high|medium|low"
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Keyword search query",
+              "title": "Search"
+            },
+            "description": "Keyword search query"
+          },
+          {
+            "name": "date_from",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Filter by creation date (start) ISO-8601",
+              "title": "Date From"
+            },
+            "description": "Filter by creation date (start) ISO-8601"
+          },
+          {
+            "name": "date_to",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Filter by creation date (end) ISO-8601",
+              "title": "Date To"
+            },
+            "description": "Filter by creation date (end) ISO-8601"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response List Playbooks Api Sentinel Playbooks Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/sentinel/playbooks/compare": {
+      "get": {
+        "tags": [
+          "Sentinel"
+        ],
+        "summary": "Compare Playbooks",
+        "description": "Compare two playbooks side-by-side and return structured diff metrics, IOC count differentials, and rule parity.",
+        "operationId": "compare_playbooks_api_sentinel_playbooks_compare_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id1",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "description": "First playbook database ID",
+              "title": "Id1"
+            },
+            "description": "First playbook database ID"
+          },
+          {
+            "name": "id2",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "description": "Second playbook database ID",
+              "title": "Id2"
+            },
+            "description": "Second playbook database ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response Compare Playbooks Api Sentinel Playbooks Compare Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/sentinel/playbooks/{playbook_id}": {
+      "get": {
+        "tags": [
+          "Sentinel"
+        ],
+        "summary": "Get Playbook Detail",
+        "description": "Retrieve a single Sentinel playbook by its ID, including full content and rules.",
+        "operationId": "get_playbook_api_sentinel_playbooks__playbook_id__get",
+        "parameters": [
+          {
+            "name": "playbook_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Playbook Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PlaybookDetailResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/sentinel/stats": {
+      "get": {
+        "tags": [
+          "Sentinel"
+        ],
+        "summary": "Get Sentinel Statistics",
+        "description": "Return aggregated Sentinel pipeline statistics, including playbook counts by status, severity breakdown, approval rates, average threat scores, and daily generation trends.",
+        "operationId": "get_sentinel_stats_api_sentinel_stats_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object",
+                  "title": "Response Get Sentinel Stats Api Sentinel Stats Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/sentinel/mitre/mapping": {
+      "get": {
+        "tags": [
+          "Sentinel"
+        ],
+        "summary": "Get MITRE ATT&CK Mappings",
+        "description": "Return all 12 MITRE ATT&CK technique mappings used by the Sentinel pipeline with signatures, tactics, and ATT&CK reference URLs.",
+        "operationId": "get_mitre_mappings_api_sentinel_mitre_mapping_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object",
+                  "title": "Response Get Mitre Mappings Api Sentinel Mitre Mapping Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/sentinel/generate": {
+      "post": {
+        "tags": [
+          "Sentinel"
+        ],
+        "summary": "Manual Playbook Generation",
+        "description": "Trigger manual playbook generation for a campaign (Auto-gen).",
+        "operationId": "generate_playbook_api_sentinel_generate_post",
+        "parameters": [
+          {
+            "name": "max_requests",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 10,
+              "title": "Max Requests"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GenerateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GenerateResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/sentinel/playbooks/{playbook_id}/approve": {
+      "patch": {
+        "tags": [
+          "Sentinel"
+        ],
+        "summary": "Approve Playbook",
+        "description": "Approve a pending or rejected Sentinel playbook, recording the reviewing analyst and UTC timestamp.",
+        "operationId": "approve_playbook_api_sentinel_playbooks__playbook_id__approve_patch",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "playbook_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "description": "Database ID of the playbook to approve",
+              "title": "Playbook Id"
+            },
+            "description": "Database ID of the playbook to approve"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReviewRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response Approve Playbook Api Sentinel Playbooks  Playbook Id  Approve Patch"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/sentinel/playbooks/{playbook_id}/reject": {
+      "patch": {
+        "tags": [
+          "Sentinel"
+        ],
+        "summary": "Reject Playbook",
+        "description": "Reject a pending or approved Sentinel playbook, recording the reviewing analyst and UTC timestamp.",
+        "operationId": "reject_playbook_api_sentinel_playbooks__playbook_id__reject_patch",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "playbook_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "description": "Database ID of the playbook to reject",
+              "title": "Playbook Id"
+            },
+            "description": "Database ID of the playbook to reject"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReviewRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response Reject Playbook Api Sentinel Playbooks  Playbook Id  Reject Patch"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/sentinel/playbooks/{playbook_id}/export": {
+      "post": {
+        "tags": [
+          "Sentinel"
+        ],
+        "summary": "Export Playbook",
+        "description": "Export a Sentinel playbook as a downloadable file (Markdown, JSON, STIX, or PDF).",
+        "operationId": "export_playbook_api_sentinel_playbooks__playbook_id__export_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "playbook_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "description": "Database ID of the playbook to export",
+              "title": "Playbook Id"
+            },
+            "description": "Database ID of the playbook to export"
+          },
+          {
+            "name": "format",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "description": "Export format: markdown | json | stix | pdf",
+              "default": "markdown",
+              "title": "Format"
+            },
+            "description": "Export format: markdown | json | stix | pdf"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/sentinel/playbooks/{playbook_id}/export/pdf": {
+      "post": {
+        "tags": [
+          "Sentinel",
+          "Sentinel"
+        ],
+        "summary": "Export playbook as PDF (streaming)",
+        "description": "Generate and download a playbook as a rich, branded PDF document. Returns a streaming blob with Content-Type: application/pdf and Content-Disposition: attachment. All playbook fields are rendered: metadata, threat context, MITRE ATT&CK mapping, Snort/Sigma rules, playbook content, and LLM narrative.",
+        "operationId": "export_playbook_pdf_api_sentinel_playbooks__playbook_id__export_pdf_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "playbook_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "description": "Database primary-key ID of the playbook to export as PDF",
+              "title": "Playbook Id"
+            },
+            "description": "Database primary-key ID of the playbook to export as PDF"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/sentinel/rules/snort": {
+      "get": {
+        "tags": [
+          "Sentinel"
+        ],
+        "summary": "List Snort Rules",
+        "description": "List all Snort IDS rules generated by the Sentinel pipeline with pagination and optional attack_type filtering.",
+        "operationId": "list_snort_rules_api_sentinel_rules_snort_get",
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 200,
+              "minimum": 1,
+              "description": "Max results per page",
+              "default": 50,
+              "title": "Limit"
+            },
+            "description": "Max results per page"
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "Pagination offset",
+              "default": 0,
+              "title": "Offset"
+            },
+            "description": "Pagination offset"
+          },
+          {
+            "name": "attack_type",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Filter by attack type",
+              "title": "Attack Type"
+            },
+            "description": "Filter by attack type"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response List Snort Rules Api Sentinel Rules Snort Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/sentinel/rules/sigma": {
+      "get": {
+        "tags": [
+          "Sentinel"
+        ],
+        "summary": "List Sigma Rules",
+        "description": "List all Sigma detection rules generated by the Sentinel pipeline with pagination and optional attack_type filtering.",
+        "operationId": "list_sigma_rules_api_sentinel_rules_sigma_get",
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 200,
+              "minimum": 1,
+              "description": "Max results per page",
+              "default": 50,
+              "title": "Limit"
+            },
+            "description": "Max results per page"
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "Pagination offset",
+              "default": 0,
+              "title": "Offset"
+            },
+            "description": "Pagination offset"
+          },
+          {
+            "name": "attack_type",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Filter by attack type",
+              "title": "Attack Type"
+            },
+            "description": "Filter by attack type"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response List Sigma Rules Api Sentinel Rules Sigma Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/sentinel/llm/status": {
+      "get": {
+        "tags": [
+          "Sentinel"
+        ],
+        "summary": "Get LLM Service Status",
+        "description": "Check the status, model configuration, and live connectivity of the Ollama LLM service.",
+        "operationId": "get_llm_status_api_sentinel_llm_status_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object",
+                  "title": "Response Get Llm Status Api Sentinel Llm Status Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/sentinel/playbooks/{playbook_id}/regenerate-llm": {
+      "post": {
+        "tags": [
+          "Sentinel"
+        ],
+        "summary": "Regenerate Playbook LLM Narrative",
+        "description": "Manually triggers regeneration of the LLM narrative summary for the playbook.",
+        "operationId": "regenerate_playbook_llm_api_sentinel_playbooks__playbook_id__regenerate_llm_post",
+        "parameters": [
+          {
+            "name": "playbook_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "description": "Database ID of the playbook",
+              "title": "Playbook Id"
+            },
+            "description": "Database ID of the playbook"
+          },
+          {
+            "name": "max_requests",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 10,
+              "title": "Max Requests"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response Regenerate Playbook Llm Api Sentinel Playbooks  Playbook Id  Regenerate Llm Post"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/sentinel/mitre/matrix": {
+      "get": {
+        "tags": [
+          "Sentinel"
+        ],
+        "summary": "Get MITRE ATT&CK Matrix Heatmap",
+        "description": "Return the aggregated MITRE ATT&CK technique matrix with live playbook hit counts and frequency map for dashboard visualization.",
+        "operationId": "get_mitre_matrix_api_sentinel_mitre_matrix_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object",
+                  "title": "Response Get Mitre Matrix Api Sentinel Mitre Matrix Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/sentinel/playbooks/batch/approve": {
+      "post": {
+        "tags": [
+          "Sentinel"
+        ],
+        "summary": "Batch Approve Playbooks",
+        "description": "Approve multiple pending or rejected playbooks in a single transaction.",
+        "operationId": "batch_approve_playbooks_api_sentinel_playbooks_batch_approve_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BatchReviewRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object",
+                  "title": "Response Batch Approve Playbooks Api Sentinel Playbooks Batch Approve Post"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/sentinel/playbooks/batch/reject": {
+      "post": {
+        "tags": [
+          "Sentinel"
+        ],
+        "summary": "Batch Reject Playbooks",
+        "description": "Reject multiple pending or approved playbooks in a single transaction.",
+        "operationId": "batch_reject_playbooks_api_sentinel_playbooks_batch_reject_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BatchReviewRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object",
+                  "title": "Response Batch Reject Playbooks Api Sentinel Playbooks Batch Reject Post"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/sentinel/playbooks/{playbook_id}/regenerate": {
+      "post": {
+        "tags": [
+          "Sentinel"
+        ],
+        "summary": "Regenerate Playbook Version",
+        "description": "Regenerate a playbook, creating a new versioned record and preserving historical lineage.",
+        "operationId": "regenerate_playbook_api_sentinel_playbooks__playbook_id__regenerate_post",
+        "parameters": [
+          {
+            "name": "playbook_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "description": "Database ID of the playbook to regenerate",
+              "title": "Playbook Id"
+            },
+            "description": "Database ID of the playbook to regenerate"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegenerateRequest",
+                "default": {
+                  "reason": "Analyst-requested regeneration"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response Regenerate Playbook Api Sentinel Playbooks  Playbook Id  Regenerate Post"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/sentinel/playbooks/{playbook_id}/versions": {
+      "get": {
+        "tags": [
+          "Sentinel"
+        ],
+        "summary": "Get Playbook Version History",
+        "description": "Retrieve the full version lineage for a playbook from newest to oldest.",
+        "operationId": "get_playbook_versions_api_sentinel_playbooks__playbook_id__versions_get",
+        "parameters": [
+          {
+            "name": "playbook_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "description": "Database ID of any version in the playbook chain",
+              "title": "Playbook Id"
+            },
+            "description": "Database ID of any version in the playbook chain"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response Get Playbook Versions Api Sentinel Playbooks  Playbook Id  Versions Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/sentinel/rules/export-all": {
+      "get": {
+        "tags": [
+          "Sentinel"
+        ],
+        "summary": "Export All Rules (ZIP Archive)",
+        "description": "Export all active approved Snort and Sigma rules into a single sanitized, zip-slip protected ZIP archive.",
+        "operationId": "export_all_rules_api_sentinel_rules_export_all_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response"
+          }
+        }
+      }
+    },
+    "/api/sentinel/campaigns/{campaign_id}/timeline": {
+      "get": {
+        "tags": [
+          "Sentinel"
+        ],
+        "summary": "Get Campaign Progression Timeline",
+        "description": "Retrieve time-series event density data for campaign timeline visualization, including surge detection and anomaly timestamps.",
+        "operationId": "get_campaign_timeline_api_sentinel_campaigns__campaign_id__timeline_get",
+        "parameters": [
+          {
+            "name": "campaign_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Campaign Id"
+            }
+          },
+          {
+            "name": "interval",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "pattern": "^(hourly|daily)$",
+              "description": "Aggregation interval",
+              "default": "hourly",
+              "title": "Interval"
+            },
+            "description": "Aggregation interval"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response Get Campaign Timeline Api Sentinel Campaigns  Campaign Id  Timeline Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/sentinel/audit-logs": {
+      "get": {
+        "tags": [
+          "Sentinel"
+        ],
+        "summary": "Get Sentinel Audit Logs",
+        "description": "Retrieve audit activity logs for analyst actions, approvals, rejections, exports, and compliance tracking.",
+        "operationId": "get_audit_logs_api_sentinel_audit_logs_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 500,
+              "minimum": 1,
+              "description": "Max audit records to return",
+              "default": 50,
+              "title": "Limit"
+            },
+            "description": "Max audit records to return"
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "Pagination offset",
+              "default": 0,
+              "title": "Offset"
+            },
+            "description": "Pagination offset"
+          },
+          {
+            "name": "action",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Filter by action name (e.g. approve, reject, export, batch_approve, regenerate)",
+              "title": "Action"
+            },
+            "description": "Filter by action name (e.g. approve, reject, export, batch_approve, regenerate)"
+          },
+          {
+            "name": "user",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Filter by username or service name",
+              "title": "User"
+            },
+            "description": "Filter by username or service name"
+          },
+          {
+            "name": "playbook_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Filter by associated playbook ID or DB integer ID",
+              "title": "Playbook Id"
+            },
+            "description": "Filter by associated playbook ID or DB integer ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response Get Audit Logs Api Sentinel Audit Logs Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/sentinel/playbooks/{playbook_id}/export-history": {
+      "get": {
+        "tags": [
+          "Sentinel"
+        ],
+        "summary": "Get Playbook Export History",
+        "description": "Retrieve export audit history timeline for a specific playbook.",
+        "operationId": "get_playbook_export_history_api_sentinel_playbooks__playbook_id__export_history_get",
+        "parameters": [
+          {
+            "name": "playbook_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "description": "Database primary key ID of the playbook",
+              "title": "Playbook Id"
+            },
+            "description": "Database primary key ID of the playbook"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 200,
+              "minimum": 1,
+              "default": 50,
+              "title": "Limit"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response Get Playbook Export History Api Sentinel Playbooks  Playbook Id  Export History Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/sentinel/audit-logs": {
+      "get": {
+        "tags": [
+          "Sentinel Compliance"
+        ],
+        "summary": "Get V1 Compliance Audit Logs",
+        "description": "Compliance tracking endpoint for Sentinel audit logs under /api/v1/sentinel/audit-logs.",
+        "operationId": "get_v1_audit_logs_api_v1_sentinel_audit_logs_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 500,
+              "minimum": 1,
+              "description": "Max audit records to return",
+              "default": 50,
+              "title": "Limit"
+            },
+            "description": "Max audit records to return"
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "Pagination offset",
+              "default": 0,
+              "title": "Offset"
+            },
+            "description": "Pagination offset"
+          },
+          {
+            "name": "action",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Filter by action name",
+              "title": "Action"
+            },
+            "description": "Filter by action name"
+          },
+          {
+            "name": "user",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Filter by username",
+              "title": "User"
+            },
+            "description": "Filter by username"
+          },
+          {
+            "name": "playbook_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Filter by playbook ID",
+              "title": "Playbook Id"
+            },
+            "description": "Filter by playbook ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response Get V1 Audit Logs Api V1 Sentinel Audit Logs Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/sentinel/templates": {
+      "get": {
+        "tags": [
+          "Sentinel Compliance"
+        ],
+        "summary": "List Playbook Templates",
+        "description": "List available Jinja2 incident response playbook templates.",
+        "operationId": "list_sentinel_templates_api_v1_sentinel_templates_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object",
+                  "title": "Response List Sentinel Templates Api V1 Sentinel Templates Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/sentinel/templates/preview": {
+      "post": {
+        "tags": [
+          "Sentinel Compliance"
+        ],
+        "summary": "Preview Playbook Template",
+        "description": "Render a Jinja2 template with sample parameters or inline Jinja2 syntax testing.",
+        "operationId": "preview_sentinel_template_api_v1_sentinel_templates_preview_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "additionalProperties": true,
+                "type": "object",
+                "title": "Payload"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object",
+                  "title": "Response Preview Sentinel Template Api V1 Sentinel Templates Preview Post"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/honeypots": {
+      "get": {
+        "tags": [
+          "Honeypots"
+        ],
+        "summary": "Get Honeypot Status",
+        "description": "Dynamically gets current honeypot container statuses and event counts.",
+        "operationId": "get_honeypot_status_api_honeypots_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/HoneypotResponse"
+                  },
+                  "type": "array",
+                  "title": "Response Get Honeypot Status Api Honeypots Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/honeypots/status": {
+      "get": {
+        "tags": [
+          "Honeypots"
+        ],
+        "summary": "Get Honeypot Status Alias",
+        "description": "Alias route for /api/honeypots/status to support all frontend components.",
+        "operationId": "get_honeypot_status_alias_api_honeypots_status_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/HoneypotResponse"
+                  },
+                  "type": "array",
+                  "title": "Response Get Honeypot Status Alias Api Honeypots Status Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/taxii2/": {
+      "get": {
+        "tags": [
+          "TAXII 2.1 Feed"
+        ],
+        "summary": "TAXII 2.1 Server Discovery",
+        "description": "Returns TAXII 2.1 server discovery document listing hosted API root URLs.",
+        "operationId": "taxii_discovery_taxii2__get",
+        "security": [
+          {
+            "HTTPBasic": []
+          },
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "accept",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Accept"
+            }
+          },
+          {
+            "name": "content-type",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Content-Type"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaxiiDiscoveryResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/taxii2/phantomnet/": {
+      "get": {
+        "tags": [
+          "TAXII 2.1 Feed"
+        ],
+        "summary": "TAXII 2.1 API Root Information",
+        "description": "Returns metadata and capabilities for the primary phantomnet API root.",
+        "operationId": "taxii_api_root_taxii2_phantomnet__get",
+        "security": [
+          {
+            "HTTPBasic": []
+          },
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "accept",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Accept"
+            }
+          },
+          {
+            "name": "content-type",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Content-Type"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaxiiApiRootResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/taxii2/phantomnet/collections/": {
+      "get": {
+        "tags": [
+          "TAXII 2.1 Feed"
+        ],
+        "summary": "TAXII 2.1 Collections List",
+        "description": "Returns list of STIX collection resources available under the phantomnet API root.",
+        "operationId": "list_collections_taxii2_phantomnet_collections__get",
+        "security": [
+          {
+            "HTTPBasic": []
+          },
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "accept",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Accept"
+            }
+          },
+          {
+            "name": "content-type",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Content-Type"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaxiiCollectionsResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/taxii2/phantomnet/collections/{collection_id}/": {
+      "get": {
+        "tags": [
+          "TAXII 2.1 Feed"
+        ],
+        "summary": "TAXII 2.1 Collection Resource",
+        "description": "Returns metadata for a specific collection identified by ID or alias.",
+        "operationId": "get_collection_detail_taxii2_phantomnet_collections__collection_id___get",
+        "security": [
+          {
+            "HTTPBasic": []
+          },
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "collection_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Collection Id"
+            }
+          },
+          {
+            "name": "accept",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Accept"
+            }
+          },
+          {
+            "name": "content-type",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Content-Type"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaxiiCollectionResource"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/taxii2/phantomnet/collections/{id}/objects/": {
+      "get": {
+        "tags": [
+          "TAXII 2.1 Feed"
+        ],
+        "summary": "Get TAXII Collection STIX Objects",
+        "description": "Returns a STIX 2.1 bundle containing objects for the requested collection.",
+        "operationId": "get_collection_objects_taxii2_phantomnet_collections__id__objects__get",
+        "security": [
+          {
+            "HTTPBasic": []
+          },
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "The ID or alias of the collection",
+              "title": "Id"
+            },
+            "description": "The ID or alias of the collection"
+          },
+          {
+            "name": "added_after",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "ISO 8601 / RFC 3339 timestamp. Only objects with a created_at date strictly after this value will be returned. Example: 2026-07-01T00:00:00Z",
+              "title": "Added After"
+            },
+            "description": "ISO 8601 / RFC 3339 timestamp. Only objects with a created_at date strictly after this value will be returned. Example: 2026-07-01T00:00:00Z"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "maximum": 1000,
+                  "minimum": 1
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Maximum number of STIX objects to return. Max is 1000.",
+              "title": "Limit"
+            },
+            "description": "Maximum number of STIX objects to return. Max is 1000."
+          },
+          {
+            "name": "next",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Pagination offset index to fetch the next page of results.",
+              "title": "Next"
+            },
+            "description": "Pagination offset index to fetch the next page of results."
+          },
+          {
+            "name": "accept",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Accept"
+            }
+          },
+          {
+            "name": "content-type",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Content-Type"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaxiiEnvelopeResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/health": {
+      "get": {
+        "summary": "Health Check",
+        "description": "Check the health of the API.",
+        "operationId": "health_check_api_health_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object",
+                  "title": "Response Health Check Api Health Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/analyze-traffic": {
+      "get": {
+        "summary": "Get Real Traffic",
+        "description": "Fetches the latest packet logs and enriches them with AI analysis results.\n\nReturns:\n    dict: A status indicator, count of logs, and the list of enriched traffic data.",
+        "operationId": "get_real_traffic_analyze_traffic_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object",
+                  "title": "Response Get Real Traffic Analyze Traffic Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/stats": {
+      "get": {
+        "summary": "Get Api Stats",
+        "description": "Retrieves aggregated dashboard statistics.\nReturns a dictionary of counts and metrics for the dashboard.",
+        "operationId": "get_api_stats_api_stats_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object",
+                  "title": "Response Get Api Stats Api Stats Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/metrics": {
+      "get": {
+        "summary": "Prometheus Metrics",
+        "description": "Prometheus-compatible metrics endpoint.\n\nReturns:\n    str: Metrics data in Prometheus format.",
+        "operationId": "prometheus_metrics_metrics_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string",
+                  "title": "Response Prometheus Metrics Metrics Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/cache/stats": {
+      "get": {
+        "summary": "Cache Stats",
+        "description": "Return API cache statistics.",
+        "operationId": "cache_stats_api_cache_stats_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object",
+                  "title": "Response Cache Stats Api Cache Stats Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/events": {
+      "get": {
+        "summary": "Get Events",
+        "description": "Query event logs with filtering for protocol and threat levels.\n\nArgs:\n    threat: Filter by threat category (MALICIOUS, SUSPICIOUS, BENIGN, ALL).\n    protocol: Filter by network protocol.\n    limit: Max number of results.\n    db: Database session.\n\nReturns:\n    list: Filtered and formatted event logs.",
+        "operationId": "get_events_api_events_get",
+        "parameters": [
+          {
+            "name": "threat",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "ALL",
+              "title": "Threat"
+            }
+          },
+          {
+            "name": "protocol",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "ALL",
+              "title": "Protocol"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 1000,
+              "minimum": 1,
+              "description": "Max events to return (1-1000)",
+              "default": 100,
+              "title": "Limit"
+            },
+            "description": "Max events to return (1-1000)"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {},
+                  "title": "Response Get Events Api Events Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/features/live": {
+      "get": {
+        "summary": "Get Live Features",
+        "description": "Pulls the latest packet log from the database, runs it through the\ninternal ML FeatureExtractor, and returns the live feature vector dict.",
+        "operationId": "get_live_features_api_features_live_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/active-defense/block/{ip}": {
+      "post": {
+        "summary": "Block Ip Address",
+        "description": "Blocks a specific IP address using the firewall service.\n\nArgs:\n    ip: The IP address to block.\n\nReturns:\n    dict: The result of the blocking operation.",
+        "operationId": "block_ip_address_active_defense_block__ip__post",
+        "parameters": [
+          {
+            "name": "ip",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 50,
+              "description": "IP address to block",
+              "title": "Ip"
+            },
+            "description": "IP address to block"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response Block Ip Address Active Defense Block  Ip  Post"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/analytics/attack-map": {
+      "get": {
+        "summary": "Get Attack Map",
+        "description": "Returns geo-enriched attack data for map visualization.",
+        "operationId": "get_attack_map_api_analytics_attack_map_get",
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 1000,
+              "minimum": 1,
+              "description": "Max events to analyze",
+              "default": 200,
+              "title": "Limit"
+            },
+            "description": "Max events to analyze"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response Get Attack Map Api Analytics Attack Map Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/geoip/lookup/{ip}": {
+      "get": {
+        "summary": "Geoip Lookup",
+        "description": "Look up geolocation for a single IP address.",
+        "operationId": "geoip_lookup_api_geoip_lookup__ip__get",
+        "parameters": [
+          {
+            "name": "ip",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 50,
+              "description": "IP address to lookup",
+              "title": "Ip"
+            },
+            "description": "IP address to lookup"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response Geoip Lookup Api Geoip Lookup  Ip  Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/geoip/status": {
+      "get": {
+        "summary": "Geoip Status",
+        "description": "Return GeoIP service health status.",
+        "operationId": "geoip_status_api_geoip_status_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object",
+                  "title": "Response Geoip Status Api Geoip Status Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/response/history": {
+      "get": {
+        "summary": "Response History",
+        "description": "View response action audit log.",
+        "operationId": "response_history_api_response_history_get",
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 500,
+              "minimum": 1,
+              "description": "Max history records to return",
+              "default": 50,
+              "title": "Limit"
+            },
+            "description": "Max history records to return"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response Response History Api Response History Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/response/blocked-ips": {
+      "get": {
+        "summary": "Blocked Ips",
+        "description": "List currently blocked IPs.",
+        "operationId": "blocked_ips_api_response_blocked_ips_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object",
+                  "title": "Response Blocked Ips Api Response Blocked Ips Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/response/unblock/{ip}": {
+      "post": {
+        "summary": "Unblock Ip",
+        "description": "Manually unblock an IP address.",
+        "operationId": "unblock_ip_api_response_unblock__ip__post",
+        "parameters": [
+          {
+            "name": "ip",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 50,
+              "description": "IP address to unblock",
+              "title": "Ip"
+            },
+            "description": "IP address to unblock"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response Unblock Ip Api Response Unblock  Ip  Post"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/response/policy": {
+      "get": {
+        "summary": "Get Response Policy",
+        "description": "View current automated response policy.",
+        "operationId": "get_response_policy_api_response_policy_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object",
+                  "title": "Response Get Response Policy Api Response Policy Get"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "summary": "Update Response Policy",
+        "description": "Update response policy thresholds.",
+        "operationId": "update_response_policy_api_response_policy_put",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "additionalProperties": true,
+                "type": "object",
+                "title": "Updates"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object",
+                  "title": "Response Update Response Policy Api Response Policy Put"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/response/stats": {
+      "get": {
+        "summary": "Response Stats",
+        "description": "Return automated response system statistics.",
+        "operationId": "response_stats_api_response_stats_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object",
+                  "title": "Response Response Stats Api Response Stats Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/advanced/campaigns": {
+      "get": {
+        "tags": [
+          "Advanced ML"
+        ],
+        "summary": "Get Attack Campaigns",
+        "description": "Analyze recent threats and cluster coordinated attack campaigns.",
+        "operationId": "get_attack_campaigns_api_v1_advanced_campaigns_get",
+        "parameters": [
+          {
+            "name": "hours_back",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 168,
+              "minimum": 1,
+              "description": "Time window in hours (1-168)",
+              "default": 24,
+              "title": "Hours Back"
+            },
+            "description": "Time window in hours (1-168)"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response Get Attack Campaigns Api V1 Advanced Campaigns Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/events/{event_id}/explanation": {
+      "get": {
+        "tags": [
+          "Advanced ML"
+        ],
+        "summary": "Explain Threat Score",
+        "description": "Generate SHAP feature explanations for a specific scored event.",
+        "operationId": "explain_threat_score_api_v1_events__event_id__explanation_get",
+        "parameters": [
+          {
+            "name": "event_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "description": "Event database ID",
+              "title": "Event Id"
+            },
+            "description": "Event database ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response Explain Threat Score Api V1 Events  Event Id  Explanation Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "AdvancedQuery": {
+        "properties": {
+          "logic": {
+            "type": "string",
+            "title": "Logic",
+            "default": "AND"
+          },
+          "conditions": {
+            "items": {
+              "$ref": "#/components/schemas/QueryCondition"
+            },
+            "type": "array",
+            "maxItems": 50,
+            "title": "Conditions",
+            "default": []
+          },
+          "limit": {
+            "type": "integer",
+            "maximum": 1000.0,
+            "minimum": 1.0,
+            "title": "Limit",
+            "default": 100
+          },
+          "offset": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Offset",
+            "default": 0
+          }
+        },
+        "type": "object",
+        "title": "AdvancedQuery"
+      },
+      "BatchReviewRequest": {
+        "properties": {
+          "playbook_ids": {
+            "items": {
+              "type": "integer"
+            },
+            "type": "array",
+            "maxItems": 50,
+            "minItems": 1,
+            "title": "Playbook Ids",
+            "description": "List of playbook IDs to process"
+          },
+          "reviewed_by": {
+            "type": "string",
+            "maxLength": 128,
+            "minLength": 1,
+            "title": "Reviewed By",
+            "description": "Username of the analyst performing the review"
+          }
+        },
+        "type": "object",
+        "required": [
+          "playbook_ids",
+          "reviewed_by"
+        ],
+        "title": "BatchReviewRequest",
+        "description": "Request body for POST /batch/approve and /batch/reject endpoints."
+      },
+      "CaseCreate": {
+        "properties": {
+          "title": {
+            "type": "string",
+            "maxLength": 255,
+            "minLength": 1,
+            "title": "Title"
+          },
+          "description": {
+            "type": "string",
+            "maxLength": 5000,
+            "title": "Description"
+          },
+          "priority": {
+            "type": "string",
+            "title": "Priority",
+            "default": "Medium"
+          },
+          "assigned_to": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 100
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Assigned To"
+          }
+        },
+        "type": "object",
+        "required": [
+          "title",
+          "description"
+        ],
+        "title": "CaseCreate"
+      },
+      "CaseResponse": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "description": {
+            "type": "string",
+            "title": "Description"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "priority": {
+            "type": "string",
+            "title": "Priority"
+          },
+          "assigned_to": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Assigned To"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Updated At"
+          },
+          "closed_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Closed At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "title",
+          "description",
+          "status",
+          "priority",
+          "assigned_to",
+          "created_at",
+          "updated_at"
+        ],
+        "title": "CaseResponse"
+      },
+      "CaseUpdate": {
+        "properties": {
+          "title": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 255,
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Title"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 5000
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Description"
+          },
+          "status": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Status"
+          },
+          "priority": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Priority"
+          },
+          "assigned_to": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 100
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Assigned To"
+          }
+        },
+        "type": "object",
+        "title": "CaseUpdate"
+      },
+      "ConfigUpdate": {
+        "properties": {
+          "key": {
+            "type": "string",
+            "maxLength": 100,
+            "minLength": 1,
+            "title": "Key"
+          },
+          "value": {
+            "type": "string",
+            "maxLength": 2000,
+            "title": "Value"
+          },
+          "category": {
+            "type": "string",
+            "maxLength": 50,
+            "minLength": 1,
+            "title": "Category"
+          }
+        },
+        "type": "object",
+        "required": [
+          "key",
+          "value",
+          "category"
+        ],
+        "title": "ConfigUpdate"
+      },
+      "EvidenceCreate": {
+        "properties": {
+          "event_id": {
+            "type": "integer",
+            "minimum": 1.0,
+            "title": "Event Id"
+          },
+          "event_type": {
+            "type": "string",
+            "maxLength": 50,
+            "minLength": 1,
+            "title": "Event Type"
+          },
+          "notes": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 2000
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Notes"
+          }
+        },
+        "type": "object",
+        "required": [
+          "event_id",
+          "event_type"
+        ],
+        "title": "EvidenceCreate"
+      },
+      "GenerateRequest": {
+        "properties": {
+          "source_ips": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "minItems": 1,
+            "title": "Source Ips",
+            "description": "Attacker source IP addresses"
+          },
+          "target_ports": {
+            "items": {
+              "type": "integer"
+            },
+            "type": "array",
+            "minItems": 1,
+            "title": "Target Ports",
+            "description": "Target destination ports"
+          },
+          "protocols": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Protocols",
+            "description": "Network protocols",
+            "default": [
+              "TCP"
+            ]
+          },
+          "event_count": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Event Count",
+            "description": "Number of events in campaign",
+            "default": 0
+          },
+          "campaign_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Campaign Id",
+            "description": "Campaign identifier"
+          },
+          "time_range": {
+            "anyOf": [
+              {
+                "additionalProperties": {
+                  "type": "string"
+                },
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Time Range",
+            "description": "Time range with start/end ISO-8601 strings"
+          }
+        },
+        "type": "object",
+        "required": [
+          "source_ips",
+          "target_ports"
+        ],
+        "title": "GenerateRequest",
+        "description": "Request body for POST /generate."
+      },
+      "GenerateResponse": {
+        "properties": {
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "playbook_id": {
+            "type": "string",
+            "title": "Playbook Id"
+          },
+          "db_record_id": {
+            "type": "integer",
+            "title": "Db Record Id"
+          },
+          "service_type": {
+            "type": "string",
+            "title": "Service Type"
+          },
+          "attack_type": {
+            "type": "string",
+            "title": "Attack Type"
+          },
+          "technique_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Technique Id"
+          },
+          "technique_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Technique Name"
+          },
+          "threat_score": {
+            "type": "number",
+            "title": "Threat Score"
+          },
+          "message": {
+            "type": "string",
+            "title": "Message"
+          }
+        },
+        "type": "object",
+        "required": [
+          "status",
+          "playbook_id",
+          "db_record_id",
+          "service_type",
+          "attack_type",
+          "threat_score",
+          "message"
+        ],
+        "title": "GenerateResponse",
+        "description": "Response body for POST /generate."
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "type": "array",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "title": "HTTPValidationError"
+      },
+      "HoneypotResponse": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "port": {
+            "type": "integer",
+            "title": "Port"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "last_seen": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Seen"
+          },
+          "packet_count": {
+            "type": "integer",
+            "title": "Packet Count"
+          },
+          "total_events": {
+            "type": "integer",
+            "title": "Total Events"
+          }
+        },
+        "type": "object",
+        "required": [
+          "name",
+          "port",
+          "status",
+          "last_seen",
+          "packet_count",
+          "total_events"
+        ],
+        "title": "HoneypotResponse"
+      },
+      "IOCOutput": {
+        "properties": {
+          "type": {
+            "type": "string",
+            "title": "Type"
+          },
+          "value": {
+            "type": "string",
+            "title": "Value"
+          }
+        },
+        "type": "object",
+        "required": [
+          "type",
+          "value"
+        ],
+        "title": "IOCOutput"
+      },
+      "LoginRequest": {
+        "properties": {
+          "username": {
+            "type": "string",
+            "maxLength": 100,
+            "minLength": 1,
+            "title": "Username"
+          },
+          "password": {
+            "type": "string",
+            "maxLength": 128,
+            "minLength": 1,
+            "title": "Password"
+          }
+        },
+        "type": "object",
+        "required": [
+          "username",
+          "password"
+        ],
+        "title": "LoginRequest"
+      },
+      "NodeHeartbeatRequest": {
+        "properties": {
+          "node_id": {
+            "type": "string",
+            "maxLength": 100,
+            "minLength": 1,
+            "title": "Node Id"
+          }
+        },
+        "type": "object",
+        "required": [
+          "node_id"
+        ],
+        "title": "NodeHeartbeatRequest"
+      },
+      "NodeRegisterRequest": {
+        "properties": {
+          "hostname": {
+            "type": "string",
+            "maxLength": 255,
+            "minLength": 1,
+            "title": "Hostname"
+          },
+          "ip_address": {
+            "type": "string",
+            "maxLength": 45,
+            "minLength": 1,
+            "title": "Ip Address"
+          },
+          "honeypot_type": {
+            "type": "string",
+            "maxLength": 50,
+            "minLength": 1,
+            "title": "Honeypot Type"
+          }
+        },
+        "type": "object",
+        "required": [
+          "hostname",
+          "ip_address",
+          "honeypot_type"
+        ],
+        "title": "NodeRegisterRequest"
+      },
+      "PlaybookDetail": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "playbook_id": {
+            "type": "string",
+            "title": "Playbook Id"
+          },
+          "src_ip": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Src Ip"
+          },
+          "dst_port": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Dst Port"
+          },
+          "protocol": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Protocol"
+          },
+          "attack_type": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Attack Type"
+          },
+          "threat_score": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Threat Score"
+          },
+          "quality_score": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Quality Score"
+          },
+          "quality_badge": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Quality Badge"
+          },
+          "technique_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Technique Id"
+          },
+          "technique_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Technique Name"
+          },
+          "tactic": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Tactic"
+          },
+          "playbook_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Playbook Name"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status",
+            "default": "pending"
+          },
+          "created_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Created At"
+          },
+          "updated_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Updated At"
+          },
+          "version": {
+            "type": "integer",
+            "title": "Version",
+            "default": 1
+          },
+          "parent_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Parent Id"
+          },
+          "is_latest": {
+            "type": "boolean",
+            "title": "Is Latest",
+            "default": true
+          },
+          "mitre_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Mitre Url"
+          },
+          "snort_rule": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Snort Rule"
+          },
+          "sigma_rule": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sigma Rule"
+          },
+          "playbook_content": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Playbook Content"
+          },
+          "template_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Template Name"
+          },
+          "llm_narrative": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Llm Narrative"
+          },
+          "reviewed_by": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reviewed By"
+          },
+          "reviewed_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reviewed At"
+          },
+          "regeneration_reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Regeneration Reason"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "playbook_id"
+        ],
+        "title": "PlaybookDetail",
+        "description": "Full playbook representation including content and rules."
+      },
+      "PlaybookDetailResponse": {
+        "properties": {
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "playbook": {
+            "$ref": "#/components/schemas/PlaybookDetail"
+          }
+        },
+        "type": "object",
+        "required": [
+          "status",
+          "playbook"
+        ],
+        "title": "PlaybookDetailResponse",
+        "description": "Response wrapper for a single Sentinel Playbook."
+      },
+      "PolicyAssignRequest": {
+        "properties": {
+          "node_id": {
+            "type": "string",
+            "maxLength": 100,
+            "minLength": 1,
+            "title": "Node Id"
+          },
+          "policy_id": {
+            "type": "integer",
+            "minimum": 1.0,
+            "title": "Policy Id"
+          }
+        },
+        "type": "object",
+        "required": [
+          "node_id",
+          "policy_id"
+        ],
+        "title": "PolicyAssignRequest"
+      },
+      "PolicyCreateRequest": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 100,
+            "minLength": 1,
+            "title": "Name"
+          },
+          "description": {
+            "type": "string",
+            "maxLength": 1000,
+            "title": "Description"
+          },
+          "config": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Config"
+          }
+        },
+        "type": "object",
+        "required": [
+          "name",
+          "description",
+          "config"
+        ],
+        "title": "PolicyCreateRequest"
+      },
+      "QueryCondition": {
+        "properties": {
+          "field": {
+            "type": "string",
+            "maxLength": 50,
+            "minLength": 1,
+            "title": "Field"
+          },
+          "operator": {
+            "type": "string",
+            "title": "Operator"
+          },
+          "value": {
+            "title": "Value"
+          }
+        },
+        "type": "object",
+        "required": [
+          "field",
+          "operator",
+          "value"
+        ],
+        "title": "QueryCondition"
+      },
+      "RegenerateRequest": {
+        "properties": {
+          "reason": {
+            "type": "string",
+            "maxLength": 512,
+            "minLength": 1,
+            "title": "Reason",
+            "description": "Reason for regenerating the playbook",
+            "default": "Analyst-requested regeneration"
+          }
+        },
+        "type": "object",
+        "title": "RegenerateRequest",
+        "description": "Request body for POST /playbooks/{id}/regenerate."
+      },
+      "ReviewRequest": {
+        "properties": {
+          "reviewed_by": {
+            "type": "string",
+            "maxLength": 128,
+            "minLength": 1,
+            "title": "Reviewed By",
+            "description": "Username of the analyst performing the review"
+          }
+        },
+        "type": "object",
+        "required": [
+          "reviewed_by"
+        ],
+        "title": "ReviewRequest",
+        "description": "Request body for PATCH /approve and /reject endpoints."
+      },
+      "ScheduledReportCreate": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 100,
+            "minLength": 1,
+            "title": "Name"
+          },
+          "template_type": {
+            "type": "string",
+            "maxLength": 100,
+            "minLength": 1,
+            "title": "Template Type"
+          },
+          "frequency": {
+            "type": "string",
+            "title": "Frequency"
+          },
+          "schedule_time": {
+            "type": "string",
+            "maxLength": 10,
+            "minLength": 1,
+            "title": "Schedule Time"
+          },
+          "recipients": {
+            "type": "string",
+            "maxLength": 500,
+            "minLength": 3,
+            "title": "Recipients"
+          },
+          "day_of_week": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Day Of Week",
+            "default": "mon"
+          },
+          "filters": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Filters",
+            "default": {}
+          }
+        },
+        "type": "object",
+        "required": [
+          "name",
+          "template_type",
+          "frequency",
+          "schedule_time",
+          "recipients"
+        ],
+        "title": "ScheduledReportCreate"
+      },
+      "ScheduledReportResponse": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "template_type": {
+            "type": "string",
+            "title": "Template Type"
+          },
+          "frequency": {
+            "type": "string",
+            "title": "Frequency"
+          },
+          "schedule_time": {
+            "type": "string",
+            "title": "Schedule Time"
+          },
+          "recipients": {
+            "type": "string",
+            "title": "Recipients"
+          },
+          "day_of_week": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Day Of Week"
+          },
+          "is_active": {
+            "type": "boolean",
+            "title": "Is Active"
+          },
+          "last_run": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Run"
+          },
+          "next_run": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next Run"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "template_type",
+          "frequency",
+          "schedule_time",
+          "recipients",
+          "day_of_week",
+          "is_active",
+          "last_run",
+          "next_run"
+        ],
+        "title": "ScheduledReportResponse"
+      },
+      "SearchHistoryResponse": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "query_json": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Query Json"
+          },
+          "result_count": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Result Count",
+            "default": 0
+          },
+          "executed_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Executed At"
+          },
+          "analyst_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Analyst Name"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id"
+        ],
+        "title": "SearchHistoryResponse"
+      },
+      "TaxiiApiRootResponse": {
+        "properties": {
+          "title": {
+            "type": "string",
+            "title": "Title",
+            "description": "A human-readable title for this API Root.",
+            "default": "PhantomNet Sentinel API Root"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Description",
+            "description": "A human-readable description of this API Root.",
+            "default": "Primary API Root providing access to approved Sentinel threat playbooks and IOC bundles."
+          },
+          "versions": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Versions",
+            "description": "The versions of TAXII supported by this API Root."
+          },
+          "max_content_length": {
+            "type": "integer",
+            "title": "Max Content Length",
+            "description": "The maximum size of a request/response payload in bytes supported by this API Root.",
+            "default": 10485760
+          }
+        },
+        "type": "object",
+        "title": "TaxiiApiRootResponse",
+        "description": "TAXII 2.1 API Root Information Model (GET /taxii2/phantomnet/).\nMetadata regarding a specific API root."
+      },
+      "TaxiiCollectionResource": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id",
+            "description": "A unique identifier for this collection.",
+            "example": "sentinel-playbooks-approved"
+          },
+          "title": {
+            "type": "string",
+            "title": "Title",
+            "description": "A human-readable name for this collection.",
+            "example": "Approved Sentinel Playbooks"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Description",
+            "description": "A human-readable description of this collection.",
+            "example": "STIX 2.1 bundles generated from approved PhantomNet honeypot threat detections."
+          },
+          "alias": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Alias",
+            "description": "An optional human-readable alias for this collection."
+          },
+          "can_read": {
+            "type": "boolean",
+            "title": "Can Read",
+            "description": "Indicates whether the user/client can read objects from this collection.",
+            "default": true
+          },
+          "can_write": {
+            "type": "boolean",
+            "title": "Can Write",
+            "description": "Indicates whether the user/client can write objects to this collection.",
+            "default": false
+          },
+          "media_types": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Media Types",
+            "description": "A list of supported media types for objects in this collection."
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "title"
+        ],
+        "title": "TaxiiCollectionResource",
+        "description": "TAXII 2.1 Collection Resource Model.\nRepresents a single STIX collection resource."
+      },
+      "TaxiiCollectionsResponse": {
+        "properties": {
+          "collections": {
+            "items": {
+              "$ref": "#/components/schemas/TaxiiCollectionResource"
+            },
+            "type": "array",
+            "title": "Collections",
+            "description": "A list of collection resources."
+          }
+        },
+        "type": "object",
+        "title": "TaxiiCollectionsResponse",
+        "description": "TAXII 2.1 Collections List Response Model (GET /taxii2/phantomnet/collections/).\nContainer listing all collections provided by an API Root."
+      },
+      "TaxiiDiscoveryResponse": {
+        "properties": {
+          "title": {
+            "type": "string",
+            "title": "Title",
+            "description": "A name or title for this TAXII server.",
+            "default": "PhantomNet TAXII 2.1 Server",
+            "example": "PhantomNet TAXII 2.1 Server"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Description",
+            "description": "A human-readable description of this TAXII server.",
+            "default": "TAXII 2.1 Feed Server exposing Sentinel STIX 2.1 threat intelligence bundles."
+          },
+          "contact": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Contact",
+            "description": "Contact information for the administrator of this TAXII server.",
+            "default": "security@phantomnet.io"
+          },
+          "default": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Default",
+            "description": "The default API Root URL for clients that do not specify one.",
+            "default": "/taxii2/phantomnet/"
+          },
+          "api_roots": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Api Roots",
+            "description": "A list of URLs indicating the API Roots hosted by this server."
+          }
+        },
+        "type": "object",
+        "title": "TaxiiDiscoveryResponse",
+        "description": "TAXII 2.1 Server Discovery Response Model (GET /taxii2/).\nInformation about the server and its available API roots."
+      },
+      "TaxiiEnvelopeResponse": {
+        "properties": {
+          "more": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "More",
+            "description": "True if there are more objects available beyond this page.",
+            "default": false
+          },
+          "next": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next",
+            "description": "Pagination cursor token to fetch the next page of objects."
+          },
+          "objects": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "type": "array",
+            "title": "Objects",
+            "description": "List of STIX 2.1 cyber threat intelligence objects."
+          }
+        },
+        "type": "object",
+        "title": "TaxiiEnvelopeResponse",
+        "description": "TAXII 2.1 Envelope / Objects Response Model (GET /taxii2/phantomnet/collections/{id}/objects/).\nServes STIX objects wrapped in a TAXII envelope or standard bundle."
+      },
+      "TextPayload": {
+        "properties": {
+          "text": {
+            "type": "string",
+            "maxLength": 500000,
+            "title": "Text",
+            "description": "Raw log or text payload"
+          }
+        },
+        "type": "object",
+        "required": [
+          "text"
+        ],
+        "title": "TextPayload"
+      },
+      "ThreatInput": {
+        "properties": {
+          "src_ip": {
+            "type": "string",
+            "title": "Src Ip",
+            "description": "Source IP address",
+            "example": "192.168.1.105"
+          },
+          "dst_ip": {
+            "type": "string",
+            "title": "Dst Ip",
+            "description": "Destination IP address",
+            "example": "10.0.0.5"
+          },
+          "dst_port": {
+            "type": "integer",
+            "title": "Dst Port",
+            "description": "Destination Port",
+            "example": 80
+          },
+          "protocol": {
+            "type": "string",
+            "title": "Protocol",
+            "description": "Protocol (TCP, UDP, ICMP)",
+            "example": "TCP"
+          },
+          "length": {
+            "type": "integer",
+            "title": "Length",
+            "description": "Packet Length in bytes",
+            "example": 64
+          },
+          "timestamp": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Timestamp",
+            "description": "ISO 8601 Timestamp. Defaults to now.",
+            "example": "2026-02-11T12:00:00Z"
+          },
+          "threat_score": {
+            "type": "number",
+            "title": "Threat Score",
+            "description": "Baseline threat score from firewall/rules",
+            "default": 0.0,
+            "example": 10.0
+          },
+          "is_malicious": {
+            "type": "boolean",
+            "title": "Is Malicious",
+            "description": "Known malicious flag (e.g. from blacklist)",
+            "default": false,
+            "example": false
+          },
+          "attack_type": {
+            "type": "string",
+            "title": "Attack Type",
+            "description": "Preliminary attack classification",
+            "default": "UNKNOWN",
+            "example": "UNKNOWN"
+          },
+          "honeypot_type": {
+            "type": "string",
+            "title": "Honeypot Type",
+            "description": "Honeypot type interaction",
+            "default": "NONE",
+            "example": "HTTP"
+          }
+        },
+        "type": "object",
+        "required": [
+          "src_ip",
+          "dst_ip",
+          "dst_port",
+          "protocol",
+          "length"
+        ],
+        "title": "ThreatInput",
+        "description": "Input schema for threat scoring.\nContains raw packet metadata required to extract features."
+      },
+      "ThreatResponse": {
+        "properties": {
+          "score": {
+            "type": "number",
+            "title": "Score",
+            "description": "Calculated Threat Probability (0-100)"
+          },
+          "threat_level": {
+            "type": "string",
+            "title": "Threat Level",
+            "description": "Categorical Level: LOW, MEDIUM, HIGH"
+          },
+          "confidence": {
+            "type": "number",
+            "title": "Confidence",
+            "description": "Model Confidence (0.0-1.0)"
+          },
+          "decision": {
+            "type": "string",
+            "title": "Decision",
+            "description": "Recommended Action: ALLOW, ALERT, BLOCK"
+          }
+        },
+        "type": "object",
+        "required": [
+          "score",
+          "threat_level",
+          "confidence",
+          "decision"
+        ],
+        "title": "ThreatResponse",
+        "description": "Output schema for threat scoring analysis."
+      },
+      "UserCreate": {
+        "properties": {
+          "username": {
+            "type": "string",
+            "maxLength": 50,
+            "minLength": 3,
+            "title": "Username"
+          },
+          "email": {
+            "type": "string",
+            "maxLength": 100,
+            "minLength": 5,
+            "title": "Email"
+          },
+          "password": {
+            "type": "string",
+            "maxLength": 128,
+            "minLength": 6,
+            "title": "Password"
+          },
+          "role": {
+            "type": "string",
+            "title": "Role",
+            "default": "Viewer"
+          }
+        },
+        "type": "object",
+        "required": [
+          "username",
+          "email",
+          "password"
+        ],
+        "title": "UserCreate"
+      },
+      "UserUpdate": {
+        "properties": {
+          "email": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 100,
+                "minLength": 5
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Email"
+          },
+          "password": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 128,
+                "minLength": 6
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Password"
+          },
+          "role": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Role"
+          },
+          "status": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Status"
+          }
+        },
+        "type": "object",
+        "title": "UserUpdate"
+      },
+      "ValidationError": {
+        "properties": {
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Location"
+          },
+          "msg": {
+            "type": "string",
+            "title": "Message"
+          },
+          "type": {
+            "type": "string",
+            "title": "Error Type"
+          }
+        },
+        "type": "object",
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError"
+      }
+    },
+    "securitySchemes": {
+      "APIKeyHeader": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "X-API-Key"
+      },
+      "HTTPBearer": {
+        "type": "http",
+        "scheme": "bearer"
+      },
+      "HTTPBasic": {
+        "type": "http",
+        "scheme": "basic"
+      }
+    }
+  }
+}

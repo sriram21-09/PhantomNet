@@ -1,0 +1,45 @@
+{
+  "dimension": "OPS-01 / SEC-10",
+  "name": "Container Hardening & Least Privilege",
+  "findings": [],
+  "compose_configuration": {
+    "read_only": true,
+    "user": "10001:10001",
+    "cap_drop": [
+      "ALL"
+    ],
+    "tmpfs": [
+      "/tmp:rw,noexec,nosuid,size=128m",
+      "/run:rw,noexec,nosuid,size=32m"
+    ],
+    "volumes": [
+      "./data/pcaps:/app/data/pcaps"
+    ],
+    "environment": {
+      "ENVIRONMENT": "production",
+      "DATABASE_URL": "postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/${POSTGRES_DB:-phantomnet}",
+      "DB_HOST": "postgres",
+      "DB_USER": "${POSTGRES_USER:-postgres}",
+      "DB_PASSWORD": "${POSTGRES_PASSWORD:-postgres}",
+      "DB_NAME": "${POSTGRES_DB:-phantomnet}",
+      "DB_PORT": 5432,
+      "REDIS_URL": "redis://redis:6379/0",
+      "HONEYPOT_SECRET_KEY": "${HONEYPOT_SECRET_KEY:-phantomnet-honeypot-secret-change-in-prod}",
+      "JWT_SECRET": "${JWT_SECRET:-supersecret}",
+      "API_KEY": "${API_KEY:-default_key}",
+      "SENTINEL_LLM_HOST": "${SENTINEL_LLM_HOST:-http://ollama:11434}",
+      "SENTINEL_LLM_MODEL": "${SENTINEL_LLM_MODEL:-mistral}",
+      "SENTINEL_LLM_ENABLED": "${SENTINEL_LLM_ENABLED:-false}"
+    }
+  },
+  "logs_mounted_writable": false,
+  "logger_has_makedirs": true,
+  "secret_enforcement_test": "PASS_REJECTED: FATAL: Insecure JWT_SECRET configured in production environment.",
+  "runtime_failure_reproduced": {
+    "error_type": "OSError",
+    "errno": 30,
+    "message": "Read-only file system: '/app/backend/logs'",
+    "root_cause": "read_only: true is set on api container, but /app/backend/logs is not mounted as writable tmpfs/volume, while logger.py executes os.makedirs(LOG_DIR, exist_ok=True) during module import."
+  },
+  "verdict": "REPRODUCED_CONFIRMED"
+}

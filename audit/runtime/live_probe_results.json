@@ -1,0 +1,47 @@
+[
+  {
+    "url": "http://localhost:8000/health/live",
+    "status": "error",
+    "error": "Remote end closed connection without response"
+  },
+  {
+    "url": "http://localhost:8000/health/ready",
+    "status": "error",
+    "error": "Remote end closed connection without response"
+  },
+  {
+    "url": "http://localhost:8000/health/startup",
+    "status": "error",
+    "error": "Remote end closed connection without response"
+  },
+  {
+    "url": "http://localhost:8000/api/v1/alerts",
+    "status": "error",
+    "error": "Remote end closed connection without response"
+  },
+  {
+    "url": "http://localhost:8000/analyze-traffic",
+    "status": "error",
+    "error": "Remote end closed connection without response"
+  },
+  {
+    "url": "http://localhost:8000/api/sentinel/playbooks",
+    "status": "error",
+    "error": "Remote end closed connection without response"
+  },
+  {
+    "url": "http://localhost:8000/api/sentinel/stats",
+    "status": "error",
+    "error": "Remote end closed connection without response"
+  },
+  {
+    "url": "http://localhost:8000/api/v1/model/metrics",
+    "status": "error",
+    "error": "Remote end closed connection without response"
+  },
+  {
+    "url": "http://localhost:8000/api/stats",
+    "status": "error",
+    "error": "Remote end closed connection without response"
+  }
+]

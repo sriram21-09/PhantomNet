@@ -10,10 +10,16 @@ try:
     sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
     from db_logger import log_ssh_activity
     from fake_filesystem import FakeFilesystem
+    from credential_sanitizer import sanitize_credential_payload
 
     DB_ENABLED = True
 except ImportError:
     DB_ENABLED = False
+    try:
+        from credential_sanitizer import sanitize_credential_payload
+    except ImportError:
+        def sanitize_credential_payload(username="", password=""):
+            return {"username": str(username), "password_length": len(str(password))}
     print("[SSH] Database logger not available, using file-only logging")
 
 # --------------------------
@@ -127,7 +133,7 @@ def handle_client(client, addr, CORRECT_USER, CORRECT_PASS):
             password = clean(raw_pass)
 
             log_json(
-                ip, "login_attempt", {"username": username, "password": password}
+                ip, "login_attempt", sanitize_credential_payload(username, password)
             )
 
             if username == CORRECT_USER and password == CORRECT_PASS:

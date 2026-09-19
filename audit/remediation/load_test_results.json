@@ -1,0 +1,157 @@
+{
+  "timestamp": "2026-09-19T08:51:18.428412",
+  "target_url": "http://localhost:8000/api/v1/ingest/event",
+  "phases": [
+    {
+      "phase": "500_EPS_SUSTAINED",
+      "target_eps": 500,
+      "duration_sec": 10,
+      "total_submitted": 5000,
+      "total_acknowledged_202": 4957,
+      "event_loss": 43,
+      "status_distribution": {
+        "202": 4957,
+        "0": 43
+      },
+      "actual_duration_sec": 23.22,
+      "actual_throughput_eps": 215.3,
+      "latency_metrics_ms": {
+        "p50": 251.47,
+        "p95": 1243.72,
+        "p99": 4767.36,
+        "mean": 459.09,
+        "max": 5031.64
+      },
+      "redis_stream_len_before": -1,
+      "redis_stream_len_after": -1,
+      "postgres_count_before": -1,
+      "postgres_count_after": -1,
+      "telemetry_samples": [
+        {
+          "time_sec": 0.0,
+          "cpu_percent": 31.5,
+          "mem_percent": 96.4,
+          "submitted_so_far": 0
+        },
+        {
+          "time_sec": 1.0,
+          "cpu_percent": 32.8,
+          "mem_percent": 96.2,
+          "submitted_so_far": 500
+        },
+        {
+          "time_sec": 2.0,
+          "cpu_percent": 37.4,
+          "mem_percent": 96.1,
+          "submitted_so_far": 1000
+        },
+        {
+          "time_sec": 3.0,
+          "cpu_percent": 38.9,
+          "mem_percent": 96.1,
+          "submitted_so_far": 1500
+        },
+        {
+          "time_sec": 4.0,
+          "cpu_percent": 30.8,
+          "mem_percent": 95.9,
+          "submitted_so_far": 2000
+        },
+        {
+          "time_sec": 5.0,
+          "cpu_percent": 33.8,
+          "mem_percent": 95.9,
+          "submitted_so_far": 2500
+        },
+        {
+          "time_sec": 6.0,
+          "cpu_percent": 37.2,
+          "mem_percent": 96.0,
+          "submitted_so_far": 3000
+        },
+        {
+          "time_sec": 7.0,
+          "cpu_percent": 37.1,
+          "mem_percent": 96.2,
+          "submitted_so_far": 3500
+        },
+        {
+          "time_sec": 8.0,
+          "cpu_percent": 41.9,
+          "mem_percent": 96.2,
+          "submitted_so_far": 4000
+        },
+        {
+          "time_sec": 9.0,
+          "cpu_percent": 46.5,
+          "mem_percent": 96.2,
+          "submitted_so_far": 4500
+        }
+      ]
+    },
+    {
+      "phase": "1000_EPS_BURST",
+      "target_eps": 1000,
+      "duration_sec": 5,
+      "total_submitted": 5000,
+      "total_acknowledged_202": 4912,
+      "event_loss": 88,
+      "status_distribution": {
+        "202": 4912,
+        "0": 83,
+        "500": 5
+      },
+      "actual_duration_sec": 22.87,
+      "actual_throughput_eps": 218.6,
+      "latency_metrics_ms": {
+        "p50": 239.28,
+        "p95": 1166.99,
+        "p99": 5017.29,
+        "mean": 452.67,
+        "max": 5470.62
+      },
+      "redis_stream_len_before": -1,
+      "redis_stream_len_after": -1,
+      "postgres_count_before": -1,
+      "postgres_count_after": -1,
+      "telemetry_samples": [
+        {
+          "time_sec": 0.01,
+          "cpu_percent": 29.3,
+          "mem_percent": 96.6,
+          "submitted_so_far": 0
+        },
+        {
+          "time_sec": 1.0,
+          "cpu_percent": 34.7,
+          "mem_percent": 96.4,
+          "submitted_so_far": 1000
+        },
+        {
+          "time_sec": 2.0,
+          "cpu_percent": 35.8,
+          "mem_percent": 96.6,
+          "submitted_so_far": 2000
+        },
+        {
+          "time_sec": 3.0,
+          "cpu_percent": 46.2,
+          "mem_percent": 96.5,
+          "submitted_so_far": 3000
+        },
+        {
+          "time_sec": 4.0,
+          "cpu_percent": 59.1,
+          "mem_percent": 96.4,
+          "submitted_so_far": 4000
+        }
+      ]
+    }
+  ],
+  "verdict": {
+    "p99_under_100ms_500eps": false,
+    "loss_under_500eps": 43,
+    "status_500eps": "FAIL",
+    "status_1000eps": "DEGRADED"
+  }
+}

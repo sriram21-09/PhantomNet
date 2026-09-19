@@ -2,15 +2,24 @@
 Admin Panel API — User Management, System Config, and DB Maintenance.
 """
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
 from sqlalchemy.orm import Session
 from sqlalchemy import func, text
 from database.database import get_db, engine
-from database.models import User, SystemConfig, PacketLog, Alert, Event, Base
+from database.models import User, SystemConfig, PacketLog, Alert, Event, Base, RefreshToken
 from middleware.auth import (
     hash_password,
     verify_password,
     create_access_token,
+    create_refresh_token,
+    rotate_refresh_token,
+    revoke_token_family,
+    revoke_user_tokens,
+    set_auth_cookie,
+    set_refresh_cookie,
+    clear_auth_cookie,
+    create_step_up_token,
+    verify_step_up_auth,
     get_current_user,
     require_role,
 )
@@ -35,6 +44,15 @@ router = APIRouter(prefix="/api/v1/admin", tags=["Admin"])
 class LoginRequest(BaseModel):
     username: str = Field(..., min_length=1, max_length=100)
     password: str = Field(..., min_length=1, max_length=128)
+
+
+class RefreshRequest(BaseModel):
+    refresh_token: Optional[str] = None
+
+
+class StepUpRequest(BaseModel):
+    password: str = Field(..., min_length=1, max_length=128)
+
 
 
 class UserCreate(BaseModel):
@@ -86,7 +104,7 @@ class ConfigUpdate(BaseModel):
 
 
 @router.post("/login")
-def admin_login(req: LoginRequest, db: Session = Depends(get_db)):
+def admin_login(req: LoginRequest, response: Response, db: Session = Depends(get_db)):
     user = db.query(User).filter(User.username == req.username).first()
     if not user or not verify_password(req.password, user.hashed_password):
         raise HTTPException(
@@ -101,9 +119,16 @@ def admin_login(req: LoginRequest, db: Session = Depends(get_db)):
     db.commit()
 
     token = create_access_token({"sub": user.username, "role": user.role})
+    raw_refresh, _ = create_refresh_token(db=db, user_id=user.id)
+
+    set_auth_cookie(response, token)
+    set_refresh_cookie(response, raw_refresh)
+
     return {
         "access_token": token,
+        "refresh_token": raw_refresh,
         "token_type": "bearer",
+        "expires_in": 900,
         "user": {
             "id": user.id,
             "username": user.username,
@@ -111,6 +136,99 @@ def admin_login(req: LoginRequest, db: Session = Depends(get_db)):
             "role": user.role,
         },
     }
+
+
+@router.post("/refresh")
+def refresh_token_endpoint(
+    request: Request,
+    response: Response,
+    req: Optional[RefreshRequest] = None,
+    db: Session = Depends(get_db),
+):
+    """Rotate refresh token and issue new short-lived access token with replay attack protection."""
+    raw_token = None
+    if req and req.refresh_token:
+        raw_token = req.refresh_token
+    elif "phantomnet_refresh_token" in request.cookies:
+        raw_token = request.cookies["phantomnet_refresh_token"]
+
+    if not raw_token:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Missing refresh token",
+        )
+
+    new_access_token, new_refresh_token = rotate_refresh_token(db, raw_token)
+    set_auth_cookie(response, new_access_token)
+    set_refresh_cookie(response, new_refresh_token)
+
+    return {
+        "access_token": new_access_token,
+        "refresh_token": new_refresh_token,
+        "token_type": "bearer",
+        "expires_in": 900,
+    }
+
+
+@router.post("/logout")
+def logout_endpoint(
+    request: Request,
+    response: Response,
+    db: Session = Depends(get_db),
+    _user: User = Depends(get_current_user),
+):
+    """Clear session cookies and revoke current refresh token."""
+    clear_auth_cookie(response)
+    raw_token = request.cookies.get("phantomnet_refresh_token")
+    if raw_token:
+        import hashlib
+
+        token_hash = hashlib.sha256(raw_token.encode("utf-8")).hexdigest()
+        token_rec = (
+            db.query(RefreshToken).filter(RefreshToken.token_hash == token_hash).first()
+        )
+        if token_rec:
+            token_rec.revoked_at = datetime.utcnow()
+            db.commit()
+
+    return {"status": "success", "detail": "Logged out successfully"}
+
+
+@router.get("/me")
+def get_current_admin_user(
+    current_user: User = Depends(get_current_user),
+):
+    """Returns profile of currently authenticated user."""
+    return {
+        "id": current_user.id,
+        "username": current_user.username,
+        "email": current_user.email,
+        "role": current_user.role,
+        "status": current_user.status,
+        "last_login": current_user.last_login.isoformat() if current_user.last_login else None,
+    }
+
+
+@router.post("/step-up")
+def request_step_up_token(
+    req: StepUpRequest,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Generate 5-minute confirmation token for high-risk operations (blocking IP, rule changes)."""
+    if not verify_password(req.password, current_user.hashed_password):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Step-up authentication failed: Invalid password",
+        )
+
+    step_up_token = create_step_up_token(current_user)
+    return {
+        "step_up_token": step_up_token,
+        "expires_in": 300,
+        "user": current_user.username,
+    }
+
 
 
 # ================== User Management ==================

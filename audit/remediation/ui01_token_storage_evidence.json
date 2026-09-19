@@ -1,0 +1,48 @@
+{
+  "timestamp": "2026-09-19T09:00:18.939689",
+  "dimension": "UI-01",
+  "description": "Administrative JWT storage migration from localStorage to HttpOnly cookies",
+  "backend_api_tests": {
+    "login": {
+      "status_code": 200,
+      "set_cookie_header": "phantomnet_access_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJhZG1pbiIsInJvbGUiOiJBZG1pbiIsImV4cCI6MTc4OTgwOTMxOX0.Pji4g-xD5XKt99roB5WieXNLLK_oL4zUrve7QSLLTTI; HttpOnly; Max-Age=900; Path=/; SameSite=strict; Secure, phantomnet_refresh_token=M6eVsLb7KhtHLiQBb4VHf30EXQzO-K0m3eAszJSuxpceg0JU1FjqWo2J5NRPR3p_; HttpOnly; Max-Age=2592000; Path=/api/v1/admin; SameSite=strict; Secure",
+      "has_admin_cookie": false,
+      "httponly_flag": true,
+      "samesite_flag": true
+    },
+    "get_me_authenticated": {
+      "status_code": 200,
+      "data": {
+        "id": 1,
+        "username": "admin",
+        "email": "admin@phantomnet.local",
+        "role": "Admin",
+        "status": "active",
+        "last_login": "2026-09-19T09:00:18.984957"
+      },
+      "authenticated": true
+    },
+    "get_me_unauthenticated": {
+      "status_code": 401,
+      "blocked_401": true
+    },
+    "logout": {
+      "status_code": 200,
+      "set_cookie_header": "phantomnet_access_token=\"\"; expires=Sat, 19 Sep 2026 09:00:19 GMT; HttpOnly; Max-Age=0; Path=/; SameSite=strict; Secure, phantomnet_refresh_token=\"\"; expires=Sat, 19 Sep 2026 09:00:19 GMT; HttpOnly; Max-Age=0; Path=/api/v1/admin; SameSite=strict; Secure",
+      "cookie_cleared": true
+    }
+  },
+  "frontend_code_audit": {
+    "violations_found": 0,
+    "violations": []
+  },
+  "browser_storage_checks": {},
+  "properties_verified": {
+    "httponly_cookie_on_login": true,
+    "authenticated_via_cookie_get_me": true,
+    "unauthenticated_get_me_blocked_401": true,
+    "logout_clears_cookie": true,
+    "zero_token_storage_in_localstorage": true
+  },
+  "overall_verdict": "VERIFIED"
+}

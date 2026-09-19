@@ -189,7 +189,6 @@ const AdvancedAnalytics = () => {
                 <div className="header-content">
                     <div className="header-title">
                         <div className="dashboard-header-premium">
-                            <div className="header-badge hud-font">INTEL_CORE_V.8</div>
                             <h1 className="dashboard-title glow-text">Advanced Analytics</h1>
                             <p className="dashboard-subtitle text-dim">STATISTICAL PERFORMANCE METRICS | HISTORICAL TREND ANALYSIS</p>
                         </div>

@@ -112,6 +112,7 @@ const ApprovalControls = ({ playbookId, status, onStatusChange }) => {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
+          "X-Requested-With": "XMLHttpRequest",
         },
         body: JSON.stringify({
           reviewed_by: analystName.trim() || "admin",

@@ -1,0 +1,184 @@
+/* ==========================================================================
+   PhantomNet Cyber Defense Portal — Login Styles
+   ========================================================================== */
+
+.cyber-login-container {
+  min-height: calc(100vh - 80px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 1rem;
+  background: radial-gradient(circle at 50% 30%, rgba(0, 210, 255, 0.05) 0%, rgba(5, 10, 20, 0.95) 70%);
+  position: relative;
+  overflow: hidden;
+}
+
+.cyber-login-card {
+  width: 100%;
+  max-width: 440px;
+  background: rgba(13, 20, 36, 0.85);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(0, 210, 255, 0.2);
+  border-radius: 12px;
+  box-shadow: 0 0 30px rgba(0, 210, 255, 0.1), 0 20px 40px rgba(0, 0, 0, 0.5);
+  padding: 2.5rem 2rem;
+  position: relative;
+  z-index: 2;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.cyber-login-card:hover {
+  border-color: rgba(0, 210, 255, 0.35);
+  box-shadow: 0 0 40px rgba(0, 210, 255, 0.15), 0 20px 40px rgba(0, 0, 0, 0.6);
+}
+
+.cyber-login-header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.cyber-login-logo-wrap {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 64px;
+  height: 64px;
+  background: rgba(0, 210, 255, 0.08);
+  border: 1px solid rgba(0, 210, 255, 0.3);
+  border-radius: 50%;
+  margin-bottom: 1.25rem;
+  color: var(--accent-blue, #00d2ff);
+  box-shadow: 0 0 15px rgba(0, 210, 255, 0.2);
+}
+
+.cyber-login-title {
+  font-family: var(--font-heading, "Inter", sans-serif);
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  color: #ffffff;
+  margin: 0 0 0.5rem 0;
+  text-transform: uppercase;
+}
+
+.cyber-login-subtitle {
+  font-size: 0.8rem;
+  color: #8b9bb4;
+  letter-spacing: 1px;
+  margin: 0;
+  text-transform: uppercase;
+}
+
+.cyber-login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.cyber-form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.cyber-form-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 1.2px;
+  color: #8b9bb4;
+  text-transform: uppercase;
+}
+
+.cyber-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.cyber-input-icon {
+  position: absolute;
+  left: 1rem;
+  color: #5c6b84;
+  pointer-events: none;
+  transition: color 0.2s ease;
+}
+
+.cyber-input {
+  width: 100%;
+  background: rgba(8, 14, 26, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  padding: 0.85rem 1rem 0.85rem 2.75rem;
+  color: #ffffff;
+  font-size: 0.95rem;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.cyber-input:focus {
+  outline: none;
+  border-color: #00d2ff;
+  box-shadow: 0 0 12px rgba(0, 210, 255, 0.25);
+}
+
+.cyber-input:focus + .cyber-input-icon,
+.cyber-input-wrapper:focus-within .cyber-input-icon {
+  color: #00d2ff;
+}
+
+.cyber-login-error {
+  background: rgba(255, 59, 48, 0.12);
+  border: 1px solid rgba(255, 59, 48, 0.3);
+  color: #ff5252;
+  padding: 0.75rem 1rem;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  animation: fadeIn 0.2s ease;
+}
+
+.cyber-login-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  background: linear-gradient(135deg, #0070f3 0%, #00d2ff 100%);
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  padding: 0.9rem;
+  font-size: 0.9rem;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  cursor: pointer;
+  box-shadow: 0 4px 15px rgba(0, 210, 255, 0.3);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;
+  margin-top: 0.5rem;
+}
+
+.cyber-login-btn:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(0, 210, 255, 0.45);
+}
+
+.cyber-login-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.cyber-login-footer {
+  margin-top: 1.75rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.07);
+  text-align: center;
+  font-size: 0.75rem;
+  color: #5c6b84;
+  letter-spacing: 0.5px;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}

@@ -284,7 +284,7 @@ class PlaybookGenerator:
         self.loader: FileSystemLoader = FileSystemLoader(self.templates_dir)
         self.env: Environment = Environment(
             loader=self.loader,
-            autoescape=False,       # Markdown/YAML output – HTML escaping must be off
+            autoescape=False,  # nosec B701: Markdown/YAML output – HTML escaping must be off
             trim_blocks=True,       # Strip first newline after a block tag
             lstrip_blocks=True,     # Strip leading whitespace from block tags
             keep_trailing_newline=True,

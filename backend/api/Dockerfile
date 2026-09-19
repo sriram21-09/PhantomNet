@@ -14,8 +14,8 @@ COPY requirements.txt .
 # Install python dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Create a non-root user
-RUN useradd -m -u 1000 phantom
+# Create a non-root user with UID/GID 10001
+RUN groupadd -g 10001 phantom && useradd -m -u 10001 -g 10001 phantom
 
 # Copy application code
 COPY --chown=phantom:phantom . .
@@ -26,7 +26,7 @@ RUN chown -R phantom:phantom /app
 # Expose API port
 EXPOSE 8000
 
-USER phantom
+USER 10001:10001
 
-# Start FastAPI server
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
+# Start FastAPI server with 4 workers for production concurrency
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000", "--workers", "4"]

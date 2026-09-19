@@ -11,10 +11,16 @@ try:
 
     sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
     from db_logger import log_http_activity
+    from credential_sanitizer import sanitize_credential_payload
 
     DB_ENABLED = True
 except Exception as e:
     DB_ENABLED = False
+    try:
+        from credential_sanitizer import sanitize_credential_payload
+    except ImportError:
+        def sanitize_credential_payload(username="", password=""):
+            return {"username": str(username), "password_length": len(str(password))}
     print(f"[HTTP] Database logger not available, using file-only logging. Error: {e}")
 
 # ======================
@@ -168,17 +174,18 @@ class HoneypotHandler(BaseHTTPRequestHandler):
             username = params.get("username", [""])[0]
             password = params.get("password", [""])[0]
 
+            sanitized_creds = sanitize_credential_payload(username, password)
             if is_sqli(username) or is_sqli(password):
                 self._log_event(
                     "sqli_attempt",
                     "ERROR",
-                    {"username": username, "password": password},
+                    sanitized_creds,
                 )
             else:
                 self._log_event(
                     "login_attempt",
                     "WARN",
-                    {"username": username, "password": password},
+                    sanitized_creds,
                 )
 
             self.send_response(403)

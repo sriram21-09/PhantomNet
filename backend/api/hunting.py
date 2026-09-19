@@ -2,14 +2,19 @@ import logging
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 from database.database import get_db
-from database.models import SearchHistory
+from database.models import SearchHistory, User
+from middleware.auth import require_role
 from services.hunting_service import HuntingService
 from datetime import datetime
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 from typing import List, Optional, Any
 
 logger = logging.getLogger("api.hunting")
-router = APIRouter(prefix="/api/v1/hunting", tags=["Threat Hunting"])
+router = APIRouter(
+    prefix="/api/v1/hunting",
+    tags=["Threat Hunting"],
+    dependencies=[Depends(require_role("Admin", "Analyst"))],
+)
 
 VALID_LOGIC = {"AND", "OR", "NOT"}
 VALID_OPERATORS = {
