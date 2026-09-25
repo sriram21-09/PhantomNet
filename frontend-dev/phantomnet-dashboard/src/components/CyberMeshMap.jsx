@@ -3,7 +3,6 @@ import './CyberMeshMap.css';
 
 const CyberMeshMap = () => {
     const [attacks, setAttacks] = useState([]);
-    const [ghosts, setGhosts] = useState([]);
     const [latestAttack, setLatestAttack] = useState(null);
     const [terminalFeed, setTerminalFeed] = useState([]);
 
@@ -20,29 +19,14 @@ const CyberMeshMap = () => {
     ], []);
 
     useEffect(() => {
-        const generateGhosts = () => {
-            const newGhosts = Array.from({ length: 4 }).map((_, i) => {
-                const x = 50 + Math.random() * 700;
-                const y = 50 + Math.random() * 300;
-                const midX = (x + HUB_X) / 2;
-                const midY = Math.min(y, HUB_Y) - 30;
-                return {
-                    id: `ghost-${i}-${Date.now()}`,
-                    path: `M ${x} ${y} Q ${midX} ${midY} ${HUB_X} ${HUB_Y}`,
-                    delay: Math.random() * 5
-                };
-            });
-            setGhosts(newGhosts);
-        };
-
         const fetchData = async () => {
             try {
                 const eventsRes = await fetch('/analyze-traffic');
                 const eventsData = await eventsRes.json();
 
-                if (eventsData.status === "success") {
+                if (eventsData.status === "success" && Array.isArray(eventsData.data)) {
                     const validPoints = eventsData.data
-                        .filter(e => e.packet_info.lat && e.packet_info.lon)
+                        .filter(e => e.packet_info && e.packet_info.lat && e.packet_info.lon)
                         .map((e, idx) => {
                             const x = ((e.packet_info.lon + 180) * (800 / 360));
                             const y = ((90 - e.packet_info.lat) * (400 / 180));
@@ -52,16 +36,16 @@ const CyberMeshMap = () => {
                                 id: `${e.packet_info.src}-${idx}`,
                                 x, y,
                                 arcPath: `M ${x} ${y} Q ${midX} ${midY} ${HUB_X} ${HUB_Y}`,
-                                intensity: e.ai_analysis.threat_score,
+                                intensity: e.ai_analysis?.threat_score || 0,
                                 ip: e.packet_info.src,
-                                country: e.packet_info.location,
-                                proto: e.packet_info.proto,
-                                size: e.packet_info.size || Math.floor(Math.random() * 500) + 64,
+                                country: e.packet_info.location || "Unknown",
+                                proto: e.packet_info.proto || "TCP",
+                                size: e.packet_info.size || e.packet_info.length || 64,
                                 timestamp: new Date().toLocaleTimeString()
                             };
                         });
 
-                    setAttacks(validPoints.slice(0, 3));
+                    setAttacks(validPoints.slice(0, 5));
                     if (validPoints.length > 0) {
                         const latest = validPoints[0];
                         setLatestAttack(latest);
@@ -74,8 +58,7 @@ const CyberMeshMap = () => {
         };
 
         fetchData();
-        generateGhosts();
-        const interval = setInterval(() => { fetchData(); generateGhosts(); }, 5000);
+        const interval = setInterval(fetchData, 5000);
         return () => clearInterval(interval);
     }, []);
 
@@ -162,16 +145,6 @@ const CyberMeshMap = () => {
                             <rect x="-2" y="-2" width="4" height="4" fill="var(--color-cyan)" className="sat-rect" />
                             <text y="-8" textAnchor="middle" className="sat-label hud-font">{s.label}</text>
                         </g>
-                    ))}
-
-                    {/* Ghost Arcs (Background Activity) */}
-                    {ghosts.map(ghost => (
-                        <path
-                            key={ghost.id}
-                            d={ghost.path}
-                            className="ghost-arc"
-                            style={{ animationDelay: `${ghost.delay}s` }}
-                        />
                     ))}
 
                     {/* Live Attack Arcs */}

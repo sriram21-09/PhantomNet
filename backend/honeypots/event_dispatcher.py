@@ -123,10 +123,20 @@ class EventDispatcher:
 
         def _send_batch(batch: list) -> bool:
             try:
+                now = int(time.time())
+                payload_bytes = json.dumps(batch, sort_keys=True).encode("utf-8")
+                from services.origin_auth import generate_origin_signature, get_honeypot_secret_key
+                sig = generate_origin_signature(payload_bytes, now, get_honeypot_secret_key())
+                headers = {
+                    "Content-Type": "application/json",
+                    "X-Honeypot-Signature": sig,
+                    "X-Honeypot-Timestamp": str(now),
+                    "X-Honeypot-ID": self.honeypot_id,
+                }
                 resp = requests.post(
                     batch_url,
-                    json=batch,
-                    headers={"Content-Type": "application/json"},
+                    data=payload_bytes,
+                    headers=headers,
                     timeout=self.timeout * 3,
                 )
                 return resp.status_code in (200, 202)

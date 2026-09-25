@@ -142,15 +142,33 @@ class IngestionGateway:
 
         # Check header-based authentication
         if signature and timestamp is not None:
+            if parsed_dict:
+                clean_dict = {k: v for k, v in parsed_dict.items() if k != "_origin_auth"}
+                canon_bytes = json.dumps(clean_dict, sort_keys=True).encode("utf-8")
+                is_valid, reason = verify_origin_signature(
+                    payload_bytes=canon_bytes,
+                    timestamp=timestamp,
+                    signature=signature,
+                    secret_key=secret,
+                )
+                if is_valid:
+                    return True
+
             is_valid, reason = verify_origin_signature(
                 payload_bytes=body_bytes,
                 timestamp=timestamp,
                 signature=signature,
                 secret_key=secret,
             )
-            if not is_valid:
-                raise IngestionAuthenticationError(f"Origin signature verification failed: {reason}")
-            return True
+            if is_valid:
+                return True
+
+            if parsed_dict and "_origin_auth" in parsed_dict:
+                emb_valid, _ = verify_event_dict(parsed_dict, secret_key=secret)
+                if emb_valid:
+                    return True
+
+            raise IngestionAuthenticationError(f"Origin signature verification failed: {reason}")
 
         # Check embedded _origin_auth dict
         if parsed_dict and "_origin_auth" in parsed_dict:

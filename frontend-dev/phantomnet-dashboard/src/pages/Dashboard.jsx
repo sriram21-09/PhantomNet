@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { Link } from "react-router-dom";
 import { FaChartLine } from "react-icons/fa";
 
@@ -15,6 +15,7 @@ import CyberMeshMap from "../components/CyberMeshMap";
 import TrendsChart from "../components/TrendsChart";
 import WelcomeModal from "../components/WelcomeModal";
 import SentinelStatsWidget from "../components/SentinelStatsWidget";
+import { useRealTime } from "../context/RealTimeContext";
 import { fetchThreatMetrics, fetchSentinelStats } from "../services/api";
 import { Button } from "../components/ui/button";
 import "../Styles/pages/Dashboard.css";
@@ -30,7 +31,26 @@ const Dashboard = () => {
   const [sentinelLoading, setSentinelLoading] = useState(true);
   const [sentinelError, setSentinelError] = useState(null);
 
-  // Existing Stats Fetch + Polling
+  // WebSocket real-time data
+  const realTime = useRealTime();
+  const wsMetrics = realTime?.metrics;
+  const wsConnected = realTime?.isConnected;
+
+  // Merge WebSocket metrics into stats for real-time updates
+  useEffect(() => {
+    if (wsMetrics && stats) {
+      setStats((prev) => ({
+        ...prev,
+        totalEvents: wsMetrics.total_events ?? wsMetrics.totalEvents ?? prev.totalEvents,
+        uniqueIPs: wsMetrics.unique_ips ?? wsMetrics.uniqueIPs ?? prev.uniqueIPs,
+        activeHoneypots: wsMetrics.active_honeypots ?? wsMetrics.activeHoneypots ?? prev.activeHoneypots,
+        avgThreatScore: wsMetrics.avg_threat_score ?? wsMetrics.avgThreatScore ?? prev.avgThreatScore,
+        criticalAlerts: wsMetrics.critical_alerts ?? wsMetrics.criticalAlerts ?? prev.criticalAlerts,
+      }));
+    }
+  }, [wsMetrics]);
+
+  // Existing Stats Fetch + Polling (fallback if WS disconnected)
   useEffect(() => {
     const fetchStats = async (isInitial = false) => {
       try {
@@ -54,10 +74,12 @@ const Dashboard = () => {
     };
 
     fetchStats(true);
-    const interval = setInterval(() => fetchStats(false), 10000);
+    // Poll less aggressively when WebSocket is connected
+    const pollInterval = wsConnected ? 30000 : 10000;
+    const interval = setInterval(() => fetchStats(false), pollInterval);
 
     return () => clearInterval(interval);
-  }, []);
+  }, [wsConnected]);
 
   // Threat Metrics Live API + Auto Refresh
   useEffect(() => {
@@ -190,11 +212,11 @@ const Dashboard = () => {
                 {threatMetrics || stats ? (
                   <PremiumGaugeCard
                     title="Anomaly Score"
-                    value={`${Math.round(threatMetrics?.avgThreatScore ?? stats?.avgThreatScore ?? 0)}% RISK`}
-                    progress={Math.round(threatMetrics?.avgThreatScore ?? stats?.avgThreatScore ?? 0)}
+                    value={`${Math.round(threatMetrics?.avgAnomalyScore ?? stats?.avgAnomalyScore ?? 0)}% RISK`}
+                    progress={Math.round(threatMetrics?.avgAnomalyScore ?? stats?.avgAnomalyScore ?? 0)}
                     variant="orange"
                     subtitle="SENSORY FEED"
-                    status={(threatMetrics?.avgThreatScore ?? stats?.avgThreatScore ?? 0) > 70 ? "CRITICAL" : (threatMetrics?.avgThreatScore ?? stats?.avgThreatScore ?? 0) > 40 ? "WARNING" : "OPTIMAL"}
+                    status={(threatMetrics?.avgAnomalyScore ?? stats?.avgAnomalyScore ?? 0) > 70 ? "CRITICAL" : (threatMetrics?.avgAnomalyScore ?? stats?.avgAnomalyScore ?? 0) > 40 ? "WARNING" : "OPTIMAL"}
                   />
                 ) : (
                   <div className="skeleton-card"></div>
@@ -205,7 +227,7 @@ const Dashboard = () => {
             {/* Temporal & Protocol Analytics Row */}
             <div className="noc-row analytics">
               <AttackTimeline />
-              <ProtocolChart />
+              <ProtocolChart data={threatMetrics?.protocolDistribution ?? stats?.protocolDistribution} />
             </div>
 
             {/* Honeypot Network Status — above Top Threat Vectors */}

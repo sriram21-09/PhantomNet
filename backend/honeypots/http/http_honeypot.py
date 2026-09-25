@@ -139,7 +139,7 @@ class HoneypotHandler(BaseHTTPRequestHandler):
         if not self._check_ip_limit():
             return
 
-        if self.path == "/admin":
+        if self.path in ["/admin", "/", "/login"]:
             self._log_event("page_view", "INFO")
             content = self._read_template("fake_admin.html")
             self.send_response(200)
@@ -170,7 +170,7 @@ class HoneypotHandler(BaseHTTPRequestHandler):
         body = self.rfile.read(length).decode(errors="ignore")
         params = parse_qs(body)
 
-        if self.path == "/admin":
+        if self.path in ["/admin", "/", "/login"]:
             username = params.get("username", [""])[0]
             password = params.get("password", [""])[0]
 

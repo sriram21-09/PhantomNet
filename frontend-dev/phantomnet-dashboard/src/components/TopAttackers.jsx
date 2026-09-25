@@ -1,26 +1,35 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { FaSort, FaSortUp, FaSortDown, FaShieldAlt, FaChevronLeft, FaChevronRight } from "react-icons/fa";
 import { usePagination } from "../hooks/usePagination";
-
-const initialAttackers = [
-    { ip: "192.168.1.105", count: 1245, country: "USA", risk: "High" },
-    { ip: "45.76.12.190", count: 890, country: "China", risk: "Medium" },
-    { ip: "103.25.46.2", count: 560, country: "Russia", risk: "High" },
-    { ip: "82.165.23.11", count: 430, country: "Germany", risk: "Low" },
-    { ip: "172.217.16.14", count: 320, country: "USA", risk: "Medium" },
-    { ip: "1.1.1.1", count: 210, country: "Australia", risk: "Low" },
-    { ip: "185.12.34.56", count: 150, country: "France", risk: "High" },
-    { ip: "91.23.45.67", count: 120, country: "UK", risk: "Medium" },
-    { ip: "5.6.7.8", count: 80, country: "Japan", risk: "Low" },
-    { ip: "123.123.123.123", count: 45, country: "Canada", risk: "High" },
-    { ip: "10.0.0.1", count: 30, country: "Local", risk: "Low" },
-    { ip: "172.16.0.5", count: 25, country: "Private", risk: "Medium" },
-    { ip: "192.168.0.1", count: 10, country: "Router", risk: "Low" },
-];
+import { fetchTopThreatVectors } from "../services/api";
 
 const TopAttackers = () => {
-    const [attackers, setAttackers] = useState(initialAttackers);
+    const [attackers, setAttackers] = useState([]);
+    const [loading, setLoading] = useState(true);
     const [sortConfig, setSortConfig] = useState({ key: "count", direction: "desc" });
+
+    useEffect(() => {
+        let mounted = true;
+        const loadVectors = async () => {
+            try {
+                const data = await fetchTopThreatVectors(50);
+                if (mounted && Array.isArray(data) && data.length > 0) {
+                    setAttackers(data);
+                }
+            } catch (err) {
+                console.warn("[TopAttackers] Failed to fetch top threat vectors:", err);
+            } finally {
+                if (mounted) setLoading(false);
+            }
+        };
+
+        loadVectors();
+        const interval = setInterval(loadVectors, 10000);
+        return () => {
+            mounted = false;
+            clearInterval(interval);
+        };
+    }, []);
 
     const {
         currentPage,
@@ -28,9 +37,9 @@ const TopAttackers = () => {
         paginatedData,
         nextPage,
         prevPage,
-    } = usePagination(attackers, 10); // Updated to 10 per page as requested
+    } = usePagination(attackers, 10);
 
-    const maxCount = Math.max(...initialAttackers.map(a => a.count));
+    const maxCount = attackers.length > 0 ? Math.max(...attackers.map(a => a.count), 1) : 1;
 
     const sortData = (key) => {
         let direction = "desc";

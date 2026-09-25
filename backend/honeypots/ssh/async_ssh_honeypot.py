@@ -7,6 +7,12 @@ from datetime import datetime, timezone
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 try:
+    from db_logger import log_ssh_activity
+    DB_ENABLED = True
+except Exception:
+    DB_ENABLED = False
+
+try:
     from credential_sanitizer import sanitize_credential_payload
 except ImportError:
     def sanitize_credential_payload(username="", password=""):
@@ -19,13 +25,14 @@ PORT = 2222
 VALID_USER = os.getenv("HONEYPOT_SSH_USER", "admin")
 VALID_PASS = os.getenv("HONEYPOT_SSH_PASS", "1234")
 
-MAX_CONNECTIONS_PER_IP = 3
+MAX_CONNECTIONS_PER_IP = 10
 SESSION_TIMEOUT = 120
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 LOG_DIR = os.path.abspath(os.path.join(BASE_DIR, "../../logs"))
 
-LOG_FILE = os.path.join(LOG_DIR, "ssh_async.jsonl")
+LOG_FILE = os.path.join(LOG_DIR, "ssh.jsonl")
+ASYNC_LOG_FILE = os.path.join(LOG_DIR, "ssh_async.jsonl")
 ERROR_LOG = os.path.join(LOG_DIR, "ssh_async_error.log")
 HOST_KEY = os.path.join(BASE_DIR, "honeypot_host_key")
 
@@ -38,10 +45,23 @@ IP_CONNECTIONS = {}
 # ---------------- LOG HELPERS ----------------
 def log_event(data):
     try:
+        line = json.dumps(data) + "\n"
         with open(LOG_FILE, "a") as f:
-            f.write(json.dumps(data) + "\n")
+            f.write(line)
+        with open(ASYNC_LOG_FILE, "a") as f:
+            f.write(line)
     except Exception as e:
         log_error(str(e), "log_event")
+
+    if DB_ENABLED:
+        try:
+            ip = data.get("source_ip", "unknown")
+            event = data.get("event", "activity")
+            level = data.get("level", "INFO")
+            is_malicious = level in ["WARN", "ERROR"] or event in ["login_failed", "brute_force"]
+            log_ssh_activity(ip, event, is_malicious=is_malicious)
+        except Exception:
+            pass
 
 
 def log_error(msg, context=""):
@@ -171,6 +191,17 @@ class SSHHoneypot(asyncssh.SSHServer):
         self.conn = conn
         peer = conn.get_extra_info("peername")
         self.ip = peer[0] if peer else "unknown"
+
+        log_event(
+            {
+                "timestamp": datetime.now(timezone.utc).isoformat(),
+                "source_ip": self.ip,
+                "honeypot_type": "ssh",
+                "port": PORT,
+                "event": "connection_received",
+                "level": "INFO",
+            }
+        )
 
         IP_CONNECTIONS[self.ip] = IP_CONNECTIONS.get(self.ip, 0) + 1
         if IP_CONNECTIONS[self.ip] > MAX_CONNECTIONS_PER_IP:

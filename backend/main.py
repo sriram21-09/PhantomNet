@@ -181,6 +181,9 @@ async def lifespan(_app: FastAPI):
         # Start Event Stream Broadcaster
         asyncio.create_task(broadcast_event_stream())
 
+        # Start Event Consumer (Drains Redis Streams into Postgres in real time)
+        asyncio.create_task(event_consumer_loop())
+
         # Start Sentinel Generation Loop if enabled (opt-in via env var)
         _sentinel_enabled = os.getenv("SENTINEL_ENABLED", "false").lower() == "true"
         if _sentinel_enabled:
@@ -506,6 +509,27 @@ async def broadcast_event_stream() -> None:
         await asyncio.sleep(3)
 
 
+async def event_consumer_loop() -> None:
+    """
+    Background worker loop that drains events from Redis Streams into PostgreSQL
+    with idempotent deduplication and transactional ACK.
+    """
+    logger.info("[+] Event Consumer Worker Started")
+    try:
+        from services.event_consumer import EventConsumer
+        consumer = EventConsumer()
+        while True:
+            try:
+                stats = await asyncio.to_thread(consumer.consume_batch, None, 100, 200)
+                if stats.get("read_count", 0) == 0:
+                    await asyncio.sleep(0.5)
+            except Exception as e:
+                logger.error("Error in event consumer loop: %s", e)
+                await asyncio.sleep(1)
+    except Exception as ie:
+        logger.error("Failed to initialize EventConsumer: %s", ie)
+
+
 # =========================
 # APP INIT (ONLY ONE APP)
 # =========================
@@ -675,7 +699,7 @@ def get_real_traffic(
 # DASHBOARD STATS
 # =========================
 @app.get("/api/stats")
-@cache_response(ttl_seconds=15)
+@cache_response(ttl_seconds=5)
 def get_api_stats(
     db: Session = Depends(get_db),
     _user: User = Depends(get_current_user),
@@ -686,6 +710,33 @@ def get_api_stats(
     """
     service = StatsService(db)
     return service.calculate_stats()
+
+
+@app.get("/api/threats/top-vectors")
+@cache_response(ttl_seconds=5)
+def get_top_threat_vectors(
+    limit: int = Query(10, ge=1, le=100),
+    db: Session = Depends(get_db),
+    _user: User = Depends(get_current_user),
+) -> list:
+    """
+    Returns real top threat vectors aggregated from PacketLog.
+    """
+    service = StatsService(db)
+    return service.get_top_threat_vectors(limit=limit)
+
+
+@app.get("/api/stats/timeline")
+@cache_response(ttl_seconds=5)
+def get_attack_timeline(
+    db: Session = Depends(get_db),
+    _user: User = Depends(get_current_user),
+) -> dict:
+    """
+    Returns real 24-hour attack timeline aggregated hourly from PacketLog.
+    """
+    service = StatsService(db)
+    return service.get_attack_timeline_24h()
 
 
 @app.get("/metrics")

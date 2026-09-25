@@ -82,10 +82,12 @@ services:
       INGESTION_GATEWAY_URL: http://api:8000/api/v1/ingest/event
       HONEYPOT_SECRET_KEY: ${HONEYPOT_SECRET_KEY:-phantomnet-honeypot-secret-change-in-prod}
       HONEYPOT_ID: ssh-honeypot-01
+      HONEYPOT_SPOOL_DIR: /tmp/spool
     volumes:
       - ./backend/logs:/app/backend/logs
     networks:
       - honeypot_net
+      - app_net
     depends_on:
       - api
     restart: unless-stopped
@@ -118,10 +120,12 @@ services:
       INGESTION_GATEWAY_URL: http://api:8000/api/v1/ingest/event
       HONEYPOT_SECRET_KEY: ${HONEYPOT_SECRET_KEY:-phantomnet-honeypot-secret-change-in-prod}
       HONEYPOT_ID: http-honeypot-01
+      HONEYPOT_SPOOL_DIR: /tmp/spool
     volumes:
       - ./backend/logs:/app/backend/logs
     networks:
       - honeypot_net
+      - app_net
     depends_on:
       - api
     restart: unless-stopped
@@ -156,10 +160,12 @@ services:
       INGESTION_GATEWAY_URL: http://api:8000/api/v1/ingest/event
       HONEYPOT_SECRET_KEY: ${HONEYPOT_SECRET_KEY:-phantomnet-honeypot-secret-change-in-prod}
       HONEYPOT_ID: ftp-honeypot-01
+      HONEYPOT_SPOOL_DIR: /tmp/spool
     volumes:
       - ./backend/logs:/app/backend/logs
     networks:
       - honeypot_net
+      - app_net
     depends_on:
       - api
     restart: unless-stopped
@@ -192,10 +198,12 @@ services:
       INGESTION_GATEWAY_URL: http://api:8000/api/v1/ingest/event
       HONEYPOT_SECRET_KEY: ${HONEYPOT_SECRET_KEY:-phantomnet-honeypot-secret-change-in-prod}
       HONEYPOT_ID: smtp-honeypot-01
+      HONEYPOT_SPOOL_DIR: /tmp/spool
     volumes:
       - ./backend/logs:/app/backend/logs
     networks:
       - honeypot_net
+      - app_net
     depends_on:
       - api
     restart: unless-stopped
@@ -253,11 +261,11 @@ services:
     tmpfs:
       - /tmp:rw,noexec,nosuid,size=128m
       - /run:rw,noexec,nosuid,size=32m
-      - /app/backend/logs:rw,noexec,nosuid,size=64m
+      - /app/backend/logs:rw,noexec,nosuid,size=64m,mode=1777
     ports:
       - "8000:8000"
     environment:
-      ENVIRONMENT: production
+      ENVIRONMENT: development
       DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/${POSTGRES_DB:-phantomnet}
       DB_HOST: postgres
       DB_USER: ${POSTGRES_USER:-postgres}
@@ -265,6 +273,8 @@ services:
       DB_NAME: ${POSTGRES_DB:-phantomnet}
       DB_PORT: 5432
       REDIS_URL: redis://redis:6379/0
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
       HONEYPOT_SECRET_KEY: ${HONEYPOT_SECRET_KEY:-phantomnet-honeypot-secret-change-in-prod}
       JWT_SECRET: ${JWT_SECRET:-supersecret}
       API_KEY: ${API_KEY:-default_key}
