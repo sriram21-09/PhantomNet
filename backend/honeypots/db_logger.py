@@ -10,22 +10,12 @@ from datetime import datetime
 # Add parent directory to path for imports
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
-try:
-    from database import SessionLocal
-    from database.models import PacketLog
-    from services.geoip_service import geoip_service
-
-    DB_AVAILABLE = True
-except Exception as e:
-    print(f"[DB Logger] Database not available: {e}")
-    DB_AVAILABLE = False
-
+# Lazy database availability flag
+DB_AVAILABLE = None
 
 import socket
 
 def is_healthcheck(src_ip: str) -> bool:
-    if src_ip in ["127.0.0.1", "localhost", "::1"]:
-        return True
     try:
         api_ip = socket.gethostbyname("api")
         if src_ip == api_ip:
@@ -43,9 +33,10 @@ def log_to_database(
     is_malicious: bool = False,
     threat_score: float = 0.0,
     attack_type: str = None,
+    **kwargs,
 ):
     """
-    Log honeypot activity to the database.
+    Log honeypot activity to the database or ingestion gateway.
     """
     if is_healthcheck(src_ip):
         return False
@@ -63,15 +54,34 @@ def log_to_database(
                 is_malicious=is_malicious,
                 threat_score=threat_score,
                 attack_type=attack_type,
+                dst_ip=kwargs.get("dst_ip", "127.0.0.1"),
+                src_port=kwargs.get("src_port", 0),
+                dst_port=kwargs.get("dst_port", 0),
+                threat_level=kwargs.get("threat_level"),
+                payload=kwargs.get("payload"),
             )
         except Exception as ge:
             print(f"[DB Logger] Error dispatching to gateway: {ge}")
+            return False
+
+    global DB_AVAILABLE
+    if DB_AVAILABLE is None:
+        try:
+            from database import SessionLocal
+            from database.models import PacketLog
+            from services.geoip_service import geoip_service
+            DB_AVAILABLE = True
+        except Exception as e:
+            DB_AVAILABLE = False
 
     if not DB_AVAILABLE:
         return False
 
     try:
         from schemas.event_envelope import generate_uuidv7, compute_canonical_fingerprint
+        from database import SessionLocal
+        from database.models import PacketLog
+        from services.geoip_service import geoip_service
         db = SessionLocal()
 
         # GeoIP Enrichment

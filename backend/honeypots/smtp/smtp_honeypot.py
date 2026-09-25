@@ -253,8 +253,11 @@ async def handle_smtp_client(reader, writer):
         )
 
     finally:
-        writer.close()
-        await writer.wait_closed()
+        try:
+            writer.close()
+            await writer.wait_closed()
+        except (ConnectionResetError, BrokenPipeError, OSError):
+            pass  # Client disconnected abruptly — expected for probes/scanners
 
         log_event(
             {

@@ -1,23 +1,15 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
     PieChart,
     Pie,
     Cell,
     Tooltip,
     ResponsiveContainer,
-    Legend,
     Sector,
 } from "recharts";
+import { fetchThreatMetrics } from "../services/api";
 
-const protocolData = [
-    { name: "SSH", value: 45 },
-    { name: "HTTP", value: 30 },
-    { name: "SMTP", value: 15 },
-    { name: "FTP", value: 10 },
-];
-
-const COLORS = ["#3b82f6", "#10b981", "#f59e0b", "#ef4444"];
-
+const COLORS = ["#3b82f6", "#10b981", "#f59e0b", "#ef4444", "#8b5cf6", "#ec4899", "#06b6d4"];
 
 const ProTooltip = ({ active, payload }) => {
     if (active && payload && payload.length) {
@@ -38,9 +30,42 @@ const ProTooltip = ({ active, payload }) => {
     return null;
 };
 
-const ProtocolChart = () => {
+const ProtocolChart = ({ data }) => {
     const [activeIndex, setActiveIndex] = useState(null);
-    const totalValue = protocolData.reduce((acc, curr) => acc + curr.value, 0);
+    const [chartData, setChartData] = useState([]);
+
+    useEffect(() => {
+        if (data && Array.isArray(data) && data.length > 0) {
+            setChartData(
+                data.map((item) => ({
+                    name: item.name,
+                    value: item.percentage ?? item.value,
+                    count: item.value,
+                }))
+            );
+        } else {
+            let mounted = true;
+            fetchThreatMetrics()
+                .then((stats) => {
+                    if (mounted && stats?.protocolDistribution?.length > 0) {
+                        setChartData(
+                            stats.protocolDistribution.map((item) => ({
+                                name: item.name,
+                                value: item.percentage ?? item.value,
+                                count: item.value,
+                            }))
+                        );
+                    }
+                })
+                .catch((err) => console.warn("[ProtocolChart] fetch error:", err));
+            return () => {
+                mounted = false;
+            };
+        }
+    }, [data]);
+
+    const activeData = chartData.length > 0 ? chartData : [{ name: "TCP", value: 100, count: 0 }];
+    const totalValue = Math.round(activeData.reduce((acc, curr) => acc + curr.value, 0));
 
     const onPieEnter = (_, index) => {
         setActiveIndex(index);
@@ -62,7 +87,6 @@ const ProtocolChart = () => {
                                 const { cx, cy, innerRadius, outerRadius, startAngle, endAngle, fill } = props;
                                 return (
                                     <g>
-                                        {/* Outer glow sector */}
                                         <Sector
                                             cx={cx}
                                             cy={cy}
@@ -85,7 +109,7 @@ const ProtocolChart = () => {
                                     </g>
                                 );
                             }}
-                            data={protocolData}
+                            data={activeData}
                             cx="50%"
                             cy="55%"
                             innerRadius={75}
@@ -98,18 +122,17 @@ const ProtocolChart = () => {
                             animationBegin={0}
                             animationDuration={800}
                         >
-                            {protocolData.map((entry, index) => (
+                            {activeData.map((entry, index) => (
                                 <Cell
                                     key={`cell-${index}`}
                                     fill={COLORS[index % COLORS.length]}
                                     style={{
-                                        filter: activeIndex === index ? `drop-shadow(0 0 12px ${COLORS[index]}66)` : 'none',
+                                        filter: activeIndex === index ? `drop-shadow(0 0 12px ${COLORS[index % COLORS.length]}66)` : 'none',
                                         transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)'
                                     }}
                                 />
                             ))}
                         </Pie>
-                        {/* Hidden native tooltip to allow center HUD logic to stay simple */}
                         <Tooltip content={<div style={{ display: 'none' }} />} />
                     </PieChart>
                 </ResponsiveContainer>
@@ -123,11 +146,11 @@ const ProtocolChart = () => {
                         </div>
                     ) : (
                         <div className="hud-content">
-                            <span className="hud-protocol glow-text" style={{ color: COLORS[activeIndex] }}>
-                                {protocolData[activeIndex].name}
+                            <span className="hud-protocol glow-text" style={{ color: COLORS[activeIndex % COLORS.length] }}>
+                                {activeData[activeIndex]?.name}
                             </span>
-                            <span className="hud-value" style={{ color: COLORS[activeIndex] }}>
-                                {protocolData[activeIndex].value}%
+                            <span className="hud-value" style={{ color: COLORS[activeIndex % COLORS.length] }}>
+                                {activeData[activeIndex]?.value}%
                             </span>
                             <span className="hud-label text-dim">DISTRIBUTION</span>
                         </div>
@@ -135,14 +158,14 @@ const ProtocolChart = () => {
                 </div>
             </div>
             <div className="custom-legend">
-                {protocolData.map((entry, index) => (
+                {activeData.map((entry, index) => (
                     <div
                         key={index}
                         className={`legend-item ${activeIndex === index ? 'active' : ''}`}
                         onMouseEnter={() => onPieEnter(null, index)}
                         onMouseLeave={onPieLeave}
                     >
-                        <div className="legend-dot" style={{ backgroundColor: COLORS[index], boxShadow: `0 0 8px ${COLORS[index]}` }}></div>
+                        <div className="legend-dot" style={{ backgroundColor: COLORS[index % COLORS.length], boxShadow: `0 0 8px ${COLORS[index % COLORS.length]}` }}></div>
                         <span className="legend-name">{entry.name}</span>
                         <span className="legend-percent">{entry.value}%</span>
                     </div>

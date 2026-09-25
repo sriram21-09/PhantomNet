@@ -98,13 +98,20 @@ const HoneypotStatus = () => {
                   </div>
                 </div>
                 <div className="hps-hp-activity">
-                  {[...Array(7)].map((_, i) => (
-                    <span
-                      key={i}
-                      className={`hps-bar ${isActive && i < 4 ? "bar-lit" : ""}`}
-                      style={{ height: `${6 + Math.random() * 8}px` }}
-                    />
-                  ))}
+                  {[...Array(7)].map((_, i) => {
+                    const eventCount = hp.total_events ?? 0;
+                    const baseHeight = isActive ? 8 : 4;
+                    const stepBonus = eventCount > 0 ? Math.min(6, Math.floor(eventCount / 10)) : 0;
+                    const barHeight = isActive ? Math.min(14, baseHeight + ((i * 2 + stepBonus) % 6)) : 4;
+                    const isLit = isActive && (eventCount > 0 ? i <= Math.min(6, Math.floor(eventCount / 10)) : i < 2);
+                    return (
+                      <span
+                        key={i}
+                        className={`hps-bar ${isLit ? "bar-lit" : ""}`}
+                        style={{ height: `${barHeight}px` }}
+                      />
+                    );
+                  })}
                 </div>
                 <div className="hps-hp-bottom">
                   <span className="hps-pkts-val">{hp.total_events ?? 0}</span>

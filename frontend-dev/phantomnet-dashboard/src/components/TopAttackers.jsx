@@ -1,26 +1,35 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { FaSort, FaSortUp, FaSortDown, FaShieldAlt, FaChevronLeft, FaChevronRight } from "react-icons/fa";
 import { usePagination } from "../hooks/usePagination";
+import { fetchTopThreatVectors } from "../services/api";
 
-const initialAttackers = [
-    { ip: "192.168.1.105", count: 1245, country: "USA", risk: "High" },
-    { ip: "45.76.12.190", count: 890, country: "China", risk: "Medium" },
-    { ip: "103.25.46.2", count: 560, country: "Russia", risk: "High" },
-    { ip: "82.165.23.11", count: 430, country: "Germany", risk: "Low" },
-    { ip: "172.217.16.14", count: 320, country: "USA", risk: "Medium" },
-    { ip: "1.1.1.1", count: 210, country: "Australia", risk: "Low" },
-    { ip: "185.12.34.56", count: 150, country: "France", risk: "High" },
-    { ip: "91.23.45.67", count: 120, country: "UK", risk: "Medium" },
-    { ip: "5.6.7.8", count: 80, country: "Japan", risk: "Low" },
-    { ip: "123.123.123.123", count: 45, country: "Canada", risk: "High" },
-    { ip: "10.0.0.1", count: 30, country: "Local", risk: "Low" },
-    { ip: "172.16.0.5", count: 25, country: "Private", risk: "Medium" },
-    { ip: "192.168.0.1", count: 10, country: "Router", risk: "Low" },
-];
-
-const TopAttackers = () => {
-    const [attackers, setAttackers] = useState(initialAttackers);
+const TopAttackers = ({ mode = "all" }) => {
+    const [attackers, setAttackers] = useState([]);
+    const [loading, setLoading] = useState(true);
     const [sortConfig, setSortConfig] = useState({ key: "count", direction: "desc" });
+
+    useEffect(() => {
+        let mounted = true;
+        const loadVectors = async () => {
+            try {
+                const data = await fetchTopThreatVectors(50, mode);
+                if (mounted && Array.isArray(data)) {
+                    setAttackers(data);
+                }
+            } catch (err) {
+                console.warn("[TopAttackers] Failed to fetch top threat vectors:", err);
+            } finally {
+                if (mounted) setLoading(false);
+            }
+        };
+
+        loadVectors();
+        const interval = setInterval(loadVectors, 10000);
+        return () => {
+            mounted = false;
+            clearInterval(interval);
+        };
+    }, [mode]);
 
     const {
         currentPage,
@@ -28,9 +37,9 @@ const TopAttackers = () => {
         paginatedData,
         nextPage,
         prevPage,
-    } = usePagination(attackers, 10); // Updated to 10 per page as requested
+    } = usePagination(attackers, 10);
 
-    const maxCount = Math.max(...initialAttackers.map(a => a.count));
+    const maxCount = attackers.length > 0 ? Math.max(...attackers.map(a => a.count), 1) : 1;
 
     const sortData = (key) => {
         let direction = "desc";
@@ -56,12 +65,17 @@ const TopAttackers = () => {
     return (
         <div className="top-attackers-card pro-card">
             <div className="card-header">
-                <h3 className="panel-title">
-                    <div className="title-icon reputation"><FaShieldAlt /></div>
-                    Top Threat Vectors
-                </h3>
+                <div>
+                    <h3 className="panel-title">
+                        <div className="title-icon reputation"><FaShieldAlt /></div>
+                        Top Source Vectors
+                    </h3>
+                    <p className="panel-subtitle" style={{ fontSize: "11px", color: "var(--text-dim, #64748b)", margin: "2px 0 0 28px" }}>
+                        Observed traffic categorized by origin type (Docker Bridge, RFC 5737 Benchmark, External)
+                    </p>
+                </div>
                 <div className="pagination-controls">
-                    <span className="page-info">Page {currentPage} of {totalPages}</span>
+                    <span className="page-info">Page {currentPage} of {totalPages || 1}</span>
                     <div className="pagination-buttons">
                         <button
                             className="pagination-btn"
@@ -73,7 +87,7 @@ const TopAttackers = () => {
                         <button
                             className="pagination-btn"
                             onClick={nextPage}
-                            disabled={currentPage === totalPages}
+                            disabled={currentPage >= totalPages}
                         >
                             <FaChevronRight />
                         </button>
@@ -85,49 +99,93 @@ const TopAttackers = () => {
                     <thead>
                         <tr>
                             <th onClick={() => sortData("ip")}>
-                                Source Identity {getSortIcon("ip")}
+                                Source IP {getSortIcon("ip")}
+                            </th>
+                            <th>
+                                Source Classification
                             </th>
                             <th onClick={() => sortData("count")}>
-                                Intensity {getSortIcon("count")}
+                                Frequency / Intensity {getSortIcon("count")}
                             </th>
                             <th onClick={() => sortData("country")}>
-                                Origin {getSortIcon("country")}
+                                Network Origin {getSortIcon("country")}
                             </th>
                             <th onClick={() => sortData("risk")}>
-                                Reputation {getSortIcon("risk")}
+                                Assessment {getSortIcon("risk")}
                             </th>
                         </tr>
                     </thead>
                     <tbody>
-                        {paginatedData.map((attacker, index) => (
-                            <tr key={index}>
-                                <td className="font-mono ip-column">
-                                    {attacker.ip}
-                                    <div className="ip-reputation-dot" title="Known Malicious"></div>
-                                </td>
-                                <td className="intensity-column">
-                                    <div className="intensity-container">
-                                        <span className="count-label">{attacker.count.toLocaleString()}</span>
-                                        <div className="intensity-track">
-                                            <div
-                                                className="intensity-fill"
-                                                style={{ width: `${(attacker.count / maxCount) * 100}%` }}
-                                            ></div>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td>
-                                    <div className="origin-cell">
-                                        <span className="country-label">{attacker.country}</span>
-                                    </div>
-                                </td>
-                                <td>
-                                    <span className={`reputation-badge ${attacker.risk.toLowerCase()}`}>
-                                        {attacker.risk} Risk
-                                    </span>
+                        {paginatedData.length === 0 && !loading && (
+                            <tr>
+                                <td colSpan="5" style={{ textAlign: "center", padding: "20px", color: "#64748b" }}>
+                                    No source vectors detected for the selected mode.
                                 </td>
                             </tr>
-                        ))}
+                        )}
+                        {paginatedData.map((attacker, index) => {
+                            const isBridge = attacker.source_category === "internal_bridge";
+                            const isTestNet = attacker.source_category === "testnet" || attacker.is_synthetic;
+                            
+                            return (
+                                <tr key={index}>
+                                    <td className="font-mono ip-column">
+                                        {attacker.ip}
+                                        <div 
+                                            className="ip-reputation-dot" 
+                                            style={{ 
+                                                backgroundColor: isBridge ? "#f59e0b" : isTestNet ? "#8b5cf6" : "#ef4444" 
+                                            }}
+                                            title={attacker.source_type}
+                                        />
+                                    </td>
+                                    <td>
+                                        <span 
+                                            className={`source-type-badge ${isBridge ? "badge-bridge" : isTestNet ? "badge-testnet" : "badge-external"}`}
+                                            style={{
+                                                fontSize: "11px",
+                                                fontWeight: 600,
+                                                padding: "3px 8px",
+                                                borderRadius: "6px",
+                                                display: "inline-block",
+                                                backgroundColor: isBridge ? "rgba(245, 158, 11, 0.12)" : isTestNet ? "rgba(139, 92, 246, 0.12)" : "rgba(239, 68, 68, 0.12)",
+                                                color: isBridge ? "#f59e0b" : isTestNet ? "#a78bfa" : "#f87171",
+                                                border: `1px solid ${isBridge ? "rgba(245, 158, 11, 0.3)" : isTestNet ? "rgba(139, 92, 246, 0.3)" : "rgba(239, 68, 68, 0.3)"}`,
+                                            }}
+                                        >
+                                            {attacker.source_type || (isBridge ? "Docker Bridge" : isTestNet ? "Test / Benchmark" : "External Source")}
+                                        </span>
+                                    </td>
+                                    <td className="intensity-column">
+                                        <div className="intensity-container">
+                                            <span className="count-label">
+                                                {attacker.count.toLocaleString()}
+                                                {attacker.percentage ? ` (${attacker.percentage}%)` : ""}
+                                            </span>
+                                            <div className="intensity-track">
+                                                <div
+                                                    className="intensity-fill"
+                                                    style={{ 
+                                                        width: `${(attacker.count / maxCount) * 100}%`,
+                                                        backgroundColor: isBridge ? "#f59e0b" : isTestNet ? "#8b5cf6" : "#3b82f6",
+                                                    }}
+                                                ></div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div className="origin-cell">
+                                            <span className="country-label">{attacker.country}</span>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <span className={`reputation-badge ${(attacker.risk || "low").toLowerCase()}`}>
+                                            {isTestNet ? "Benchmark" : `${attacker.risk} Risk`}
+                                        </span>
+                                    </td>
+                                </tr>
+                            );
+                        })}
                     </tbody>
                 </table>
             </div>

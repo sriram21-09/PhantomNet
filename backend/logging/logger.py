@@ -55,10 +55,16 @@ log_queue = Queue(-1)
 # ==================================================
 # FILE HANDLER (ROTATION)
 # ==================================================
-file_handler = RotatingFileHandler(
-    LOG_FILE, maxBytes=MAX_LOG_SIZE, backupCount=BACKUP_COUNT, encoding="utf-8"
-)
-file_handler.setFormatter(JSONFormatter())
+try:
+    file_handler = RotatingFileHandler(
+        LOG_FILE, maxBytes=MAX_LOG_SIZE, backupCount=BACKUP_COUNT, encoding="utf-8"
+    )
+    file_handler.setFormatter(JSONFormatter())
+    listener_target = file_handler
+except (PermissionError, OSError) as e:
+    console_handler = logging.StreamHandler()
+    console_handler.setFormatter(JSONFormatter())
+    listener_target = console_handler
 
 # ==================================================
 # QUEUE HANDLER (NON-BLOCKING)
@@ -73,7 +79,7 @@ logger.propagate = False
 # ==================================================
 # QUEUE LISTENER (BACKGROUND THREAD)
 # ==================================================
-listener = QueueListener(log_queue, file_handler)
+listener = QueueListener(log_queue, listener_target)
 listener.start()
 
 

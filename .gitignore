@@ -58,7 +58,7 @@ last_sid.txt
 **/last_sid.txt
 
 # Logs (prevent merge conflicts)
-backend/logs/*.jsonl
+backend/logs/
 data/predictions.csv
 
 # Scratch / Temporary

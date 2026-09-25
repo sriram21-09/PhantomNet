@@ -1,6 +1,7 @@
-import React, { useContext } from "react";
+import React, { useContext, useState, useEffect } from "react";
 import { FaChartLine } from "react-icons/fa";
 import { ThemeContext } from "../context/ThemeContext";
+import { fetchAttackTimeline } from "../services/api";
 import {
     LineChart,
     Line,
@@ -12,16 +13,6 @@ import {
     Area,
     AreaChart,
 } from "recharts";
-
-const mockTimelineData = [
-    { time: "00:00", events: 12 },
-    { time: "04:00", events: 19 },
-    { time: "08:00", events: 45 },
-    { time: "12:00", events: 30 },
-    { time: "16:00", events: 65 },
-    { time: "20:00", events: 40 },
-    { time: "23:59", events: 25 },
-];
 
 const CustomTooltip = ({ active, payload, label }) => {
     if (active && payload && payload.length) {
@@ -41,9 +32,36 @@ const CustomTooltip = ({ active, payload, label }) => {
     return null;
 };
 
-const AttackTimeline = () => {
+const AttackTimeline = ({ mode = "all" }) => {
     const { theme } = useContext(ThemeContext);
     const isDark = theme === "dark";
+
+    const [timelineData, setTimelineData] = useState([]);
+    const [trend, setTrend] = useState("+0.0% vs yesterday");
+    const [trendPositive, setTrendPositive] = useState(true);
+
+    useEffect(() => {
+        let mounted = true;
+        const loadTimeline = async () => {
+            try {
+                const data = await fetchAttackTimeline(mode);
+                if (mounted && data && Array.isArray(data.timeline)) {
+                    setTimelineData(data.timeline);
+                    setTrend(data.trend || "+0.0% vs yesterday");
+                    setTrendPositive((data.trendValue || 0) >= 0);
+                }
+            } catch (err) {
+                console.warn("[AttackTimeline] Failed to fetch timeline:", err);
+            }
+        };
+
+        loadTimeline();
+        const interval = setInterval(loadTimeline, 10000);
+        return () => {
+            mounted = false;
+            clearInterval(interval);
+        };
+    }, [mode]);
 
     const gridColor = isDark ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.05)";
     const textColor = isDark ? "#64748b" : "#475569";
@@ -56,15 +74,15 @@ const AttackTimeline = () => {
                     Attack Timeline (24h)
                 </h3>
                 <div className="timeline-stats">
-                    <span className="trend-badge positive">
-                        <span className="trend-icon">↑</span>
-                        +12% vs yesterday
+                    <span className={`trend-badge ${trendPositive ? "positive" : "negative"}`}>
+                        <span className="trend-icon">{trendPositive ? "↑" : "↓"}</span>
+                        {trend}
                     </span>
                 </div>
             </div>
             <div className="chart-container" style={{ width: "100%", height: 320 }}>
                 <ResponsiveContainer>
-                    <AreaChart data={mockTimelineData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+                    <AreaChart data={timelineData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
                         <defs>
                             <linearGradient id="colorEvents" x1="0" y1="0" x2="0" y2="1">
                                 <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3} />

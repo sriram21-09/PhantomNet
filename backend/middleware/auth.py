@@ -425,7 +425,18 @@ def ws_authenticate(websocket: WebSocket, db: Session) -> Optional[User]:
             raw_token = auth_hdr[7:]
 
     if not raw_token:
-        return None
+        # Check query parameter as fallback
+        query_token = websocket.query_params.get("token")
+        if query_token:
+            raw_token = query_token
+        elif os.getenv("ENVIRONMENT", "local").lower() in ["local", "dev", "development"]:
+            # In local/dev environment, fallback to active admin user for dashboard viewing
+            admin_user = db.query(User).filter(User.status == "active").first()
+            if admin_user:
+                return admin_user
+            return None
+        else:
+            return None
 
     token_data = decode_token(raw_token)
     if not token_data:
@@ -446,10 +457,15 @@ def ws_authenticate(websocket: WebSocket, db: Session) -> Optional[User]:
 
 
 def seed_default_admin(db: Session):
-    """Create default admin user if none exists, using a securely generated password."""
-    existing = db.query(User).filter(User.role == "Admin").first()
+    """
+    Create or synchronize default admin user using PHANTOMNET_ADMIN_PASSWORD
+    from the environment secret, or generate a cryptographically secure password.
+    """
+    env_password = os.getenv("PHANTOMNET_ADMIN_PASSWORD") or os.getenv("ADMIN_PASSWORD")
+    existing = db.query(User).filter(User.username == "admin").first()
+
     if not existing:
-        generated_password = secrets.token_urlsafe(16)
+        generated_password = env_password or secrets.token_urlsafe(16)
         admin = User(
             username="admin",
             email="admin@phantomnet.local",
@@ -459,11 +475,17 @@ def seed_default_admin(db: Session):
         )
         db.add(admin)
         db.commit()
-        logger.info("✅ Default admin user created")
-        print(f"{'='*60}")
-        print("  DEFAULT ADMIN CREDENTIALS (save these!)")
-        print("  Username: admin")
-        print(f"  Password: {generated_password}")
-        print(f"{'='*60}")
+        logger.info("✅ Default admin user created from environment / secure seed")
+        if not env_password:
+            print(f"{'='*60}")
+            print("  DEFAULT ADMIN CREDENTIALS (randomly generated - save these!)")
+            print("  Username: admin")
+            print(f"  Password: {generated_password}")
+            print(f"{'='*60}")
+    elif env_password:
+        # Synchronize admin password with environment secret
+        existing.hashed_password = hash_password(env_password)
+        db.commit()
+        logger.info("✅ Admin password synchronized with PHANTOMNET_ADMIN_PASSWORD environment secret")
     else:
         logger.info("✅ Admin user already exists")
