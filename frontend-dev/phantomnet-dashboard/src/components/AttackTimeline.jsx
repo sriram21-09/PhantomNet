@@ -32,7 +32,7 @@ const CustomTooltip = ({ active, payload, label }) => {
     return null;
 };
 
-const AttackTimeline = () => {
+const AttackTimeline = ({ mode = "all" }) => {
     const { theme } = useContext(ThemeContext);
     const isDark = theme === "dark";
 
@@ -44,7 +44,7 @@ const AttackTimeline = () => {
         let mounted = true;
         const loadTimeline = async () => {
             try {
-                const data = await fetchAttackTimeline();
+                const data = await fetchAttackTimeline(mode);
                 if (mounted && data && Array.isArray(data.timeline)) {
                     setTimelineData(data.timeline);
                     setTrend(data.trend || "+0.0% vs yesterday");
@@ -61,7 +61,7 @@ const AttackTimeline = () => {
             mounted = false;
             clearInterval(interval);
         };
-    }, []);
+    }, [mode]);
 
     const gridColor = isDark ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.05)";
     const textColor = isDark ? "#64748b" : "#475569";

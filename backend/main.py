@@ -701,42 +701,45 @@ def get_real_traffic(
 @app.get("/api/stats")
 @cache_response(ttl_seconds=5)
 def get_api_stats(
+    mode: str = Query("all", regex="^(all|live|test)$"),
     db: Session = Depends(get_db),
     _user: User = Depends(get_current_user),
 ) -> dict:
     """
-    Retrieves aggregated dashboard statistics.
-    Returns a dictionary of counts and metrics for the dashboard.
+    Retrieves aggregated dashboard statistics filtered by mode ('all', 'live', 'test').
+    Returns a dictionary of counts, metrics, and dataset composition.
     """
     service = StatsService(db)
-    return service.calculate_stats()
+    return service.calculate_stats(mode=mode)
 
 
 @app.get("/api/threats/top-vectors")
 @cache_response(ttl_seconds=5)
 def get_top_threat_vectors(
     limit: int = Query(10, ge=1, le=100),
+    mode: str = Query("all", regex="^(all|live|test)$"),
     db: Session = Depends(get_db),
     _user: User = Depends(get_current_user),
 ) -> list:
     """
-    Returns real top threat vectors aggregated from PacketLog.
+    Returns real top threat vectors aggregated from PacketLog filtered by mode ('all', 'live', 'test').
     """
     service = StatsService(db)
-    return service.get_top_threat_vectors(limit=limit)
+    return service.get_top_threat_vectors(limit=limit, mode=mode)
 
 
 @app.get("/api/stats/timeline")
 @cache_response(ttl_seconds=5)
 def get_attack_timeline(
+    mode: str = Query("all", regex="^(all|live|test)$"),
     db: Session = Depends(get_db),
     _user: User = Depends(get_current_user),
 ) -> dict:
     """
-    Returns real 24-hour attack timeline aggregated hourly from PacketLog.
+    Returns real 24-hour attack timeline aggregated hourly from PacketLog filtered by mode ('all', 'live', 'test').
     """
     service = StatsService(db)
-    return service.get_attack_timeline_24h()
+    return service.get_attack_timeline_24h(mode=mode)
 
 
 @app.get("/metrics")

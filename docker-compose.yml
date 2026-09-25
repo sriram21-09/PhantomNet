@@ -283,6 +283,7 @@ services:
       SENTINEL_LLM_ENABLED: ${SENTINEL_LLM_ENABLED:-true}
       SENTINEL_ENABLED: ${SENTINEL_ENABLED:-true}
       SENTINEL_AUTO_GEN_ENABLED: ${SENTINEL_AUTO_GEN_ENABLED:-true}
+      PHANTOMNET_ADMIN_PASSWORD: ${PHANTOMNET_ADMIN_PASSWORD:-}
     networks:
       - app_net
       - honeypot_net

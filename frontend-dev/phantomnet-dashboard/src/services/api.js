@@ -3,15 +3,15 @@ import { apiCache } from "../utils/apiCache";
 
 const BASE_URL = "/api";
 
-export const fetchThreatMetrics = async () => {
-  const CACHE_KEY = "threat_metrics";
+export const fetchThreatMetrics = async (mode = "all") => {
+  const CACHE_KEY = `threat_metrics_${mode}`;
   const cachedData = apiCache.get(CACHE_KEY);
 
   if (cachedData) {
     return cachedData;
   }
 
-  const response = await fetch(`${BASE_URL}/stats`);
+  const response = await fetch(`${BASE_URL}/stats?mode=${mode}`);
 
   if (!response.ok) {
     throw new Error("Failed to fetch threat metrics");
@@ -41,15 +41,15 @@ export const fetchSentinelStats = async () => {
   return data;
 };
 
-export const fetchTopThreatVectors = async (limit = 10) => {
-  const CACHE_KEY = `top_threat_vectors_${limit}`;
+export const fetchTopThreatVectors = async (limit = 10, mode = "all") => {
+  const CACHE_KEY = `top_threat_vectors_${limit}_${mode}`;
   const cachedData = apiCache.get(CACHE_KEY);
 
   if (cachedData) {
     return cachedData;
   }
 
-  const response = await fetch(`${BASE_URL}/threats/top-vectors?limit=${limit}`);
+  const response = await fetch(`${BASE_URL}/threats/top-vectors?limit=${limit}&mode=${mode}`);
 
   if (!response.ok) {
     throw new Error("Failed to fetch top threat vectors");
@@ -60,15 +60,15 @@ export const fetchTopThreatVectors = async (limit = 10) => {
   return data;
 };
 
-export const fetchAttackTimeline = async () => {
-  const CACHE_KEY = "attack_timeline";
+export const fetchAttackTimeline = async (mode = "all") => {
+  const CACHE_KEY = `attack_timeline_${mode}`;
   const cachedData = apiCache.get(CACHE_KEY);
 
   if (cachedData) {
     return cachedData;
   }
 
-  const response = await fetch(`${BASE_URL}/stats/timeline`);
+  const response = await fetch(`${BASE_URL}/stats/timeline?mode=${mode}`);
 
   if (!response.ok) {
     throw new Error("Failed to fetch attack timeline");
