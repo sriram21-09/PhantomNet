@@ -1,5 +1,6 @@
 /* ==========================================
-   ADVANCED ANALYTICS - Premium NOC Design
+   ADVANCED ANALYTICS - Hardened SOC NOC Design
+   Zero Fabricated Telemetry | Accessible | Responsive
    ========================================== */
 
 .analytics-wrapper {
@@ -7,24 +8,144 @@
     flex-direction: column;
     gap: 24px;
     padding-bottom: 40px;
+    max-width: 100%;
+    box-sizing: border-box;
+    overflow-x: hidden;
+}
+
+/* ── Status Bar ── */
+.analytics-status-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+    padding: 8px 16px;
+    background: rgba(15, 23, 42, 0.4);
+    border: 1px solid rgba(59, 130, 246, 0.15);
+    border-radius: 6px;
+    font-size: 11px;
+    color: var(--text-dim, #94a3b8);
+    font-family: 'JetBrains Mono', monospace;
+    margin-top: 12px;
+}
+
+.status-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #64748b;
+}
+
+.status-dot.online {
+    background: #10b981;
+    box-shadow: 0 0 8px rgba(16, 185, 129, 0.6);
+}
+
+/* ── Warning & Notice Banners ── */
+.warning-banner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    background: rgba(245, 158, 11, 0.15);
+    border: 1px solid rgba(245, 158, 11, 0.4);
+    padding: 10px 16px;
+    border-radius: 6px;
+    color: #fbbf24;
+    font-size: 12px;
+    margin-top: 12px;
+}
+
+.warning-icon {
+    font-size: 16px;
+    flex-shrink: 0;
+}
+
+.warning-text {
+    flex: 1;
+}
+
+.warning-dismiss {
+    background: transparent;
+    border: none;
+    color: #fbbf24;
+    cursor: pointer;
+    padding: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.lifecycle-notice-card {
+    padding: 14px 20px;
+    background: rgba(15, 23, 42, 0.6);
+    border: 1px solid rgba(59, 130, 246, 0.2);
+    border-left: 4px solid #3b82f6;
+    margin-top: 16px;
+}
+
+.lifecycle-notice-content {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+}
+
+.notice-icon {
+    color: #3b82f6;
+    font-size: 20px;
+    margin-top: 2px;
+    flex-shrink: 0;
+}
+
+.notice-title {
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 1px;
+    color: #94a3b8;
+}
+
+.notice-status {
+    font-size: 11px;
+    font-weight: 900;
+    color: #f59e0b;
+    background: rgba(245, 158, 11, 0.1);
+    padding: 2px 6px;
+    border-radius: 4px;
+    border: 1px solid rgba(245, 158, 11, 0.2);
+    margin-left: 6px;
+}
+
+.notice-description {
+    font-size: 11px;
+    margin-top: 4px;
+    line-height: 1.5;
+    color: #64748b;
 }
 
 /* ── Top Metrics Grid ── */
 .analytics-metrics-grid {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    gap: 20px;
+    gap: 16px;
 }
 
 .analytics-card-premium {
-    padding: 24px;
+    padding: 20px;
     display: flex;
     flex-direction: column;
-    gap: 12px;
-    background: rgba(15, 23, 42, 0.4);
-    border: 1px solid rgba(59, 130, 246, 0.1);
+    gap: 10px;
+    background: rgba(15, 23, 42, 0.5);
+    border: 1px solid rgba(59, 130, 246, 0.15);
     position: relative;
     overflow: hidden;
+    border-radius: 6px;
 }
 
 .analytics-card-premium::after {
@@ -40,109 +161,333 @@
 .card-label {
     font-size: 11px;
     font-weight: 800;
-    color: var(--text-dim);
-    letter-spacing: 1.5px;
+    color: var(--text-dim, #94a3b8);
+    letter-spacing: 1.2px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
 }
 
 .card-value {
-    font-size: 32px;
+    font-size: clamp(22px, 3.5vw, 32px);
     font-weight: 900;
-    color: var(--text-hud);
+    color: var(--text-hud, #f8fafc);
     font-family: 'JetBrains Mono', monospace;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .card-trend {
-    font-size: 12px;
+    font-size: 11px;
     font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+
+.trend-warn {
+    color: #f59e0b;
+}
+
+.trend-down {
+    color: #10b981;
+}
+
+.trend-neutral {
+    color: #94a3b8;
+}
+
+.trend-text {
+    font-size: 10px;
+    opacity: 0.85;
+}
+
+/* ── Header Controls & Buttons ── */
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+
+.time-range-controls {
+    display: flex;
+    align-items: center;
+    background: rgba(15, 23, 42, 0.8);
+    border: 1px solid rgba(59, 130, 246, 0.2);
+    border-radius: 6px;
+    padding: 2px 4px;
+    gap: 2px;
+}
+
+.control-label {
+    font-size: 10px;
+    color: var(--text-dim, #94a3b8);
+    padding: 0 6px;
     display: flex;
     align-items: center;
     gap: 4px;
 }
 
-.trend-up {
+.range-btn {
+    background: transparent;
+    border: none;
+    color: #94a3b8;
+    padding: 6px 10px;
+    font-size: 11px;
+    font-weight: 800;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.range-btn:hover {
+    color: #f8fafc;
+    background: rgba(59, 130, 246, 0.1);
+}
+
+.range-btn.active {
+    background: #3b82f6;
+    color: #ffffff;
+    box-shadow: 0 0 10px rgba(59, 130, 246, 0.4);
+}
+
+.refresh-btn,
+.auto-refresh-toggle,
+.export-btn,
+.retry-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 12px;
+    background: rgba(59, 130, 246, 0.1);
+    border: 1px solid rgba(59, 130, 246, 0.2);
+    color: #3b82f6;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 800;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.refresh-btn:hover:not(:disabled),
+.auto-refresh-toggle:hover,
+.export-btn:hover:not(:disabled),
+.retry-btn:hover {
+    background: rgba(59, 130, 246, 0.2);
+    border-color: #3b82f6;
+    color: #60a5fa;
+}
+
+.refresh-btn:disabled,
+.export-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.auto-refresh-toggle.active {
+    background: rgba(16, 185, 129, 0.15);
+    border-color: rgba(16, 185, 129, 0.4);
     color: #10b981;
 }
 
-.trend-down {
-    color: #ef4444;
+.refresh-btn.spinning svg {
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
 }
 
 /* ── Charts Grid ── */
+.analytics-charts-section {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
 .analytics-charts-grid {
     display: grid;
-    grid-template-columns: 2fr 1fr;
-    gap: 24px;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
 }
 
 .chart-container-large {
     grid-column: span 2;
-    height: 400px;
 }
 
 .chart-card {
-    padding: 24px;
-    min-height: 400px;
+    padding: 20px;
+    background: rgba(15, 23, 42, 0.5);
+    border: 1px solid rgba(59, 130, 246, 0.15);
+    border-radius: 6px;
+    display: flex;
+    flex-direction: column;
 }
 
 .chart-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 24px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+    gap: 8px;
 }
 
 .chart-title {
-    font-size: 14px;
+    font-size: 13px;
     font-weight: 800;
-    color: var(--text-hud);
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-/* ── Export Controls ── */
-.export-panel {
-    display: flex;
-    gap: 12px;
-}
-
-.export-btn {
+    color: var(--text-hud, #f8fafc);
     display: flex;
     align-items: center;
     gap: 8px;
-    padding: 8px 16px;
-    background: rgba(59, 130, 246, 0.1);
-    border: 1px solid rgba(59, 130, 246, 0.2);
+    margin: 0;
+}
+
+.chart-badge {
+    font-size: 10px;
+    background: rgba(255, 255, 255, 0.05);
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-family: 'JetBrains Mono', monospace;
+}
+
+.chart-empty-state {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 250px;
+    color: #64748b;
+    font-size: 12px;
+    font-family: 'JetBrains Mono', monospace;
+}
+
+/* ── Loading and Error States ── */
+.loading-container,
+.error-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 400px;
+    gap: 16px;
+    text-align: center;
+}
+
+.loading-spinner {
+    width: 48px;
+    height: 48px;
+    border: 3px solid rgba(59, 130, 246, 0.2);
+    border-top-color: #3b82f6;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+.loading-text {
+    font-size: 14px;
     color: #3b82f6;
+    letter-spacing: 2px;
+    font-weight: 800;
+}
+
+.loading-subtext {
+    font-size: 12px;
+}
+
+.error-card {
+    padding: 32px;
+    max-width: 460px;
+    background: rgba(15, 23, 42, 0.8);
+    border: 1px solid rgba(239, 68, 68, 0.3);
     border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+}
+
+.error-icon {
+    font-size: 36px;
+    color: #ef4444;
+}
+
+.error-title {
+    font-size: 16px;
+    color: #ef4444;
+    margin: 0;
+}
+
+.error-message {
+    font-size: 12px;
+    color: #94a3b8;
+    line-height: 1.5;
+}
+
+.retry-btn {
+    margin-top: 8px;
+    padding: 8px 18px;
+    background: rgba(239, 68, 68, 0.15);
+    border-color: rgba(239, 68, 68, 0.4);
+    color: #ef4444;
+}
+
+.retry-btn:hover {
+    background: rgba(239, 68, 68, 0.25);
+    border-color: #ef4444;
+    color: #f87171;
+}
+
+/* ── Custom Recharts Tooltip Styling ── */
+.custom-chart-tooltip {
+    background: rgba(15, 23, 42, 0.95);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(59, 130, 246, 0.4);
+    padding: 10px 14px;
+    border-radius: 6px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.6);
+}
+
+.tooltip-label {
     font-size: 11px;
     font-weight: 800;
-    transition: all 0.2s ease;
+    color: var(--text-dim, #94a3b8);
+    margin-bottom: 6px;
+    border-bottom: 1px solid rgba(59, 130, 246, 0.15);
+    padding-bottom: 4px;
 }
 
-.export-btn:hover {
-    background: rgba(59, 130, 246, 0.2);
-    border-color: #3b82f6;
+.tooltip-value {
+    font-size: 12px;
+    font-weight: 700;
+    margin: 3px 0;
+    font-family: 'JetBrains Mono', monospace;
 }
 
-/* ── Data Details Row ── */
-.analytics-secondary-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 24px;
+/* Screen reader only utility */
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border-width: 0;
 }
 
-/* Responsive Scaling */
-@media (max-width: 1400px) {
+/* ── Responsive Scaling & Viewport Adaptations ── */
+@media (max-width: 1200px) {
     .analytics-metrics-grid {
         grid-template-columns: repeat(2, 1fr);
     }
 }
 
-@media (max-width: 1100px) {
-
-    .analytics-charts-grid,
-    .analytics-secondary-grid {
+@media (max-width: 900px) {
+    .analytics-charts-grid {
         grid-template-columns: 1fr;
     }
 
@@ -151,27 +496,52 @@
     }
 }
 
-/* Custom Recharts Tooltip Styling */
-.custom-chart-tooltip {
-    background: rgba(15, 23, 42, 0.95);
-    backdrop-filter: blur(8px);
-    border: 1px solid rgba(59, 130, 246, 0.4);
-    padding: 12px;
-    border-radius: 8px;
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+@media (max-width: 640px) {
+    .analytics-metrics-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .header-actions {
+        width: 100%;
+        justify-content: flex-start;
+    }
+
+    .time-range-controls {
+        width: 100%;
+        justify-content: space-between;
+    }
+
+    .export-panel {
+        width: 100%;
+        flex-wrap: wrap;
+    }
+
+    .export-btn,
+    .refresh-btn,
+    .auto-refresh-toggle {
+        flex: 1 1 45%;
+        justify-content: center;
+    }
+
+    .card-value {
+        font-size: 24px;
+    }
 }
 
-.tooltip-label {
-    font-size: 11px;
-    font-weight: 800;
-    color: var(--text-dim);
-    margin-bottom: 6px;
-    border-bottom: 1px solid rgba(59, 130, 246, 0.1);
-    padding-bottom: 4px;
-}
+@media (max-width: 480px) {
+    .analytics-wrapper {
+        gap: 16px;
+    }
 
-.tooltip-value {
-    font-size: 12px;
-    font-weight: 700;
-    color: #3b82f6;
+    .analytics-card-premium {
+        padding: 16px;
+    }
+
+    .card-value {
+        font-size: 22px;
+    }
+
+    .chart-card {
+        padding: 14px;
+    }
 }

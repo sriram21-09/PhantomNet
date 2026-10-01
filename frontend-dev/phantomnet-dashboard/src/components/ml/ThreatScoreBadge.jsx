@@ -28,7 +28,7 @@ const ThreatScoreBadge = ({ score, size = 'md', className = '' }) => {
   const offset = circumference - (score / 100) * circumference;
 
   return (
-    <div className={`threat-badge-container ${className}`} style={{ '--badge-color': color }}>
+    <div id="threat-score-badge" role="status" aria-label={`Threat Score: ${score} (${label})`} className={`threat-badge-container ${className}`} style={{ '--badge-color': color }}>
       <div className="relative flex items-center justify-center" style={{ width: circle, height: circle }}>
         {/* Background Circle */}
         <svg className="absolute transform -rotate-90" width={circle} height={circle}>

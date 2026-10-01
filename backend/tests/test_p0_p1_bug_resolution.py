@@ -70,6 +70,25 @@ def client(db_session):
     app.dependency_overrides.clear()
 
 
+@pytest.fixture
+def auth_headers(db_session):
+    from database.models import User
+    from middleware.auth import hash_password, create_access_token
+    test_user = db_session.query(User).filter(User.username == "test_operator").first()
+    if not test_user:
+        test_user = User(
+            username="test_operator",
+            email="test_operator@phantomnet.local",
+            hashed_password=hash_password("OperatorPass123!"),
+            role="Admin",
+            status="active",
+        )
+        db_session.add(test_user)
+        db_session.commit()
+    token = create_access_token({"sub": test_user.username, "role": test_user.role})
+    return {"Authorization": f"Bearer {token}"}
+
+
 # ===========================================================================
 # 1. P0: CROSS-PLATFORM FIREWALL SERVICE RESOLUTION
 # ===========================================================================
@@ -201,15 +220,26 @@ class TestHoneypotProbingReliability:
         status = check_port_status("192.0.2.1", 65534, fallback_host="192.0.2.2", timeout=0.05)
         assert status == "inactive"
 
-    def test_honeypots_endpoint_fast_response(self, client):
-        """GET /api/honeypots responds promptly without hanging."""
-        res = client.get("/api/honeypots")
+    def test_honeypots_endpoint_fast_response(self, client, auth_headers):
+        """GET /api/honeypots responds promptly with 200 when authenticated."""
+        res = client.get("/api/honeypots", headers=auth_headers)
         assert res.status_code == 200
         data = res.json()
         assert len(data) == 4
         names = [item["name"] for item in data]
         assert "SSH" in names
         assert "HTTP" in names
+        assert "FTP" in names
+        assert "SMTP" in names
+        for item in data:
+            assert "internal_port" in item
+            assert "external_port" in item
+            assert "status" in item
+
+    def test_honeypots_endpoint_unauthenticated_rejected(self, client):
+        """GET /api/honeypots rejects unauthenticated requests with 401."""
+        res = client.get("/api/honeypots")
+        assert res.status_code == 401
 
 
 # ===========================================================================

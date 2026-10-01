@@ -231,6 +231,8 @@ services:
       - /tmp:rw,noexec,nosuid,size=32m
       - /run:rw,noexec,nosuid,size=16m
       - /var/cache/nginx:rw,noexec,nosuid,size=32m
+    volumes:
+      - ./frontend-dev/phantomnet-dashboard/dist:/usr/share/nginx/html:ro
     ports:
       - "${FRONTEND_PORT:-3000}:8080"
     networks:
@@ -252,9 +254,11 @@ services:
       context: .
       dockerfile: backend/api/Dockerfile
     container_name: phantomnet_api
-    user: "10001:10001"
+    user: "0:0"
     cap_drop:
       - ALL
+    cap_add:
+      - NET_RAW
     security_opt:
       - no-new-privileges:true
     read_only: true
@@ -290,6 +294,7 @@ services:
       - internal_broker_net
     volumes:
       - ./data/pcaps:/app/data/pcaps
+      - ./backend:/app/backend:ro
     depends_on:
       postgres:
         condition: service_healthy

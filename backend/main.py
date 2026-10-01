@@ -85,7 +85,7 @@ from services.audit_service import audit_log
 # =========================
 from api.model_metrics import router as model_metrics_router
 from api.threat_intel import router as threat_intel_router
-from api.topology import router as topology_router
+from api.topology import router as topology_router, topology_manager
 from api.management import router as management_router
 from api.realtime import router as realtime_router, push_realtime_event
 from api.pcap import router as pcap_router
@@ -103,7 +103,7 @@ from api.reports import router as reports_router
 from api.hunting import router as hunting_router
 from api.cases import router as cases_router
 from api.alerts import router as alerts_router
-from api.honeypots import get_honeypot_status, router as honeypots_router
+from api.honeypots import get_honeypot_status, seed_default_honeypot_nodes, router as honeypots_router
 from api.taxii import router as taxii_router, TaxiiContentNegotiationMiddleware
 from api.rate_limiter import get_rate_limit_status
 from api.ingest import router as ingest_router
@@ -140,6 +140,7 @@ async def lifespan(_app: FastAPI):
         Base.metadata.create_all(bind=engine)
 
     if os.getenv("ENVIRONMENT", "local").lower() not in ["ci", "test"]:
+        topology_manager.set_loop(asyncio.get_running_loop())
         sniffer: RealTimeSniffer = RealTimeSniffer()
         sniffer.start_background_sniffer()
         logger.info("PhantomNet Sniffer Started")
@@ -192,10 +193,13 @@ async def lifespan(_app: FastAPI):
         else:
             logger.info("[--] Sentinel Generation Loop disabled (SENTINEL_ENABLED=false)")
 
-        # Seed default admin
+        # Seed default admin and default honeypots
         _db = SessionLocal()
-        seed_default_admin(_db)
-        _db.close()
+        try:
+            seed_default_admin(_db)
+            seed_default_honeypot_nodes(_db)
+        finally:
+            _db.close()
     else:
         logger.info("Sniffer disabled (CI/Test mode)")
 
@@ -481,22 +485,64 @@ async def broadcast_event_stream() -> None:
             new_events = query.all()
 
             for event in reversed(new_events):
+                score_val = event.threat_score or 0.0
+                score_pct = (
+                    round(score_val * 100, 1)
+                    if (0.0 < score_val <= 1.0)
+                    else round(score_val, 1)
+                )
+                threat_level = (event.threat_level or "LOW").upper()
+
+                raw_attack = event.attack_type
+                if raw_attack in ("ALLOW", "ALERT", "BLOCK"):
+                    decision = raw_attack
+                    attack_type = "BENIGN" if (threat_level == "LOW" or score_val < 0.4) else (event.event.upper() if event.event else "SUSPICIOUS")
+                elif raw_attack == "ERROR":
+                    decision = "ALERT" if threat_level in ("HIGH", "CRITICAL") else "ALLOW"
+                    attack_type = "BENIGN" if (threat_level == "LOW" or score_val < 0.4) else (event.event.upper() if event.event else "SUSPICIOUS")
+                elif raw_attack:
+                    attack_type = raw_attack
+                    decision = "BLOCK" if score_val >= 0.8 else ("ALERT" if score_val >= 0.5 else "ALLOW")
+                else:
+                    attack_type = "BENIGN" if (threat_level == "LOW" or score_val < 0.4) else (event.event.upper() if event.event else "SUSPICIOUS")
+                    decision = "BLOCK" if score_val >= 0.8 else ("ALERT" if score_val >= 0.5 else "ALLOW")
+
+                is_malicious = bool(event.is_malicious or threat_level in ("HIGH", "CRITICAL"))
+                if is_malicious:
+                    threat_category = "MALICIOUS"
+                elif threat_level == "MEDIUM" or (0.4 <= score_val < 0.8) or (40 <= score_val < 80):
+                    threat_category = "SUSPICIOUS"
+                else:
+                    threat_category = "BENIGN"
+
                 payload = {
                     "id": event.id,
-                    "src_ip": event.src_ip,
+                    "src_ip": event.src_ip or "Unknown",
+                    "ip": event.src_ip or "Unknown",
                     "dst_ip": event.dst_ip,
-                    "protocol": event.protocol,
-                    "length": event.length,
-                    "threat_score": event.threat_score or 0,
-                    "threat_level": event.threat_level or "LOW",
-                    "attack_type": event.attack_type or "BENIGN",
+                    "protocol": event.protocol or "TCP",
+                    "type": event.protocol or "TCP",
+                    "port": event.dst_port or 0,
+                    "length": event.length or 0,
+                    "threat_score": score_val,
+                    "score": score_pct,
+                    "threat_level": threat_level,
+                    "threat": threat_category,
+                    "threat_category": threat_category,
+                    "attack_type": attack_type,
+                    "decision": decision,
+                    "is_malicious": is_malicious,
+                    "time": event.timestamp.strftime("%Y-%m-%d %H:%M:%S") if event.timestamp else "",
                     "timestamp": (
                         event.timestamp.isoformat() if event.timestamp else None
                     ),
-                    "src_port": getattr(event, "src_port", None),
+                    "details": f"{attack_type} activity detected ({decision})" if attack_type != "BENIGN" else f"Normal {event.protocol or 'network'} traffic",
+                    "src_port": getattr(event, "src_port", None) or 0,
                     "country": getattr(event, "country", None) or "Unknown",
                 }
                 await push_realtime_event("EVENT_STREAM", payload)
+                if threat_level in ("HIGH", "CRITICAL") or event.is_malicious:
+                    await push_realtime_event("THREAT_ALERT", payload)
                 last_id = max(last_id, event.id)
         except (AttributeError, KeyError, RuntimeError, socket.error) as e:
             logger.error("Error in event stream broadcast: %s", e)
@@ -702,15 +748,95 @@ def get_real_traffic(
 @cache_response(ttl_seconds=5)
 def get_api_stats(
     mode: str = Query("all", regex="^(all|live|test)$"),
+    days: Optional[int] = Query(None, ge=1, le=90),
     db: Session = Depends(get_db),
     _user: User = Depends(get_current_user),
 ) -> dict:
     """
-    Retrieves aggregated dashboard statistics filtered by mode ('all', 'live', 'test').
+    Retrieves aggregated dashboard statistics filtered by mode ('all', 'live', 'test') and optional days window.
     Returns a dictionary of counts, metrics, and dataset composition.
     """
     service = StatsService(db)
-    return service.calculate_stats(mode=mode)
+    return service.calculate_stats(mode=mode, days=days)
+
+
+@app.get("/api/anomalies")
+@cache_response(ttl_seconds=5)
+def get_anomalies_stats(
+    mode: str = Query("all", regex="^(all|live|test)$"),
+    limit: int = Query(10, ge=1, le=100),
+    db: Session = Depends(get_db),
+    _user: User = Depends(get_current_user),
+) -> dict:
+    """
+    Retrieves real-time anomaly statistics and recent anomaly records
+    filtered by mode ('all', 'live', 'test').
+    """
+    service = StatsService(db)
+    stats = service.calculate_stats(mode=mode)
+    return {
+        "status": "success",
+        "mode": mode,
+        "totalEvents": stats["totalEvents"],
+        "totalAnomalies": stats["totalAnomalies"],
+        "highSeverity": stats["highSeverity"],
+        "mediumSeverity": stats["mediumSeverity"],
+        "avgAnomalyScore": stats["avgAnomalyScore"],
+        "recentAnomalies": stats.get("recentAnomalies", []),
+        "dataComposition": stats.get("dataComposition", {}),
+    }
+
+
+@app.get("/api/threats/summary")
+@cache_response(ttl_seconds=2)
+def get_threat_summary(
+    mode: str = Query("all", regex="^(all|live|test)$"),
+    db: Session = Depends(get_db),
+    _user: User = Depends(get_current_user),
+) -> dict:
+    """
+    Retrieves authoritative aggregated threat metrics for Threat Analysis:
+      - activeThreats (non-benign: CRITICAL + HIGH + MEDIUM)
+      - highSeverity (CRITICAL + HIGH)
+      - mediumSeverity (MEDIUM)
+      - lowSeverity (LOW / benign)
+      - totalEvents
+    """
+    service = StatsService(db)
+    return service.get_threat_summary(mode=mode)
+
+
+@app.get("/api/threats/alerts")
+@cache_response(ttl_seconds=2)
+def get_threat_alerts(
+    mode: str = Query("all", regex="^(all|live|test)$"),
+    limit: int = Query(10, ge=1, le=100),
+    db: Session = Depends(get_db),
+    _user: User = Depends(get_current_user),
+) -> list:
+    """
+    Retrieves authoritative real-time security alerts from packet_logs.
+    Filtered strictly to genuine threats (HIGH, CRITICAL, or is_malicious=True).
+    Never includes benign ALLOW traffic.
+    """
+    service = StatsService(db)
+    return service.get_live_threat_alerts(limit=limit, mode=mode)
+
+
+@app.get("/api/threats/indicators")
+@cache_response(ttl_seconds=2)
+def get_threat_indicators(
+    mode: str = Query("all", regex="^(all|live|test)$"),
+    limit: int = Query(20, ge=1, le=100),
+    db: Session = Depends(get_db),
+    _user: User = Depends(get_current_user),
+) -> list:
+    """
+    Retrieves recent threat indicators with authoritative backend fields:
+    Time, Source IP, Threat Type, Score (0-100), and Severity.
+    """
+    service = StatsService(db)
+    return service.get_recent_threat_indicators(limit=limit, mode=mode)
 
 
 @app.get("/api/threats/top-vectors")
@@ -777,22 +903,28 @@ def get_events(
     threat: Literal["ALL", "MALICIOUS", "SUSPICIOUS", "BENIGN"] = "ALL",
     protocol: Literal["ALL", "TCP", "UDP", "ICMP", "HTTP", "SSH", "FTP", "SMTP"] = "ALL",
     limit: int = Query(100, ge=1, le=1000, description="Max events to return (1-1000)"),
+    mode: str = Query("all", regex="^(all|live|test)$"),
     db: Session = Depends(get_db),
     _user: User = Depends(get_current_user),
 ) -> list:
     """
-    Query event logs with filtering for protocol and threat levels.
+    Query event logs with filtering for protocol, threat levels, and mode.
 
     Args:
         threat: Filter by threat category (MALICIOUS, SUSPICIOUS, BENIGN, ALL).
         protocol: Filter by network protocol.
         limit: Max number of results.
+        mode: Dataset scope (all, live, test).
         db: Database session.
 
     Returns:
-        list: Filtered and formatted event logs.
+        list: Filtered and formatted event logs with authoritative threat classifications.
     """
     query = db.query(PacketLog)
+
+    if mode != "all":
+        service = StatsService(db)
+        query = service._apply_mode_filter(query, mode)
 
     if protocol != "ALL":
         query = query.filter(PacketLog.protocol == protocol)
@@ -800,6 +932,8 @@ def get_events(
     if threat == "MALICIOUS":
         query = query.filter(
             or_(
+                PacketLog.threat_level.in_(["HIGH", "CRITICAL"]),
+                PacketLog.is_malicious.is_(True),
                 PacketLog.threat_score >= 80,
                 and_(PacketLog.threat_score >= 0.8, PacketLog.threat_score <= 1.0),
             )
@@ -807,6 +941,7 @@ def get_events(
     elif threat == "SUSPICIOUS":
         query = query.filter(
             or_(
+                PacketLog.threat_level == "MEDIUM",
                 PacketLog.threat_score.between(40, 79.99),
                 and_(PacketLog.threat_score >= 0.4, PacketLog.threat_score < 0.8),
             )
@@ -814,6 +949,7 @@ def get_events(
     elif threat == "BENIGN":
         query = query.filter(
             or_(
+                PacketLog.threat_level == "LOW",
                 and_(PacketLog.threat_score < 40, PacketLog.threat_score > 1.0),
                 and_(PacketLog.threat_score < 0.4, PacketLog.threat_score >= 0.0),
                 PacketLog.threat_score.is_(None),
@@ -822,22 +958,70 @@ def get_events(
 
     logs = query.order_by(PacketLog.timestamp.desc()).limit(limit).all()
 
-    return [
-        {
-            "time": log.timestamp.strftime("%Y-%m-%d %H:%M:%S"),
-            "ip": log.src_ip,
-            "type": log.protocol,
-            "port": 0,
-            "threat": log.attack_type or "BENIGN",
-            "score": (
-                round(log.threat_score * 100, 1)
-                if (log.threat_score is not None and 0.0 < log.threat_score <= 1.0)
-                else (log.threat_score or (0.0 if not log.attack_type else 15.0))
-            ),
-            "details": f"{log.attack_type or 'BENIGN'} traffic detected",
-        }
-        for log in logs
-    ]
+    formatted_logs = []
+    for log in logs:
+        score_val = log.threat_score or 0.0
+        score_pct = (
+            round(score_val * 100, 1)
+            if (0.0 < score_val <= 1.0)
+            else round(score_val, 1)
+        )
+        threat_level = (
+            log.threat_level
+            or (
+                "CRITICAL"
+                if score_val >= 0.8
+                else (
+                    "HIGH"
+                    if score_val >= 0.6
+                    else ("MEDIUM" if score_val >= 0.4 else "LOW")
+                )
+            )
+        ).upper()
+
+        raw_attack = log.attack_type
+        if raw_attack in ("ALLOW", "ALERT", "BLOCK"):
+            decision = raw_attack
+            attack_type = "BENIGN" if (threat_level == "LOW" or score_val < 0.4) else (log.event.upper() if log.event else "SUSPICIOUS")
+        elif raw_attack == "ERROR":
+            decision = "ALERT" if threat_level in ("HIGH", "CRITICAL") else "ALLOW"
+            attack_type = "BENIGN" if (threat_level == "LOW" or score_val < 0.4) else (log.event.upper() if log.event else "SUSPICIOUS")
+        elif raw_attack:
+            attack_type = raw_attack
+            decision = "BLOCK" if score_val >= 0.8 else ("ALERT" if score_val >= 0.5 else "ALLOW")
+        else:
+            attack_type = "BENIGN" if (threat_level == "LOW" or score_val < 0.4) else (log.event.upper() if log.event else "SUSPICIOUS")
+            decision = "BLOCK" if score_val >= 0.8 else ("ALERT" if score_val >= 0.5 else "ALLOW")
+
+        is_malicious = bool(log.is_malicious or threat_level in ("HIGH", "CRITICAL"))
+        if is_malicious:
+            threat_category = "MALICIOUS"
+        elif threat_level == "MEDIUM" or (0.4 <= score_val < 0.8) or (40 <= score_val < 80):
+            threat_category = "SUSPICIOUS"
+        else:
+            threat_category = "BENIGN"
+
+        formatted_logs.append({
+            "id": log.id,
+            "time": log.timestamp.strftime("%Y-%m-%d %H:%M:%S") if log.timestamp else "",
+            "timestamp": log.timestamp.isoformat() if log.timestamp else None,
+            "ip": log.src_ip or "Unknown",
+            "type": log.protocol or "TCP",
+            "protocol": log.protocol or "TCP",
+            "port": log.dst_port or 0,
+            "threat": threat_category,
+            "threat_category": threat_category,
+            "attack_type": attack_type,
+            "threat_score": score_val,
+            "score": score_pct,
+            "threat_level": threat_level,
+            "severity": threat_level.capitalize(),
+            "decision": decision,
+            "is_malicious": is_malicious,
+            "details": f"{attack_type} activity detected ({decision})" if attack_type != "BENIGN" else f"Normal {log.protocol or 'network'} traffic",
+        })
+
+    return formatted_logs
 
 
 @app.get("/api/features/live")

@@ -30,21 +30,26 @@ const CustomTooltip = ({ active, payload, label }) => {
 };
 
 const FeatureImportanceChart = ({ data = [], height = 300, className = '' }) => {
-  const sortedData = [...data].sort((a, b) => b.value - a.value);
+  const sortedData = [...data].sort((a, b) => b.value - a.value).slice(0, 8);
 
   return (
-    <div className={`feature-importance-container pro-card p-4 ${className}`} style={{ height }}>
+    <div id="feature-importance-chart" role="region" aria-label="Feature Importance Ranking" className={`feature-importance-container pro-card p-4 ${className}`} style={{ height }}>
       <h3 className="hud-font text-sm mb-4 text-blue-400 flex items-center gap-2">
         <span className="w-2 h-2 bg-blue-500 rounded-full animate-pulse" />
         Feature Importance
       </h3>
       
-      <ResponsiveContainer width="100%" height="80%">
-        <BarChart
-          layout="vertical"
-          data={sortedData}
-          margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
-        >
+      {sortedData.length === 0 ? (
+        <div className="flex items-center justify-center h-[200px] text-slate-500 text-xs italic">
+          No feature importance data available
+        </div>
+      ) : (
+        <ResponsiveContainer width="100%" height="80%">
+          <BarChart
+            layout="vertical"
+            data={sortedData}
+            margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+          >
           <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" horizontal={false} />
           <XAxis 
             type="number" 
@@ -57,6 +62,7 @@ const FeatureImportanceChart = ({ data = [], height = 300, className = '' }) => 
             stroke="#94a3b8" 
             fontSize={11}
             width={120}
+            interval={0}
             axisLine={false}
             tickLine={false}
           />
@@ -85,6 +91,7 @@ const FeatureImportanceChart = ({ data = [], height = 300, className = '' }) => 
           </defs>
         </BarChart>
       </ResponsiveContainer>
+      )}
 
       <div className="mt-2 flex justify-between items-center text-[10px] text-slate-500 uppercase tracking-tighter">
         <span>Low Influence</span>

@@ -1,46 +1,26 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 
-const AnomalyAlerts = () => {
-  const [alerts, setAlerts] = useState([]);
-  const [loading, setLoading] = useState(true);
-
-  const fetchAlerts = async () => {
-    try {
-      const res = await fetch('/api/v1/alerts?limit=10');
-      if (res.ok) {
-        const data = await res.json();
-        setAlerts(data.alerts || []);
-      }
-    } catch {
-      // Ignore fetch error
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchAlerts();
-    const interval = setInterval(fetchAlerts, 5000);
-    return () => clearInterval(interval);
-  }, []);
-
+const AnomalyAlerts = ({ recentAnomalies = [], loading = false, error = null, onRetry }) => {
   const formatSource = (type, ip) => {
-    const formattedType = type.split('_').map(word => 
-      word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
-    ).join(' ');
+    if (!type && !ip) return "Unknown Event";
+    const formattedType = (type || "ANOMALY")
+      .split('_')
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+      .join(' ');
     return ip ? `${formattedType} (${ip})` : formattedType;
   };
 
-  const getScore = (level) => {
-    const l = level.toUpperCase();
-    if (l === 'CRITICAL') return 92;
-    if (l === 'HIGH') return 78;
-    if (l === 'MEDIUM') return 55;
-    return 35;
+  const formatScore = (score) => {
+    if (score === undefined || score === null) return "0.0";
+    const num = Number(score);
+    if (isNaN(num)) return "0.0";
+    return num <= 1.0 && num > 0 ? (num * 100).toFixed(1) : num.toFixed(1);
   };
 
   const formatTime = (timeStr) => {
+    if (!timeStr) return "--:--";
     const d = new Date(timeStr);
+    if (isNaN(d.getTime())) return String(timeStr);
     const now = new Date();
     const diffMs = now - d;
     const diffMins = Math.floor(diffMs / 60000);
@@ -50,29 +30,42 @@ const AnomalyAlerts = () => {
     return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   };
 
-  if (loading && alerts.length === 0) {
-    return <div className="text-slate-500 text-center py-4 hud-font">Loading alerts...</div>;
+  if (loading && (!recentAnomalies || recentAnomalies.length === 0)) {
+    return <div className="text-slate-500 text-center py-4 hud-font">Loading anomaly feed...</div>;
   }
 
-  if (alerts.length === 0) {
-    return <div className="text-slate-500 text-center py-4 hud-font">No active security alerts</div>;
+  if (error && (!recentAnomalies || recentAnomalies.length === 0)) {
+    return (
+      <div className="anomaly-error-box text-center py-4 hud-font">
+        <p className="text-red-400 mb-2">{error}</p>
+        {onRetry && (
+          <button className="anomaly-retry-btn hud-font" onClick={onRetry}>
+            Retry Feed
+          </button>
+        )}
+      </div>
+    );
+  }
+
+  if (!recentAnomalies || recentAnomalies.length === 0) {
+    return <div className="text-slate-500 text-center py-4 hud-font">No anomaly records detected in this scope</div>;
   }
 
   return (
     <div className="anomaly-alerts">
-      {alerts.map((alert) => {
-        const severity = alert.level.toLowerCase();
+      {recentAnomalies.map((alert) => {
+        const severity = (alert.level || 'medium').toLowerCase();
         return (
           <div key={alert.id} className="anomaly-alert-card">
             {/* LEFT: Severity Indicator */}
             <div
               className={`severity-dot severity-${severity}`}
-              title={`Severity: ${alert.level}`}
+              title={`Severity: ${alert.level || 'MEDIUM'}`}
             />
 
             {/* MIDDLE: Alert Info */}
             <div className="alert-content">
-              <h4 className="alert-title">{formatSource(alert.type, alert.source_ip)}</h4>
+              <h4 className="alert-title">{formatSource(alert.type || alert.protocol, alert.source_ip)}</h4>
               <p className="alert-description">
                 {alert.description}
               </p>
@@ -80,7 +73,7 @@ const AnomalyAlerts = () => {
               <div className="alert-meta">
                 <span className="alert-time">{formatTime(alert.timestamp)}</span>
                 <span className="alert-score">
-                  Score: {getScore(alert.level)}%
+                  ML Anomaly Score: {formatScore(alert.score)}%
                 </span>
               </div>
             </div>
@@ -89,7 +82,7 @@ const AnomalyAlerts = () => {
             <div
               className={`alert-severity-label severity-${severity}`}
             >
-              {alert.level.toUpperCase()}
+              {(alert.level || 'MEDIUM').toUpperCase()}
             </div>
           </div>
         );

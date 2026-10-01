@@ -120,7 +120,7 @@ src/
 │   ├── Dashboard.jsx           # Main Command Center operational overview
 │   ├── SentinelDashboard.jsx   # Playbook review, approval, diff & export hub
 │   ├── ThreatAnalysis.jsx      # MITRE ATT&CK heatmap & classification breakdown
-│   ├── AdvancedAnalytics.jsx   # ML inference confidence & SHAP explainability
+│   ├── AdvancedAnalytics.jsx   # Historical security analytics, baseline trends & SOC telemetry
 │   ├── ThreatHunting.jsx       # Deep packet analysis & telemetry search query builder
 │   ├── GeoDashboard.jsx        # Global attack map & regional threat density
 │   ├── Honeypots.jsx           # Honeypot node health & active trap grid status

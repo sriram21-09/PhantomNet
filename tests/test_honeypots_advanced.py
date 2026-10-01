@@ -6,8 +6,18 @@ import sys
 import os
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../backend')))
 
-from database.database import SessionLocal
-from database.models import PacketLog
+import database.database as db_mod
+from database.models import Base, PacketLog
+
+# Initialize isolated in-memory test database with full V3 schema
+test_engine = create_engine("sqlite:///:memory:", connect_args={"check_same_thread": False})
+Base.metadata.create_all(bind=test_engine)
+TestSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=test_engine)
+
+# Bind test session maker
+SessionLocal = TestSessionLocal
+db_mod.SessionLocal = TestSessionLocal
+db_mod.engine = test_engine
 
 def mock_log_to_db(protocol, src_ip, attack_type, payload):
     db = SessionLocal()

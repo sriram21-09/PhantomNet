@@ -99,7 +99,7 @@ class RealTimeSniffer:
                 protocol=protocol,
                 length=length,
                 is_malicious=(attack_label == "MALICIOUS"),
-                threat_score=risk_score / 100.0,
+                threat_score=float(risk_score) / 100.0 if risk_score is not None else 0.0,
                 attack_type=attack_label,
             )
             db.add(new_log)

@@ -6,6 +6,7 @@ const BASE_DELAY = 1000;
 const MAX_DELAY = 30000;
 const BACKOFF_FACTOR = 2;
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const calculateBackoffWithJitter = (attempt, base = BASE_DELAY, max = MAX_DELAY, factor = BACKOFF_FACTOR) => {
     const expDelay = Math.min(max, base * Math.pow(factor, attempt));
     return Math.floor(Math.random() * expDelay);
@@ -14,6 +15,7 @@ export const calculateBackoffWithJitter = (attempt, base = BASE_DELAY, max = MAX
 export const RealTimeProvider = ({ children }) => {
     const [events, setEvents] = useState([]);
     const [metrics, setMetrics] = useState(null);
+    const [latestPcapEvent, setLatestPcapEvent] = useState(null);
     const [isConnected, setIsConnected] = useState(false);
     const [reconnectCount, setReconnectCount] = useState(0);
     const ws = useRef(null);
@@ -38,6 +40,10 @@ export const RealTimeProvider = ({ children }) => {
         const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
         const wsUrl = `${protocol}//${window.location.host}/api/v1/realtime/ws`;
 
+        if (ws.current && (ws.current.readyState === WebSocket.OPEN || ws.current.readyState === WebSocket.CONNECTING)) {
+            return;
+        }
+
         try {
             ws.current = new WebSocket(wsUrl);
 
@@ -55,9 +61,19 @@ export const RealTimeProvider = ({ children }) => {
                 try {
                     const data = JSON.parse(event.data);
                     if (data.type === 'EVENT_STREAM' || data.type === 'THREAT_ALERT') {
-                        setEvents((prev) => [data.payload, ...prev].slice(0, 50));
+                        if (data.payload) {
+                            setEvents((prev) => {
+                                const payloadId = data.payload.id || data.payload.event_id;
+                                if (payloadId && prev.some((item) => (item.id === payloadId || item.event_id === payloadId))) {
+                                    return prev;
+                                }
+                                return [data.payload, ...prev].slice(0, 100);
+                            });
+                        }
                     } else if (data.type === 'LIVE_METRICS') {
                         setMetrics(data.payload);
+                    } else if (data.type === 'PCAP_CAPTURE_COMPLETED' || data.type === 'PCAP_CAPTURE_CREATED') {
+                        setLatestPcapEvent(data.payload || { timestamp: Date.now() });
                     }
                 } catch {
                     // Ignore JSON parse error
@@ -93,7 +109,7 @@ export const RealTimeProvider = ({ children }) => {
     }, [connect]);
 
     return (
-        <RealTimeContext.Provider value={{ events, metrics, isConnected, reconnectCount }}>
+        <RealTimeContext.Provider value={{ events, metrics, isConnected, reconnectCount, latestPcapEvent }}>
             {children}
         </RealTimeContext.Provider>
     );

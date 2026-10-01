@@ -15,7 +15,7 @@ import '@xyflow/react/dist/style.css';
 import { toPng } from 'html-to-image';
 import {
     FaDownload, FaExpand, FaServer, FaShieldAlt,
-    FaUserSecret, FaWifi, FaEnvelope, FaGlobe, FaTimes, FaBolt
+    FaUserSecret, FaWifi, FaEnvelope, FaGlobe, FaTimes, FaBolt, FaCheckCircle, FaExclamationTriangle
 } from 'react-icons/fa';
 import ThreatIntelWidget from './ThreatIntelWidget';
 import './NetworkTopology.css';
@@ -28,23 +28,34 @@ const StatusPulse = ({ color }) => (
     <span className="status-pulse" style={{ '--pulse-color': color }} />
 );
 
-const ControllerNode = ({ selected }) => (
-    <div className={`pro-node node-controller ${selected ? 'node-selected' : ''}`}>
-        <Handle type="source" position={Position.Bottom} id="out" />
-        <div className="node-glow-border controller-glow" />
-        <div className="node-header">
-            <div className="node-icon-wrap controller-icon">
-                <FaServer />
+const ControllerNode = ({ data, selected }) => {
+    const isOnline = data?.status === 'online' || data?.status === 'active';
+
+    return (
+        <div 
+            className={`pro-node node-controller ${selected ? 'node-selected' : ''} ${isOnline ? '' : 'node-inactive'}`}
+            role="button"
+            tabIndex={0}
+            aria-label={`Core Controller: ${data?.label || 'PHANTOM_OS'}, Status: ${isOnline ? 'Online' : 'Offline'}`}
+        >
+            <Handle type="source" position={Position.Bottom} id="out" />
+            <div className="node-glow-border controller-glow" />
+            <div className="node-header">
+                <div className="node-icon-wrap controller-icon">
+                    <FaServer />
+                </div>
+                <div className="node-info">
+                    <div className="node-label">{data?.label || 'PHANTOM_OS'}</div>
+                    <div className="node-sublabel">{data?.sublabel || 'CORE CONTROL PLANE'}</div>
+                </div>
+                <StatusPulse color={isOnline ? '#3b82f6' : '#64748b'} />
             </div>
-            <div className="node-info">
-                <div className="node-label">PHANTOM_OS</div>
-                <div className="node-sublabel">CORE CONTROLLER</div>
+            <div className={`node-badge ${isOnline ? 'controller-badge' : 'inactive-badge'}`}>
+                {isOnline ? 'ONLINE' : 'OFFLINE'}
             </div>
-            <StatusPulse color="#3b82f6" />
         </div>
-        <div className="node-badge controller-badge">ONLINE</div>
-    </div>
-);
+    );
+};
 
 const HoneypotNode = ({ data, selected }) => {
     const iconMap = {
@@ -55,9 +66,17 @@ const HoneypotNode = ({ data, selected }) => {
     };
     const icon = iconMap[data.label?.toUpperCase()] || <FaShieldAlt />;
     const isActive = data.status === 'active';
+    const hostPort = data.external_port || data.port;
+    const containerPort = data.internal_port || data.port;
+    const hasPortMapping = hostPort && containerPort && hostPort !== containerPort;
 
     return (
-        <div className={`pro-node node-honeypot ${selected ? 'node-selected' : ''} ${isActive ? '' : 'node-inactive'}`}>
+        <div 
+            className={`pro-node node-honeypot ${selected ? 'node-selected' : ''} ${isActive ? '' : 'node-inactive'}`}
+            role="button"
+            tabIndex={0}
+            aria-label={`Honeypot: ${data.label}, Status: ${isActive ? 'Active' : 'Offline'}, Host Port: ${hostPort}, Container Port: ${containerPort}`}
+        >
             <Handle type="target" position={Position.Top} id="in" />
             <Handle type="source" position={Position.Bottom} id="out" />
             <div className="node-glow-border honeypot-glow" />
@@ -67,7 +86,9 @@ const HoneypotNode = ({ data, selected }) => {
                 </div>
                 <div className="node-info">
                     <div className="node-label">{data.label?.toUpperCase() || 'HONEYPOT'}</div>
-                    <div className="node-sublabel">PORT {data.port}</div>
+                    <div className="node-sublabel" title={`Host Port: ${hostPort} | Container: ${containerPort}`}>
+                        {hasPortMapping ? `PORT ${hostPort} → ${containerPort}` : `PORT ${hostPort}`}
+                    </div>
                 </div>
                 <StatusPulse color={isActive ? '#10b981' : '#64748b'} />
             </div>
@@ -83,7 +104,12 @@ const AttackerNode = ({ data, selected }) => {
     const danger = score > 70;
 
     return (
-        <div className={`pro-node node-attacker ${selected ? 'node-selected' : ''} ${danger ? 'node-danger-pulse' : ''}`}>
+        <div 
+            className={`pro-node node-attacker ${selected ? 'node-selected' : ''} ${danger ? 'node-danger-pulse' : ''}`}
+            role="button"
+            tabIndex={0}
+            aria-label={`Attacker: ${data.ip}, Threat Score: ${score} percent, Attack Type: ${data.attack_type || 'Unknown'}`}
+        >
             <Handle type="source" position={Position.Top} id="out" />
             <div className="node-glow-border attacker-glow" />
             <div className="node-header">
@@ -111,7 +137,7 @@ const nodeTypes = {
 };
 
 // ─────────────────────────────────────────────
-//  INITIAL STATE
+//  INITIAL STATE (Accurate Host & Container Ports)
 // ─────────────────────────────────────────────
 
 const INITIAL_NODES = [
@@ -119,12 +145,37 @@ const INITIAL_NODES = [
         id: 'controller',
         type: 'controller',
         position: { x: 475, y: 40 },
-        data: { label: 'Controller' }
+        data: {
+            label: 'PHANTOM_OS',
+            sublabel: 'CORE CONTROL PLANE',
+            status: 'online',
+            role: 'Central Control Plane',
+        }
     },
-    { id: 'ssh', type: 'honeypot', position: { x: 100, y: 240 }, data: { label: 'SSH', port: 2222, status: 'active' } },
-    { id: 'http', type: 'honeypot', position: { x: 350, y: 240 }, data: { label: 'HTTP', port: 8080, status: 'active' } },
-    { id: 'ftp', type: 'honeypot', position: { x: 600, y: 240 }, data: { label: 'FTP', port: 2121, status: 'active' } },
-    { id: 'smtp', type: 'honeypot', position: { x: 850, y: 240 }, data: { label: 'SMTP', port: 2525, status: 'active' } },
+    { 
+        id: 'ssh', 
+        type: 'honeypot', 
+        position: { x: 100, y: 240 }, 
+        data: { label: 'SSH', port: 2722, external_port: 2722, internal_port: 2222, status: 'active' } 
+    },
+    { 
+        id: 'http', 
+        type: 'honeypot', 
+        position: { x: 350, y: 240 }, 
+        data: { label: 'HTTP', port: 8080, external_port: 8080, internal_port: 8080, status: 'active' } 
+    },
+    { 
+        id: 'ftp', 
+        type: 'honeypot', 
+        position: { x: 600, y: 240 }, 
+        data: { label: 'FTP', port: 2721, external_port: 2721, internal_port: 2121, status: 'active' } 
+    },
+    { 
+        id: 'smtp', 
+        type: 'honeypot', 
+        position: { x: 850, y: 240 }, 
+        data: { label: 'SMTP', port: 2725, external_port: 2725, internal_port: 2525, status: 'active' } 
+    },
 ];
 
 const mkEdge = (src, tgt, opts = {}) => ({
@@ -133,6 +184,7 @@ const mkEdge = (src, tgt, opts = {}) => ({
     animated: true,
     markerEnd: { type: MarkerType.ArrowClosed, color: '#3b82f655' },
     style: { stroke: '#3b82f6', strokeWidth: 2, opacity: 0.7 },
+    data: { type: 'logical_deception_link' },
     ...opts,
 });
 
@@ -153,39 +205,80 @@ const NetworkTopology = () => {
     const [selectedNode, setSelectedNode] = useState(null);
     const [isConnected, setIsConnected] = useState(false);
     const [attackCount, setAttackCount] = useState(0);
+    const [trafficEventsCount, setTrafficEventsCount] = useState(0);
+    const [syncState, setSyncState] = useState({
+        status: 'synced', // 'synced' | 'degraded'
+        lastSync: new Date(),
+    });
 
     const flowRef = useRef(null);
+    const reactFlowInstance = useRef(null);
     const ws = useRef(null);
     const nodesRef = useRef(nodes);
     const connectRef = useRef(null);
 
     useEffect(() => { nodesRef.current = nodes; }, [nodes]);
 
+    useEffect(() => {
+        const handleResize = () => {
+            if (reactFlowInstance.current) {
+                reactFlowInstance.current.fitView({ padding: 0.1 });
+            }
+        };
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
+
     const onConnect = useCallback(
         (params) => setEdges((eds) => addEdge({ ...params, animated: true }, eds)),
         [setEdges]
     );
 
-    // ── Live Node Status Polling ───────────
+    // ── Live Node Status Polling with Graceful Degradation Handling ───────────
     const fetchLiveHoneypots = useCallback(async () => {
         try {
             const res = await fetch('/api/honeypots');
-            if (!res.ok) return;
+            if (!res.ok) {
+                setSyncState(prev => ({ ...prev, status: 'degraded' }));
+                return;
+            }
             const liveData = await res.json();
             
             setNodes(nds => nds.map(node => {
                 if (node.type === 'honeypot') {
                     const match = liveData.find(d => d.name?.toUpperCase() === node.id?.toUpperCase());
                     if (match) {
-                        return { ...node, data: { ...node.data, status: match.status, port: match.port } };
+                        return { 
+                            ...node, 
+                            data: { 
+                                ...node.data, 
+                                status: match.status, 
+                                port: match.external_port || match.port,
+                                external_port: match.external_port,
+                                internal_port: match.internal_port,
+                            } 
+                        };
                     }
+                } else if (node.type === 'controller') {
+                    return {
+                        ...node,
+                        data: {
+                            ...node.data,
+                            status: isConnected ? 'online' : 'offline',
+                        }
+                    };
                 }
                 return node;
             }));
+
+            setSyncState({
+                status: 'synced',
+                lastSync: new Date(),
+            });
         } catch {
-            // Ignore fetch error
+            setSyncState(prev => ({ ...prev, status: 'degraded' }));
         }
-    }, [setNodes]);
+    }, [isConnected, setNodes]);
 
     useEffect(() => {
         fetchLiveHoneypots();
@@ -193,21 +286,37 @@ const NetworkTopology = () => {
         return () => clearInterval(interval);
     }, [fetchLiveHoneypots]);
 
-    // ── WebSocket ────────────────────────────
+    // ── WebSocket Connection & Event Stream ────────────────────────────
     const connectWS = useCallback(() => {
         const proto = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
         const host = window.location.host;
         ws.current = new WebSocket(`${proto}//${host}/api/v1/topology/ws`);
 
-        ws.current.onopen = () => setIsConnected(true);
+        ws.current.onopen = () => {
+            setIsConnected(true);
+            setNodes(nds => nds.map(node => {
+                if (node.type === 'controller') {
+                    return { ...node, data: { ...node.data, status: 'online' } };
+                }
+                return node;
+            }));
+        };
+
         ws.current.onclose = () => {
             setIsConnected(false);
+            setNodes(nds => nds.map(node => {
+                if (node.type === 'controller') {
+                    return { ...node, data: { ...node.data, status: 'offline' } };
+                }
+                return node;
+            }));
             setTimeout(() => {
                 if (ws.current?.readyState === WebSocket.CLOSED) {
                     connectRef.current?.();
                 }
             }, 5000);
         };
+
         ws.current.onerror = () => ws.current.close();
 
         ws.current.onmessage = (evt) => {
@@ -220,6 +329,7 @@ const NetworkTopology = () => {
                     }));
                     setNodes(validated);
                     setEdges(msg.payload.edges || []);
+                    setSyncState({ status: 'synced', lastSync: new Date() });
                 } else if (msg.type === 'THREAT_DETECTED' && msg.payload) {
                     const { attacker_ip, target_service, threat_score, attack_type } = msg.payload;
                     if (!attacker_ip) return;
@@ -239,7 +349,10 @@ const NetworkTopology = () => {
                         const eid = `e_attack_${aid}`;
                         if (eds.find(e => e.id === eid)) return eds;
                         const targetNode = nodesRef.current.find(n =>
-                            n.data?.port === target_service || n.id === target_service?.toLowerCase()
+                            n.data?.external_port === target_service ||
+                            n.data?.internal_port === target_service ||
+                            n.data?.port === target_service ||
+                            n.id === target_service?.toString().toLowerCase()
                         );
                         const targetId = targetNode?.id || 'ssh';
                         return [...eds, {
@@ -251,7 +364,7 @@ const NetworkTopology = () => {
                         }];
                     });
                 } else if (msg.type === 'TRAFFIC_TICK') {
-                    setEdges(eds => eds.map(e => ({ ...e, animated: true })));
+                    setTrafficEventsCount(prev => prev + (msg.payload?.count || 1));
                 }
             } catch {
                 // Ignore parse error
@@ -282,6 +395,9 @@ const NetworkTopology = () => {
         setEdges(INITIAL_EDGES);
         setAttackCount(0);
         setSelectedNode(null);
+        setTimeout(() => {
+            reactFlowInstance.current?.fitView({ padding: 0.1 });
+        }, 50);
     };
 
     const downloadImage = () => {
@@ -306,15 +422,22 @@ const NetworkTopology = () => {
         if (!selectedNode) return null;
         const n = selectedNode;
         const isAttacker = n.type === 'attacker';
+        const isController = n.type === 'controller';
         const score = n.data?.threat_score ?? 0;
+        const hostPort = n.data?.external_port || n.data?.port;
+        const containerPort = n.data?.internal_port || n.data?.port;
 
         return (
-            <div className="node-details-panel">
+            <div className="node-details-panel" role="region" aria-label="Node Details">
                 <div className="details-header">
                     <div className={`details-type-badge ${n.type}-badge-header`}>
                         {n.type?.toUpperCase()}
                     </div>
-                    <button className="close-btn" onClick={() => setSelectedNode(null)}>
+                    <button 
+                        className="close-btn" 
+                        onClick={() => setSelectedNode(null)} 
+                        aria-label="Close details panel"
+                    >
                         <FaTimes />
                     </button>
                 </div>
@@ -330,20 +453,43 @@ const NetworkTopology = () => {
                         <span className="detail-label">TYPE</span>
                         <span className="detail-value">{n.type?.toUpperCase()}</span>
                     </div>
-                    {n.data?.port && (
-                        <div className="detail-cell">
-                            <span className="detail-label">PORT</span>
-                            <span className="detail-value mono">{n.data.port}</span>
+
+                    {isController && (
+                        <div className="detail-cell span2">
+                            <span className="detail-label">ARCHITECTURE ROLE</span>
+                            <span className="detail-value text-blue">{n.data?.role || 'Core Control Plane'}</span>
                         </div>
                     )}
+
+                    {hostPort && (
+                        <div className="detail-cell">
+                            <span className="detail-label">HOST PORT (EXTERNAL)</span>
+                            <span className="detail-value mono">{hostPort}</span>
+                        </div>
+                    )}
+                    {containerPort && (
+                        <div className="detail-cell">
+                            <span className="detail-label">CONTAINER PORT (INTERNAL)</span>
+                            <span className="detail-value mono">{containerPort}</span>
+                        </div>
+                    )}
+
                     {n.data?.status && (
                         <div className="detail-cell">
-                            <span className="detail-label">STATUS</span>
-                            <span className={`detail-value ${n.data.status === 'active' ? 'text-green' : 'text-red'}`}>
+                            <span className="detail-label">OPERATIONAL STATUS</span>
+                            <span className={`detail-value ${n.data.status === 'active' || n.data.status === 'online' ? 'text-green' : 'text-red'}`}>
                                 {n.data.status?.toUpperCase()}
                             </span>
                         </div>
                     )}
+
+                    <div className="detail-cell span2">
+                        <span className="detail-label">TOPOLOGY RELATION</span>
+                        <span className="detail-value text-dim">
+                            {isController ? 'Orchestration Hub' : isAttacker ? 'Inbound Threat Actor' : 'Logical Deception Endpoint'}
+                        </span>
+                    </div>
+
                     {isAttacker && (
                         <div className="detail-cell span2">
                             <span className="detail-label">THREAT SCORE</span>
@@ -390,14 +536,50 @@ const NetworkTopology = () => {
     // ─────────────────────────────────────────
     return (
         <div className="topology-container" ref={flowRef}>
+            {/* Screen Reader Accessible Live Summary */}
+            <div className="sr-only" aria-live="polite">
+                <h4>Network Topology Accessibility Summary</h4>
+                <p>Central Control Plane: PHANTOM_OS, Status: {isConnected ? 'Online' : 'Offline'}.</p>
+                <ul>
+                    {nodes.filter(n => n.type === 'honeypot').map(n => (
+                        <li key={n.id}>
+                            Decoy {n.data?.label}: Host port {n.data?.external_port || n.data?.port}, Status: {n.data?.status}.
+                        </li>
+                    ))}
+                    {nodes.filter(n => n.type === 'attacker').map(n => (
+                        <li key={n.id}>
+                            Attacker IP {n.data?.ip}, Threat Score: {n.data?.threat_score}%.
+                        </li>
+                    ))}
+                </ul>
+            </div>
+
             {/* Header */}
             <div className="topology-header">
                 <div className="topo-title-row">
-                    <h3 className="topo-title">Network Infrastructure Topology</h3>
+                    <h3 className="topo-title">Logical Deception Infrastructure</h3>
+                    <span className="topo-badge">LOGICAL TOPOLOGY</span>
+                </div>
+                <div className="topo-subtitle">
+                    Distributed Decoy Nodes Orchestrated by PhantomNet Core Control Plane
                 </div>
                 <div className="topo-status-row">
                     <span className={`live-dot ${isConnected ? 'dot-live' : 'dot-offline'}`} />
-                    <span className="live-label">{isConnected ? 'LIVE FEED ACTIVE' : 'CONNECTING...'}</span>
+                    <span className="live-label">
+                        {isConnected ? 'LIVE FEED ACTIVE' : 'CONNECTING...'}
+                    </span>
+                    <span className={`sync-pill ${syncState.status === 'synced' ? 'sync-ok' : 'sync-degraded'}`}>
+                        {syncState.status === 'synced' ? (
+                            <><FaCheckCircle /> Synced {syncState.lastSync.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}</>
+                        ) : (
+                            <><FaExclamationTriangle /> Sync Degraded</>
+                        )}
+                    </span>
+                    {trafficEventsCount > 0 && (
+                        <span className="traffic-counter" title="Analyzed traffic ticks">
+                            ⚡ {trafficEventsCount} EVENTS
+                        </span>
+                    )}
                     {attackCount > 0 && (
                         <span className="attack-counter">⚠ {attackCount} ACTIVE THREAT{attackCount > 1 ? 'S' : ''}</span>
                     )}
@@ -422,7 +604,12 @@ const NetworkTopology = () => {
                 onConnect={onConnect}
                 onNodeClick={onNodeClick}
                 nodeTypes={nodeTypes}
+                onInit={(instance) => {
+                    reactFlowInstance.current = instance;
+                    instance.fitView({ padding: 0.1 });
+                }}
                 fitView
+                fitViewOptions={{ padding: 0.1 }}
                 proOptions={{ hideAttribution: true }}
             >
                 <Background color="#1e3a5f" gap={24} size={1} variant="dots" />
@@ -454,3 +641,4 @@ const NetworkTopology = () => {
 };
 
 export default NetworkTopology;
+
