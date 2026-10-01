@@ -359,7 +359,13 @@ body[data-theme="light"] .threat-card.low .card-value {
 }
 
 /* Table Card */
-.threat-table-card,
+.threat-table-card {
+  border-radius: 16px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  transition: all 0.3s ease;
+}
+
 .alert-feed-card {
   border-radius: 16px;
   overflow: hidden;
@@ -442,9 +448,8 @@ body[data-theme="light"] .threat-table tr:hover td {
 }
 
 .score-col {
-  width: 220px;
-  /* Increased to prevents clipping */
-  min-width: 220px;
+  width: 150px;
+  min-width: 140px;
 }
 
 .ip-cell {
@@ -638,4 +643,118 @@ body[data-theme="light"] .alert-item.low .alert-icon {
   color: var(--text-secondary);
   margin: 0;
   line-height: 1.4;
+}
+
+/* Threat Error & Auth Banners */
+.threat-error-banner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 20px;
+  border-radius: 12px;
+  margin-bottom: 24px;
+  transition: all 0.3s ease;
+}
+
+body[data-theme="dark"] .threat-error-banner {
+  background: rgba(239, 68, 68, 0.12);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  color: #fca5a5;
+}
+
+body[data-theme="light"] .threat-error-banner {
+  background: #fee2e2;
+  border: 1px solid #f87171;
+  color: #991b1b;
+}
+
+.threat-error-content {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 14px;
+}
+
+.threat-error-icon {
+  font-size: 18px;
+  color: #ef4444;
+}
+
+.threat-retry-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+body[data-theme="dark"] .threat-retry-btn {
+  background: rgba(239, 68, 68, 0.25);
+  border: 1px solid rgba(239, 68, 68, 0.5);
+  color: #fecaca;
+}
+
+body[data-theme="dark"] .threat-retry-btn:hover {
+  background: rgba(239, 68, 68, 0.4);
+}
+
+body[data-theme="light"] .threat-retry-btn {
+  background: #dc2626;
+  border: 1px solid #b91c1c;
+  color: #ffffff;
+}
+
+body[data-theme="light"] .threat-retry-btn:hover {
+  background: #b91c1c;
+}
+
+/* Disconnected Indicator */
+.live-indicator.disconnected {
+  opacity: 0.85;
+}
+
+body[data-theme="dark"] .live-indicator.disconnected {
+  background: rgba(148, 163, 184, 0.15);
+  color: #94a3b8;
+}
+
+body[data-theme="light"] .live-indicator.disconnected {
+  background: #f1f5f9;
+  color: #64748b;
+}
+
+.pulse.disconnected {
+  background: #94a3b8 !important;
+  animation: none !important;
+}
+
+/* Empty State / Loading State */
+.threat-loading-state,
+.threat-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+  color: var(--text-muted);
+  gap: 12px;
+}
+
+.threat-spinner {
+  width: 28px;
+  height: 28px;
+  border: 3px solid rgba(239, 68, 68, 0.2);
+  border-top-color: #ef4444;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
 }

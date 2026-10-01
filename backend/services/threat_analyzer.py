@@ -200,10 +200,9 @@ class ThreatAnalyzerService:
 
             if threats_found:
                 try:
-                    import asyncio
-                    from api.topology import push_topology_event
+                    from api.topology import push_topology_event_sync
 
-                    asyncio.run(push_topology_event("ADVANCED_THREAT_DETECTED", report))
+                    push_topology_event_sync("ADVANCED_THREAT_DETECTED", report)
                 except Exception as ws_e:
                     logger.debug(f"Topology advanced threat sync failed: {ws_e}")
 
@@ -335,11 +334,10 @@ class ThreatAnalyzerService:
             if updated_count > 0:
                 # Notify Topology Visualization of new activity
                 try:
-                    import asyncio
-                    from api.topology import push_topology_event
+                    from api.topology import push_topology_event_sync
 
-                    asyncio.run(
-                        push_topology_event("TRAFFIC_TICK", {"count": len(logs)})
+                    push_topology_event_sync(
+                        "TRAFFIC_TICK", {"count": len(logs)}
                     )
                 except Exception as ws_e:
                     logger.debug(f"Topology sync skipped: {ws_e}")
@@ -358,24 +356,29 @@ class ThreatAnalyzerService:
         log.threat_score = float(result.score)
         log.threat_level = result.threat_level
         log.confidence = result.confidence
-        log.attack_type = result.decision
+        # Preserve genuine attack_type if already set; do not overwrite with enforcement decision
+        if not log.attack_type or log.attack_type in ("ALLOW", "ALERT", "BLOCK", "ERROR"):
+            if result.threat_level == "LOW":
+                log.attack_type = "BENIGN"
+            elif log.event:
+                log.attack_type = log.event.upper()
+            else:
+                log.attack_type = "SUSPICIOUS"
         log.is_malicious = result.threat_level in ["HIGH", "CRITICAL"]
 
         if log.is_malicious:
             try:
-                import asyncio
-                from api.topology import push_topology_event
+                from api.topology import push_topology_event_sync
 
-                asyncio.run(
-                    push_topology_event(
-                        "THREAT_DETECTED",
-                        {
-                            "attacker_ip": log.src_ip,
-                            "target_service": log.dst_port,
-                            "threat_score": result.score,
-                            "attack_type": result.decision,
-                        },
-                    )
+                push_topology_event_sync(
+                    "THREAT_DETECTED",
+                    {
+                        "attacker_ip": log.src_ip,
+                        "target_service": log.dst_port,
+                        "threat_score": result.score,
+                        "attack_type": log.attack_type,
+                        "decision": result.decision,
+                    },
                 )
             except Exception as ws_e:
                 logger.debug(f"Topology threat sync failed: {ws_e}")

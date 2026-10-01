@@ -809,7 +809,7 @@ const PlaybookViewer = ({
     }
   }, []);
 
-  const isAdminOrAnalyst = userRole.toLowerCase() === "admin" || userRole.toLowerCase() === "analyst";
+  const _isAdminOrAnalyst = userRole.toLowerCase() === "admin" || userRole.toLowerCase() === "analyst";
 
   useEffect(() => {
     let cancelled = false;

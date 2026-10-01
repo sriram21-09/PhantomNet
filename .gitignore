@@ -69,6 +69,7 @@ audit/logs/
 empty_baseline.*
 PRODUCTION_BASELINE_*.txt
 validation_test_report*
+report_data/
 
 # ─────────────────────────────────────────────
 # GSD / Agent Tooling (not project source code)

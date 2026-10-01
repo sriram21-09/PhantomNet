@@ -1,3 +1,4 @@
+import os
 from sqlalchemy import (
     Column,
     Integer,
@@ -7,6 +8,7 @@ from sqlalchemy import (
     ForeignKey,
     Boolean,
     Text,
+    Index,
 )
 from sqlalchemy.orm import relationship, declarative_base
 from datetime import datetime
@@ -20,7 +22,10 @@ Base = declarative_base()
 
 class PacketLog(Base):
     __tablename__ = "packet_logs"
-    __table_args__ = {"extend_existing": True}
+    __table_args__ = (
+        Index("ix_packet_logs_ts_threat", "timestamp", "threat_score"),
+        {"extend_existing": True},
+    )
 
     id = Column(Integer, primary_key=True, index=True)
     timestamp = Column(DateTime, default=datetime.utcnow, index=True)
@@ -237,6 +242,7 @@ class PcapCapture(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     event_id = Column(Integer, ForeignKey("events.id"), nullable=True, index=True)
+    packet_log_id = Column(Integer, ForeignKey("packet_logs.id"), nullable=True, index=True)
     file_path = Column(String)
     file_size = Column(Integer, default=0)  # bytes
     packet_count = Column(Integer, default=0)
@@ -248,6 +254,12 @@ class PcapCapture(Base):
     threat_patterns = Column(Text, nullable=True)  # JSON string of detected patterns
     created_at = Column(DateTime, default=datetime.utcnow)
     expires_at = Column(DateTime, nullable=True)  # 30-day retention
+
+    @property
+    def filename(self) -> str:
+        """Derive filename from file_path."""
+        return os.path.basename(self.file_path) if self.file_path else ""
+
 
 
 class User(Base):

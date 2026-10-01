@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { FaChartLine } from "react-icons/fa";
 
@@ -16,7 +16,7 @@ import TrendsChart from "../components/TrendsChart";
 import WelcomeModal from "../components/WelcomeModal";
 import SentinelStatsWidget from "../components/SentinelStatsWidget";
 import { useRealTime } from "../context/RealTimeContext";
-import { fetchThreatMetrics, fetchSentinelStats } from "../services/api";
+import { fetchSentinelStats } from "../services/api";
 import { Button } from "../components/ui/button";
 import "../Styles/pages/Dashboard.css";
 

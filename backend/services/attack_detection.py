@@ -14,30 +14,38 @@ class AttackDetectionService:
 
     def get_global_trends(self, days: int = 7) -> List[Dict[str, Any]]:
         """
-        Returns daily attack counts for the last N days.
+        Returns continuous daily attack counts for the last N days with zero-filled missing dates.
+        Bounded between 1 and 90 days.
         """
-        start_date = datetime.utcnow() - timedelta(days=days)
+        days = max(1, min(days, 90))
+        end_date = datetime.utcnow().date()
+        start_date = end_date - timedelta(days=days - 1)
+        start_datetime = datetime.combine(start_date, datetime.min.time())
 
-        # Aggregate by Date (using SQLite/Postgres compatible approx)
-        # For simplicity in hybrid env, we fetch and aggregate or use specific func.
-        # Postgres: func.date_trunc('day', PacketLog.timestamp)
-        # SQLite: func.strftime('%Y-%m-%d', PacketLog.timestamp)
-
-        # Using Python aggregation for DB agnosticism if vol occurs,
-        # but SQL is better. Let's try flexible grouping.
-
+        # Aggregate by Date (compatible with Postgres func index ix_packet_logs_date_trunc & SQLite)
         results = (
             self.db.query(
                 func.date(PacketLog.timestamp).label("date"),
                 func.count(PacketLog.id).label("count"),
             )
-            .filter(PacketLog.timestamp >= start_date)
-            .group_by("date")
-            .order_by("date")
+            .filter(PacketLog.timestamp >= start_datetime)
+            .group_by(func.date(PacketLog.timestamp))
+            .order_by(func.date(PacketLog.timestamp))
             .all()
         )
 
-        return [{"date": str(r.date), "count": r.count} for r in results]
+        counts_by_date = {str(r.date): r.count for r in results if r.date}
+
+        # Build complete chronological series so every day in window has an authentic count
+        series = []
+        for i in range(days):
+            day_str = (start_date + timedelta(days=i)).isoformat()
+            series.append({
+                "date": day_str,
+                "count": counts_by_date.get(day_str, 0)
+            })
+
+        return series
 
     def detect_brute_force(
         self, protocol: str, window_minutes: int = 10, threshold: int = 5

@@ -66,7 +66,7 @@ async def get_http_analytics(db: Session = Depends(get_db)):
 
 @router.get("/trends", response_model=List[Dict[str, Any]])
 async def get_attack_trends(
-    days: int = Query(7, ge=1, le=30, description="Trend window in days (1-30)"),
+    days: int = Query(7, ge=1, le=90, description="Trend window in days (1-90)"),
     db: Session = Depends(get_db)
 ):
     """

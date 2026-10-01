@@ -282,7 +282,7 @@ class TestIPValidationAndActiveDefense:
 # 4. PATH TRAVERSAL MITIGATION
 # ===========================================================================
 class TestPathTraversalMitigation:
-    def test_pcap_download_path_traversal_blocked(self, client, db_session):
+    def test_pcap_download_path_traversal_blocked(self, client, db_session, analyst_token):
         """Injecting relative path traversal inside event.pcap_path is blocked with 403."""
         event = Event(
             source_ip="192.168.1.100",
@@ -294,9 +294,13 @@ class TestPathTraversalMitigation:
         db_session.commit()
         db_session.refresh(event)
 
-        res = client.get(f"/api/v1/events/{event.id}/pcap")
+        res = client.get(
+            f"/api/v1/events/{event.id}/pcap",
+            headers={"Authorization": f"Bearer {analyst_token}"}
+        )
         assert res.status_code == 403
         assert "Invalid PCAP file path" in res.json().get("detail", "")
+
 
 
 # ===========================================================================

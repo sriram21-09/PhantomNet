@@ -600,3 +600,166 @@
   color: #fff !important;
   fill: #fff !important;
 }
+
+/* --- Subtitle & Sync Status Badges --- */
+.topo-subtitle {
+  font-size: 0.72rem;
+  color: #94a3b8;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+}
+
+.sync-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.sync-ok {
+  background: rgba(16, 185, 129, 0.12);
+  border: 1px solid rgba(16, 185, 129, 0.35);
+  color: #34d399;
+}
+
+.sync-degraded {
+  background: rgba(245, 158, 11, 0.15);
+  border: 1px solid rgba(245, 158, 11, 0.4);
+  color: #fbbf24;
+  animation: alert-pulse 2s infinite;
+}
+
+.traffic-counter {
+  background: rgba(59, 130, 246, 0.15);
+  border: 1px solid rgba(59, 130, 246, 0.35);
+  color: #60a5fa;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 0.68rem;
+  font-weight: 800;
+}
+
+/* Screen Reader Accessibility Utility */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ==========================================
+   RESPONSIVE DESIGN (NT-DEF-06 Remediation)
+   ========================================== */
+
+@media (max-width: 1024px) {
+  .topology-container {
+    height: 640px;
+  }
+}
+
+@media (max-width: 768px) {
+  .react-flow__minimap {
+    display: none !important;
+  }
+
+  .react-flow__controls {
+    bottom: 60px !important;
+    left: 12px !important;
+  }
+
+  .topology-container {
+    height: 600px;
+    border-radius: 16px;
+  }
+
+  .topology-header {
+    top: 16px;
+    left: 16px;
+    right: 16px;
+  }
+
+  .topo-status-row {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .node-details-panel {
+    top: auto;
+    bottom: 74px;
+    right: 16px;
+    left: 16px;
+    width: auto;
+    max-height: 52%;
+    padding: 16px;
+    border-radius: 18px;
+    overflow-y: auto;
+  }
+
+  .detail-grid {
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+
+  .topology-controls {
+    bottom: 14px;
+    padding: 6px;
+    gap: 8px;
+    width: calc(100% - 32px);
+    justify-content: center;
+    border-radius: 12px;
+  }
+
+  .control-btn {
+    padding: 6px 12px;
+    font-size: 0.7rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .react-flow__controls {
+    bottom: 50px !important;
+    left: 8px !important;
+    transform: scale(0.85);
+    transform-origin: bottom left;
+  }
+
+  .topology-container {
+    height: 560px;
+  }
+
+  .topo-title {
+    font-size: 1.05rem;
+  }
+
+  .topo-subtitle {
+    display: none;
+  }
+
+  .node-details-panel {
+    bottom: 64px;
+    left: 10px;
+    right: 10px;
+    padding: 14px;
+    max-height: 58%;
+  }
+
+  .topology-controls {
+    bottom: 8px;
+    padding: 4px;
+    gap: 6px;
+  }
+
+  .control-btn {
+    padding: 5px 8px;
+    font-size: 0.65rem;
+  }
+}

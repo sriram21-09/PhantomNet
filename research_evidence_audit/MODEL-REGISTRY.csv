@@ -1,0 +1,7 @@
+Model_ID,Model_Type,File_Path,Input_Features_Count,Feature_List_Source,Trained_On_Dataset,Evaluated_Accuracy,Precision,Recall,F1,SHA256,Status
+MDL-01,RandomForestClassifier,ml_models/registry/AttackClassifier_Enhanced_v1.0.0.pkl,12,FeatureExtractorV2 (Host behavioral parser),labeled_events_v2_enhanced.csv,0.6976,0.0,0.0,0.0,6812f8ea953c90709428c2a6abd6c90a256dd4f9ec55f77d08aabe5f177cf13b,DEPLOYED_CHECKPOINT
+MDL-02,RandomForestClassifier (Retrained),ml_models/attack_classifier_latest.pkl,12,FeatureExtractorV2 (Host behavioral parser),labeled_events_v2_enhanced.csv,1.0,1.0,1.0,1.0,Trained via experiments/reproduce_paper.py,SYNTHETIC_OVERFIT
+MDL-03,IsolationForest (Anomaly Detector),ml_models/registry/IsolationForest_Anomaly_v1.0.0.pkl,12,FeatureExtractorV2 (Host behavioral parser),labeled_events_v2_enhanced.csv,0.877,0.0,0.0,0.0,Trained via backend/ml/retrain_isolation_forest.py,OPERATIONAL
+MDL-04,Hybrid RF+IF Ensemble,backend/ml/ensemble_detector.py,12,FeatureExtractorV2 (0.7 RF + 0.3 IF),labeled_events_v2_enhanced.csv,1.0,1.0,1.0,1.0,Composite runtime ensemble architecture,OPERATIONAL
+MDL-05,DBSCAN Campaign Clusterer,backend/analytics/threat_intelligence.py,4,Spatial-temporal event attributes,Runtime event streams,N/A (Clustering),N/A,N/A,N/A,"eps=0.5, min_samples=3; requires StandardScaler",REQUIRES_REMEDIATION
+MDL-06,LSTM Attack Sequence Predictor,backend/ml/lstm_attack_predictor.py,0,Temporal command sequence (stub),None (No weights exist),N/A,N/A,N/A,N/A,Placeholder stub with heuristic fallback,UNIMPLEMENTED

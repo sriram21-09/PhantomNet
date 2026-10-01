@@ -8,3 +8,7 @@ services:
           devices: []
         limits:
           memory: 8G
+
+  frontend:
+    volumes:
+      - ./frontend-dev/phantomnet-dashboard/dist:/usr/share/nginx/html:ro

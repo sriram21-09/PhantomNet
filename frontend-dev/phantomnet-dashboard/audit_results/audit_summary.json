@@ -1,0 +1,126 @@
+{
+  "title": "Logical Deception Infrastructure",
+  "subtitle": "Distributed Decoy Nodes Orchestrated by PhantomNet Core Control Plane",
+  "badge": "LOGICAL TOPOLOGY",
+  "liveLabel": "LIVE FEED ACTIVE",
+  "syncPill": "Synced 08:36:51 pm",
+  "controllerText": "PHANTOM_OS CORE CONTROLLER ONLINE",
+  "honeypotsCount": 4,
+  "viewportResults": [
+    {
+      "viewport": "1920x1080",
+      "dimensions": "1920x1080",
+      "horizontalOverflow": false,
+      "panelVisible": true,
+      "panelBounded": true,
+      "panelBox": {
+        "x": 1527,
+        "y": 284.796875,
+        "width": 320,
+        "height": 460.8125
+      },
+      "screenshot": "C:\\Users\\srira\\Project\\PhantomNet\\frontend-dev\\phantomnet-dashboard\\audit_results\\topology_1920x1080.png"
+    },
+    {
+      "viewport": "1440x900",
+      "dimensions": "1440x900",
+      "horizontalOverflow": false,
+      "panelVisible": true,
+      "panelBounded": true,
+      "panelBox": {
+        "x": 1047,
+        "y": 266.796875,
+        "width": 320,
+        "height": 460.8125
+      },
+      "screenshot": "C:\\Users\\srira\\Project\\PhantomNet\\frontend-dev\\phantomnet-dashboard\\audit_results\\topology_1440x900.png"
+    },
+    {
+      "viewport": "1366x768",
+      "dimensions": "1366x768",
+      "horizontalOverflow": false,
+      "panelVisible": true,
+      "panelBounded": true,
+      "panelBox": {
+        "x": 973,
+        "y": 68.796875,
+        "width": 320,
+        "height": 460.8125
+      },
+      "screenshot": "C:\\Users\\srira\\Project\\PhantomNet\\frontend-dev\\phantomnet-dashboard\\audit_results\\topology_1366x768.png"
+    },
+    {
+      "viewport": "1024x768",
+      "dimensions": "1024x768",
+      "horizontalOverflow": false,
+      "panelVisible": true,
+      "panelBounded": true,
+      "panelBox": {
+        "x": 631,
+        "y": 129.390625,
+        "width": 320,
+        "height": 460.8125
+      },
+      "screenshot": "C:\\Users\\srira\\Project\\PhantomNet\\frontend-dev\\phantomnet-dashboard\\audit_results\\topology_1024x768.png"
+    },
+    {
+      "viewport": "768x1024",
+      "dimensions": "768x1024",
+      "horizontalOverflow": false,
+      "panelVisible": true,
+      "panelBounded": true,
+      "panelBox": {
+        "x": 65,
+        "y": 485.4375,
+        "width": 638,
+        "height": 310.953125
+      },
+      "screenshot": "C:\\Users\\srira\\Project\\PhantomNet\\frontend-dev\\phantomnet-dashboard\\audit_results\\topology_768x1024.png"
+    },
+    {
+      "viewport": "480x900",
+      "dimensions": "480x900",
+      "horizontalOverflow": false,
+      "panelVisible": true,
+      "panelBounded": true,
+      "panelBox": {
+        "x": 59,
+        "y": 460.765625,
+        "width": 362,
+        "height": 323.625
+      },
+      "screenshot": "C:\\Users\\srira\\Project\\PhantomNet\\frontend-dev\\phantomnet-dashboard\\audit_results\\topology_480x900.png"
+    },
+    {
+      "viewport": "390x844",
+      "dimensions": "390x844",
+      "horizontalOverflow": false,
+      "panelVisible": true,
+      "panelBounded": true,
+      "panelBox": {
+        "x": 59,
+        "y": 517.15625,
+        "width": 272,
+        "height": 323.625
+      },
+      "screenshot": "C:\\Users\\srira\\Project\\PhantomNet\\frontend-dev\\phantomnet-dashboard\\audit_results\\topology_390x844.png"
+    },
+    {
+      "viewport": "360x800",
+      "dimensions": "360x800",
+      "horizontalOverflow": false,
+      "panelVisible": true,
+      "panelBounded": true,
+      "panelBox": {
+        "x": 59,
+        "y": 422.15625,
+        "width": 242,
+        "height": 323.625
+      },
+      "screenshot": "C:\\Users\\srira\\Project\\PhantomNet\\frontend-dev\\phantomnet-dashboard\\audit_results\\topology_360x800.png"
+    }
+  ],
+  "consoleErrors": [],
+  "pageExceptions": [],
+  "timestamp": "2026-09-30T15:07:23.532Z"
+}
