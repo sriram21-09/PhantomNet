@@ -9,12 +9,30 @@ except ImportError:
     from ml.feature_extractor import FeatureExtractor
     from ml.feature_engineering_v2 import FeatureExtractorV2
 
+import warnings
+
+
 class CompleteFeatureExtractor:
     """
-    Consolidates FeatureExtractor (15 features) and FeatureExtractorV2 (12 features),
-    and adds 5 new features to reach 32 features total.
+    [DEPRECATED / QUARANTINED — PHASE ML-3]
+    Historical 32-feature composite extractor. Consolidates legacy FeatureExtractor
+    (15 features) and FeatureExtractorV2 (12 features) with 5 custom state features.
+
+    WARNING: Contains historical target leakage (threat_score).
+    DO NOT use in canonical production inference.
+    Authoritative canonical extractor is `backend.ml.feature_extractor.FeatureExtractor`.
     """
+    STATUS = "QUARANTINED_INCOMPATIBLE"
+    DIMENSION = 32
+
     def __init__(self, window_seconds: int = 60):
+        warnings.warn(
+            "CompleteFeatureExtractor is deprecated and quarantined as of Phase ML-3. "
+            "It outputs 32 features and contains historical target leakage. "
+            "Use backend.ml.feature_extractor.FeatureExtractor for canonical 12D flow extraction.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
         self.base_extractor = FeatureExtractor(window_seconds=window_seconds)
         self.v2_extractor = FeatureExtractorV2(window_seconds=window_seconds)
         
@@ -74,8 +92,14 @@ class CompleteFeatureExtractor:
         
         failed_logins = self.v2_extractor.ip_login_failures.get(src_ip, 0)
         auth_failure_ratio = float(failed_logins / total_events) if total_events > 0 else 0.0
-        
-        session_duration = base_features.get("session_duration_estimate", 0.0)
+
+        # Calculate session duration
+        timestamps = self.base_extractor.ip_timestamps.get(src_ip, [])
+        if len(timestamps) > 1:
+            session_duration = float((timestamps[-1] - timestamps[0]).total_seconds())
+        else:
+            session_duration = 0.0
+
         request_velocity = float(total_events / session_duration) if session_duration > 0 else float(total_events)
         
         new_features = {
@@ -83,10 +107,15 @@ class CompleteFeatureExtractor:
             "average_payload_size": average_payload_size,
             "error_rate": error_rate,
             "auth_failure_ratio": auth_failure_ratio,
-            "request_velocity": request_velocity
+            "request_velocity": request_velocity,
+            "session_duration_estimate": session_duration,
+            "mean_inter_arrival_time": float(base_features.get("inter_arrival_mean", 0.0)),
+            "std_inter_arrival_time": float(base_features.get("inter_arrival_std", 0.0)),
+            "packet_length_variance": float(base_features.get("packet_size_variance", 0.0)),
+            "connection_burst_index": float(base_features.get("burst_rate_10s", 0.0)),
         }
         
-        # Combine all features (15 + 12 + 5 = 32)
+        # Combine all features
         all_features = {}
         all_features.update(base_features)
         all_features.update(v2_features)

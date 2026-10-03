@@ -6,12 +6,18 @@ Unit tests for Sentinel Campaign Timeline Time-Series API endpoint:
 """
 
 import pytest
-# pyrefly: ignore [missing-import]
 from fastapi.testclient import TestClient
-
 from main import app
+from middleware.auth import get_current_user
+from database.models import User
 
 client = TestClient(app)
+
+@pytest.fixture(autouse=True)
+def override_auth():
+    app.dependency_overrides[get_current_user] = lambda: User(id=1, username="testadmin", role="admin", status="active")
+    yield
+    app.dependency_overrides.pop(get_current_user, None)
 
 
 def test_get_campaign_timeline_success():

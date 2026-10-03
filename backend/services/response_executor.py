@@ -337,6 +337,10 @@ class ResponseExecutor:
         except Exception as e:
             return {"command": "error", "success": False, "output": str(e)}
 
+    def block_ip(self, ip: str, duration_minutes: int = 0, level: str = "MANUAL", reason: Optional[str] = None) -> dict:
+        """Manually block an IP address."""
+        return self._action_block_ip(ip, duration_minutes, level)
+
     def unblock_ip(self, ip: str) -> dict:
         """Manually unblock an IP address."""
         if ip not in self.blocked_ips:

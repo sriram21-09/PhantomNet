@@ -1,190 +1,250 @@
+import math
+import threading
 from datetime import datetime, timedelta, timezone
 from collections import defaultdict
-import statistics
-from typing import Dict
+from typing import Dict, List, Any, Union
+import numpy as np
+import pandas as pd
+
+try:
+    from backend.ml.config.feature_schema import (
+        CANONICAL_FEATURE_NAMES,
+        CANONICAL_FEATURE_COUNT,
+        CANONICAL_TARGET_NAME,
+        SCHEMA_VERSION,
+        validate_feature_vector,
+        validate_feature_dict,
+        dict_to_canonical_vector,
+    )
+except ImportError:
+    from ml.config.feature_schema import (
+        CANONICAL_FEATURE_NAMES,
+        CANONICAL_FEATURE_COUNT,
+        CANONICAL_TARGET_NAME,
+        SCHEMA_VERSION,
+        validate_feature_vector,
+        validate_feature_dict,
+        dict_to_canonical_vector,
+    )
 
 
 class FeatureExtractor:
     """
-    FeatureExtractor
-    ----------------
-    Implements EXACTLY the 15 ML features defined in:
-    docs/FEATURE_EXTRACTION_SPEC_FINAL.md
+    PhantomNet Clean 12-Dimensional Feature Extractor (v3.0)
+    -------------------------------------------------------
+    Extracts pure network socket, transport, and behavioral flow observables.
+    Strictly free from target leakage (threat_score) and label leakage (is_malicious).
 
-    Source of truth:
-    - packet_logs
-
-    Notes:
-    - READ-ONLY
-    - No database writes
-    - Deterministic behavior (best-effort)
+    Authoritative schema defined in `backend.ml.config.feature_schema`.
+    Thread-safe implementation with bounded sliding windows.
     """
 
-    FEATURE_NAMES = [
-        "packet_length",
-        "protocol_encoding",
-        "source_ip_event_rate",
-        "destination_port_class",
-        "threat_score",
-        "malicious_flag_ratio",
-        "attack_type_frequency",
-        "time_of_day_deviation",
-        "burst_rate",
-        "packet_size_variance",
-        "honeypot_interaction_count",
-        "session_duration_estimate",
-        "unique_destination_count",
-        "rolling_average_deviation",
-        "z_score_anomaly",
-    ]
+    SCHEMA_VERSION = SCHEMA_VERSION
+    FEATURE_NAMES = list(CANONICAL_FEATURE_NAMES)
+    FEATURE_COUNT = CANONICAL_FEATURE_COUNT
+    TARGET_NAME = CANONICAL_TARGET_NAME
+
+    # Expose validation boundaries on class
+    validate_feature_vector = staticmethod(validate_feature_vector)
+    validate_feature_dict = staticmethod(validate_feature_dict)
 
     def __init__(self, window_seconds: int = 60):
         self.window_seconds = window_seconds
+        self._lock = threading.RLock()
 
-        # Stateful trackers (per source IP)
-        self.ip_event_timestamps = defaultdict(list)
+        # Stateful sliding-window trackers (per source IP)
+        self.ip_timestamps = defaultdict(list)
         self.ip_packet_lengths = defaultdict(list)
-        self.ip_attack_types = defaultdict(list)
-        self.ip_destinations = defaultdict(set)
-        self.ip_honeypots = defaultdict(set)
-        self.ip_malicious_flags = defaultdict(list)
+        self.ip_dst_ips = defaultdict(list)
+        self.ip_dst_ports = defaultdict(list)
+
+    def reset_state(self):
+        """Clears all in-memory rolling state."""
+        with self._lock:
+            self.ip_timestamps.clear()
+            self.ip_packet_lengths.clear()
+            self.ip_dst_ips.clear()
+            self.ip_dst_ports.clear()
 
     # --------------------------------------------------
     # Public API
     # --------------------------------------------------
 
-    def extract_features(self, event: dict) -> Dict[str, float]:
-        src_ip = event.get("src_ip", "0.0.0.0")
-        timestamp = self._parse_timestamp(event.get("timestamp"))
+    def extract_features(self, event: Dict[str, Any]) -> Dict[str, float]:
+        """
+        Extracts the 12-dimensional feature dictionary from a raw event.
+        Thread-safe and deterministic.
+        """
+        src_ip = str(event.get("src_ip") or "0.0.0.0")
+        dst_ip = str(event.get("dst_ip") or "127.0.0.1")
+        dst_port = self._safe_int(event.get("dst_port"), 0)
+        src_port = self._safe_int(event.get("src_port"), 0)
+        protocol = str(event.get("protocol") or "TCP").upper()
+        length = self._safe_int(event.get("length"), 0)
+        raw_data = str(event.get("raw_data") or event.get("payload") or "")
+        now_ts = self._parse_timestamp(event.get("timestamp"))
 
-        # Track state
-        self.ip_event_timestamps[src_ip].append(timestamp)
-        self.ip_packet_lengths[src_ip].append(int(event.get("length", 0)))
-        self.ip_attack_types[src_ip].append(event.get("attack_type", "UNKNOWN"))
-        self.ip_destinations[src_ip].add(event.get("dst_ip", "0.0.0.0"))
-        self.ip_honeypots[src_ip].add(event.get("honeypot_type", "UNKNOWN"))
-        self.ip_malicious_flags[src_ip].append(bool(event.get("is_malicious", False)))
+        with self._lock:
+            # Update history
+            self.ip_timestamps[src_ip].append(now_ts)
+            self.ip_packet_lengths[src_ip].append(length)
+            self.ip_dst_ips[src_ip].append(dst_ip)
+            self.ip_dst_ports[src_ip].append(dst_port)
+
+            # Prune events older than window_seconds
+            cutoff_60s = now_ts - timedelta(seconds=self.window_seconds)
+            cutoff_10s = now_ts - timedelta(seconds=10)
+
+            # Keep only items in window
+            valid_indices = [
+                i for i, ts in enumerate(self.ip_timestamps[src_ip])
+                if ts >= cutoff_60s
+            ]
+            
+            if not valid_indices:
+                valid_indices = [len(self.ip_timestamps[src_ip]) - 1]
+
+            ts_window = [self.ip_timestamps[src_ip][i] for i in valid_indices]
+            len_window = [self.ip_packet_lengths[src_ip][i] for i in valid_indices]
+            dst_ip_window = [self.ip_dst_ips[src_ip][i] for i in valid_indices]
+            dst_port_window = [self.ip_dst_ports[src_ip][i] for i in valid_indices]
+
+            # Update state with pruned lists
+            self.ip_timestamps[src_ip] = ts_window
+            self.ip_packet_lengths[src_ip] = len_window
+            self.ip_dst_ips[src_ip] = dst_ip_window
+            self.ip_dst_ports[src_ip] = dst_port_window
+
+            # 1. packet_length
+            feat_packet_length = float(length)
+
+            # 2. protocol_encoding (TCP=1, UDP=2, ICMP=3, Other=0)
+            if "TCP" in protocol:
+                feat_protocol = 1.0
+            elif "UDP" in protocol:
+                feat_protocol = 2.0
+            elif "ICMP" in protocol:
+                feat_protocol = 3.0
+            else:
+                feat_protocol = 0.0
+
+            # 3. dst_port_class (Well-known <=1023 -> 1, Registered 1024-49151 -> 2, Ephemeral -> 3)
+            if dst_port <= 1023:
+                feat_dst_port_class = 1.0
+            elif dst_port <= 49151:
+                feat_dst_port_class = 2.0
+            else:
+                feat_dst_port_class = 3.0
+
+            # 4. src_port_ephemeral
+            feat_src_port_ephemeral = 1.0 if src_port >= 1024 else 0.0
+
+            # 5. event_rate_1m
+            feat_event_rate_1m = float(len(ts_window))
+
+            # 6. burst_rate_10s
+            feat_burst_rate_10s = float(sum(1 for ts in ts_window if ts >= cutoff_10s))
+
+            # 7. inter_arrival_mean & 8. inter_arrival_std
+            if len(ts_window) >= 2:
+                deltas = [
+                    (ts_window[i] - ts_window[i - 1]).total_seconds()
+                    for i in range(1, len(ts_window))
+                ]
+                # Filter out negative deltas caused by out-of-order logs
+                deltas = [max(0.0, d) for d in deltas]
+                feat_arr_mean = float(sum(deltas) / len(deltas))
+                if len(deltas) >= 2:
+                    var = sum((d - feat_arr_mean) ** 2 for d in deltas) / (len(deltas) - 1)
+                    feat_arr_std = float(math.sqrt(var))
+                else:
+                    feat_arr_std = 0.0
+            else:
+                feat_arr_mean = 1.0
+                feat_arr_std = 0.0
+
+            # 9. packet_size_variance
+            if len(len_window) >= 2:
+                mean_l = sum(len_window) / len(len_window)
+                var_l = sum((l - mean_l) ** 2 for l in len_window) / (len(len_window) - 1)
+                feat_size_var = float(var_l)
+            else:
+                feat_size_var = 0.0
+
+            # 10. payload_entropy
+            feat_entropy = self._shannon_entropy(raw_data)
+
+            # 11. unique_dst_ips
+            feat_unique_dst_ips = float(len(set(dst_ip_window)))
+
+            # 12. unique_dst_ports
+            feat_unique_dst_ports = float(len(set(dst_port_window)))
 
         return {
-            "packet_length": self.packet_length(event),
-            "protocol_encoding": self.protocol_encoding(event),
-            "source_ip_event_rate": self.source_ip_event_rate(src_ip, timestamp),
-            "destination_port_class": self.destination_port_class(event),
-            "threat_score": self.threat_score(event),
-            "malicious_flag_ratio": self.malicious_flag_ratio(src_ip),
-            "attack_type_frequency": self.attack_type_frequency(src_ip),
-            "time_of_day_deviation": self.time_of_day_deviation(timestamp),
-            "burst_rate": self.burst_rate(src_ip, timestamp),
-            "packet_size_variance": self.packet_size_variance(src_ip),
-            "honeypot_interaction_count": self.honeypot_interaction_count(src_ip),
-            "session_duration_estimate": self.session_duration_estimate(src_ip),
-            "unique_destination_count": self.unique_destination_count(src_ip),
-            "rolling_average_deviation": self.rolling_average_deviation(src_ip),
-            "z_score_anomaly": self.z_score_anomaly(src_ip),
+            "packet_length": feat_packet_length,
+            "protocol_encoding": feat_protocol,
+            "dst_port_class": feat_dst_port_class,
+            "src_port_ephemeral": feat_src_port_ephemeral,
+            "event_rate_1m": feat_event_rate_1m,
+            "burst_rate_10s": feat_burst_rate_10s,
+            "inter_arrival_mean": feat_arr_mean,
+            "inter_arrival_std": feat_arr_std,
+            "packet_size_variance": feat_size_var,
+            "payload_entropy": feat_entropy,
+            "unique_dst_ips": feat_unique_dst_ips,
+            "unique_dst_ports": feat_unique_dst_ports,
         }
 
-    # --------------------------------------------------
-    # Feature Implementations
-    # --------------------------------------------------
-
-    def packet_length(self, event: dict) -> int:
-        return int(event.get("length", 0))
-
-    def protocol_encoding(self, event: dict) -> int:
-        protocol_map = {"TCP": 1, "UDP": 2, "ICMP": 3}
-        return protocol_map.get(event.get("protocol"), 0)
-
-    def source_ip_event_rate(self, src_ip: str, now: datetime) -> float:
-        now = self._parse_timestamp(now)
-        window_start = now - timedelta(seconds=self.window_seconds)
-        recent = [ts for ts in self.ip_event_timestamps[src_ip] if self._parse_timestamp(ts) >= window_start]
-        return len(recent) * (60 / self.window_seconds)
-
-    def destination_port_class(self, event: dict) -> int:
-        port = int(event.get("dst_port", 0))
-        if port < 1024:
-            return 1
-        elif port < 49152:
-            return 2
-        return 3
-
-    def threat_score(self, event: dict) -> float:
-        return float(event.get("threat_score", 0.0))
-
-    def malicious_flag_ratio(self, src_ip: str) -> float:
-        flags = self.ip_malicious_flags[src_ip]
-        return sum(flags) / len(flags) if flags else 0.0
-
-    def attack_type_frequency(self, src_ip: str) -> int:
-        attacks = self.ip_attack_types[src_ip]
-        return max(attacks.count(a) for a in set(attacks)) if attacks else 0
-
-    def time_of_day_deviation(self, timestamp: datetime) -> int:
-        hour = self._parse_timestamp(timestamp).hour
-        return int(hour < 6 or hour > 22)
-
-    def burst_rate(self, src_ip: str, now: datetime) -> float:
-        now = self._parse_timestamp(now)
-        window_start = now - timedelta(seconds=10)
-        recent = [ts for ts in self.ip_event_timestamps[src_ip] if self._parse_timestamp(ts) >= window_start]
-        return float(len(recent))
-
-    def packet_size_variance(self, src_ip: str) -> float:
-        sizes = self.ip_packet_lengths[src_ip]
-        return float(statistics.variance(sizes)) if len(sizes) >= 2 else 0.0
-
-    def honeypot_interaction_count(self, src_ip: str) -> int:
-        return len(self.ip_honeypots[src_ip])
-
-    def session_duration_estimate(self, src_ip: str) -> float:
-        raw_ts = self.ip_event_timestamps[src_ip]
-        if len(raw_ts) < 2:
-            return 0.0
-        ts = [self._parse_timestamp(t) for t in raw_ts]
-        return (max(ts) - min(ts)).total_seconds()
-
-    def unique_destination_count(self, src_ip: str) -> int:
-        return len(self.ip_destinations[src_ip])
-
-    def rolling_average_deviation(self, src_ip: str) -> float:
-        sizes = self.ip_packet_lengths[src_ip]
-        if not sizes:
-            return 0.0
-        avg = sum(sizes) / len(sizes)
-        return float(sizes[-1] - avg)
-
-    def z_score_anomaly(self, src_ip: str) -> float:
-        sizes = self.ip_packet_lengths[src_ip]
-        if len(sizes) < 2:
-            return 0.0
-        mean = statistics.mean(sizes)
-        std = statistics.stdev(sizes)
-        return float((sizes[-1] - mean) / std) if std != 0 else 0.0
-
-    # --------------------------------------------------
-    # Helpers
-    # --------------------------------------------------
-
-    def _parse_timestamp(self, ts) -> datetime:
+    def extract_vector(self, event: Dict[str, Any]) -> List[float]:
         """
-        Robust timestamp parser.
-        Never crashes the pipeline and guarantees timezone-aware UTC datetime.
+        Returns the validated, ordered 12-dimensional numerical vector.
+        Strictly enforces CANONICAL_FEATURE_NAMES sequence.
         """
-        if ts is None:
-            return datetime.now(timezone.utc)
+        feat_dict = self.extract_features(event)
+        vec = dict_to_canonical_vector(feat_dict)
+        validate_feature_vector(vec)
+        return vec
 
+    def to_vector(self, feature_dict: Dict[str, Any]) -> np.ndarray:
+        """
+        Converts a feature dict directly to a validated (1, 12) numpy array.
+        """
+        vec = dict_to_canonical_vector(feature_dict)
+        return validate_feature_vector(vec)
+
+    # --------------------------------------------------
+    # Internal Helpers
+    # --------------------------------------------------
+
+    @staticmethod
+    def _safe_int(val: Any, default: int = 0) -> int:
+        if val is None:
+            return default
+        try:
+            return int(val)
+        except (ValueError, TypeError):
+            return default
+
+    @staticmethod
+    def _shannon_entropy(data: str) -> float:
+        if not data:
+            return 0.0
+        # Calculate byte-level Shannon entropy
+        prob_dict = defaultdict(int)
+        for char in data:
+            prob_dict[char] += 1
+        n = len(data)
+        entropy = -sum((count / n) * math.log2(count / n) for count in prob_dict.values())
+        return float(round(entropy, 4))
+
+    @staticmethod
+    def _parse_timestamp(ts: Any) -> datetime:
         if isinstance(ts, datetime):
-            return ts if ts.tzinfo else ts.replace(tzinfo=timezone.utc)
-
+            return ts.replace(tzinfo=timezone.utc) if ts.tzinfo is None else ts
         if isinstance(ts, str):
-            ts = ts.strip()
-            if not ts:
-                return datetime.now(timezone.utc)
             try:
-                ts = ts.replace("Z", "+00:00")
-                dt = datetime.fromisoformat(ts)
-                return dt if dt.tzinfo else dt.replace(tzinfo=timezone.utc)
+                # Handle ISO 8601 strings
+                return datetime.fromisoformat(ts.replace("Z", "+00:00"))
             except Exception:
-                return datetime.now(timezone.utc)
-
+                pass
         return datetime.now(timezone.utc)

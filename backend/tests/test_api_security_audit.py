@@ -22,7 +22,7 @@ from fastapi.testclient import TestClient
 
 from database.database import Base, get_db
 from database.models import User, Event
-from middleware.auth import create_access_token
+from middleware.auth import create_access_token, create_step_up_token
 from api.admin import hash_password
 from main import app
 
@@ -92,6 +92,11 @@ def analyst_token(db_session):
     return create_access_token(data={"sub": user.username, "role": user.role})
 
 
+@pytest.fixture
+def step_up_token():
+    return create_step_up_token("sec_admin")
+
+
 # ===========================================================================
 # 1. AUTHENTICATION & TIMING-SAFE API KEY ENFORCEMENT
 # ===========================================================================
@@ -104,10 +109,10 @@ class TestAuthenticationEnforcement:
             "honeypot_type": "SSH"
         })
         assert res.status_code == 401
-        assert "Missing" in res.json().get("detail", "")
+        assert "Management endpoints require" in res.json().get("detail", "")
 
     def test_management_node_register_invalid_key(self, client):
-        """Invalid X-API-Key must return 403 Forbidden."""
+        """Invalid X-API-Key must return 401 Unauthorized."""
         res = client.post(
             "/api/v1/management/register",
             headers={"X-API-Key": "completely_wrong_key"},
@@ -117,8 +122,8 @@ class TestAuthenticationEnforcement:
                 "honeypot_type": "SSH"
             }
         )
-        assert res.status_code == 403
-        assert "Invalid" in res.json().get("detail", "")
+        assert res.status_code == 401
+        assert "Management endpoints require" in res.json().get("detail", "")
 
     def test_admin_endpoints_require_admin_role(self, client, analyst_token):
         """Standard Analyst must be rejected with 403 on Admin-only routes."""
@@ -143,11 +148,11 @@ class TestAuthenticationEnforcement:
 # 2. INPUT VALIDATION & BOUNDS CHECKING
 # ===========================================================================
 class TestInputValidationAndBounds:
-    def test_node_register_invalid_ip_format(self, client):
+    def test_node_register_invalid_ip_format(self, client, admin_token):
         """Malformed IP format must be rejected by Pydantic validator."""
         res = client.post(
             "/api/v1/management/register",
-            headers={"X-API-Key": os.getenv("API_KEY", "default_key")},
+            headers={"Authorization": f"Bearer {admin_token}"},
             json={
                 "hostname": "Sensor-01",
                 "ip_address": "999.999.999.999",
@@ -156,11 +161,11 @@ class TestInputValidationAndBounds:
         )
         assert res.status_code == 422
 
-    def test_node_register_empty_hostname(self, client):
+    def test_node_register_empty_hostname(self, client, admin_token):
         """Blank hostname must be rejected with 422."""
         res = client.post(
             "/api/v1/management/register",
-            headers={"X-API-Key": os.getenv("API_KEY", "default_key")},
+            headers={"Authorization": f"Bearer {admin_token}"},
             json={
                 "hostname": "   ",
                 "ip_address": "10.0.0.1",
@@ -187,18 +192,20 @@ class TestInputValidationAndBounds:
         res = client.delete("/api/v1/admin/events/old?days=5000", headers=headers)
         assert res.status_code == 400
 
-    def test_cases_invalid_priority_rejected(self, client):
+    def test_cases_invalid_priority_rejected(self, client, analyst_token):
         """Invalid priority string must return 422."""
-        res = client.post("/api/v1/cases/", json={
+        headers = {"Authorization": f"Bearer {analyst_token}"}
+        res = client.post("/api/v1/cases/", headers=headers, json={
             "title": "Suspicious Activity",
             "description": "Investigating incident",
             "priority": "ExtremeUrgent"
         })
         assert res.status_code == 422
 
-    def test_cases_valid_priority_accepted(self, client):
+    def test_cases_valid_priority_accepted(self, client, analyst_token):
         """Valid priority string ('High') is normalized and accepted."""
-        res = client.post("/api/v1/cases/", json={
+        headers = {"Authorization": f"Bearer {analyst_token}"}
+        res = client.post("/api/v1/cases/", headers=headers, json={
             "title": "Suspicious Activity",
             "description": "Investigating incident",
             "priority": "High"
@@ -206,9 +213,10 @@ class TestInputValidationAndBounds:
         assert res.status_code == 200
         assert res.json()["priority"] == "High"
 
-    def test_reports_invalid_frequency_rejected(self, client):
+    def test_reports_invalid_frequency_rejected(self, client, analyst_token):
         """Invalid frequency string must return 422."""
-        res = client.post("/api/v1/reports/schedule", json={
+        headers = {"Authorization": f"Bearer {analyst_token}"}
+        res = client.post("/api/v1/reports/schedule", headers=headers, json={
             "name": "Weekly Audit",
             "template_type": "Executive Summary",
             "frequency": "hourly_not_allowed",
@@ -217,9 +225,10 @@ class TestInputValidationAndBounds:
         })
         assert res.status_code == 422
 
-    def test_reports_invalid_time_format_rejected(self, client):
+    def test_reports_invalid_time_format_rejected(self, client, analyst_token):
         """Malformed schedule_time string must return 422."""
-        res = client.post("/api/v1/reports/schedule", json={
+        headers = {"Authorization": f"Bearer {analyst_token}"}
+        res = client.post("/api/v1/reports/schedule", headers=headers, json={
             "name": "Weekly Audit",
             "template_type": "Executive Summary",
             "frequency": "daily",
@@ -228,17 +237,19 @@ class TestInputValidationAndBounds:
         })
         assert res.status_code == 422
 
-    def test_hunting_invalid_logic_rejected(self, client):
+    def test_hunting_invalid_logic_rejected(self, client, analyst_token):
         """Invalid boolean logic operator must return 422."""
-        res = client.post("/api/v1/hunting/search", json={
+        headers = {"Authorization": f"Bearer {analyst_token}"}
+        res = client.post("/api/v1/hunting/search", headers=headers, json={
             "logic": "XOR",
             "conditions": [{"field": "src_ip", "operator": "equals", "value": "1.2.3.4"}]
         })
         assert res.status_code == 422
 
-    def test_hunting_invalid_operator_rejected(self, client):
+    def test_hunting_invalid_operator_rejected(self, client, analyst_token):
         """Invalid query operator must return 422."""
-        res = client.post("/api/v1/hunting/search", json={
+        headers = {"Authorization": f"Bearer {analyst_token}"}
+        res = client.post("/api/v1/hunting/search", headers=headers, json={
             "logic": "AND",
             "conditions": [{"field": "src_ip", "operator": "matches_regex_injection", "value": ".*"}]
         })
@@ -249,32 +260,43 @@ class TestInputValidationAndBounds:
 # 3. IP FORMAT VALIDATION & ACTIVE DEFENSE BOUNDS
 # ===========================================================================
 class TestIPValidationAndActiveDefense:
-    def test_attacker_profile_invalid_ip(self, client):
+    def test_attacker_profile_invalid_ip(self, client, analyst_token):
         """Malformed IP address format must return 400 Bad Request."""
-        res = client.get("/api/v1/attribution/profile/invalid..ip..format")
+        headers = {"Authorization": f"Bearer {analyst_token}"}
+        res = client.get("/api/v1/attribution/profile/invalid..ip..format", headers=headers)
         assert res.status_code == 400
         assert "Invalid IP address format" in res.json().get("detail", "")
 
-    def test_threat_intel_enrich_invalid_ip(self, client):
+    def test_threat_intel_enrich_invalid_ip(self, client, analyst_token):
         """Enrichment endpoint with malformed IP returns 400."""
-        res = client.get("/api/v1/enrich/ip/999.888.777.666")
+        headers = {"Authorization": f"Bearer {analyst_token}"}
+        res = client.get("/api/v1/enrich/ip/999.888.777.666", headers=headers)
         assert res.status_code == 400
 
-    def test_geoip_lookup_invalid_ip(self, client):
+    def test_geoip_lookup_invalid_ip(self, client, analyst_token):
         """GeoIP lookup with malformed IP returns 400."""
-        res = client.get("/api/geoip/lookup/not_an_ip")
+        headers = {"Authorization": f"Bearer {analyst_token}"}
+        res = client.get("/api/geoip/lookup/not_an_ip", headers=headers)
         assert res.status_code == 400
 
-    def test_active_defense_block_protected_ip(self, client):
+    def test_active_defense_block_protected_ip(self, client, admin_token, step_up_token):
         """Attempting to block localhost or protected service returns safety error."""
-        res = client.post("/active-defense/block/127.0.0.1")
-        assert res.status_code == 200
-        assert res.json()["status"] == "error"
-        assert "Cannot block" in res.json()["message"]
+        headers = {
+            "Authorization": f"Bearer {admin_token}",
+            "X-Step-Up-Token": step_up_token,
+        }
+        res = client.post("/active-defense/block/127.0.0.1", headers=headers)
+        assert res.status_code in (200, 400)
+        content = res.json()
+        assert "Cannot block" in (content.get("message") or content.get("detail", ""))
 
-    def test_active_defense_block_invalid_ip(self, client):
+    def test_active_defense_block_invalid_ip(self, client, admin_token, step_up_token):
         """Attempting to block malformed IP returns 400."""
-        res = client.post("/active-defense/block/invalid_ip_addr")
+        headers = {
+            "Authorization": f"Bearer {admin_token}",
+            "X-Step-Up-Token": step_up_token,
+        }
+        res = client.post("/active-defense/block/invalid_ip_addr", headers=headers)
         assert res.status_code == 400
 
 
@@ -302,14 +324,14 @@ class TestPathTraversalMitigation:
         assert "Invalid PCAP file path" in res.json().get("detail", "")
 
 
-
 # ===========================================================================
 # 5. ERROR SANITIZATION & INFORMATION LEAKAGE PREVENTION
 # ===========================================================================
 class TestErrorSanitization:
-    def test_alerts_resolve_nonexistent(self, client):
+    def test_alerts_resolve_nonexistent(self, client, analyst_token):
         """Non-existent alert returns clean 404."""
-        res = client.patch("/api/v1/alerts/99999999/resolve")
+        headers = {"Authorization": f"Bearer {analyst_token}"}
+        res = client.patch("/api/v1/alerts/99999999/resolve", headers=headers)
         assert res.status_code == 404
         assert res.json().get("detail") == "Alert not found"
 

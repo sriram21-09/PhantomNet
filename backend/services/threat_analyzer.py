@@ -265,59 +265,33 @@ class ThreatAnalyzerService:
 
                     batch_results = score_threat_batch(inputs_for_batching)
 
-                    # Compute unsupervised anomaly scores in bulk for speed
-                    events_dicts = [
-                        {
-                            "src_ip": i.src_ip,
-                            "dst_ip": i.dst_ip,
-                            "dst_port": i.dst_port,
-                            "protocol": i.protocol,
-                            "length": i.length,
-                        }
-                        for i in inputs_for_batching
-                    ]
-                    unsupervised_scores = unsupervised_detector.predict_anomalies(
-                        events_dicts
-                    )
-
                     for idx, result in enumerate(batch_results):
                         if result:
                             log = log_mapping[idx]
 
-                            # Apply Unsupervised Anomaly detection
-                            anomaly_score = unsupervised_scores[idx]
+                            # Check for opt-in experimental LSTM branch (Rule 4: Isolated from canonical ML-2)
+                            enable_exp_lstm = os.getenv("PHANTOMNET_ENABLE_EXPERIMENTAL_LSTM", "false").lower() == "true"
+                            if enable_exp_lstm:
+                                lstm_score = self._compute_lstm_score(log.src_ip, log)
+                                if lstm_score > 0:
+                                    logger.warning(
+                                        "EXPERIMENTAL LSTM BRANCH ENGAGED: Overriding canonical threat score for %s. "
+                                        "This path is legacy/experimental and non-canonical.",
+                                        log.src_ip,
+                                    )
+                                    rf_norm = result.rf_score if result.rf_score is not None else result.score
+                                    if_norm = result.calibrated_if_score if result.calibrated_if_score is not None else 0.0
+                                    exp_score = (rf_norm * 0.50) + (lstm_score * 0.30) + (if_norm * 0.20)
+                                    result.score = round(max(0.0, min(1.0, float(exp_score))), 2)
+                                    from ml.models.ensemble_predictor import EnsemblePredictor
+                                    result.threat_level = EnsemblePredictor.classify_severity(result.score)
+                                    result.decision = EnsemblePredictor.classify_decision(result.score)
 
-                            # Apply LSTM sequence ensemble
-                            lstm_score = self._compute_lstm_score(log.src_ip, log)
-
-                            if lstm_score > 0:
-                                # Ensemble Equation: 50% RF, 30% LSTM, 20% Unsupervised Anomaly baseline
-                                # (Standardizing RF if it was 0-100, but it's now 0-1 in our updated scoring service)
-                                rf_normalized = result.score if result.score <= 1.0 else result.score / 100.0
-                                combined_score = (
-                                    (rf_normalized * 0.5)
-                                    + (lstm_score * 0.3)
-                                    + (anomaly_score * 0.2)
-                                )
-                            else:
-                                # Fallback Sequence (Buffer not full): 80% RF, 20% Unsupervised
-                                rf_normalized = result.score if result.score <= 1.0 else result.score / 100.0
-                                combined_score = (rf_normalized * 0.8) + (
-                                    anomaly_score * 0.2
-                                )
-
-                            result.score = float(combined_score)
-                            if combined_score >= 0.8:
-                                result.threat_level = "CRITICAL"
-                            elif combined_score >= 0.6:
-                                result.threat_level = "HIGH"
-                            elif combined_score >= 0.4:
-                                result.threat_level = "MEDIUM"
-                            else:
-                                result.threat_level = "LOW"
-
+                            # Assign calibrated anomaly score and apply canonical result
+                            log.anomaly_score = float(
+                                result.calibrated_if_score if result.calibrated_if_score is not None else 0.0
+                            )
                             self._cache_score(log.src_ip, result)
-                            log.anomaly_score = float(anomaly_score)
                             self._apply_threat_result(log, result)
                             updated_count += 1
 

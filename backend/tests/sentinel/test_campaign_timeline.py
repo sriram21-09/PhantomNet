@@ -37,9 +37,16 @@ def override_get_db():
     finally:
         db.close()
 
+from middleware.auth import get_current_user
+from database.models import User
+
+def mock_get_current_user():
+    return User(id=1, username="testadmin", role="admin", status="active")
+
 @pytest.fixture(scope="module", autouse=True)
 def setup_database():
     app.dependency_overrides[get_db] = override_get_db
+    app.dependency_overrides[get_current_user] = mock_get_current_user
     Base.metadata.drop_all(bind=engine)
     Base.metadata.create_all(bind=engine)
     db = TestingSessionLocal()
@@ -72,6 +79,7 @@ def setup_database():
     
     yield
     app.dependency_overrides.pop(get_db, None)
+    app.dependency_overrides.pop(get_current_user, None)
 
 @pytest.fixture(scope="module")
 def client():

@@ -1280,6 +1280,35 @@ def blocked_ips(_user: User = Depends(get_current_user)) -> dict:
     }
 
 
+@app.post("/active-defense/block/{ip}")
+@app.post("/api/response/block/{ip}")
+def block_ip(
+    request: Request,
+    ip: str = Path(..., min_length=1, max_length=50, description="IP address to block"),
+    reason: Optional[str] = Query(None, description="Analyst justification"),
+    step_up_token: Optional[str] = Header(None, alias="X-Step-Up-Token"),
+    admin: User = Depends(require_role("Admin")),
+    db: Session = Depends(get_db),
+) -> dict:
+    """Manually block an IP address with active defense safety checks."""
+    if not verify_step_up_auth(step_up_token, admin):
+        raise HTTPException(
+            status_code=403,
+            detail="Step-up authentication required for active defense operations. Obtain a token via POST /api/v1/admin/step-up",
+        )
+
+    ip_clean = ip.strip()
+    if ip_clean in ["127.0.0.1", "::1", "localhost", "phantomnet_postgres"]:
+        return {"status": "error", "message": "Cannot block protected IP"}
+    try:
+        ipaddress.ip_address(ip_clean)
+    except ValueError:
+        raise HTTPException(status_code=400, detail=f"Invalid IP address format: {ip}")
+
+    result = response_executor.block_ip(ip_clean, level="MANUAL", reason=reason or "Manual active defense block")
+    return {"status": "success", "message": f"Blocked IP {ip_clean}", "details": result}
+
+
 @app.post("/api/response/unblock/{ip}")
 def unblock_ip(
     request: Request,
