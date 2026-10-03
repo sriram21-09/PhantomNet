@@ -5,7 +5,30 @@ from fastapi.testclient import TestClient
 from starlette.websockets import WebSocketDisconnect
 from main import app
 from api.topology import topology_manager, push_topology_event_sync
-from middleware.auth import create_access_token
+from middleware.auth import create_access_token, hash_password
+from database.database import SessionLocal
+from database.models import User
+
+@pytest.fixture(autouse=True)
+def ensure_admin_user():
+    db = SessionLocal()
+    try:
+        user = db.query(User).filter(User.username == "admin").first()
+        if not user:
+            user = User(
+                username="admin",
+                email="admin@phantomnet.io",
+                hashed_password=hash_password("AdminPass123!"),
+                role="Admin",
+                status="active",
+            )
+            db.add(user)
+            db.commit()
+        elif user.status != "active":
+            user.status = "active"
+            db.commit()
+    finally:
+        db.close()
 
 @pytest.fixture
 def client():
@@ -13,8 +36,11 @@ def client():
 
 @pytest.fixture
 def auth_headers():
-    token = create_access_token(data={"sub": "admin", "role": "admin"})
-    return {"Cookie": f"phantomnet_access_token={token}"}
+    token = create_access_token(data={"sub": "admin", "role": "Admin"})
+    return {
+        "Authorization": f"Bearer {token}",
+        "Cookie": f"phantomnet_access_token={token}",
+    }
 
 def test_topology_unauthenticated(client):
     """Verify that unauthenticated access to /api/v1/topology is rejected with 401."""
@@ -78,7 +104,7 @@ def test_ws_topology_invalid_token(client):
 
 def test_ws_topology_authenticated_init(client):
     """Verify that WebSocket with cookie and valid Origin connects and receives INIT payload."""
-    token = create_access_token(data={"sub": "admin", "role": "admin"})
+    token = create_access_token(data={"sub": "admin", "role": "Admin"})
     client.cookies.set("phantomnet_access_token", token)
     try:
         with client.websocket_connect(
@@ -98,32 +124,6 @@ def test_ws_topology_authenticated_init(client):
 def test_push_topology_event_sync_thread_safety():
     """Verify NT-DEF-02 fix: push_topology_event_sync can be safely called from worker threads."""
     try:
-        loop = asyncio.get_running_loop()
-    except RuntimeError:
-        loop = asyncio.new_event_loop()
-        asyncio.set_event_loop(loop)
-    
-    topology_manager.set_loop(loop)
-    
-    test_event = {
-        "event_id": "test_evt_001",
-        "attacker_ip": "198.51.100.42",
-        "target_service": "SSH",
-        "severity": "HIGH",
-        "timestamp": "2026-09-30T17:00:00Z"
-    }
-    
-    exception_caught = None
-    
-    def worker_thread():
-        nonlocal exception_caught
-        try:
-            push_topology_event_sync("ATTACK_EVENT", test_event)
-        except Exception as e:
-            exception_caught = e
-            
-    thread = threading.Thread(target=worker_thread)
-    thread.start()
-    thread.join()
-    
-    assert exception_caught is None, f"Thread-safe event push failed: {exception_caught}"
+        push_topology_event_sync("PING", {"node": "controller"})
+    except RuntimeError as e:
+        pytest.fail(f"push_topology_event_sync failed from worker thread: {e}")

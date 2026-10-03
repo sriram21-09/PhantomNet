@@ -54,6 +54,7 @@ backend/verify_output.txt
 data/pcaps/
 *.pcap
 experiments/
+!tests/experiments/
 last_sid.txt
 **/last_sid.txt
 

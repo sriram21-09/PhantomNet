@@ -7,11 +7,21 @@ from typing import Dict, List, Set, Any
 import numpy as np
 
 
+import warnings
+
+
 class FeatureExtractorV2:
     """
-    Enhanced Feature Extractor with 12+ Behavioral Features.
-    Extends base detection capabilities with temporal and payload patterns.
+    [LEGACY / QUARANTINED — PHASE ML-3]
+    Host-specific / Honeypot Command Feature Extractor.
+    Extracts 12 host behavioral features (command_count, failed_login_count, etc.).
+
+    WARNING: This extractor operates on host command/shell patterns, NOT canonical network flow features.
+    It is QUARANTINED from canonical network threat scoring.
+    The authoritative flow extractor is `backend.ml.feature_extractor.FeatureExtractor`.
     """
+    STATUS = "LEGACY_HOST_SPECIFIC"
+    DIMENSION = 12
 
     BEHAVIORAL_FEATURES = [
         "command_count",
@@ -44,6 +54,12 @@ class FeatureExtractorV2:
     SHELL_ESCAPES = {";", "&&", "||", "|", "`", "$(", "\\\n"}
 
     def __init__(self, window_seconds: int = 3600):
+        warnings.warn(
+            "FeatureExtractorV2 is host/command-specific and quarantined from network flow inference as of Phase ML-3. "
+            "Use backend.ml.feature_extractor.FeatureExtractor for canonical 12D flow extraction.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
         self.window_seconds = window_seconds
 
         # State tracking (per source IP)

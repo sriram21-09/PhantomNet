@@ -14,6 +14,8 @@ DB_URL = "sqlite:///./phantomnet.db"  # Default fallback if Postgres isn't runni
 
 engine = create_engine(DB_URL, connect_args={"check_same_thread": False})
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+from backend.database.models import Base
+Base.metadata.create_all(bind=engine)
 
 
 def inject_mock_sqlite_packet(
@@ -72,6 +74,9 @@ class TestWeek9Integration:
         # 2. Poll the database waiting for the ThreatAnalyzer background thread to score it
         # Thread polls every 5 seconds typically, but we want to measure the exact latency of the ML function
         # For a truly accurate sub-second test, the ThreatAnalyzerService poll_interval should be 1s during testing.
+        from backend.services.threat_analyzer import threat_analyzer
+        threat_analyzer._process_unscored_logs()
+
         max_wait = 10.0
         is_scored = False
 
@@ -108,10 +113,19 @@ class TestWeek9Integration:
             for _ in range(7):
                 inject_mock_sqlite_packet(src_ip=f"192.168.200.{i}", dst_port=2222)
 
-        # 2. Trigger the endpoint manually
-        resp = client.get("/api/v1/patterns/advanced")
-        assert resp.status_code == 200
-        data = resp.json()
+        # 2. Trigger the endpoint manually with authorized credentials
+        try:
+            from middleware.auth import get_current_user
+        except ImportError:
+            from backend.middleware.auth import get_current_user
+        from backend.database.models import User
+        app.dependency_overrides[get_current_user] = lambda: User(username="admin_user", role="Admin", status="active")
+        try:
+            resp = client.get("/api/v1/patterns/advanced")
+            assert resp.status_code == 200
+            data = resp.json()
+        finally:
+            app.dependency_overrides.pop(get_current_user, None)
 
         # Assert the module structure exists
         assert "distributed_brute_force_ssh" in data

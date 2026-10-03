@@ -11,23 +11,34 @@ import pandas as pd
 @pytest.fixture
 def mock_feature_extractor():
     with patch('ml.threat_scoring_service._FEATURE_EXTRACTOR') as mock_extractor:
-        # Mock extract_features to return a simple dictionary matching FEATURE_NAMES
-        # We need to know FEATURE_NAMES to mock it properly, but we can just mock the whole flow
-        # where the model input is matched by the model mock
-        mock_extractor.FEATURE_NAMES = ['feat1', 'feat2']
-        mock_extractor.extract_features.return_value = {'feat1': 1.0, 'feat2': 2.0}
+        from ml.feature_extractor import FeatureExtractor
+        mock_extractor.FEATURE_NAMES = FeatureExtractor.FEATURE_NAMES
+        mock_extractor.extract_features.return_value = {k: 0.0 for k in FeatureExtractor.FEATURE_NAMES}
         yield mock_extractor
 
-class MockModelPredictProba:
-    def predict_proba(self, X):
-        # Return probability of [benign, malicious]
-        # X is expected to have rows
-        return [[0.2, 0.8]] * len(X)
+class MockEnsemble:
+    def __init__(self, score=0.8, confidence=0.8):
+        self.score = score
+        self.confidence = confidence
 
-class MockModelPredict:
-    def predict(self, X):
-        # Return -1 for anomaly, 1 for normal
-        return [-1] * len(X)
+    def score_vector(self, X_df):
+        return {
+            "final_score": self.score,
+            "confidence": self.confidence,
+            "rf_score": self.score,
+            "raw_if_score": 0.5,
+            "calibrated_if_score": self.score,
+            "model_version": "v1.0.0",
+        }
+
+    def predict_batch(self, X_df):
+        n = len(X_df)
+        return pd.DataFrame({
+            "ensemble_score": [self.score] * n,
+            "rf_prob": [self.score] * n,
+            "if_score": [self.score] * n,
+            "raw_if_score": [0.5] * n,
+        })
 
 @pytest.fixture(autouse=True)
 def clear_local_cache():
@@ -44,8 +55,8 @@ def mock_redis():
 def test_map_score_to_level_static():
     assert tss.map_score_to_level(0.1) == "LOW"
     assert tss.map_score_to_level(0.5) == "MEDIUM"
-    assert tss.map_score_to_level(0.8) == "HIGH"
-    assert tss.map_score_to_level(0.95) == "CRITICAL"
+    assert tss.map_score_to_level(0.7) == "HIGH"
+    assert tss.map_score_to_level(0.85) == "CRITICAL"
 
 @pytest.mark.usefixtures("mock_redis", "mock_feature_extractor")
 def test_map_score_to_level_dynamic_night():
@@ -53,9 +64,9 @@ def test_map_score_to_level_dynamic_night():
         src_ip="1.1.1.1", dst_ip="2.2.2.2", dst_port=80, protocol="TCP", length=100,
         timestamp="2026-03-14T03:00:00Z" # Night time UTC
     )
-    # Night shifts thresholds down by 0.1 (e.g. high shifts from 0.9 to 0.8)
-    assert tss.map_score_to_level(0.81, input_data) == "CRITICAL" # 0.81 > 0.8
-    assert tss.map_score_to_level(0.7, input_data) == "HIGH" 
+    # Night shifts thresholds down by 0.1 (high shifts from 0.8 to 0.7)
+    assert tss.map_score_to_level(0.75, input_data) == "CRITICAL"
+    assert tss.map_score_to_level(0.55, input_data) == "HIGH" 
 
 @pytest.mark.usefixtures("mock_redis", "mock_feature_extractor")
 def test_map_score_to_level_dynamic_honeypot():
@@ -63,9 +74,9 @@ def test_map_score_to_level_dynamic_honeypot():
         src_ip="1.1.1.1", dst_ip="2.2.2.2", dst_port=22, protocol="TCP", length=100,
         honeypot_type="SSH"
     )
-    # Honeypot shifts thresholds down by 0.15
-    assert tss.map_score_to_level(0.65, input_data) == "HIGH"
-    assert tss.map_score_to_level(0.8, input_data) == "CRITICAL"
+    # Honeypot shifts thresholds down by 0.15 (high shifts from 0.80 to 0.65)
+    assert tss.map_score_to_level(0.50, input_data) == "HIGH"
+    assert tss.map_score_to_level(0.70, input_data) == "CRITICAL"
 
 @pytest.mark.usefixtures("mock_redis", "mock_feature_extractor")
 def test_map_score_to_level_dynamic_reputation():
@@ -76,17 +87,10 @@ def test_map_score_to_level_dynamic_reputation():
     # Malicious reputation is an automatic CRITICAL
     assert tss.map_score_to_level(0.1, input_data) == "CRITICAL"
 
-@patch('ml.threat_scoring_service.model_loader.load_model')
-@pytest.mark.usefixtures("mock_redis")
-def test_score_threat_predict_proba(mock_load_model, mock_feature_extractor):
-    mock_load_model.return_value = MockModelPredictProba()
-    
-    # Needs a real FeatureExtractor FEATURE_NAMES assignment to avoid pandas mismatch
-    from ml.feature_extractor import FeatureExtractor
-    mock_feature_extractor.FEATURE_NAMES = FeatureExtractor.FEATURE_NAMES
-    
-    # Just need it to return a dit with correct keys 
-    mock_feature_extractor.extract_features.return_value = {k: 0 for k in FeatureExtractor.FEATURE_NAMES}
+@patch('ml.threat_scoring_service._get_active_ensemble')
+@pytest.mark.usefixtures("mock_redis", "mock_feature_extractor")
+def test_score_threat_predict_proba(mock_get_ensemble):
+    mock_get_ensemble.return_value = MockEnsemble(score=0.7, confidence=0.7)
     
     input_data = ThreatInput(
         src_ip="1.1.1.1", dst_ip="2.2.2.2", dst_port=80, protocol="TCP", length=100
@@ -94,19 +98,15 @@ def test_score_threat_predict_proba(mock_load_model, mock_feature_extractor):
     
     response = tss.score_threat(input_data)
     
-    assert response.score == 0.8
+    assert response.score == 0.7
     assert response.threat_level == "HIGH"
-    assert response.confidence == 0.8
-    assert response.decision == "BLOCK"
+    assert response.confidence == 0.7
+    assert response.decision == "ALERT"
 
-@patch('ml.threat_scoring_service.model_loader.load_model')
-@pytest.mark.usefixtures("mock_redis")
-def test_score_threat_predict(mock_load_model, mock_feature_extractor):
-    mock_load_model.return_value = MockModelPredict()
-    
-    from ml.feature_extractor import FeatureExtractor
-    mock_feature_extractor.FEATURE_NAMES = FeatureExtractor.FEATURE_NAMES
-    mock_feature_extractor.extract_features.return_value = {k: 0 for k in FeatureExtractor.FEATURE_NAMES}
+@patch('ml.threat_scoring_service._get_active_ensemble')
+@pytest.mark.usefixtures("mock_redis", "mock_feature_extractor")
+def test_score_threat_predict(mock_get_ensemble):
+    mock_get_ensemble.return_value = MockEnsemble(score=0.85, confidence=0.85)
     
     input_data = ThreatInput(
         src_ip="1.1.1.1", dst_ip="2.2.2.2", dst_port=80, protocol="TCP", length=100
@@ -115,14 +115,14 @@ def test_score_threat_predict(mock_load_model, mock_feature_extractor):
     response = tss.score_threat(input_data)
     
     assert response.score == 0.85
-    assert response.threat_level == "HIGH"
+    assert response.threat_level == "CRITICAL"
     assert response.confidence == 0.85
     assert response.decision == "BLOCK"
 
-@patch('ml.threat_scoring_service.model_loader.load_model')
+@patch('ml.threat_scoring_service._get_active_ensemble')
 @pytest.mark.usefixtures("mock_redis")
-def test_score_threat_no_model(mock_load_model):
-    mock_load_model.return_value = None
+def test_score_threat_no_model(mock_get_ensemble):
+    mock_get_ensemble.return_value = None
     input_data = ThreatInput(
         src_ip="1.1.1.1", dst_ip="2.2.2.2", dst_port=80, protocol="TCP", length=100
     )
@@ -132,14 +132,10 @@ def test_score_threat_no_model(mock_load_model):
     assert response.threat_level == "LOW"
     assert response.decision == "ALLOW"
 
-@patch('ml.threat_scoring_service.model_loader.load_model')
-@pytest.mark.usefixtures("mock_redis")
-def test_score_threat_batch(mock_load_model, mock_feature_extractor):
-    mock_load_model.return_value = MockModelPredictProba()
-    
-    from ml.feature_extractor import FeatureExtractor
-    mock_feature_extractor.FEATURE_NAMES = FeatureExtractor.FEATURE_NAMES
-    mock_feature_extractor.extract_features.side_effect = lambda ev: {k: 0 for k in FeatureExtractor.FEATURE_NAMES}
+@patch('ml.threat_scoring_service._get_active_ensemble')
+@pytest.mark.usefixtures("mock_redis", "mock_feature_extractor")
+def test_score_threat_batch(mock_get_ensemble):
+    mock_get_ensemble.return_value = MockEnsemble(score=0.85, confidence=0.85)
     
     inputs = [
         ThreatInput(src_ip="1.1.1.1", dst_ip="2.2.2.2", dst_port=80, protocol="TCP", length=100),
@@ -150,6 +146,6 @@ def test_score_threat_batch(mock_load_model, mock_feature_extractor):
     
     assert len(responses) == 2
     for response in responses:
-        assert response.score == 0.8
-        assert response.threat_level == "HIGH"
+        assert response.score == 0.85
+        assert response.threat_level == "CRITICAL"
         assert response.decision == "BLOCK"

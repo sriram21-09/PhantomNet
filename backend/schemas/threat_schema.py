@@ -43,7 +43,11 @@ class ThreatResponse(BaseModel):
     Output schema for threat scoring analysis.
     """
 
-    score: float = Field(..., description="Calculated Threat Probability (0-100)")
-    threat_level: str = Field(..., description="Categorical Level: LOW, MEDIUM, HIGH")
+    score: float = Field(..., description="Calculated Threat Probability (0.0-1.0)")
+    threat_level: str = Field(..., description="Categorical Level: LOW, MEDIUM, HIGH, CRITICAL")
     confidence: float = Field(..., description="Model Confidence (0.0-1.0)")
     decision: str = Field(..., description="Recommended Action: ALLOW, ALERT, BLOCK")
+    rf_score: Optional[float] = Field(None, description="Random Forest probability score (0.0-1.0)")
+    raw_if_score: Optional[float] = Field(None, description="Raw Isolation Forest decision function score")
+    calibrated_if_score: Optional[float] = Field(None, description="Calibrated Isolation Forest anomaly score (0.0-1.0)")
+    model_version: Optional[str] = Field(None, description="Active model version identifier")

@@ -199,11 +199,11 @@ class TestTimeoutHandling:
     """Integration tests for httpx timeout exception handling."""
 
     def test_timeout_constants_are_configured(self):
-        """Verify the 60-second timeout constants are correctly set."""
+        """Verify the timeout constants are correctly set."""
         assert _OLLAMA_TIMEOUT.connect == 60.0
-        assert _OLLAMA_TIMEOUT.read == 60.0
-        assert _OLLAMA_TIMEOUT.write == 10.0
-        assert _OLLAMA_TIMEOUT.pool == 5.0
+        assert _OLLAMA_TIMEOUT.read == 180.0
+        assert _OLLAMA_TIMEOUT.write == 30.0
+        assert _OLLAMA_TIMEOUT.pool == 10.0
 
     @patch("sentinel.llm_service.httpx.AsyncClient")
     def test_connect_timeout_returns_fallback(self, mock_client_cls):

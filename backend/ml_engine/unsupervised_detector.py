@@ -31,7 +31,15 @@ class UnsupervisedAnomalyDetector:
         if os.path.exists(self.model_path):
             try:
                 with open(self.model_path, "rb") as f:
-                    self.model = pickle.load(f)
+                    loaded = pickle.load(f)
+                if hasattr(loaded, "n_features_in_") and loaded.n_features_in_ != len(FeatureExtractor.FEATURE_NAMES):
+                    logger.warning(
+                        "Isolation Forest model has %d features, but expected %d. Ignoring stale model.",
+                        loaded.n_features_in_,
+                        len(FeatureExtractor.FEATURE_NAMES),
+                    )
+                    return False
+                self.model = loaded
                 logger.info("Loaded Isolation Forest baseline model.")
                 return True
             except Exception as e:
@@ -116,7 +124,7 @@ class UnsupervisedAnomalyDetector:
         try:
             # score_samples returns negative anomaly score (-1.0 to 0.0)
             # Lower means more anomalous. We invert to make it positive.
-            scores = self.model.score_samples(df.values)
+            scores = self.model.score_samples(df)
 
             # Normalize approx 0 to 1.0 for threat score integration
             # IsolationForest score_samples is approx -1 to 0. Lower is more anomalous.

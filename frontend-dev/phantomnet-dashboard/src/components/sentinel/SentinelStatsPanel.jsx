@@ -14,7 +14,7 @@ const SentinelStatsPanel = ({ stats, loading }) => {
 
   // 1. Safe extraction and normalization
   const total = stats?.total_playbooks || 0;
-  const approved = (stats?.approved || 0) + (stats?.exported || 0);
+  const approved = stats?.approved || 0;
   const pending = stats?.pending || 0;
   const rejected = stats?.rejected || 0;
   const approvalRate = stats?.approval_rate !== undefined ? stats.approval_rate : 0;

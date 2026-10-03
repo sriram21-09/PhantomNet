@@ -1,26 +1,144 @@
 {
-    "models": {
-        "v1.0.0": {
-            "version": "v1.0.0",
-            "name": "AttackClassifier_Enhanced",
-            "training_date": "2026-03-13T13:03:33.420460",
-            "path": "ml_models/registry/AttackClassifier_Enhanced_v1.0.0.pkl",
-            "status": "Staging",
-            "metrics": {
-                "accuracy": 0.7333,
-                "precision": 0.0,
-                "recall": 0.0,
-                "f1_score": 0.0,
-                "fpr": 0.0,
-                "pr_auc": 0.3951,
-                "auc": 0.5597,
-                "timestamp": "2026-09-19T08:56:04.606853",
-                "model_version": "v1.0.0",
-                "evaluation_dataset": "data/ground_truth.csv (strict chronological test split)",
-                "evaluation_samples": 30
-            },
-            "features": [],
-            "hyperparameters": {}
-        }
+  "schema_version": "12D-v1",
+  "authoritative_feature_count": 12,
+  "canonical_features": [
+    "packet_length",
+    "protocol_encoding",
+    "dst_port_class",
+    "src_port_ephemeral",
+    "event_rate_1m",
+    "burst_rate_10s",
+    "inter_arrival_mean",
+    "inter_arrival_std",
+    "packet_size_variance",
+    "payload_entropy",
+    "unique_dst_ips",
+    "unique_dst_ports"
+  ],
+  "models": {
+    "AttackClassifier_Enhanced_v1.0.0": {
+      "model_identifier": "AttackClassifier_Enhanced_v1.0.0",
+      "name": "AttackClassifier_Enhanced",
+      "version": "v1.0.0",
+      "feature_schema_version": "12D-v1",
+      "feature_count": 12,
+      "feature_names": [
+        "packet_length",
+        "protocol_encoding",
+        "dst_port_class",
+        "src_port_ephemeral",
+        "event_rate_1m",
+        "burst_rate_10s",
+        "inter_arrival_mean",
+        "inter_arrival_std",
+        "packet_size_variance",
+        "payload_entropy",
+        "unique_dst_ips",
+        "unique_dst_ports"
+      ],
+      "model_type": "Pipeline([StandardScaler, RandomForestClassifier])",
+      "serialization_format": "joblib/pickle",
+      "path": "ml_models/registry/AttackClassifier_Enhanced_v1.0.0.pkl",
+      "status": "Production",
+      "compatibility": "CANONICAL",
+      "training_date": "2026-03-13T13:03:33.420460",
+      "metrics": {
+        "accuracy": 0.9327,
+        "precision": 0.9748,
+        "recall": 0.7963,
+        "f1_score": 0.8765,
+        "fpr": 0.0103,
+        "roc_auc": 0.9781,
+        "evaluation_dataset": "data/remediated_dataset_v3.csv (N=30 Monte Carlo)",
+        "evaluation_samples": 1000
+      },
+      "hyperparameters": {
+        "n_estimators": 100,
+        "max_depth": 12,
+        "min_samples_split": 5,
+        "min_samples_leaf": 2,
+        "random_state": 42
+      }
+    },
+    "IsolationForest_Baseline_v1.0.0": {
+      "model_identifier": "IsolationForest_Baseline_v1.0.0",
+      "name": "IsolationForest_Baseline",
+      "version": "v1.0.0",
+      "feature_schema_version": "12D-v1",
+      "feature_count": 12,
+      "feature_names": [
+        "packet_length",
+        "protocol_encoding",
+        "dst_port_class",
+        "src_port_ephemeral",
+        "event_rate_1m",
+        "burst_rate_10s",
+        "inter_arrival_mean",
+        "inter_arrival_std",
+        "packet_size_variance",
+        "payload_entropy",
+        "unique_dst_ips",
+        "unique_dst_ports"
+      ],
+      "model_type": "IsolationForest",
+      "serialization_format": "joblib/pickle",
+      "path": "ml_models/iforest_baseline.pkl",
+      "status": "Production",
+      "compatibility": "CANONICAL",
+      "training_date": "2026-10-01T12:00:00.000000",
+      "metrics": {
+        "accuracy": 0.6690,
+        "precision": 0.4616,
+        "recall": 0.6778,
+        "f1_score": 0.5490,
+        "fpr": 0.3347,
+        "roc_auc": 0.7020
+      },
+      "hyperparameters": {
+        "n_estimators": 100,
+        "contamination": 0.10,
+        "random_state": 42
+      }
+    },
+    "Scaler_Canonical_v1.0.0": {
+      "model_identifier": "Scaler_Canonical_v1.0.0",
+      "name": "StandardScaler_12D",
+      "version": "v1.0.0",
+      "feature_schema_version": "12D-v1",
+      "feature_count": 12,
+      "feature_names": [
+        "packet_length",
+        "protocol_encoding",
+        "dst_port_class",
+        "src_port_ephemeral",
+        "event_rate_1m",
+        "burst_rate_10s",
+        "inter_arrival_mean",
+        "inter_arrival_std",
+        "packet_size_variance",
+        "payload_entropy",
+        "unique_dst_ips",
+        "unique_dst_ports"
+      ],
+      "model_type": "StandardScaler",
+      "serialization_format": "joblib/pickle",
+      "path": "ml_models/registry/scaler.pkl",
+      "status": "Production",
+      "compatibility": "CANONICAL"
+    },
+    "AnomalyDetector_Legacy_32D": {
+      "model_identifier": "AnomalyDetector_Legacy_32D",
+      "name": "AnomalyDetector_Legacy_32D",
+      "version": "legacy-32d",
+      "feature_schema_version": "32D-Legacy",
+      "feature_count": 32,
+      "feature_names": [],
+      "model_type": "IsolationForest",
+      "serialization_format": "joblib/pickle",
+      "path": "ml_models/registry/anomaly_detector.pkl",
+      "status": "Quarantined",
+      "compatibility": "QUARANTINED_INCOMPATIBLE",
+      "disposition": "Quarantine: incompatible 32D dimensionality; rejected by canonical model loader"
     }
+  }
 }

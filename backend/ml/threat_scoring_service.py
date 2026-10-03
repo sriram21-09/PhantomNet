@@ -1,20 +1,59 @@
+"""
+PhantomNet Canonical Threat-Scoring Service (Phase ML-2)
+========================================================
+Authoritative production threat-scoring service for real-time inference and batch analysis.
+
+Contract:
+    Raw Event -> 12D FeatureExtractor -> Preprocessing / Model Pipeline
+              -> 0.85 RF + 0.15 Calibrated IF -> Canonical Threat Score
+              -> Severity Classification (CRITICAL, HIGH, MEDIUM, LOW)
+              -> Automated Decision (BLOCK, ALERT, ALLOW)
+
+Thread-safe, deterministic, and free from target/label leakage.
+"""
+
+import os
+import threading
 import pandas as pd
+import numpy as np
 import logging
 import hashlib
 import json
 import redis
+import time
+from typing import List, Optional, Dict, Any
+
 from schemas.threat_schema import ThreatInput, ThreatResponse
 import ml.model_loader as model_loader
 from ml.feature_extractor import FeatureExtractor
-from typing import List
-import time
+from ml.models.ensemble_predictor import EnsemblePredictor
+from ml.config.thresholds import (
+    RF_WEIGHT,
+    IF_WEIGHT,
+    CRITICAL_THRESHOLD,
+    HIGH_THRESHOLD,
+    MEDIUM_THRESHOLD,
+    BLOCK_THRESHOLD,
+    ALERT_THRESHOLD,
+)
+try:
+    from ml.config.feature_schema import (
+        CANONICAL_FEATURE_NAMES,
+        CANONICAL_FEATURE_COUNT,
+        validate_feature_vector,
+    )
+except ImportError:
+    from backend.ml.config.feature_schema import (
+        CANONICAL_FEATURE_NAMES,
+        CANONICAL_FEATURE_COUNT,
+        validate_feature_vector,
+    )
 
 # Setup Logger
 logger = logging.getLogger(__name__)
 
 # Singleton Feature Extractor to maintain state (e.g. rolling windows)
-# In a real distributed system, state should be in Redis/KeyDB.
-# For now, in-memory is acceptable per specs.
+# In-memory is thread-safe per remediated FeatureExtractor.
 _FEATURE_EXTRACTOR = FeatureExtractor()
 
 try:
@@ -33,211 +72,183 @@ except Exception as e:
     REDIS_AVAILABLE = False
     logger.info("Redis not available. Using local in-memory prediction cache.")
 
-# Local memory cache fallback
+# Local memory cache fallback with thread lock
 _LOCAL_PRED_CACHE = {}
+_CACHE_LOCK = threading.Lock()
 
-def map_score_to_level(score: float, context: ThreatInput = None) -> str:
+
+def map_score_to_level(score: float, context: Optional[ThreatInput] = None) -> str:
     """
-    Maps a threat score (0.0-1.0) to a categorical level, applying dynamic
-    threshold adjustments based on context (time of day, interaction type, reputation).
+    Maps a threat score (0.0-1.0) to authoritative categorical level.
+    Base thresholds: CRITICAL >= 0.80, HIGH >= 0.60, MEDIUM >= 0.40, LOW < 0.40.
+    Delegates to canonical EnsemblePredictor.classify_severity.
     """
-    # Baseline thresholds (from ROC optimization)
-    # The actual exact numbers can vary by analysis, but these match recent results roughly
-    # We use 0.4 for medium, 0.75 for high, 0.9 for critical by default
-    low_max = 0.40
-    medium_max = 0.75
-    high_max = 0.90
-
-    if context:
-        # Contextual adjustment: Known malicious reputation is an automatic CRITICAL
-        if getattr(context, "is_malicious", False):
-            return "CRITICAL"
-
-        # Contextual adjustment: more sensitive at night (00:00 - 05:00 UTC)
-        if context.timestamp:
-            try:
-                from dateutil import parser
-                dt = parser.parse(context.timestamp)
-                if 0 <= dt.hour <= 5:
-                    medium_max -= 0.10
-                    high_max -= 0.10
-            except:
-                pass
-                
-        # Contextual adjustment: High interaction honeypots imply high danger
-        if context.honeypot_type and context.honeypot_type.upper() in ["SSH", "TELNET", "RDP"]:
-            medium_max -= 0.15
-            high_max -= 0.15
-
-    # Enforce minimum lower bounds so we don't accidentally class everything critical
-    medium_max = max(0.20, medium_max)
-    high_max = max(0.50, high_max)
-
-    if score > high_max:
-        return "CRITICAL"
-    elif score > medium_max:
-        return "HIGH"
-    elif score > low_max:
-        return "MEDIUM"
-    else:
-        return "LOW"
+    return EnsemblePredictor.classify_severity(score, context)
 
 
-def map_score_to_decision(score: float) -> str:
+def map_score_to_decision(score: float, context: Optional[ThreatInput] = None) -> str:
     """
-    Maps a threat score (0.0-1.0) to a decision action.
+    Maps a threat score (0.0-1.0) to authoritative enforcement action.
+    BLOCK >= 0.80, ALERT >= 0.50, ALLOW < 0.50.
+    Delegates to canonical EnsemblePredictor.classify_decision.
     """
-    if score >= 0.8:
-        return "BLOCK"
-    elif score >= 0.5:
-        return "ALERT"
-    else:
-        return "ALLOW"
+    return EnsemblePredictor.classify_decision(score, context)
+
+
+class ThreatScorer:
+    """
+    Object-oriented wrapper around the canonical scoring pipeline.
+    Maintains compatibility with profiler and background services.
+    """
+
+    def __init__(self, ensemble: Optional[EnsemblePredictor] = None):
+        self.ensemble = ensemble
+
+    def _load_model(self) -> None:
+        """Loads or reloads the canonical ensemble."""
+        self.ensemble = model_loader.load_ensemble()
+
+    def score(self, input_data: ThreatInput) -> ThreatResponse:
+        return score_threat(input_data)
+
+    def score_batch(self, inputs: List[ThreatInput]) -> List[ThreatResponse]:
+        return score_threat_batch(inputs)
+
+
+def _get_active_ensemble() -> Optional[EnsemblePredictor]:
+    """
+    Retrieves the active EnsemblePredictor.
+    Dynamically tracks model_loader overrides (e.g. in test mocks).
+    """
+    ensemble = model_loader.load_ensemble()
+    current_rf = model_loader.load_model()
+    current_if = model_loader.load_isolation_forest()
+
+    if current_rf is not None and current_rf is not ensemble.rf_model:
+        ensemble.rf_model = current_rf
+    if current_if is not None and current_if is not ensemble.if_model:
+        ensemble.if_model = current_if
+
+    if ensemble.rf_model is None and ensemble.if_model is None:
+        return None
+
+    return ensemble
 
 
 def score_threat(input_data: ThreatInput) -> ThreatResponse:
-    """ """
+    """
+    Scores a single network event using the canonical hybrid scoring architecture:
+        score = 0.85 * RF + 0.15 * Calibrated IF
+    """
+    # 1. Check Prediction Cache first
+    event_str = json.dumps(
+        input_data.model_dump(exclude={"timestamp"}), sort_keys=True
+    )
+    event_hash = "pred_cache:" + hashlib.sha256(event_str.encode()).hexdigest()
 
-    # Check Prediction Cache first
     if REDIS_AVAILABLE:
-        # Generate a deterministic hash for the raw event
-        event_str = json.dumps(
-            input_data.model_dump(exclude={"timestamp"}), sort_keys=True
-        )
-        event_hash = "pred_cache:" + hashlib.sha256(event_str.encode()).hexdigest()
-
-        cached_result = redis_client.get(event_hash)
-        if cached_result:
-            try:
+        try:
+            cached_result = redis_client.get(event_hash)
+            if cached_result:
                 data = json.loads(cached_result)
                 return ThreatResponse(**data)
-            except Exception as e:
-                logger.debug(f"Cache parse error: {e}")
+        except Exception as e:
+            logger.debug(f"Redis cache read error: {e}")
     else:
-        # Local Cache Check
-        event_str = json.dumps(
-            input_data.model_dump(exclude={"timestamp"}), sort_keys=True
-        )
-        event_hash = "pred_cache:" + hashlib.sha256(event_str.encode()).hexdigest()
-        if event_hash in _LOCAL_PRED_CACHE:
-            entry = _LOCAL_PRED_CACHE[event_hash]
-            if time.time() < entry['exp']:
-                return ThreatResponse(**json.loads(entry['data']))
-            else:
-                del _LOCAL_PRED_CACHE[event_hash]
+        with _CACHE_LOCK:
+            if event_hash in _LOCAL_PRED_CACHE:
+                entry = _LOCAL_PRED_CACHE[event_hash]
+                if time.time() < entry["exp"]:
+                    return ThreatResponse(**json.loads(entry["data"]))
+                else:
+                    del _LOCAL_PRED_CACHE[event_hash]
 
-    model = model_loader.load_model()
-
-    if not model:
-        # Reduced to debug to avoid terminal flood as requested
+    # 2. Acquire Ensemble
+    ensemble = _get_active_ensemble()
+    if not ensemble:
         logger.debug("Model not available for scoring. Using fallback values.")
-        # Fallback response if model is missing
+        # Fallback response if models are entirely missing
+        score = 0.85 if getattr(input_data, "is_malicious", False) else 0.0
         return ThreatResponse(
-            score=0.0, threat_level="LOW", confidence=0.0, decision="ALLOW"
+            score=score,
+            threat_level=map_score_to_level(score, input_data),
+            confidence=0.0,
+            decision=map_score_to_decision(score, input_data),
         )
 
-    # 1. Convert Input to Dict (Raw Event)
+    # 3. Extract 12D Features
     event = input_data.model_dump()
-
-    # 2. Extract Features
-    # This updates internal state of _FEATURE_EXTRACTOR
     features_dict = _FEATURE_EXTRACTOR.extract_features(event)
 
-    # Ensure correct column order matching FeatureExtractor.FEATURE_NAMES
-    # Convert to DataFrame (sklearn models usually expect 2D array or DF)
     feature_vector = pd.DataFrame(
         [features_dict], columns=FeatureExtractor.FEATURE_NAMES
     )
 
-    # 3. Predict
-    # predict_proba returns [prob_benign, prob_malicious]
+    # 4. Predict via Canonical Ensemble
     try:
-        # Align features if model expects fewer/different feature count
-        X_input = feature_vector
-        if hasattr(model, "n_features_in_") and isinstance(getattr(model, "n_features_in_", None), int):
-            n_feat = model.n_features_in_
-            feat_names = getattr(model, "feature_names_in_", None)
-            if feat_names is not None and hasattr(feat_names, "__iter__") and not isinstance(feat_names, (str, bytes)):
-                avail_cols = [c for c in feat_names if c in feature_vector.columns]
-                if len(avail_cols) == n_feat:
-                    X_input = feature_vector[avail_cols]
-                else:
-                    X_input = feature_vector.iloc[:, :n_feat].values
-            else:
-                X_input = feature_vector.iloc[:, :n_feat].values
-
-        # Check for predict_proba (Standard Classifiers)
-        if hasattr(model, "predict_proba"):
-            probabilities = model.predict_proba(X_input)
-            malicious_prob = probabilities[0][1]
-            score = malicious_prob # 0.0 - 1.0
-            confidence = max(probabilities[0])
-
-        # Check for Isolation Forest / One-Class SVM (predict returns -1 for anomaly)
-        elif hasattr(model, "predict"):
-            # Use .values or ndarray to strip feature names and avoid sklearn warning
-            arr = X_input if not hasattr(X_input, "values") else X_input.values
-            pred = model.predict(arr)[0]
-            # IsolationForest: -1 = Anomaly, 1 = Normal
-            if pred == -1:
-                score = 0.85  # High threat (generic for anomaly)
-                confidence = 0.85  # Estimated confidence
-            else:
-                score = 0.10  # Low threat
-                confidence = 0.90
-        else:
-            raise AttributeError("Model has neither predict_proba nor predict")
-
+        scored = ensemble.score_vector(feature_vector)
+        score = scored["final_score"]
+        confidence = scored["confidence"]
+        rf_score = scored["rf_score"]
+        raw_if_score = scored["raw_if_score"]
+        calibrated_if_score = scored["calibrated_if_score"]
+        model_version = scored["model_version"]
     except Exception as e:
         logger.error(f"Prediction failed: {e}")
-        # Valid model but prediction failed? Return Safe default
         return ThreatResponse(
             score=0.0, threat_level="LOW", confidence=0.0, decision="ERROR"
         )
 
-    # 4. Construct Response
+    # 5. Construct Response
     response = ThreatResponse(
         score=round(score, 2),
         threat_level=map_score_to_level(score, input_data),
-        confidence=round(confidence, 2), 
-        decision=map_score_to_decision(score)
+        confidence=round(confidence, 2),
+        decision=map_score_to_decision(score, input_data),
+        rf_score=round(rf_score, 4) if rf_score is not None else None,
+        raw_if_score=round(raw_if_score, 4) if raw_if_score is not None else None,
+        calibrated_if_score=round(calibrated_if_score, 4) if calibrated_if_score is not None else None,
+        model_version=model_version,
     )
 
+    # 6. Cache Response
     if REDIS_AVAILABLE:
         try:
-            redis_client.setex(event_hash, 3600, response.model_dump_json())  # 1h TTL
+            redis_client.setex(event_hash, 3600, response.model_dump_json())
         except Exception as e:
             logger.debug(f"Failed to cache prediction: {e}")
     else:
-        _LOCAL_PRED_CACHE[event_hash] = {
-            'data': response.model_dump_json(),
-            'exp': time.time() + 3600
-        }
+        with _CACHE_LOCK:
+            _LOCAL_PRED_CACHE[event_hash] = {
+                "data": response.model_dump_json(),
+                "exp": time.time() + 3600,
+            }
 
     return response
 
 
 def score_threat_batch(inputs: List[ThreatInput]) -> List[ThreatResponse]:
     """
-    Scores a batch of threats using vectorized operations where possible,
-    drastically reducing model inference overhead compared to loops.
+    Scores a batch of threats using vectorized operations,
+    evaluating canonical 0.85 RF + 0.15 IF for all uncached events.
     """
     if not inputs:
         return []
 
-    responses = [None] * len(inputs)
-    uncached_indices = []
-    uncached_events = []
+    responses: List[Optional[ThreatResponse]] = [None] * len(inputs)
+    uncached_indices: List[int] = []
+    uncached_events: List[Dict[str, Any]] = []
 
     # 1. Check Cache
-    hashes = []
-    if REDIS_AVAILABLE:
-        for i, inp in enumerate(inputs):
-            event_str = json.dumps(
-                inp.model_dump(exclude={"timestamp"}), sort_keys=True
-            )
-            hashes.append("pred_cache:" + hashlib.sha256(event_str.encode()).hexdigest())
+    hashes: List[str] = []
+    for inp in inputs:
+        event_str = json.dumps(
+            inp.model_dump(exclude={"timestamp"}), sort_keys=True
+        )
+        h = "pred_cache:" + hashlib.sha256(event_str.encode()).hexdigest()
+        hashes.append(h)
 
+    if REDIS_AVAILABLE:
         try:
             cached_results = redis_client.mget(hashes)
             for i, result in enumerate(cached_results):
@@ -251,86 +262,68 @@ def score_threat_batch(inputs: List[ThreatInput]) -> List[ThreatResponse]:
             uncached_indices = list(range(len(inputs)))
             uncached_events = [inp.model_dump() for inp in inputs]
     else:
-        for i, inp in enumerate(inputs):
-            event_str = json.dumps(inp.model_dump(exclude={"timestamp"}), sort_keys=True)
-            h = "pred_cache:" + hashlib.sha256(event_str.encode()).hexdigest()
-            hashes.append(h)
-            if h in _LOCAL_PRED_CACHE and time.time() < _LOCAL_PRED_CACHE[h]['exp']:
-                responses[i] = ThreatResponse(**json.loads(_LOCAL_PRED_CACHE[h]['data']))
-            else:
-                uncached_indices.append(i)
-                uncached_events.append(inp.model_dump())
+        with _CACHE_LOCK:
+            for i, inp in enumerate(inputs):
+                h = hashes[i]
+                if h in _LOCAL_PRED_CACHE and time.time() < _LOCAL_PRED_CACHE[h]["exp"]:
+                    responses[i] = ThreatResponse(**json.loads(_LOCAL_PRED_CACHE[h]["data"]))
+                else:
+                    uncached_indices.append(i)
+                    uncached_events.append(inp.model_dump())
 
     if not uncached_indices:
-        return responses
+        return [r for r in responses if r is not None]
 
-    # 2. Extract Features (Batch)
-    model = model_loader.load_model()
-    if not model:
-        default_resp = ThreatResponse(
-            score=0.0, threat_level="LOW", confidence=0.0, decision="ALLOW"
-        )
+    # 2. Acquire Ensemble
+    ensemble = _get_active_ensemble()
+    if not ensemble:
         for i in uncached_indices:
-            responses[i] = default_resp
-        return responses
+            s = 0.85 if getattr(inputs[i], "is_malicious", False) else 0.0
+            responses[i] = ThreatResponse(
+                score=s,
+                threat_level=map_score_to_level(s, inputs[i]),
+                confidence=0.0,
+                decision=map_score_to_decision(s, inputs[i]),
+            )
+        return [r for r in responses if r is not None]
 
+    # 3. Extract Features (Batch)
     features_list = [_FEATURE_EXTRACTOR.extract_features(ev) for ev in uncached_events]
     feature_matrix = pd.DataFrame(features_list, columns=FeatureExtractor.FEATURE_NAMES)
 
-    # 3. Predict Batch
+    # 4. Predict Batch via Canonical Ensemble
     try:
-        # Align features if model expects fewer/different feature count
-        X_matrix = feature_matrix
-        if hasattr(model, "n_features_in_") and isinstance(getattr(model, "n_features_in_", None), int):
-            n_feat = model.n_features_in_
-            feat_names = getattr(model, "feature_names_in_", None)
-            if feat_names is not None and hasattr(feat_names, "__iter__") and not isinstance(feat_names, (str, bytes)):
-                avail_cols = [c for c in feat_names if c in feature_matrix.columns]
-                if len(avail_cols) == n_feat:
-                    X_matrix = feature_matrix[avail_cols]
-                else:
-                    X_matrix = feature_matrix.iloc[:, :n_feat].values
-            else:
-                X_matrix = feature_matrix.iloc[:, :n_feat].values
-
-        if hasattr(model, "predict_proba"):
-            probabilities = model.predict_proba(X_matrix)
-            malicious_probs = [p[1] for p in probabilities]
-            confidences = [max(p) for p in probabilities]
-            scores = [p for p in malicious_probs] # 0.0 - 1.0
-
-        elif hasattr(model, "predict"):
-            arr = X_matrix if not hasattr(X_matrix, "values") else X_matrix.values
-            preds = model.predict(arr)
-            scores = [0.85 if p == -1 else 0.10 for p in preds]
-            confidences = [0.85 if p == -1 else 0.90 for p in preds]
-        else:
-            raise AttributeError("Model has neither predict_proba nor predict")
-
+        res_df = ensemble.predict_batch(feature_matrix)
+        scores = res_df["ensemble_score"].values
+        rf_probs = res_df["rf_prob"].values
+        if_scores = res_df["if_score"].values
+        raw_if_scores = res_df["raw_if_score"].values
     except Exception as e:
         logger.error(f"Batch prediction failed: {e}")
-        default_resp = ThreatResponse(
-            score=0.0, threat_level="LOW", confidence=0.0, decision="ERROR"
-        )
         for i in uncached_indices:
-            responses[i] = default_resp
-        return responses
+            responses[i] = ThreatResponse(
+                score=0.0, threat_level="LOW", confidence=0.0, decision="ERROR"
+            )
+        return [r for r in responses if r is not None]
 
-    # 4. Construct Responses and Cache
+    # 5. Construct Responses & Cache
     cache_inserts = {}
     for idx, i in enumerate(uncached_indices):
-        if idx >= len(scores):
-            print(f"CRITICAL INDEX ERROR: idx={idx}, len(scores)={len(scores)}, len(uncached_indices)={len(uncached_indices)}")
-            score = 0.0
-            confidences.append(0.0) # pad if needed
-        else:
-            score = scores[idx]
-            
+        s = float(scores[idx])
+        rf_p = float(rf_probs[idx])
+        if_s = float(if_scores[idx])
+        raw_if = float(raw_if_scores[idx])
+        conf = float(max(rf_p, 1.0 - rf_p))
+
         resp = ThreatResponse(
-            score=round(score, 2),
-            threat_level=map_score_to_level(score, inputs[i]),
-            confidence=round(confidences[idx], 2),
-            decision=map_score_to_decision(score),
+            score=round(s, 2),
+            threat_level=map_score_to_level(s, inputs[i]),
+            confidence=round(conf, 2),
+            decision=map_score_to_decision(s, inputs[i]),
+            rf_score=round(rf_p, 4),
+            raw_if_score=round(raw_if, 4),
+            calibrated_if_score=round(if_s, 4),
+            model_version="v1.0.0-canonical-12d",
         )
         responses[i] = resp
         if REDIS_AVAILABLE:
@@ -338,8 +331,6 @@ def score_threat_batch(inputs: List[ThreatInput]) -> List[ThreatResponse]:
 
     if REDIS_AVAILABLE and cache_inserts:
         try:
-            # Atomic multi-set, rely on single TTL loop setting since redis MSET doesn't take TTL easily
-            # We use a pipeline for TTL
             pipe = redis_client.pipeline()
             for key, val in cache_inserts.items():
                 pipe.setex(key, 3600, val)
@@ -347,7 +338,8 @@ def score_threat_batch(inputs: List[ThreatInput]) -> List[ThreatResponse]:
         except Exception as e:
             logger.debug(f"Failed to multi-cache predictions: {e}")
     elif cache_inserts:
-        for k, v in cache_inserts.items():
-            _LOCAL_PRED_CACHE[k] = {'data': v, 'exp': time.time() + 3600}
+        with _CACHE_LOCK:
+            for k, v in cache_inserts.items():
+                _LOCAL_PRED_CACHE[k] = {"data": v, "exp": time.time() + 3600}
 
-    return responses
+    return [r for r in responses if r is not None]

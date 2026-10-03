@@ -56,7 +56,7 @@ const SentinelStatsWidget = ({ stats, loading, error }) => {
         {sentinelCards.map((card) => {
           const Icon = card.icon;
           const cardValue = card.key === "approved"
-            ? ((stats?.approved || 0) + (stats?.exported || 0))
+            ? (stats?.approved || 0)
             : (stats?.[card.key] ?? 0);
           const value = loading ? "—" : (stats?.[card.key] !== undefined ? cardValue : "N/A");
 
