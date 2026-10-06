@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Users, Plus, Edit, Trash2, X, CheckCircle, XCircle, Search } from 'lucide-react';
-import { adminFetch } from '../../utils/adminFetch';
+import { adminFetch, safeParseJson } from '../../utils/adminFetch';
 
 const API_BASE = '/api/v1/admin';
 
@@ -15,15 +15,13 @@ const UserManagement = () => {
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
 
-
-
     const fetchUsers = useCallback(async () => {
         try {
             const res = await adminFetch(`${API_BASE}/users`);
-            const data = await res.json();
+            const data = await safeParseJson(res, 'Failed to fetch users');
             setUsers(data.users || []);
-        } catch {
-            setError('Failed to fetch users');
+        } catch (err) {
+            setError(err.message || 'Failed to fetch users');
         } finally {
             setLoading(false);
         }
@@ -39,8 +37,7 @@ const UserManagement = () => {
                 method: 'POST',
                 body: JSON.stringify(formData),
             });
-            const data = await res.json();
-            if (!res.ok) throw new Error(data.detail || 'Failed');
+            const data = await safeParseJson(res, 'Failed to create user');
             setSuccess(`User "${formData.username}" created`);
             setShowModal(false);
             setFormData({ username: '', email: '', password: '', role: 'Viewer' });
@@ -65,8 +62,7 @@ const UserManagement = () => {
                 method: 'PUT',
                 body: JSON.stringify(body),
             });
-            const data = await res.json();
-            if (!res.ok) throw new Error(data.detail || 'Failed');
+            const data = await safeParseJson(res, 'Failed to update user');
             setSuccess(`User "${editingUser.username}" updated`);
             setShowModal(false);
             setEditingUser(null);
@@ -78,18 +74,19 @@ const UserManagement = () => {
     };
 
     const handleDelete = async (userId) => {
+        setError('');
         try {
             const res = await adminFetch(`${API_BASE}/users/${userId}`, {
                 method: 'DELETE',
             });
-            const data = await res.json();
-            if (!res.ok) throw new Error(data.detail || 'Failed');
+            const data = await safeParseJson(res, 'Failed to delete user');
             setSuccess('User deleted');
             setDeleteConfirm(null);
             fetchUsers();
             setTimeout(() => setSuccess(''), 3000);
         } catch (err) {
             setError(err.message);
+            setDeleteConfirm(null);
         }
     };
 

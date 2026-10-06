@@ -1,11 +1,11 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Navigate } from 'react-router-dom';
-import { Shield, Users, Settings, Wrench, Server, Activity, Clock, Lock } from 'lucide-react';
+import { Shield, Users, Settings, Wrench, Server, Activity, Clock, Lock, RefreshCw } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import UserManagement from '../components/admin/UserManagement';
 import SystemConfig from '../components/admin/SystemConfig';
 import Maintenance from '../components/admin/Maintenance';
-import { adminFetch } from '../utils/adminFetch';
+import { adminFetch, safeParseJson } from '../utils/adminFetch';
 import '../Styles/pages/AdminPanel.css';
 
 const API_BASE = '/api/v1/admin';
@@ -43,29 +43,62 @@ const AdminGuard = ({ children }) => {
 const SystemOverview = () => {
     const [overview, setOverview] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [refreshing, setRefreshing] = useState(false);
+    const [lastRefreshed, setLastRefreshed] = useState(null);
+    const [error, setError] = useState(null);
 
-    const fetchOverview = useCallback(async () => {
+    const fetchOverview = useCallback(async (isManual = false) => {
+        if (isManual) setRefreshing(true);
+        setError(null);
         try {
             const res = await adminFetch(`${API_BASE}/system-overview`);
-            const data = await res.json();
+            const data = await safeParseJson(res, 'Failed to fetch overview');
             setOverview(data);
-        } catch {
-            // Ignore fetch error
+            setLastRefreshed(new Date());
+        } catch (err) {
+            setError(err.message || 'Unable to fetch system information');
         } finally {
             setLoading(false);
+            if (isManual) setRefreshing(false);
         }
     }, []);
 
     useEffect(() => { fetchOverview(); }, [fetchOverview]);
 
+    const getStatusClass = (status) => {
+        const s = (status || '').toLowerCase();
+        if (s === 'online') return { dot: 'dot-online', text: 'text-online' };
+        if (s === 'degraded') return { dot: 'dot-degraded', text: 'text-degraded' };
+        if (s === 'idle') return { dot: 'dot-idle', text: 'text-idle' };
+        if (s === 'not_configured') return { dot: 'dot-not-configured', text: 'text-not-configured' };
+        return { dot: 'dot-offline', text: 'text-offline' };
+    };
+
     if (loading) return <div className="tab-loading"><div className="spinner" /><span>Loading system overview...</span></div>;
+    if (error && !overview) return <div className="tab-empty">{error}</div>;
     if (!overview) return <div className="tab-empty">Unable to fetch system information.</div>;
 
     return (
         <div className="overview-grid">
             {/* System Info */}
             <div className="overview-card">
-                <h4><Server size={14} /> SYSTEM INFORMATION</h4>
+                <div className="overview-header-actions">
+                    <h4 style={{ margin: 0 }}><Server size={14} /> SYSTEM INFORMATION</h4>
+                    <button
+                        className="overview-refresh-btn"
+                        onClick={() => fetchOverview(true)}
+                        disabled={refreshing}
+                        title="Refresh system metrics"
+                    >
+                        <RefreshCw size={11} className={refreshing ? 'spin' : ''} />
+                        <span>{refreshing ? 'REFRESHING...' : 'REFRESH'}</span>
+                    </button>
+                </div>
+                {lastRefreshed && (
+                    <div className="refresh-timestamp" style={{ marginBottom: '0.6rem' }}>
+                        Last updated: {lastRefreshed.toLocaleTimeString()}
+                    </div>
+                )}
                 <div className="info-grid">
                     <div className="info-item"><label>VERSION:</label><span>{overview.system?.version}</span></div>
                     <div className="info-item"><label>STATUS:</label><span className="status-online">{overview.system?.uptime}</span></div>
@@ -126,15 +159,18 @@ const SystemOverview = () => {
             <div className="overview-card">
                 <h4><Shield size={14} /> COMPONENT STATUS</h4>
                 <div className="component-list">
-                    {(overview.components || []).map(c => (
-                        <div className="comp-item" key={c.name}>
-                            <span className={`comp-dot ${c.status === 'online' ? 'dot-online' : 'dot-offline'}`} />
-                            <span className="comp-name">{c.name}</span>
-                            <span className={`comp-status ${c.status === 'online' ? 'text-online' : 'text-offline'}`}>
-                                {c.status.toUpperCase()}
-                            </span>
-                        </div>
-                    ))}
+                    {(overview.components || []).map(c => {
+                        const style = getStatusClass(c.status);
+                        return (
+                            <div className="comp-item" key={c.name}>
+                                <span className={`comp-dot ${style.dot}`} />
+                                <span className="comp-name">{c.name}</span>
+                                <span className={`comp-status ${style.text}`}>
+                                    {c.status.toUpperCase()}
+                                </span>
+                            </div>
+                        );
+                    })}
                 </div>
             </div>
         </div>
@@ -146,7 +182,7 @@ const AdminPanel = () => {
     const [adminUser, setAdminUser] = useState({ username: 'admin', role: 'Admin' });
 
     useEffect(() => {
-        fetch(`${API_BASE}/me`, { credentials: 'include' })
+        adminFetch(`${API_BASE}/me`)
             .then(res => res.ok ? res.json() : null)
             .then(data => {
                 if (data) setAdminUser(data);

@@ -354,3 +354,33 @@
     font-size: 0.6rem;
     color: var(--th-text-muted);
 }
+
+/* ── Live Stream Styling ── */
+.tl-live-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.15rem 0.45rem;
+    font-size: 0.62rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    color: #10b981;
+    background: rgba(16, 185, 129, 0.15);
+    border: 1px solid rgba(16, 185, 129, 0.4);
+    border-radius: 4px;
+    animation: livePillGlow 2s infinite ease-in-out;
+}
+
+@keyframes livePillGlow {
+    0%, 100% { box-shadow: 0 0 4px rgba(16, 185, 129, 0.3); }
+    50% { box-shadow: 0 0 10px rgba(16, 185, 129, 0.6); }
+}
+
+.timeline-item.live-item {
+    border-left: 3px solid #10b981 !important;
+    background: rgba(16, 185, 129, 0.03);
+}
+
+.timeline-item.live-item:hover {
+    background: rgba(16, 185, 129, 0.06);
+}

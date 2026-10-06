@@ -6,19 +6,25 @@ import threading
 BIND_IP = "0.0.0.0"
 BIND_PORT = 5000
 
-# The Fake Response (Standard HTTP 200 OK with HTML)
-HTML_PAGE = """HTTP/1.1 200 OK
-Content-Type: text/html
-
+def get_http_response():
+    try:
+        from services.system_config_service import get_config_str
+        server_banner = get_config_str("http_banner", "Apache/2.4.54")
+    except Exception:
+        server_banner = "Apache/2.4.54"
+    return f"""HTTP/1.1 200 OK\r
+Server: {server_banner}\r
+Content-Type: text/html\r
+\r
 <!DOCTYPE html>
 <html>
 <head>
     <title>Corporate Login</title>
     <style>
-        body { font-family: sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; background: #f0f2f5; }
-        .box { background: white; padding: 40px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-        input { display: block; width: 100%; margin: 10px 0; padding: 10px; }
-        button { width: 100%; padding: 10px; background: #0056b3; color: white; border: none; cursor: pointer; }
+        body {{ font-family: sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; background: #f0f2f5; }}
+        .box {{ background: white; padding: 40px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }}
+        input {{ display: block; width: 100%; margin: 10px 0; padding: 10px; }}
+        button {{ width: 100%; padding: 10px; background: #0056b3; color: white; border: none; cursor: pointer; }}
     </style>
 </head>
 <body>
@@ -57,7 +63,7 @@ def handle_client(client_socket, addr):
 
         else:
             # 3. If it's just a GET (Viewing the page), show the login form
-            client_socket.send(HTML_PAGE.encode())
+            client_socket.send(get_http_response().encode())
 
     except Exception as e:
         print(f"⚠️ Error: {e}")

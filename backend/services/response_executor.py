@@ -126,11 +126,19 @@ class ResponseExecutor:
                 "level": threat_level,
             }
 
+        try:
+            from services.system_config_service import get_config_bool
+            auto_response_enabled = get_config_bool("auto_response", default=True)
+        except Exception:
+            auto_response_enabled = True
+
         actions_taken = []
         action_details = {}
 
-        # Execute each configured action
+        # Execute configured actions (filtered if auto-response disabled)
         for action in policy.get("actions", []):
+            if not auto_response_enabled and action not in ("log", "alert"):
+                continue
             try:
                 if action == "log":
                     self._action_log(ip, threat_score, threat_level, protocol, details)

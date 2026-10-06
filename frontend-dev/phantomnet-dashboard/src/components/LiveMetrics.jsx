@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { useRealTime } from '../context/RealTimeContext';
 import { PieChart, Pie, Cell, ResponsiveContainer, LineChart, Line, YAxis, Tooltip } from 'recharts';
 import { Activity, Shield, Users, Server, Cpu, Database, Zap, BarChart3 } from 'lucide-react';
+import { normalizeThreatScore } from '../utils/threatScore';
 import './LiveMetrics.css';
 
 const CountUp = ({ end, duration = 800, decimals = 0 }) => {
@@ -58,30 +59,28 @@ const LiveMetrics = () => {
             ];
         }
 
-        // Fallback (only if old backend or missing data)
-        const critical = metrics.criticalAlerts || 0;
-        const total = metrics.totalEvents || 0;
-        const suspicious = Math.max(0, Math.floor(total * 0.1)); // Reduced fallback ratio
-        const benign = Math.max(0, total - critical - suspicious);
+        // Truthful fallback using actual backend counts if present, without fabricating ratios
         return [
-            { name: 'Critical', value: critical, color: '#ff0055' },
-            { name: 'Suspicious', value: suspicious, color: '#f77f00' },
-            { name: 'Benign', value: benign, color: '#00ff41' },
+            { name: 'Critical', value: metrics.critical_alerts || metrics.criticalAlerts || 0, color: '#ff0055' },
+            { name: 'Suspicious', value: metrics.suspicious_count || metrics.suspiciousCount || 0, color: '#f77f00' },
+            { name: 'Benign', value: metrics.benign_count || metrics.benignCount || 0, color: '#00ff41' },
         ];
     }, [metrics]);
 
     if (!metrics) return (
         <div className="metrics-loading">
             <div className="loading-pulse"></div>
-            <span>Initializing Neural Link...</span>
+            <span>Synchronizing Real-Time Telemetry...</span>
         </div>
     );
+
+    const normScore = normalizeThreatScore(metrics.avgThreatScore);
 
     return (
         <div className="live-metrics-grid">
             {/* Top Stats Row */}
             <div className="metrics-top-row">
-                <div className="metric-card-mini glow-card">
+                <div className="metric-card-mini glow-card" title="Source: Real-time sliding 5-min window">
                     <div className="card-icon icon-cyan"><Activity size={20} /></div>
                     <div className="card-info">
                         <label>EVENTS / MIN</label>
@@ -97,7 +96,7 @@ const LiveMetrics = () => {
                     </div>
                 </div>
 
-                <div className="metric-card-mini glow-card">
+                <div className="metric-card-mini glow-card" title="Source: Database aggregation (packet_logs)">
                     <div className="card-icon icon-cyan"><BarChart3 size={20} /></div>
                     <div className="card-info">
                         <label>TOTAL EVENTS</label>
@@ -116,7 +115,7 @@ const LiveMetrics = () => {
                     </div>
                 </div>
 
-                <div className="metric-card-mini glow-card">
+                <div className="metric-card-mini glow-card" title="Source: Database distinct src_ip aggregation">
                     <div className="card-icon icon-orange"><Users size={20} /></div>
                     <div className="card-info">
                         <label>ACTIVE ATTACKERS</label>
@@ -127,11 +126,11 @@ const LiveMetrics = () => {
                     </div>
                 </div>
 
-                <div className="metric-card-mini glow-card">
+                <div className="metric-card-mini glow-card" title="Source: Canonical Threat Scoring Service">
                     <div className="card-icon icon-green"><Shield size={20} /></div>
                     <div className="card-info">
                         <label>AVG THREAT SCORE</label>
-                        <div className="value">{metrics.avgThreatScore || 0}%</div>
+                        <div className="value">{normScore.percentageStr}</div>
                     </div>
                 </div>
             </div>

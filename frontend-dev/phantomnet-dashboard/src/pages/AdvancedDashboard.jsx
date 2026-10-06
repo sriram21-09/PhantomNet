@@ -29,7 +29,7 @@ const DashboardContent = () => {
                 <div className="header-content">
                     <h1 className="dashboard-title glow-text">Neural Operations Center</h1>
                     <p className="dashboard-subtitle text-dim">
-                        REAL-TIME THREAT SYNCHRONIZATION | AI-DRIVEN PREDICTION ENGINE
+                        REAL-TIME THREAT TELEMETRY | STATISTICAL THREAT FORECASTING
                     </p>
                 </div>
                 <div className="header-timestamp hud-font">
@@ -58,11 +58,8 @@ const DashboardContent = () => {
 };
 
 const AdvancedDashboard = () => {
-    return (
-        <RealTimeProvider>
-            <DashboardContent />
-        </RealTimeProvider>
-    );
+    // Consumes root RealTimeProvider from App.jsx to avoid duplicate WebSocket connections
+    return <DashboardContent />;
 };
 
 export default AdvancedDashboard;

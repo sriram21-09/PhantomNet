@@ -79,14 +79,20 @@ class SIEMExporterService:
         interval: int = EXPORT_INTERVAL_SECONDS,
         batch_size: int = BATCH_SIZE,
     ):
-        self.interval = interval
+        try:
+            from services.system_config_service import get_config_int, get_config_str
+            self.interval = get_config_int("siem_export_frequency", interval)
+            configured_type = get_config_str("siem_type", "")
+            self.output_format = configured_type or os.getenv("SIEM_TYPE", "elk")
+        except Exception:
+            self.interval = interval
+            self.output_format = os.getenv("SIEM_TYPE", "elk")
         self.batch_size = batch_size
 
         from services.universal_siem_exporter import get_siem_exporter
 
         self.exporter = get_siem_exporter()
         self.logstash_url = "universal_siem"
-        self.output_format = os.getenv("SIEM_TYPE", "elk")
 
         # Watermarks — track last exported IDs to avoid duplicates
         self._last_packet_id: int = 0

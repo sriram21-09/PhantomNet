@@ -49,7 +49,7 @@ function App() {
                   <Route path="/anomalies" element={<ProtectedRoute><AnomalyDashboard /></ProtectedRoute>} />
                   <Route path="/topology" element={<ProtectedRoute><Topology /></ProtectedRoute>} />
                   <Route path="/analytics" element={<ProtectedRoute><AdvancedAnalytics /></ProtectedRoute>} />
-                  <Route path="/hunting" element={<ProtectedRoute><ThreatHunting /></ProtectedRoute>} />
+                  <Route path="/hunting" element={<ProtectedRoute allowedRoles={["Admin", "Analyst"]}><ThreatHunting /></ProtectedRoute>} />
                   <Route path="/advanced-dashboard" element={<ProtectedRoute><AdvancedDashboard /></ProtectedRoute>} />
                   <Route path="/packet-analysis" element={<ProtectedRoute><PacketAnalysis /></ProtectedRoute>} />
                   <Route path="/admin" element={<ProtectedRoute><AdminPanel /></ProtectedRoute>} />

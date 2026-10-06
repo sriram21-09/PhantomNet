@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Settings, Save, RotateCcw, CheckCircle, XCircle, Shield, Server, BarChart3, Cpu } from 'lucide-react';
-import { adminFetch } from '../../utils/adminFetch';
+import { adminFetch, safeParseJson } from '../../utils/adminFetch';
 
 const API_BASE = '/api/v1/admin';
 
@@ -55,16 +55,14 @@ const SystemConfig = () => {
     const [error, setError] = useState('');
     const [activeSection, setActiveSection] = useState('threat_detection');
 
-
-
     const fetchConfig = useCallback(async () => {
         try {
             const res = await adminFetch(`${API_BASE}/config`);
-            const data = await res.json();
+            const data = await safeParseJson(res, 'Failed to load configuration');
             setConfig(data.config || {});
             setOriginal(JSON.parse(JSON.stringify(data.config || {})));
-        } catch {
-            setError('Failed to load configuration');
+        } catch (err) {
+            setError(err.message || 'Failed to load configuration');
         } finally {
             setLoading(false);
         }
@@ -97,16 +95,18 @@ const SystemConfig = () => {
             const fields = CONFIG_SCHEMA[category].fields;
             for (const field of fields) {
                 const val = getValue(category, field.key);
-                await adminFetch(`${API_BASE}/config`, {
+                const res = await adminFetch(`${API_BASE}/config`, {
                     method: 'PUT',
                     body: JSON.stringify({ key: field.key, value: String(val), category }),
                 });
+                await safeParseJson(res, `Failed to save "${field.label}"`);
             }
             setOriginal(prev => ({ ...prev, [category]: JSON.parse(JSON.stringify(config[category])) }));
             setSuccess(`${CONFIG_SCHEMA[category].label} saved successfully`);
-            setTimeout(() => setSuccess(''), 3000);
-        } catch {
-            setError('Failed to save configuration');
+            setTimeout(() => setSuccess(''), 4000);
+        } catch (err) {
+            setError(err.message || 'Failed to save configuration');
+            setTimeout(() => setError(''), 6000);
         } finally {
             setSaving(false);
         }

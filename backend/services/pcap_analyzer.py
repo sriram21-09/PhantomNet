@@ -90,6 +90,8 @@ class PcapAnalyzer:
         pcap_path = os.path.join(PCAP_DIR, f"{event_id}.pcap")
 
         with self._lock:
+            if len(self._active_captures) >= 3:
+                return {"status": "capacity_exceeded", "event_id": event_id}
             if capture_id in self._active_captures:
                 return {"status": "already_running", "event_id": event_id}
 

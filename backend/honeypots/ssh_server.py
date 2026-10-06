@@ -81,6 +81,12 @@ class SSHServer(paramiko.ServerInterface):
 def handle_connection(client, addr):
     try:
         transport = paramiko.Transport(client)
+        try:
+            from services.system_config_service import get_config_str
+            banner = get_config_str("ssh_banner", "OpenSSH_8.9")
+            transport.local_version = f"SSH-2.0-{banner}"
+        except Exception:
+            pass
         transport.add_server_key(HOST_KEY)
         server = SSHServer(addr[0])
 

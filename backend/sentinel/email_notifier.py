@@ -285,10 +285,20 @@ class SentinelEmailNotifier:
         self.smtp_user = SENTINEL_EMAIL_SMTP_USER
         self.smtp_password = SENTINEL_EMAIL_SMTP_PASSWORD
         self.use_tls = SENTINEL_EMAIL_SMTP_USE_TLS
-        self.from_address = SENTINEL_EMAIL_FROM_ADDRESS
-        self.recipients = SENTINEL_EMAIL_RECIPIENTS
+        self.recipients = list(SENTINEL_EMAIL_RECIPIENTS)
         self.severity_threshold = SENTINEL_EMAIL_SEVERITY_THRESHOLD
         self.dashboard_base_url = SENTINEL_DASHBOARD_BASE_URL
+
+        try:
+            from services.system_config_service import get_config_str
+            cfg_email = get_config_str("alert_email", "")
+            if cfg_email and cfg_email not in self.recipients:
+                self.recipients.append(cfg_email)
+            cfg_sev = get_config_str("alert_severity_filter", "")
+            if cfg_sev:
+                self.severity_threshold = cfg_sev.upper()
+        except Exception:
+            pass
 
         if self.enabled:
             logger.info(
