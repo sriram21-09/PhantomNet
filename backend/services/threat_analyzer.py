@@ -214,11 +214,14 @@ class ThreatAnalyzerService:
     def _process_unscored_logs(self):
         db: Session = SessionLocal()
         try:
-            # Check if unsupervised detector needs training (Non-blocking)
-            total_logs = db.query(PacketLog).count()
-            if not unsupervised_detector.is_loaded and not unsupervised_detector.is_training and total_logs > 10:
-                logger.info("ThreatAnalyzer: Triggering background unsupervised training...")
-                threading.Thread(target=unsupervised_detector.train_baseline, kwargs={"days_back": 7}, daemon=True).start()
+            # Check if unsupervised detector needs training (Non-blocking, fast check)
+            if not getattr(self, "_baseline_training_attempted", False):
+                if not unsupervised_detector.is_loaded and not unsupervised_detector.is_training:
+                    has_logs = db.query(PacketLog.id).first() is not None
+                    if has_logs:
+                        self._baseline_training_attempted = True
+                        logger.info("ThreatAnalyzer: Triggering background unsupervised training...")
+                        threading.Thread(target=unsupervised_detector.train_baseline, kwargs={"days_back": 7}, daemon=True).start()
 
             # Fetch logs where threat_level is NULL
             logs = (
@@ -227,7 +230,7 @@ class ThreatAnalyzerService:
                 .order_by(PacketLog.timestamp.desc())
                 .limit(500)
                 .all()
-            )  # Increased batch size to catch up with queue
+            )
 
             if not logs:
                 return
@@ -303,7 +306,13 @@ class ThreatAnalyzerService:
                     )
 
                 except Exception as e:
-                    logger.exception("Error in batch processing")
+                    logger.warning("Error in batch scoring; applying fallback scoring: %s", e)
+                    for log in log_mapping:
+                        if log.threat_level is None:
+                            log.threat_level = "LOW"
+                            log.threat_score = 0.10
+                            log.is_malicious = False
+                            updated_count += 1
 
             if updated_count > 0:
                 # Notify Topology Visualization of new activity
@@ -337,8 +346,15 @@ class ThreatAnalyzerService:
             elif log.event:
                 log.attack_type = log.event.upper()
             else:
-                log.attack_type = "SUSPICIOUS"
-        log.is_malicious = result.threat_level in ["HIGH", "CRITICAL"]
+                log.attack_type = "ANOMALY"
+
+        try:
+            from services.system_config_service import get_config_float
+            ml_threshold = get_config_float("ml_threshold", 0.65)
+            normalized_score = float(result.score) / 100.0 if float(result.score) > 1.0 else float(result.score)
+            log.is_malicious = (normalized_score >= ml_threshold) or (result.threat_level in ["HIGH", "CRITICAL"])
+        except Exception:
+            log.is_malicious = result.threat_level in ["HIGH", "CRITICAL"]
 
         if log.is_malicious:
             try:

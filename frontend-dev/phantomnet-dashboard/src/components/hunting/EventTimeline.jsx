@@ -14,7 +14,16 @@ const THREAT_COLORS = {
 
 const getLevelStyle = (level) => THREAT_COLORS[level] || { color: '#64748b', bg: 'rgba(100,116,139,0.05)', border: 'rgba(100,116,139,0.1)' };
 
-const getScoreWidth = (score) => `${Math.min(Math.max(score || 0, 0), 100)}%`;
+const formatThreatScore = (score) => {
+    if (score === null || score === undefined) return 0;
+    const num = typeof score === 'number' ? score : parseFloat(score) || 0;
+    return Math.round(num <= 1.0 ? num * 100 : num);
+};
+
+const getScoreWidth = (score) => {
+    const val = formatThreatScore(score);
+    return `${Math.min(Math.max(val, 0), 100)}%`;
+};
 
 const detectPatterns = (text) => {
     if (!text) return [];
@@ -35,8 +44,8 @@ const EventTimeline = ({ events, onSelectEvent, selectedEventId }) => {
         return (
             <div className="timeline-empty">
                 <Shield className="tl-empty-icon" />
-                <p>No events match your current query.</p>
-                <span>Try adjusting filters or using a Quick Template from the left panel.</span>
+                <p>No matching events were found in the current dataset.</p>
+                <span>Try adjusting filters or selecting a different template. (Database coverage may not contain events for all criteria.)</span>
             </div>
         );
     }
@@ -53,14 +62,14 @@ const EventTimeline = ({ events, onSelectEvent, selectedEventId }) => {
                 const style = getLevelStyle(event.threat_level);
                 const isSelected = selectedEventId === event.id;
                 const isExpanded = expandedId === event.id;
-                const patterns = detectPatterns(event.raw_data || event.payload_content || event.attack_type || '');
-                const payload = event.raw_data ||
+                const patterns = detectPatterns(event.payload_content || event.raw_data || event.attack_type || '');
+                const payload = event.payload_content || event.raw_data ||
                     `${event.attack_type || 'UNKNOWN_ATTACK'} — src=${event.src_ip}:${event.src_port || '?'} dst=${event.dst_ip}:${event.dst_port} proto=${event.protocol}`;
 
                 return (
                     <div
                         key={event.id}
-                        className={`timeline-item ${isSelected ? 'selected' : ''} ${isExpanded ? 'expanded' : ''}`}
+                        className={`timeline-item event-card ${isSelected ? 'selected' : ''} ${isExpanded ? 'expanded' : ''} ${event.is_live ? 'live-item' : ''}`}
                         onClick={() => handleClick(event)}
                         style={isSelected ? { borderLeftColor: style.color } : {}}
                     >
@@ -84,10 +93,15 @@ const EventTimeline = ({ events, onSelectEvent, selectedEventId }) => {
                                     {event.threat_level || 'UNK'}
                                 </span>
                                 <span className="tl-proto">{event.protocol}</span>
+                                {event.is_live && (
+                                    <span className="tl-live-pill">
+                                        <Zap className="w-2.5 h-2.5" /> LIVE
+                                    </span>
+                                )}
                             </div>
 
                             <div className="tl-score-ring" style={{ '--score-color': style.color }}>
-                                <span style={{ color: style.color }}>{Math.round(event.threat_score)}</span>
+                                <span style={{ color: style.color }}>{formatThreatScore(event.threat_score)}</span>
                             </div>
 
                             <div className="tl-expand-btn">

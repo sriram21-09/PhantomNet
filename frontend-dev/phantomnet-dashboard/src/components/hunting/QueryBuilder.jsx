@@ -7,13 +7,13 @@ const FIELDS = [
     { label: 'Source IP', value: 'src_ip', type: 'text', placeholder: 'e.g. 192.168.1.1' },
     { label: 'Source Port', value: 'src_port', type: 'number', placeholder: 'e.g. 4444' },
     { label: 'Destination IP', value: 'dst_ip', type: 'text', placeholder: 'e.g. 10.0.0.1' },
-    { label: 'Destination Port', value: 'dst_port', type: 'number', placeholder: 'e.g. 22' },
+    { label: 'Destination Port', value: 'dst_port', type: 'number', placeholder: 'e.g. 2222' },
     { label: 'Protocol', value: 'protocol', type: 'select', options: ['SSH', 'HTTP', 'FTP', 'SMTP', 'TCP', 'UDP'] },
-    { label: 'Threat Score', value: 'threat_score', type: 'number', placeholder: 'e.g. 80' },
+    { label: 'Threat Score', value: 'threat_score', type: 'number', placeholder: 'e.g. 0.80 or 80' },
     { label: 'Threat Level', value: 'threat_level', type: 'select', options: ['LOW', 'MEDIUM', 'HIGH', 'CRITICAL'] },
     { label: 'Attack Type', value: 'attack_type', type: 'text', placeholder: 'e.g. SQL Injection' },
     { label: 'Payload Content', value: 'payload_content', type: 'text', placeholder: 'e.g. UNION SELECT' },
-    { label: 'Timestamp', value: 'timestamp', type: 'text', placeholder: 'e.g. 24h' },
+    { label: 'Timestamp', value: 'timestamp', type: 'text', placeholder: 'e.g. 24h, 7d, 15m' },
 ];
 
 const OPERATORS = {
@@ -22,13 +22,18 @@ const OPERATORS = {
         { label: 'Not Equals', value: 'not_equals' },
         { label: 'Contains', value: 'contains' },
         { label: 'Not Contains', value: 'not_contains' },
+        { label: 'Starts With', value: 'starts_with' },
         { label: 'In List', value: 'in_list' },
     ],
     number: [
         { label: 'Equals', value: 'equals' },
+        { label: 'Not Equals', value: 'not_equals' },
         { label: 'Greater Than', value: 'greater_than' },
+        { label: 'Greater Than or Equal', value: 'greater_than_or_equal' },
         { label: 'Less Than', value: 'less_than' },
+        { label: 'Less Than or Equal', value: 'less_than_or_equal' },
         { label: 'Between', value: 'between' },
+        { label: 'In List', value: 'in_list' },
     ],
     select: [
         { label: 'Equals', value: 'equals' },
@@ -38,52 +43,61 @@ const OPERATORS = {
 
 const TEMPLATES = [
     {
-        label: 'All HIGH threats in 24h',
-        icon: '🔴',
-        desc: 'High-severity events in last 24 hours',
-        logic: 'AND',
-        conditions: [
-            { field: 'threat_level', operator: 'equals', value: 'HIGH' },
-            { field: 'timestamp', operator: 'greater_than', value: '24h' },
-        ]
-    },
-    {
-        label: 'SSH Brute Force',
+        label: 'SSH Honeypot Traffic (Port 2222)',
         icon: '🔑',
-        desc: 'SSH attacks with score > 80',
+        desc: 'SSH honeypot authentication attempts and connection logs',
         logic: 'AND',
         conditions: [
-            { field: 'protocol', operator: 'equals', value: 'SSH' },
-            { field: 'threat_score', operator: 'greater_than', value: '80' },
+            { field: 'dst_port', operator: 'equals', value: '2222' },
         ]
     },
     {
-        label: 'Port scans targeting h2',
+        label: 'HTTP Honeypot Probing (Port 8080)',
         icon: '📡',
-        desc: 'TCP traffic to HTTP honeypot',
+        desc: 'TCP traffic targeting HTTP web honeypot services',
         logic: 'AND',
         conditions: [
+            { field: 'dst_port', operator: 'equals', value: '8080' },
             { field: 'protocol', operator: 'equals', value: 'TCP' },
-            { field: 'dst_port', operator: 'equals', value: '80' },
         ]
     },
     {
-        label: 'SQL Injection Attempts',
-        icon: '💉',
-        desc: 'Payload containing SQL patterns',
+        label: 'FTP Honeypot Recon (Port 2121)',
+        icon: '📁',
+        desc: 'FTP commands and directory enumeration probes',
         logic: 'AND',
         conditions: [
-            { field: 'attack_type', operator: 'contains', value: 'SQL' },
-            { field: 'threat_score', operator: 'greater_than', value: '60' },
+            { field: 'dst_port', operator: 'equals', value: '2121' },
         ]
     },
     {
-        label: 'Critical Threats (Any)',
+        label: 'SMTP Honeypot Traffic (Port 2525)',
+        icon: '✉️',
+        desc: 'Mail relay probe attempts and scanner connections',
+        logic: 'AND',
+        conditions: [
+            { field: 'dst_port', operator: 'equals', value: '2525' },
+        ]
+    },
+    {
+        label: 'Elevated Threat Scores (> 0.20)',
         icon: '⚠️',
-        desc: 'Any CRITICAL level event',
+        desc: 'Events evaluated with elevated anomaly risk',
+        logic: 'AND',
+        conditions: [
+            { field: 'threat_score', operator: 'greater_than_or_equal', value: '0.20' },
+        ]
+    },
+    {
+        label: 'All Active Honeypot Ports',
+        icon: '🎯',
+        desc: 'Traffic targeting SSH, HTTP, FTP, or SMTP honeypots',
         logic: 'OR',
         conditions: [
-            { field: 'threat_level', operator: 'equals', value: 'CRITICAL' },
+            { field: 'dst_port', operator: 'equals', value: '2222' },
+            { field: 'dst_port', operator: 'equals', value: '8080' },
+            { field: 'dst_port', operator: 'equals', value: '2121' },
+            { field: 'dst_port', operator: 'equals', value: '2525' },
         ]
     },
 ];
@@ -98,7 +112,7 @@ const QueryBuilder = ({ onSearch, loading }) => {
     const [logic, setLogic] = useState('AND');
     const [history, setHistory] = useState([]);
     const [conditions, setConditions] = useState([
-        { field: 'threat_level', operator: 'equals', value: 'HIGH' }
+        { field: 'threat_level', operator: 'equals', value: 'LOW' }
     ]);
     const [validationError, setValidationError] = useState('');
     const [showHistory, setShowHistory] = useState(false);
@@ -135,9 +149,10 @@ const QueryBuilder = ({ onSearch, loading }) => {
 
     const updateCondition = (index, updates) => {
         const newConditions = [...conditions];
+        const prevField = newConditions[index].field;
         const updated = { ...newConditions[index], ...updates };
         // If field type changed, reset operator to first valid one
-        if (updates.field) {
+        if (updates.field && updates.field !== prevField) {
             const ops = getOperators(updates.field);
             updated.operator = ops[0].value;
             updated.value = '';
@@ -161,12 +176,24 @@ const QueryBuilder = ({ onSearch, loading }) => {
         if (!validate()) return;
         onSearch({
             logic,
-            conditions: conditions.map(c => ({
-                ...c,
-                value: c.field === 'threat_score' || c.field === 'src_port' || c.field === 'dst_port'
-                    ? parseFloat(c.value) || c.value
-                    : c.value
-            }))
+            conditions: conditions.map(c => {
+                let val = c.value;
+                if (c.operator !== 'in_list' && c.operator !== 'between') {
+                    if (c.field === 'threat_score') {
+                        const num = parseFloat(c.value);
+                        if (!isNaN(num)) {
+                            val = num > 1.0 ? num / 100.0 : num;
+                        }
+                    } else if (c.field === 'src_port' || c.field === 'dst_port') {
+                        const num = parseInt(c.value, 10);
+                        if (!isNaN(num)) {
+                            val = num;
+                        }
+                    }
+                }
+                return { ...c, value: val };
+            }),
+            limit: 100
         });
         setTimeout(fetchHistory, 1500);
     };

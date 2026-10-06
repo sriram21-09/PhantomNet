@@ -1,2 +1,0 @@
-Average Memory: 120.84 MB
-Peak Memory: 120.84 MB

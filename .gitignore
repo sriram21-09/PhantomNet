@@ -5,6 +5,8 @@ __pycache__/
 *$py.class
 *.so
 .Python
+.pytest_cache/
+**/.pytest_cache/
 env/
 build/
 develop-eggs/
@@ -62,8 +64,16 @@ last_sid.txt
 backend/logs/
 data/predictions.csv
 
-# Scratch / Temporary
+# Scratch / Temporary & Test Execution
 scratch/
+test-results/
+**/test-results/
+playwright-report/
+**/playwright-report/
+*cookies.txt
+cookies.txt
+scratch_cookies.txt
+tests/memory_report.txt
 tests/pdf_outputs/*.pdf
 tests/pdf_outputs/*.txt
 audit/logs/
@@ -131,7 +141,13 @@ docker_bench_report.txt
 unused_code.txt
 validation_output.txt
 validation_results_utf8.txt
+# Coverage & Test Dumps
 .coverage
+htmlcov/
+backend/test_out.txt
+backend/tests/test_output.txt
+backend/tests/ml/*output*.txt
+backend/tests/ml/*error*.txt
 
 # ─────────────────────────────────────────────
 # Miscellaneous
@@ -139,6 +155,7 @@ validation_results_utf8.txt
 sriram21-09/
 mlruns/
 mlruns.db
+mlflow.db
 wsl
 test_siem.py
 node_modules/

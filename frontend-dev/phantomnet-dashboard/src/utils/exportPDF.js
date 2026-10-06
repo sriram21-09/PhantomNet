@@ -1,10 +1,32 @@
 import { jsPDF } from "jspdf";
-import "jspdf-autotable";
+import autoTable from "jspdf-autotable";
 
 export const generatePDF = (reportData) => {
   const doc = new jsPDF();
-  const title = reportData.title || "Threat Hunting Report";
-  const timestamp = reportData.timestamp || new Date().toLocaleString();
+  let normalizedData = reportData || {};
+  if (Array.isArray(reportData)) {
+    normalizedData = {
+      title: "Threat Hunting Report",
+      description: "Automated event export from PhantomNet Threat Hunting platform.",
+      timestamp: new Date().toLocaleString(),
+      sections: [
+        {
+          title: "Technical Events",
+          type: "table",
+          headers: reportData.length > 0 ? Object.keys(reportData[0]) : [],
+          rows: reportData.map(r => Object.values(r))
+        }
+      ]
+    };
+  } else if (!normalizedData.sections) {
+    normalizedData = {
+      ...normalizedData,
+      sections: []
+    };
+  }
+
+  const title = normalizedData.title || "Threat Hunting Report";
+  const timestamp = normalizedData.timestamp || new Date().toLocaleString();
 
   // Branding & Header
   doc.setFontSize(22);
@@ -17,12 +39,12 @@ export const generatePDF = (reportData) => {
 
   doc.setFontSize(10);
   doc.text(`Generated: ${timestamp}`, 105, 38, { align: "center" });
-  doc.text(reportData.description || "", 105, 43, { align: "center" });
+  doc.text(normalizedData.description || "", 105, 43, { align: "center" });
 
   let currentY = 55;
 
   // Sections
-  reportData.sections.forEach((section) => {
+  (normalizedData.sections || []).forEach((section) => {
     // Check if we need a new page
     if (currentY > 260) {
       doc.addPage();
@@ -36,7 +58,7 @@ export const generatePDF = (reportData) => {
     currentY += 8;
 
     if (section.type === 'table') {
-      doc.autoTable({
+      const tableOpts = {
         startY: currentY,
         head: [section.headers],
         body: section.rows,
@@ -44,8 +66,15 @@ export const generatePDF = (reportData) => {
         headStyles: { fillColor: [0, 77, 153], textColor: [255, 255, 255] },
         styles: { fontSize: 8, cellPadding: 2 },
         margin: { left: 14, right: 14 }
-      });
-      currentY = doc.lastAutoTable.finalY + 15;
+      };
+
+      if (typeof doc.autoTable === 'function') {
+        doc.autoTable(tableOpts);
+      } else if (typeof autoTable === 'function') {
+        autoTable(doc, tableOpts);
+      }
+
+      currentY = (doc.lastAutoTable ? doc.lastAutoTable.finalY : currentY + 30) + 15;
     } else {
       // Regular content
       doc.setFontSize(10);
@@ -75,18 +104,21 @@ export const generatePDF = (reportData) => {
     finalBlob = new Blob([blob], { type: "application/octet-stream" });
   }
 
-  const url = window.URL.createObjectURL(finalBlob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = filename;
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  
-  // Use a safety delay of 250ms to prevent Firefox from interrupting the download
-  setTimeout(() => {
-    window.URL.revokeObjectURL(url);
-  }, 250);
+  if (typeof window !== "undefined" && typeof document !== "undefined") {
+    const url = (window.URL || URL).createObjectURL(finalBlob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    
+    // Use a safety delay of 250ms to prevent Firefox from interrupting the download
+    setTimeout(() => {
+      (window.URL || URL).revokeObjectURL(url);
+    }, 250);
+  }
+  return doc;
 };
 
 export const exportToPDF = (data, title = "PhantomNet Report") => {

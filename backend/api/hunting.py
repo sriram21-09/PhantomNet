@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 from database.database import get_db
 from database.models import SearchHistory, User
 from middleware.auth import require_role
-from services.hunting_service import HuntingService
+from services.hunting_service import HuntingService, ALLOWED_SEARCH_FIELDS, VALID_OPERATORS
 from datetime import datetime
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 from typing import List, Optional, Any
@@ -17,22 +17,22 @@ router = APIRouter(
 )
 
 VALID_LOGIC = {"AND", "OR", "NOT"}
-VALID_OPERATORS = {
-    "equals",
-    "not_equals",
-    "contains",
-    "starts_with",
-    "greater_than",
-    "less_than",
-    "between",
-    "in_list",
-}
 
 
 class QueryCondition(BaseModel):
     field: str = Field(..., min_length=1, max_length=50)
     operator: str = Field(...)
     value: Any
+
+    @field_validator("field")
+    @classmethod
+    def validate_field(cls, v: str) -> str:
+        v_clean = v.strip().lower()
+        if v_clean not in ALLOWED_SEARCH_FIELDS:
+            raise ValueError(
+                f"Unsupported search field: '{v}'. Allowed: {', '.join(sorted(ALLOWED_SEARCH_FIELDS))}"
+            )
+        return v_clean
 
     @field_validator("operator")
     @classmethod
@@ -65,6 +65,12 @@ class TextPayload(BaseModel):
 class IOCOutput(BaseModel):
     type: str
     value: str
+    in_watchlist: bool = False
+
+
+class WatchlistTogglePayload(BaseModel):
+    type: str = Field(..., min_length=1, max_length=50)
+    value: str = Field(..., min_length=1, max_length=500)
 
 
 @router.post("/search")
@@ -72,6 +78,9 @@ def search_events(query: AdvancedQuery, db: Session = Depends(get_db)):
     try:
         service = HuntingService(db)
         return service.search_events(query.model_dump())
+    except ValueError as e:
+        logger.warning("Validation error in threat hunting search: %s", e)
+        raise HTTPException(status_code=422, detail=str(e))
     except Exception as e:
         logger.error("Error executing threat hunting search: %s", e)
         raise HTTPException(status_code=500, detail="Failed to execute search query.")
@@ -85,6 +94,26 @@ def extract_iocs(payload: TextPayload, db: Session = Depends(get_db)):
     except Exception as e:
         logger.error("Error extracting IOCs: %s", e)
         raise HTTPException(status_code=500, detail="Failed to extract IOCs from payload.")
+
+
+@router.get("/watchlist")
+def get_watchlist(db: Session = Depends(get_db)):
+    try:
+        service = HuntingService(db)
+        return service.get_watchlist()
+    except Exception as e:
+        logger.error("Error fetching IOC watchlist: %s", e)
+        raise HTTPException(status_code=500, detail="Failed to fetch watchlist.")
+
+
+@router.post("/watchlist/toggle")
+def toggle_watchlist(payload: WatchlistTogglePayload, db: Session = Depends(get_db)):
+    try:
+        service = HuntingService(db)
+        return service.toggle_watchlist(payload.type, payload.value)
+    except Exception as e:
+        logger.error("Error toggling IOC watchlist: %s", e)
+        raise HTTPException(status_code=500, detail="Failed to update watchlist.")
 
 
 @router.get("/related-events")

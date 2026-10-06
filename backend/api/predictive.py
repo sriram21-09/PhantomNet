@@ -15,7 +15,10 @@ router = APIRouter(
 
 
 def _generate_forecast(hourly_counts: list, hours_ahead: int = 6):
-    """Simple exponential smoothing forecast from hourly event counts."""
+    """
+    Statistical exponential smoothing forecast from hourly event volume.
+    Applies single exponential smoothing (alpha=0.4) with linear trend projection.
+    """
     if not hourly_counts:
         return [{"hour": i, "predicted": 0} for i in range(hours_ahead)]
 
@@ -41,7 +44,7 @@ def _generate_forecast(hourly_counts: list, hours_ahead: int = 6):
 
 @router.get("/forecast")
 def get_forecast(db: Session = Depends(get_db)):
-    """Return time-series forecast for the next 6 hours."""
+    """Return time-series statistical forecast for the next 6 hours."""
     now = datetime.utcnow()
     hourly_counts = []
 
@@ -83,16 +86,30 @@ def get_forecast(db: Session = Depends(get_db)):
 
     return {
         "status": "success",
+        "has_data": sum(hourly_counts) > 0,
         "historical": historical,
         "forecast": forecast,
         "trend": trend,
         "total_predicted_next_hour": forecast[0]["predicted"] if forecast else 0,
+        "model": "Statistical Protocol Frequency Analysis",
+        "method": "Statistical Exponential Smoothing (alpha=0.4)",
     }
+
+
+def _classify_risk(risk_score: float) -> str:
+    """Canonical severity cutoffs: CRITICAL >= 80, HIGH >= 60, MEDIUM >= 40, LOW < 40."""
+    if risk_score >= 80:
+        return "CRITICAL"
+    if risk_score >= 60:
+        return "HIGH"
+    if risk_score >= 40:
+        return "MEDIUM"
+    return "LOW"
 
 
 @router.get("/risk-score")
 def get_risk_score(db: Session = Depends(get_db)):
-    """Aggregate risk score across all honeypots."""
+    """Aggregate risk score across all honeypots using canonical thresholds."""
     since = datetime.utcnow() - timedelta(minutes=30)
 
     result = (
@@ -105,11 +122,23 @@ def get_risk_score(db: Session = Depends(get_db)):
         .first()
     )
 
-    avg_score = float(result.avg) if result.avg else 0
-    max_score = float(result.max) if result.max else 0
-    count = result.count or 0
+    avg_score = float(result.avg) if result and result.avg else 0.0
+    max_score = float(result.max) if result and result.max else 0.0
+    count = result.count if result and result.count else 0
 
-    # Normalize scores to 0-100 for risk calculation if they coming as 0.0-1.0
+    if count == 0:
+        return {
+            "status": "success",
+            "has_data": False,
+            "risk_score": 0.0,
+            "risk_level": "LOW",
+            "avg_threat_score": 0.0,
+            "max_threat_score": 0.0,
+            "event_count": 0,
+            "window_minutes": 30,
+        }
+
+    # Normalize scores to 0-100 for risk calculation if they come as 0.0-1.0
     avg_score_scaled = avg_score * 100 if avg_score <= 1.0 else avg_score
     max_score_scaled = max_score * 100 if max_score <= 1.0 else max_score
 
@@ -117,21 +146,15 @@ def get_risk_score(db: Session = Depends(get_db)):
     volume_factor = min(100, count * 2)
     risk_score = round(avg_score_scaled * 0.5 + max_score_scaled * 0.3 + volume_factor * 0.2, 1)
 
-    if risk_score > 80:
-        level = "CRITICAL"
-    elif risk_score > 60:
-        level = "HIGH"
-    elif risk_score > 30:
-        level = "MEDIUM"
-    else:
-        level = "LOW"
+    level = _classify_risk(risk_score)
 
     return {
         "status": "success",
+        "has_data": True,
         "risk_score": risk_score,
         "risk_level": level,
-        "avg_threat_score": round(avg_score, 1),
-        "max_threat_score": round(max_score, 1),
+        "avg_threat_score": round(avg_score if avg_score <= 1.0 else avg_score / 100, 3),
+        "max_threat_score": round(max_score if max_score <= 1.0 else max_score / 100, 3),
         "event_count": count,
         "window_minutes": 30,
     }
@@ -139,10 +162,10 @@ def get_risk_score(db: Session = Depends(get_db)):
 
 @router.get("/next-attack")
 def get_next_attack_prediction(db: Session = Depends(get_db)):
-    """Predict the most likely next attack target based on recent patterns."""
+    """Estimate the most targeted honeypot based on recent protocol frequency."""
     since = datetime.utcnow() - timedelta(hours=2)
 
-    # Find most targeted honeypot
+    # Find most targeted protocol in the past 2 hours
     results = (
         db.query(
             PacketLog.protocol,
@@ -170,19 +193,30 @@ def get_next_attack_prediction(db: Session = Depends(get_db)):
         target_info = target_map.get(
             top.protocol, {"name": f"{top.protocol} SERVICE", "port": 0}
         )
+        avg_score = float(top.avg_score or 0.0)
+        avg_score_scaled = avg_score * 100 if avg_score <= 1.0 else avg_score
         confidence = min(
-            95, max(45, int(float(top.avg_score or 50) * 0.8 + top.count * 0.5))
+            95, max(40, int(avg_score_scaled * 0.5 + min(50, top.count * 2)))
         )
-        est_minutes = max(3, int(30 - top.count * 0.5))
+        est_minutes = max(3, int(30 - min(25, top.count)))
+        return {
+            "status": "success",
+            "has_data": True,
+            "target": f"{target_info['name']} (PORT {target_info['port']})",
+            "confidence": confidence,
+            "estimated_minutes": est_minutes,
+            "model": "Statistical Protocol Frequency Analysis",
+            "method": "Recent Event Frequency Ranking",
+            "window_hours": 2,
+        }
     else:
-        target_info = {"name": "SSH HONEYPOT", "port": 2222}
-        confidence = 42
-        est_minutes = 25
-
-    return {
-        "status": "success",
-        "target": f"{target_info['name']} (PORT {target_info['port']})",
-        "confidence": confidence,
-        "estimated_minutes": est_minutes,
-        "model": "LSTM-V3",
-    }
+        return {
+            "status": "success",
+            "has_data": False,
+            "target": "Insufficient data",
+            "confidence": None,
+            "estimated_minutes": None,
+            "model": "Statistical Protocol Frequency Analysis",
+            "method": "Recent Event Frequency Ranking",
+            "window_hours": 2,
+        }

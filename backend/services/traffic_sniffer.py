@@ -56,6 +56,13 @@ class RealTimeSniffer:
             else:
                 protocol = "OTHER"
 
+            # Filter out internal infrastructure traffic to avoid feedback loops
+            INTERNAL_PORTS = {5432, 6379, 8000, 11434}
+            if src_port in INTERNAL_PORTS or dst_port in INTERNAL_PORTS:
+                return
+            if src_ip in ("127.0.0.1", "::1", "localhost") and dst_ip in ("127.0.0.1", "::1", "localhost"):
+                return
+
             # -----------------------------
             # 1️⃣ BUILD LOG ENTRY
             # -----------------------------
@@ -73,18 +80,33 @@ class RealTimeSniffer:
             # -----------------------------
             # 2️⃣ THREAT CORRELATION (FULL PIPELINE)
             # -----------------------------
-            threat = self.threat_correlator.evaluate(log_entry)
-
-            attack_type = threat["verdict"]  # SAFE / WARNING / HIGH / CRITICAL
-            risk_score = threat["total_risk_score"]  # 0–100
+            try:
+                threat = self.threat_correlator.evaluate(log_entry)
+                attack_type = threat.get("verdict", "SAFE")
+                risk_score = threat.get("total_risk_score", 0.0)
+            except Exception:
+                attack_type = "SAFE"
+                risk_score = 0.0
 
             # Normalize attack_type for DB
             if attack_type == "CRITICAL":
                 attack_label = "MALICIOUS"
-            elif attack_type in ("HIGH", "WARNING"):
+                t_level = "CRITICAL"
+            elif attack_type == "HIGH":
                 attack_label = "SUSPICIOUS"
+                t_level = "HIGH"
+            elif attack_type == "WARNING":
+                attack_label = "SUSPICIOUS"
+                t_level = "MEDIUM"
             else:
                 attack_label = "BENIGN"
+                t_level = "LOW"
+
+            risk_norm = float(risk_score) / 100.0 if risk_score is not None else 0.0
+            if risk_norm >= 0.8:
+                t_level = "CRITICAL"
+            elif risk_norm >= 0.6 and t_level not in ("CRITICAL", "HIGH"):
+                t_level = "HIGH"
 
             # -----------------------------
             # 3️⃣ SAVE TO DATABASE
@@ -99,7 +121,8 @@ class RealTimeSniffer:
                 protocol=protocol,
                 length=length,
                 is_malicious=(attack_label == "MALICIOUS"),
-                threat_score=float(risk_score) / 100.0 if risk_score is not None else 0.0,
+                threat_score=risk_norm,
+                threat_level=t_level,
                 attack_type=attack_label,
             )
             db.add(new_log)

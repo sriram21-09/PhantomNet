@@ -288,6 +288,7 @@ services:
       SENTINEL_ENABLED: ${SENTINEL_ENABLED:-true}
       SENTINEL_AUTO_GEN_ENABLED: ${SENTINEL_AUTO_GEN_ENABLED:-true}
       PHANTOMNET_ADMIN_PASSWORD: ${PHANTOMNET_ADMIN_PASSWORD:-}
+      BACKUP_DIR: /app/backups
     networks:
       - app_net
       - honeypot_net
@@ -295,6 +296,9 @@ services:
     volumes:
       - ./data/pcaps:/app/data/pcaps
       - ./backend:/app/backend:ro
+      - ./ml_models:/app/ml_models:ro
+      - api_backups:/app/backups
+    command: ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000", "--workers", "2"]
     depends_on:
       postgres:
         condition: service_healthy
@@ -306,8 +310,8 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '1.0'
-          memory: 1G
+          cpus: '1.5'
+          memory: 2G
     labels:
       com.phantomnet.version: "3.0.0"
       com.phantomnet.service: "sentinel_api"
@@ -348,3 +352,4 @@ volumes:
   ollama_data:
   postgres_archive:
   postgres_backups:
+  api_backups:

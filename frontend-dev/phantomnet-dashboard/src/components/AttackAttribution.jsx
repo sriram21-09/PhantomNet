@@ -1,42 +1,110 @@
-import React, { useState, useMemo } from 'react';
-import { useRealTime } from '../context/RealTimeContext';
-import { Target, Zap, ShieldAlert, Clock, Info, ChevronDown, Crosshair, Fingerprint, TriangleAlert } from 'lucide-react';
+import React, { useState, useEffect, useCallback } from 'react';
+import { Target, Zap, ShieldAlert, Clock, Info, Crosshair, Fingerprint, TriangleAlert, RotateCcw } from 'lucide-react';
+import { normalizeThreatScore } from '../utils/threatScore';
 import './AttackAttribution.css';
 
 const TOOL_ICONS = {
-    'Nmap': '🔍',
-    'Metasploit': '💀',
-    'Hydra': '🔑',
-    'Nikto': '🕷️',
-    'Custom Script': '⚙️',
-    'Unknown Scanner': '❓',
+    'Port Scanner Pattern': '🔍',
+    'SSH Auth Scanner': '🔑',
+    'Exploitation Suite Pattern': '💀',
+    'Web Vulnerability Scanner': '🕷️',
+    'Automated Script Pattern': '⚙️',
+    'Unclassified Traffic': '📊',
 };
 
 const AttackAttribution = () => {
-    const { events } = useRealTime();
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+    const [errorCode, setErrorCode] = useState(null);
+    const [topAttackers, setTopAttackers] = useState([]);
     const [selectedIP, setSelectedIP] = useState(null);
+    const [profile, setProfile] = useState(null);
+    const [profileLoading, setProfileLoading] = useState(false);
 
-    // Get unique attacker IPs (sorted by threat)
-    const attackerIPs = useMemo(() => {
-        const ipMap = {};
-        events.forEach(e => {
-            if (!e.src_ip) return;
-            if (!ipMap[e.src_ip]) {
-                ipMap[e.src_ip] = { ip: e.src_ip, events: [], maxScore: 0 };
+    // Fetch top attackers list from backend
+    const fetchTopAttackers = useCallback(async () => {
+        try {
+            const res = await fetch('/api/v1/attribution/top-attackers?limit=10&hours=72', {
+                credentials: 'include',
+            });
+
+            if (res.status === 401) {
+                setErrorCode(401);
+                throw new Error('Authentication required for attribution telemetry');
             }
-            ipMap[e.src_ip].events.push(e);
-            ipMap[e.src_ip].maxScore = Math.max(ipMap[e.src_ip].maxScore, e.threat_score || 0);
-        });
-        return Object.values(ipMap).sort((a, b) => b.maxScore - a.maxScore).slice(0, 10);
-    }, [events]);
+            if (res.status === 403) {
+                setErrorCode(403);
+                throw new Error('Access forbidden to attribution telemetry');
+            }
+            if (!res.ok) {
+                setErrorCode(res.status);
+                throw new Error(`Unable to fetch attacker attribution (status: ${res.status})`);
+            }
 
-    const activeIP = selectedIP || (attackerIPs.length > 0 ? attackerIPs[0].ip : null);
+            const data = await res.json();
+            const attackers = data.attackers || [];
+            setTopAttackers(attackers);
 
-    const currentAttacker = useMemo(() => {
-        return attackerIPs.find(a => a.ip === activeIP) || attackerIPs[0] || null;
-    }, [attackerIPs, activeIP]);
+            // Automatically select first attacker if none selected
+            setSelectedIP(prev => {
+                if (prev && attackers.some(a => a.ip === prev)) {
+                    return prev;
+                }
+                return attackers.length > 0 ? attackers[0].ip : null;
+            });
 
-    if (!currentAttacker || events.length === 0) {
+            setError(null);
+            setErrorCode(null);
+            setLoading(false);
+        } catch (err) {
+            setError(err.message || 'Failed to load attribution data');
+            setLoading(false);
+        }
+    }, []);
+
+    // Fetch profile for the currently selected IP
+    const fetchProfile = useCallback(async (ip) => {
+        if (!ip) {
+            setProfile(null);
+            return;
+        }
+        setProfileLoading(true);
+        try {
+            const res = await fetch(`/api/v1/attribution/profile/${encodeURIComponent(ip)}`, {
+                credentials: 'include',
+            });
+
+            if (res.status === 401) {
+                setErrorCode(401);
+                throw new Error('Authentication required for attacker profile');
+            }
+            if (!res.ok) {
+                throw new Error(`Failed to load profile for ${ip}`);
+            }
+
+            const data = await res.json();
+            setProfile(data);
+        } catch (err) {
+            console.error('Error fetching attacker profile:', err);
+            setProfile(null);
+        } finally {
+            setProfileLoading(false);
+        }
+    }, []);
+
+    useEffect(() => {
+        fetchTopAttackers();
+        const interval = setInterval(fetchTopAttackers, 30000);
+        return () => clearInterval(interval);
+    }, [fetchTopAttackers]);
+
+    useEffect(() => {
+        if (selectedIP) {
+            fetchProfile(selectedIP);
+        }
+    }, [selectedIP, fetchProfile]);
+
+    if (loading && topAttackers.length === 0 && !error) {
         return (
             <div className="attribution-container">
                 <div className="attribution-loading">
@@ -47,59 +115,56 @@ const AttackAttribution = () => {
         );
     }
 
-    const attackerEvents = currentAttacker.events;
-    const latestAttack = attackerEvents[0];
-    const maxScore = currentAttacker.maxScore;
-    const avgScore = attackerEvents.length > 0 ? attackerEvents.reduce((sum, e) => sum + (e.threat_score || 0), 0) / attackerEvents.length : 0;
+    if (error && topAttackers.length === 0) {
+        return (
+            <div className="attribution-container">
+                <div className="attribution-header">
+                    <h3><Fingerprint size={16} /> ATTACK ATTRIBUTION</h3>
+                </div>
+                <div className="attribution-error-state">
+                    <ShieldAlert size={28} className="error-icon" />
+                    <div className="error-title">
+                        {errorCode === 401 ? 'Authentication Required' : 'Attribution Unavailable'}
+                    </div>
+                    <div className="error-detail">{error}</div>
+                    <button className="retry-btn" onClick={fetchTopAttackers}>
+                        <RotateCcw size={14} /> Retry Telemetry
+                    </button>
+                </div>
+            </div>
+        );
+    }
 
-    const getSophistication = (score, count) => {
-        if (score > 90 && count > 10) return { level: 'Advanced (State-Actor)', class: 'level-vhigh', icon: '🔴' };
-        if (score > 70) return { level: 'Intermediate (Organized)', class: 'level-high', icon: '🟠' };
-        return { level: 'Amateur (Script Kiddie)', class: 'level-low', icon: '🟢' };
-    };
+    if (!topAttackers.length) {
+        return (
+            <div className="attribution-container">
+                <div className="attribution-header">
+                    <h3><Fingerprint size={16} /> ATTACK ATTRIBUTION</h3>
+                </div>
+                <div className="attribution-empty-state">
+                    <p>No active attacker signatures identified in recent window.</p>
+                </div>
+            </div>
+        );
+    }
 
-    const detectTools = (proto, attackType, score) => {
-        const tools = [];
-        if ((proto === 'TCP' || proto === 'SSH') && score > 60) tools.push('Nmap');
-        if (proto === 'SSH' && (attackType === 'MALICIOUS' || score > 70)) tools.push('Hydra');
-        if (score > 80) tools.push('Metasploit');
-        if (proto === 'HTTP' && score > 50) tools.push('Nikto');
-        if (proto === 'FTP' && score > 40) tools.push('Custom Script');
-        if (tools.length === 0) tools.push('Unknown Scanner');
-        return tools;
-    };
+    const currentProfile = profile?.profile || {};
+    const timeline = profile?.timeline || {};
+    const progression = profile?.progression || [
+        { name: 'RECON', active: false },
+        { name: 'EXPLOIT', active: false },
+        { name: 'LATERAL', active: false },
+        { name: 'EXFIL', active: false },
+    ];
+    const confidence = profile?.confidence ?? 0;
+    const soph = currentProfile.sophistication || { level: 'Analyzing...', class: 'level-low' };
+    const tools = currentProfile.tools_detected || ['Unclassified Traffic'];
+    const intent = currentProfile.intent || 'Unknown / insufficient evidence';
+    const protocols = currentProfile.protocols || [];
 
-    const inferIntent = (attackType, count, score) => {
-        if (score > 85 || attackType === 'MALICIOUS') {
-            return count > 15 ? 'Exfiltration' : 'Exploitation';
-        }
-        if (count > 8) return 'Lateral Movement';
-        return 'Reconnaissance';
-    };
-
-    const getProgression = (evts) => {
-        const stages = [
-            { name: 'RECON', active: evts.length > 0 },
-            { name: 'EXPLOIT', active: evts.some(e => (e.threat_score || 0) > 60) },
-            { name: 'LATERAL', active: evts.some(e => (e.threat_score || 0) > 80) && evts.length > 10 },
-            { name: 'EXFIL', active: evts.some(e => (e.threat_score || 0) > 80) && evts.length > 20 },
-        ];
-        return stages;
-    };
-
-    const soph = getSophistication(maxScore, attackerEvents.length);
-    const tools = detectTools(latestAttack.protocol, latestAttack.attack_type, maxScore);
-    const intent = inferIntent(latestAttack.attack_type, attackerEvents.length, maxScore);
-    const progression = getProgression(attackerEvents);
-    const confidence = Math.min(95, Math.round(avgScore * 0.7 + attackerEvents.length * 0.3 + 10));
-
-    const firstSeen = attackerEvents.length > 0
-        ? new Date(attackerEvents[attackerEvents.length - 1].timestamp).toLocaleTimeString()
-        : 'N/A';
-    const lastSeen = attackerEvents.length > 0
-        ? new Date(attackerEvents[0].timestamp).toLocaleTimeString()
-        : 'N/A';
-    const protocols = [...new Set(attackerEvents.map(e => e.protocol).filter(Boolean))];
+    const firstSeen = timeline.first_seen ? new Date(timeline.first_seen).toLocaleTimeString() : 'N/A';
+    const lastSeen = timeline.last_seen ? new Date(timeline.last_seen).toLocaleTimeString() : 'N/A';
+    const totalEvents = timeline.total_events ?? 0;
 
     return (
         <div className="attribution-container">
@@ -115,18 +180,24 @@ const AttackAttribution = () => {
 
             {/* Attacker Selector */}
             <div className="attacker-selector">
-                <label>ACTIVE THREATS ({attackerIPs.length})</label>
+                <label>IDENTIFIED ATTACKERS ({topAttackers.length})</label>
                 <div className="attacker-chips">
-                    {attackerIPs.slice(0, 5).map(a => (
-                        <button
-                            key={a.ip}
-                            className={`attacker-chip ${a.ip === selectedIP ? 'selected' : ''}`}
-                            onClick={() => setSelectedIP(a.ip)}
-                        >
-                            <span className={`chip-dot ${a.maxScore > 80 ? 'critical' : a.maxScore > 40 ? 'high' : 'low'}`}></span>
-                            {a.ip}
-                        </button>
-                    ))}
+                    {topAttackers.slice(0, 5).map(a => {
+                        const scoreInfo = normalizeThreatScore(a.max_threat_score);
+                        return (
+                            <button
+                                key={a.ip}
+                                className={`attacker-chip ${a.ip === selectedIP ? 'selected' : ''}`}
+                                onClick={() => setSelectedIP(a.ip)}
+                            >
+                                <span className={`chip-dot ${
+                                    scoreInfo.severity === 'CRITICAL' ? 'critical' :
+                                    scoreInfo.severity === 'HIGH' ? 'high' : 'low'
+                                }`}></span>
+                                {a.ip}
+                            </button>
+                        );
+                    })}
                 </div>
             </div>
 
@@ -135,11 +206,15 @@ const AttackAttribution = () => {
                 <div className="profile-section">
                     <div className="profile-item">
                         <label><Target size={14} /> ATTACKER IP</label>
-                        <div className="value mono-text">{currentAttacker.ip}</div>
+                        <div className="value mono-text">
+                            {profileLoading ? 'Loading profile...' : (selectedIP || 'N/A')}
+                        </div>
                     </div>
                     <div className="profile-item">
-                        <label><Zap size={14} /> SOPHISTICATION</label>
-                        <div className={`value ${soph.class}`}>{soph.icon} {soph.level}</div>
+                        <label><Zap size={14} /> THREAT TIER</label>
+                        <div className={`value ${soph.class || 'level-low'}`}>
+                            {soph.level || 'Unknown / insufficient evidence'}
+                        </div>
                     </div>
                 </div>
 
@@ -147,24 +222,28 @@ const AttackAttribution = () => {
                 <div className="toolset-section">
                     <div className="tool-intent-row">
                         <div className="intent-box">
-                            <label><TriangleAlert size={12} /> INTENT</label>
+                            <label><TriangleAlert size={12} /> INFERRED INTENT</label>
                             <div className="intent-value">{intent}</div>
                         </div>
                         <div className="protocols-box">
-                            <label>PROTOCOLS</label>
+                            <label>PROTOCOLS OBSERVED</label>
                             <div className="proto-tags">
-                                {protocols.map(p => (
-                                    <span key={p} className="proto-tag">{p}</span>
-                                ))}
+                                {protocols.length > 0 ? (
+                                    protocols.map(p => (
+                                        <span key={p} className="proto-tag">{p}</span>
+                                    ))
+                                ) : (
+                                    <span className="proto-tag">None recorded</span>
+                                )}
                             </div>
                         </div>
                     </div>
                     <div className="tool-list">
-                        <label>DETECTED TOOLS:</label>
+                        <label>OBSERVED SIGNATURES / PATTERNS:</label>
                         <div className="tags">
                             {tools.map(tool => (
                                 <span key={tool} className="tag">
-                                    {TOOL_ICONS[tool] || '🔧'} {tool}
+                                    {TOOL_ICONS[tool] || '📊'} {tool}
                                 </span>
                             ))}
                         </div>
@@ -186,7 +265,7 @@ const AttackAttribution = () => {
                     </div>
                     <div className="t-stat">
                         <label>TOTAL EVENTS:</label>
-                        <span className="event-count-value">{attackerEvents.length}</span>
+                        <span className="event-count-value">{totalEvents}</span>
                     </div>
                 </div>
                 <div className="timeline-steps">
@@ -199,7 +278,7 @@ const AttackAttribution = () => {
                                 <div className="step-label">{step.name}</div>
                             </div>
                             {i < progression.length - 1 && (
-                                <div className={`step-connector ${step.active && progression[i + 1].active ? 'active' : ''}`}></div>
+                                <div className={`step-connector ${step.active && progression[i + 1]?.active ? 'active' : ''}`}></div>
                             )}
                         </React.Fragment>
                     ))}
@@ -208,10 +287,11 @@ const AttackAttribution = () => {
 
             <div className="attribution-footer">
                 <Info size={12} />
-                {attackerEvents.length > 15
-                    ? `⚠ Persistent threat detected — ${attackerEvents.length} events from ${currentAttacker.ip} via ${latestAttack.protocol}`
-                    : `Monitoring ${currentAttacker.ip} — ${attackerEvents.length} events recorded`
-                }
+                {profile?.evidence_source ? (
+                    <span>Source: {profile.evidence_source}</span>
+                ) : (
+                    <span>Source: Database (packet_logs telemetry aggregation)</span>
+                )}
             </div>
         </div>
     );

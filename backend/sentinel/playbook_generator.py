@@ -656,8 +656,13 @@ class PlaybookGenerator:
             ctx.setdefault("port_count_threshold", 50)
             ctx.setdefault("block_duration", "3600")
             ctx.setdefault("honeypot_count", 3)
-            ctx.setdefault("honeypot_type", "deception_mesh")
-            ctx.setdefault("deception_mode", "aggressive_deception")
+            try:
+                from services.system_config_service import get_config_str
+                configured_mode = get_config_str("deception_mode", "balanced")
+                deception_val = f"{configured_mode}_deception" if not configured_mode.endswith("_deception") else configured_mode
+            except Exception:
+                deception_val = "aggressive_deception"
+            ctx.setdefault("deception_mode", deception_val)
             ctx.setdefault("capture_duration", "300s")
             ctx.setdefault("sdn_enabled", True)
             ctx.setdefault("alert_level", ctx.get("severity", "HIGH"))

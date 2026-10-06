@@ -75,6 +75,10 @@ class AnomalyDetector:
         feature_dict = self.extractor.extract_features(log_entry)
         vector = np.array(list(feature_dict.values()), dtype=np.float32).reshape(1, -1)
 
+        # Safe feature count check to prevent dimension mismatch crashes
+        if hasattr(self.model, "n_features_in_") and vector.shape[1] != self.model.n_features_in_:
+            return 1, 0.0
+
         # -------- LATENCY MEASUREMENT (ML INFERENCE ONLY) --------
         start_time = time.perf_counter()
 

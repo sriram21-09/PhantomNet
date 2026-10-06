@@ -226,15 +226,23 @@ def get_siem_exporter() -> SIEMExporter:
     """
     Factory method to initialize and return the appropriate SIEMExporter based on env.
     """
-    siem_type = os.getenv("SIEM_TYPE", "elk").lower()
+    try:
+        from services.system_config_service import get_config_str
+        siem_type = get_config_str("siem_type", os.getenv("SIEM_TYPE", "elk")).lower()
+        custom_endpoint = get_config_str("siem_endpoint", "")
+    except Exception:
+        siem_type = os.getenv("SIEM_TYPE", "elk").lower()
+        custom_endpoint = ""
+
+    default_logstash = custom_endpoint or os.getenv("LOGSTASH_URL", "http://localhost:5044")
 
     if siem_type == "elk" or siem_type == "json":
-        logstash_url = os.getenv("LOGSTASH_URL", "http://localhost:5044")
+        logstash_url = default_logstash
         return ELKExporter(logstash_url)
 
     elif siem_type == "cef":
         # Assumes Logstash or HTTP endpoint accepting {"message": "... CEF string ..."}
-        logstash_url = os.getenv("LOGSTASH_URL", "http://localhost:5044")
+        logstash_url = default_logstash
         return CEFExporter(logstash_url)
 
     elif siem_type == "syslog":
