@@ -83,7 +83,7 @@ PhantomNet executes an end-to-end telemetry and analysis pipeline:
 3. **Queue Buffering**: The gateway validates the signature, assigns an RFC 9562 UUIDv7 identifier, commits the record to PostgreSQL, and pushes it to Redis Streams (`events:stream`).
 4. **Feature Extraction**: Consumer workers extract a 12-dimensional continuous feature vector from sliding-window flow statistics.
 5. **Ensemble Scoring**: A calibrated hybrid ensemble (0.85 Random Forest + 0.15 Isolation Forest) calculates threat severity and suppresses false alarms. For elevated alerts, SHAP computes local feature attribution weights.
-6. **Campaign Correlation**: Elevated threat events are clustered using log-standardized DBSCAN ($\epsilon=0.80, \text{min\_samples}=4$) to group multi-IP probes into discrete campaigns.
+6. **Campaign Correlation**: Elevated threat events are clustered using log-standardized DBSCAN (`eps = 0.80`, `min_samples = 4`) to group multi-IP probes into discrete campaigns.
 7. **Defensive Artifact Synthesis**: The Sentinel core deterministically maps observed attack patterns to MITRE ATT&CK techniques, computes a 4-signal confidence score, compiles Snort 2.9/3.0 rules and Sigma YAML rules, renders Jinja2 containment runbooks, and exports STIX 2.1 bundles.
 8. **Analyst Review & Distribution**: Correlated findings stream in real time to the React 19 dashboard via WebSockets, and intelligence is made available through the TAXII 2.1 server.
 
@@ -95,6 +95,13 @@ PhantomNet decouples deception listeners, data ingestion, analytics, intelligenc
 
 ```mermaid
 flowchart TD
+    classDef honeypot fill:#064e3b,stroke:#10b981,stroke-width:2px,color:#ecfdf5
+    classDef ingestion fill:#1e3a8a,stroke:#3b82f6,stroke-width:2px,color:#eff6ff
+    classDef storage fill:#0c4a6e,stroke:#38bdf8,stroke-width:2px,color:#f0f9ff
+    classDef mlEngine fill:#0f766e,stroke:#14b8a6,stroke-width:2px,color:#f0fdfa
+    classDef sentinel fill:#581c87,stroke:#c084fc,stroke-width:2px,color:#faf5ff
+    classDef interface fill:#7c2d12,stroke:#fb923c,stroke-width:2px,color:#fff7ed
+
     subgraph Layer1["Layer 1: Deception Grid (Isolated Containers, UID 10001, Cap-Drop)"]
         SSH["SSH Trap :2722<br/>Paramiko Shell"]
         HTTP["HTTP Trap :8080<br/>Flask Web Decoy"]
@@ -149,6 +156,20 @@ flowchart TD
     Playbook & Rules & STIX --> API
     API <-->|WebSocket| Dashboard
     API --> TAXII
+
+    class SSH,HTTP,FTP,SMTP honeypot
+    class Gateway,RedisStream ingestion
+    class Spool,Postgres storage
+    class Extractor,Ensemble,SHAP,DBSCAN mlEngine
+    class Mitre,Scorer,Rules,STIX,Playbook,LLM sentinel
+    class API,Dashboard,TAXII interface
+
+    style Layer1 fill:#06231c,stroke:#10b981,stroke-width:1.5px,color:#34d399
+    style Layer2 fill:#0d1b2a,stroke:#3b82f6,stroke-width:1.5px,color:#60a5fa
+    style Layer3 fill:#042f2e,stroke:#14b8a6,stroke-width:1.5px,color:#2dd4bf
+    style Layer4 fill:#2e1065,stroke:#a855f7,stroke-width:1.5px,color:#c084fc
+    style Layer5 fill:#3b1104,stroke:#f97316,stroke-width:1.5px,color:#fb923c
+    linkStyle default stroke:#64748b,stroke-width:1.5px
 ```
 
 ---
@@ -210,33 +231,33 @@ All 12 features are computed solely from transport headers and windowed stream s
 
 ### Campaign Correlation
 
-Standard Euclidean DBSCAN originally collapsed to 100% noise because destination ports ($0–65535$) and packet lengths ($0–65535$) overwhelmed small-scale features like event rates ($0–10$).
+Standard Euclidean DBSCAN originally collapsed to 100% noise because destination ports (0–65535) and packet lengths (0–65535) overwhelmed small-scale features like event rates (0–10).
 
 The remediated clustering pipeline (`backend/ml_engine/campaign_clustering.py`) applies:
-- Logarithmic scaling: $\log(1 + \text{length})$ and $\log(1 + \text{dst\_port})$.
-- Behavioral inputs: `burst_rate_10s`, `packet_size_variance`, `inter_arrival_std`, and `payload_entropy`.
-- Standardized Euclidean scaling: `StandardScaler()` with hyper-parameters calibrated to $\epsilon = 0.80$ and $\text{min\_samples} = 4$.
+- **Logarithmic Feature Compression**: `log(1 + length)` and `log(1 + dst_port)` applied to packet lengths and destination ports to compress wide numeric dynamic ranges.
+- **Behavioral Signal Inputs**: `burst_rate_10s`, `packet_size_variance`, `inter_arrival_std`, and `payload_entropy`.
+- **Standardized Euclidean Distance**: Feature normalization via `StandardScaler()` with DBSCAN hyper-parameters calibrated to `eps = 0.80` and `min_samples = 4`.
 
 In benchmark evaluation, this configuration isolated the 3 evaluated attack vectors (SSH brute force, web SQLi, and FTP scans) with 95.04% homogeneity, zero cross-campaign false merges, and a 17.0% natural outlier/noise rate.
 
 ### Sentinel Threat Intelligence Core
 
 - **Deterministic MITRE ATT&CK Mapping**: Maps 12 attack signatures to enterprise ATT&CK techniques across 8 tactics:
-  - `SSH_AUTH_FAILURE` $\to$ **T1110.001** (Password Guessing)
-  - `SSH_HIGH_ACTIVITY` $\to$ **T1021.004** (Remote Services: SSH)
-  - `HTTP_SQL_INJECTION` $\to$ **T1190** (Exploit Public-Facing Application)
-  - `HTTP_XSS_ATTEMPT` $\to$ **T1059.007** (JavaScript Interpreter)
-  - `HTTP_PATH_TRAVERSAL` $\to$ **T1083** (File & Directory Discovery)
-  - `HTTP_SCANNER_BEHAVIOR` $\to$ **T1046** (Network Service Discovery)
-  - `FTP_DATA_EXFILTRATION` $\to$ **T1048.003** (Exfiltration Over Non-C2 Protocol)
-  - `SMTP_LARGE_PAYLOAD` $\to$ **T1071.003** (Mail Protocols)
-  - `DISTRIBUTED_BRUTE_FORCE` $\to$ **T1110.004** (Credential Stuffing)
-  - `LOW_AND_SLOW_SCAN` $\to$ **T1595.001** (Active Scanning: IP Blocks)
-  - `MULTI_PROTOCOL_ATTACK` $\to$ **T1046** (Network Service Discovery)
-  - `HIGH_FREQUENCY_ATTACK` $\to$ **T1498** (Network Denial of Service)
+  - `SSH_AUTH_FAILURE` → **T1110.001** (Password Guessing)
+  - `SSH_HIGH_ACTIVITY` → **T1021.004** (Remote Services: SSH)
+  - `HTTP_SQL_INJECTION` → **T1190** (Exploit Public-Facing Application)
+  - `HTTP_XSS_ATTEMPT` → **T1059.007** (JavaScript Interpreter)
+  - `HTTP_PATH_TRAVERSAL` → **T1083** (File & Directory Discovery)
+  - `HTTP_SCANNER_BEHAVIOR` → **T1046** (Network Service Discovery)
+  - `FTP_DATA_EXFILTRATION` → **T1048.003** (Exfiltration Over Non-C2 Protocol)
+  - `SMTP_LARGE_PAYLOAD` → **T1071.003** (Mail Protocols)
+  - `DISTRIBUTED_BRUTE_FORCE` → **T1110.004** (Credential Stuffing)
+  - `LOW_AND_SLOW_SCAN` → **T1595.001** (Active Scanning: IP Blocks)
+  - `MULTI_PROTOCOL_ATTACK` → **T1046** (Network Service Discovery)
+  - `HIGH_FREQUENCY_ATTACK` → **T1498** (Network Denial of Service)
 - **4-Signal Confidence Scoring**:
   $$\text{Confidence} = 0.35 \times S_{\text{cluster}} + 0.35 \times S_{\text{ML}} + 0.20 \times S_{\text{IOC}} + 0.10 \times S_{\text{protocol}}$$
-  Severity tiers: `CRITICAL` ($\ge 0.80$), `HIGH` ($\ge 0.60$), `MEDIUM` ($\ge 0.40$), `LOW` ($< 0.40$).
+  Severity tiers: `CRITICAL` (≥ 0.80), `HIGH` (≥ 0.60), `MEDIUM` (≥ 0.40), `LOW` (< 0.40).
 - **Defensive Rule Synthesis**: Generates syntax-valid Snort 2.9/3.0 rules with flow tracking and Sigma YAML detection signatures.
 - **Threat Sharing**: Builds OASIS STIX 2.1 JSON bundles with TLP markings and serves collections through a native TAXII 2.1 REST server (`/taxii2/`).
 - **Optional Local LLM**: Integrates containerized Ollama running Mistral 7B for advisory text summaries. Operates purely locally with no cloud data transmission; deterministic Jinja2 templates provide complete offline fallback.
@@ -270,7 +291,7 @@ The analyst interface is built as a single-page React 19 application (`frontend-
 ### Dataset & Methodology
 - **Benchmark Dataset**: `data/remediated_dataset_v3.csv` (SHA-256: `390f653966410e70a386ffbfaf6ab381ff9e647a2c4da179a2ad37d46d7bb363`).
 - **Sample Distribution**: 5,000 total socket events (3,500 Benign / 1,500 Attack flows).
-- **Validation Protocol**: 30 independent stratified Monte Carlo splits (80% train / 20% test, $N_{\text{test}}=1,000$). Verified zero target or label leakage; maximum single-feature predictive accuracy is bounded at $\le 73.6\%$.
+- **Validation Protocol**: 30 independent stratified Monte Carlo splits (80% train / 20% test, $N = 1,000$). Verified zero target or label leakage; maximum single-feature predictive accuracy is bounded at ≤ 73.6%.
 
 ### Classification Results (N=30 Independent Splits)
 
