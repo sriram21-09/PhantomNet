@@ -1,714 +1,507 @@
-<div align="center">
-
-# 🛡️ PhantomNet V3
-### Autonomous AI Deception Grid, Threat Intelligence & Active Incident Response Platform
-
-*A production-grade cybersecurity platform deploying containerized deceptive services, detecting complex multi-stage attack campaigns with machine learning, and autonomously synthesizing MITRE ATT&CK-mapped threat intelligence, Snort/Sigma IDS rules, Jinja2/LLM incident response playbooks, and STIX 2.1 / TAXII 2.1 feeds.*
+# PhantomNet: An AI-Driven Distributed Honeypot Deception Framework
 
 <p align="center">
-  <img src="https://img.shields.io/badge/version-v3.0.0-00ff41?style=for-the-badge&logo=github&logoColor=white" alt="Version" />
-  <img src="https://img.shields.io/badge/build-passing-brightgreen?style=for-the-badge&logo=githubactions&logoColor=white" alt="Build" />
-  <img src="https://img.shields.io/badge/tests-94%25_coverage-success?style=for-the-badge&logo=pytest&logoColor=white" alt="Coverage" />
-  <img src="https://img.shields.io/badge/license-MIT-009688?style=for-the-badge&logo=opensourceinitiative&logoColor=white" alt="License" />
-  <img src="https://img.shields.io/badge/MITRE_ATT%26CK-12_Techniques-FF6F00?style=for-the-badge" alt="MITRE ATT&CK" />
-  <img src="https://img.shields.io/badge/STIX_2.1-OASIS_Compliant-7B1FA2?style=for-the-badge" alt="STIX 2.1" />
+  <a href="https://github.com/sriram21-09/PhantomNet"><img src="https://img.shields.io/badge/PhantomNet-Student_Research_Project-0ea5e9?style=flat-square&logo=github&logoColor=white" alt="PhantomNet Project" /></a>
+  <img src="https://img.shields.io/badge/Python-3.11+-3776AB?style=flat-square&logo=python&logoColor=white" alt="Python 3.11+" />
+  <img src="https://img.shields.io/badge/FastAPI-0.124.0-009688?style=flat-square&logo=fastapi&logoColor=white" alt="FastAPI" />
+  <img src="https://img.shields.io/badge/React-19.2.0-61DAFB?style=flat-square&logo=react&logoColor=black" alt="React 19" />
+  <img src="https://img.shields.io/badge/PostgreSQL-15-336791?style=flat-square&logo=postgresql&logoColor=white" alt="PostgreSQL" />
+  <img src="https://img.shields.io/badge/Redis-7.0-DC382D?style=flat-square&logo=redis&logoColor=white" alt="Redis 7" />
+  <img src="https://img.shields.io/badge/Docker-Compose_v2-2496ED?style=flat-square&logo=docker&logoColor=white" alt="Docker Compose" />
+  <img src="https://img.shields.io/badge/License-MIT-green?style=flat-square" alt="License: MIT" />
 </p>
 
-<p align="center">
-  <img src="https://img.shields.io/badge/Python-3.11+-3776AB?style=for-the-badge&logo=python&logoColor=white" alt="Python" />
-  <img src="https://img.shields.io/badge/FastAPI-0.104+-009688?style=for-the-badge&logo=fastapi&logoColor=white" alt="FastAPI" />
-  <img src="https://img.shields.io/badge/React-19.2+-61DAFB?style=for-the-badge&logo=react&logoColor=black" alt="React" />
-  <img src="https://img.shields.io/badge/PostgreSQL-15+-336791?style=for-the-badge&logo=postgresql&logoColor=white" alt="PostgreSQL" />
-  <img src="https://img.shields.io/badge/Docker-Compose_v2-2496ED?style=for-the-badge&logo=docker&logoColor=white" alt="Docker" />
-  <img src="https://img.shields.io/badge/AI_Engine-Ollama_%2F_Mistral_7B-EA580C?style=for-the-badge&logo=openai&logoColor=white" alt="Ollama / Mistral" />
-</p>
-
-<p align="center">
-  <a href="#-what-is-phantomnet">What is PhantomNet?</a> &bull;
-  <a href="#-key-features--capabilities">Key Features</a> &bull;
-  <a href="#-end-to-end-pipeline-architecture">Pipeline Architecture</a> &bull;
-  <a href="#-sentinel-layer--mitre-attck-matrix">Sentinel Intelligence Layer</a> &bull;
-  <a href="#-soc-dashboard--analyst-workflows">SOC Dashboard & Workflows</a> &bull;
-  <a href="#-tech-stack">Tech Stack</a> &bull;
-  <a href="#-quick-start--docker-deployment">Quick Start & Docker</a> &bull;
-  <a href="#-environment-configuration">Configuration</a> &bull;
-  <a href="#-api-reference">API Reference</a> &bull;
-  <a href="#-project-structure">Project Structure</a> &bull;
-  <a href="#-team">Team</a>
-</p>
-
-</div>
+> **PhantomNet is a student-developed cybersecurity engineering project that explores distributed honeypot deception, security-event ingestion, machine-learning-based threat detection, campaign correlation, explainability, and automated threat-intelligence generation.**  
+> *Built to study how deception telemetry can improve security detection and investigation.*
 
 ---
 
-## 📌 What is PhantomNet?
+## Table of Contents
 
-Traditional Intrusion Detection and Prevention Systems (IDS/IPS) are fundamentally reactive: they analyze traffic after an intrusion occurs, rely on lagging signatures, and generate overwhelming volumes of noisy alerts. Standalone honeypots solve part of this problem by offering zero-false-positive deception, but historically lack automated intelligence generation, machine learning correlation, and active response workflows.
-
-**PhantomNet V3** bridges this gap. It is an **autonomous active cyber defense platform** that couples containerized multi-protocol deception with a real-time machine learning threat engine, a deterministic MITRE ATT&CK mapping core, automated Snort/Sigma rule synthesis, Jinja2/LLM-enhanced incident playbooks, and standardized STIX 2.1 / TAXII 2.1 threat sharing.
-
-```
-┌─────────────────┐     ┌──────────────────┐     ┌───────────────────┐     ┌───────────────────┐
-│ Multi-Protocol  │ ──► │  23D ML Threat   │ ──► │  Sentinel Layer   │ ──► │ Active Response   │
-│ Deception Grid  │     │ Anomaly Scoring  │     │ MITRE ATT&CK Map  │     │ Playbooks & Rules │
-│ SSH/HTTP/FTP/SMTP     │ IF + RF + LSTM   │     │ Snort / Sigma / AI│     │ TAXII 2.1 / SOC   │
-└─────────────────┘     └──────────────────┘     └───────────────────┘     └───────────────────┘
-```
-
-### Architectural Differentiation
-
-| Capability | Traditional Honeypots | Legacy PhantomNet (V1/V2) | **PhantomNet V3 (Current)** |
-| :--- | :--- | :--- | :--- |
-| **Service Emulation** | Single protocol (SSH or HTTP) | Isolated SSH + HTTP traps | **Multi-Protocol Mesh (SSH, HTTP, FTP, SMTP) with write-only data diode** |
-| **Threat Detection** | Basic regex / string match | Single-model scoring (Random Forest) | **23D Feature Vector Ensemble (Isolation Forest + RF + LSTM Forecasting + SHAP XAI)** |
-| **Campaign Correlation** | None (discrete log lines) | Basic IP aggregation | **DBSCAN Campaign Clustering across multi-IP temporal attack sessions** |
-| **Tactical Context** | Generic alert categories | Static attack classification | **Dynamic 12-Technique MITRE ATT&CK Mapping across 8 Tactical Matrix Categories** |
-| **Rule Generation** | Manual analyst engineering | Basic Snort string alerts | **Autonomous Snort 2.9/3.0 + Sigma YAML Rule Synthesis with classtypes & SIDs** |
-| **Response Automation** | Static text templates | Basic markdown output | **Jinja2 + Ollama Mistral 7B Playbooks, 4-Signal Confidence Scoring, PDF/JSON Export** |
-| **Threat Intel Sharing** | Raw CSV or Syslog | Static STIX JSON dump | **Live TAXII 2.1 Server with Collection Discovery, STIX 2.1 Bundles, and TLP Markings** |
-| **Analyst Interface** | Command line / raw files | Read-only web UI | **React 19 NOC + Sentinel Console with Batch Approval Workflows & ATT&CK Heatmap** |
+- [1. Project Summary](#1-project-summary)
+- [2. Why PhantomNet?](#2-why-phantomnet)
+- [3. What It Does](#3-what-it-does)
+- [4. System Architecture](#4-system-architecture)
+- [5. Core Components](#5-core-components)
+  - [Honeypot Deception Grid](#honeypot-deception-grid)
+  - [Event Ingestion & Buffering Pipeline](#event-ingestion--buffering-pipeline)
+  - [Machine Learning Detection Pipeline](#machine-learning-detection-pipeline)
+  - [Campaign Correlation](#campaign-correlation)
+  - [Sentinel Threat Intelligence Core](#sentinel-threat-intelligence-core)
+  - [Analyst Dashboard](#analyst-dashboard)
+- [6. Experimental Evaluation](#6-experimental-evaluation)
+- [7. Security Design](#7-security-design)
+- [8. Technology Stack](#8-technology-stack)
+- [9. Quick Start Guide](#9-quick-start-guide)
+- [10. Testing & Verification](#10-testing--verification)
+- [11. Known Limitations](#11-known-limitations)
+- [12. Documentation Index](#12-documentation-index)
+- [13. Project Roadmap](#13-project-roadmap)
+- [14. Engineering Team](#14-engineering-team)
+- [15. License](#15-license)
 
 ---
 
-## 🚀 Key Features & Capabilities
+## 1. Project Summary
 
-### 🕸️ 1. Multi-Protocol Deception Grid
-- **Interactive SSH Honeypot (`:2222`)**: Paramiko-based emulated shell recording credentials, keystroke timing, executed bash commands, downloaded payloads, and honeyfile interactions.
-- **Vulnerable Web Services (`:8080`)**: Flask-based HTTP trap capturing Path Traversal, SQL Injection, Cross-Site Scripting (XSS), web shell uploads, scanner probes (Nikto/Nmap), and C2 registration attempts.
-- **Deceptive FTP Service (`:2121`)**: Custom pyftpdlib daemon intercepting brute-force authentication, passive data transfer (`:30000-30020`), and dropped malware binaries.
-- **Sinkhole SMTP Server (`:2525`)**: Asynchronous `aiosmtpd` trap logging phishing lures, spam campaigns, forged sender headers, and oversized multi-part payloads.
-- **Isolation-First Architecture**: Honeypots execute within unprivileged containers (`--cap-drop=ALL`, `--security-opt=no-new-privileges`, read-only root filesystems) forwarding logs via a write-only API proxy.
+PhantomNet was developed as a university cybersecurity capstone and research engineering project. It studies how deploying containerized, medium-interaction honeypots across multiple network protocols can capture high-fidelity adversary interaction telemetry, stream that data into an audited machine learning pipeline, group distributed probes into coordinated attack campaigns, and generate actionable defensive countermeasures.
 
-### 🧠 2. Real-Time ML Detection & Explainable AI (XAI)
-- **23-Dimensional Feature Vectorization**: Ingests raw packet flows and extracts statistical features (payload entropy, packet burst ratios, inter-arrival time variance, protocol flags, header-to-payload ratios).
-- **Sub-15ms Ensemble Inference**: Serialized dual-pipeline combining unsupervised **Isolation Forest** (zero-day anomaly detection) and supervised **Random Forest** (threat pattern classification).
-- **Temporal Volumetric Forecasting**: Deep **LSTM neural network** analyzing sliding time windows to forecast DDoS floods, brute-force escalations, and port scanning waves.
-- **Explainable Predictions (SHAP)**: Calculates Shapley Additive exPlanations for every score, providing SOC analysts with exact feature weight attribution (e.g., *"Payload Entropy contributed +42% to CRITICAL classification"*).
-
-### 🛡️ 3. Sentinel Autonomous Intelligence Core
-- **12 MITRE ATT&CK Techniques**: Automatically maps attack signatures across 8 tactics (Reconnaissance, Initial Access, Execution, Persistence, Credential Access, Lateral Movement, Discovery, Exfiltration, Impact).
-- **Production IDS Rule Synthesis**: Generates syntax-valid **Snort 2.9/3.0** rules (with flow tracking, mapped classtypes, severity priorities, and thread-safe SIDs) and **Sigma YAML** rules (with logsource definitions and ATT&CK tags).
-- **Dynamic Incident Playbooks**: Renders contextual containment runbooks via Jinja2 templates, enriched with IOC tables, threat scores, containment steps, and escalation procedures.
-- **AI Narrative Synthesis (Ollama & Mistral 7B)**: Integrates local LLM inference to generate executive summaries, tactical impact assessments, and technical timelines, backed by seamless offline template fallbacks.
-- **4-Signal Confidence Scoring**: Evaluates campaign severity using cluster density, mean ML anomaly scores, IOC entropy, and multi-protocol indicators.
-
-### 📡 4. Standardized Threat Sharing (STIX 2.1 / TAXII 2.1)
-- **OASIS STIX 2.1 Compliance**: Generates JSON intelligence bundles containing `Identity`, `AttackPattern`, `Indicator`, `Relationship`, and `MarkingDefinition` (TLP:WHITE to TLP:RED) objects.
-- **TAXII 2.1 Server**: RESTful threat feed discovery (`/taxii2/`), API Roots (`/taxii2/root/`), collections (`/taxii2/root/collections/{id}/objects/`), and STIX content negotiation (`application/taxii+json;version=2.1`).
-- **SIEM & SOAR Integration**: Automated CEF/Syslog streaming for Splunk, Elastic/ELK, and enterprise security platforms.
-
-### 📊 5. SOC Operations & Analyst Workbench
-- **Real-Time NOC (React 19 + Vite)**: WebSocket-driven live event stream, interactive packet inspector, real-time threat counter metrics, and audio-visual alerting.
-- **Interactive Sentinel Management**: Paginated and filterable playbook workspace with 1-click single and batch approval/rejection workflows, analyst attribution, and audit trail logging.
-- **Visual Analytics**: Interactive MITRE ATT&CK Matrix heatmap, temporal campaign timeline progression charts, and multi-format export engines (PDF, Markdown, JSON, STIX 2.1).
+| Aspect | Implementation Details |
+| :--- | :--- |
+| **Project Type** | Student Cybersecurity Research & Engineering Project |
+| **Primary Goal** | Capture, score, correlate, and convert honeypot telemetry into defensive artifacts |
+| **Deception Traps** | SSH (:2722), HTTP (:8080), FTP (:2721), SMTP (:2725) |
+| **Backend Framework**| FastAPI (Python 3.11), SQLAlchemy, Alembic |
+| **Data Layer** | PostgreSQL 15 (relational storage), Redis 7 (Streams buffer, PEL/DLQ), local disk spool |
+| **ML Engine** | Supervised Random Forest + Unsupervised Isolation Forest, Log-Standardized DBSCAN, SHAP |
+| **Threat Mapping** | Deterministic MITRE ATT&CK mapping (12 techniques across 8 enterprise tactics) |
+| **Defensive Artifacts**| Synthesized Snort 2.9/3.0 rules, Sigma YAML rules, STIX 2.1 bundles, TAXII 2.1 feed server |
+| **Analyst UI** | React 19, Vite, Tailwind CSS, Recharts, WebSocket live feeds |
+| **Deployment** | Docker Compose with non-root user execution and Linux capability dropping |
 
 ---
 
-## 🏗️ End-to-End Pipeline Architecture
+## 2. Why PhantomNet?
 
-The complete lifecycle from deceptive packet capture to distributed threat dissemination operates through seven tightly integrated stages:
+Defensive network engineering faces persistent operational challenges when monitoring perimeter probing and multi-vector scanning:
+
+1. **Passive Decoy Silos**: Traditional honeypots effectively observe untrusted traffic because authorized users rarely contact decoy listeners. However, standard deployments often operate as passive log sinks—collecting connection strings into flat files without automated feature extraction, real-time ML scoring, or multi-source correlation.
+2. **Investigation Overhead**: Security analysts spend substantial manual effort inspecting raw PCAPs, identifying adversary Tactics, Techniques, and Procedures (TTPs), mapping activity to security frameworks, and authoring defensive detection signatures. This creates a time lag between observing an intrusion attempt and deploying countermeasures.
+3. **Distributed Scanning**: Modern scanning tools distribute probes across numerous source IP addresses to evade basic threshold-based rate limiting. Without spatial clustering, these distributed probes appear as disconnected, low-severity events.
+4. **Telemetry Privacy**: Forwarding internal network event logs and packet captures to commercial cloud AI APIs creates data privacy risks, exposing internal IP schemes and network metadata to external third-party services.
+
+PhantomNet investigates an integrated, self-hosted approach: deploying isolated decoys, sanitizing and buffering telemetry, applying a calibrated ML model to score threat severity, clustering distributed activities using spatial density algorithms, and deterministically generating detection rules and threat intelligence bundles.
+
+---
+
+## 3. What It Does
+
+PhantomNet executes an end-to-end telemetry and analysis pipeline:
+
+1. **Decoy Engagement**: An external scanner or probe interacts with an exposed decoy service (SSH, HTTP, FTP, or SMTP).
+2. **Ingestion & Sanitization**: The honeypot redacts cleartext credentials, signs the event with HMAC-SHA256, and posts it to the ingestion gateway.
+3. **Queue Buffering**: The gateway validates the signature, assigns an RFC 9562 UUIDv7 identifier, commits the record to PostgreSQL, and pushes it to Redis Streams (`events:stream`).
+4. **Feature Extraction**: Consumer workers extract a 12-dimensional continuous feature vector from sliding-window flow statistics.
+5. **Ensemble Scoring**: A calibrated hybrid ensemble (0.85 Random Forest + 0.15 Isolation Forest) calculates threat severity and suppresses false alarms. For elevated alerts, SHAP computes local feature attribution weights.
+6. **Campaign Correlation**: Elevated threat events are clustered using log-standardized DBSCAN ($\epsilon=0.80, \text{min\_samples}=4$) to group multi-IP probes into discrete campaigns.
+7. **Defensive Artifact Synthesis**: The Sentinel core deterministically maps observed attack patterns to MITRE ATT&CK techniques, computes a 4-signal confidence score, compiles Snort 2.9/3.0 rules and Sigma YAML rules, renders Jinja2 containment runbooks, and exports STIX 2.1 bundles.
+8. **Analyst Review & Distribution**: Correlated findings stream in real time to the React 19 dashboard via WebSockets, and intelligence is made available through the TAXII 2.1 server.
+
+---
+
+## 4. System Architecture
+
+PhantomNet decouples deception listeners, data ingestion, analytics, intelligence synthesis, and the user interface into five modular layers:
 
 ```mermaid
-%%{init: {'theme': 'base', 'themeVariables': { 'primaryColor': '#0f172a', 'primaryTextColor': '#e2e8f0', 'primaryBorderColor': '#334155', 'lineColor': '#38bdf8', 'secondaryColor': '#1e293b', 'tertiaryColor': '#0f172a'}}}%%
-graph TD
-    classDef external fill:#7f1d1d,stroke:#ef4444,stroke-width:2px,color:#fff;
-    classDef honeypot fill:#14532d,stroke:#22c55e,stroke-width:2px,color:#fff;
-    classDef ingestion fill:#1e3a8a,stroke:#3b82f6,stroke-width:2px,color:#fff;
-    classDef ml fill:#0369a1,stroke:#0ea5e9,stroke-width:2px,color:#fff;
-    classDef sentinel fill:#581c87,stroke:#a855f7,stroke-width:2px,color:#fff;
-    classDef ops fill:#1f2937,stroke:#64748b,stroke-width:2px,color:#fff;
-    classDef sharing fill:#065f46,stroke:#10b981,stroke-width:2px,color:#fff;
-
-    Attacker["🌐 Threat Actor / Scanner"]:::external -->|Port 2222| SSH["SSH Trap (Paramiko)"]:::honeypot
-    Attacker -->|Port 8080| HTTP["HTTP Trap (Flask)"]:::honeypot
-    Attacker -->|Port 2121| FTP["FTP Trap (pyftpdlib)"]:::honeypot
-    Attacker -->|Port 2525| SMTP["SMTP Trap (aiosmtpd)"]:::honeypot
-
-    subgraph TrapMesh ["Layer 1: Deception Grid (Isolated Containers)"]
-        SSH
-        HTTP
-        FTP
-        SMTP
+flowchart TD
+    subgraph Layer1["Layer 1: Deception Grid (Isolated Containers, UID 10001, Cap-Drop)"]
+        SSH["SSH Trap :2722<br/>Paramiko Shell"]
+        HTTP["HTTP Trap :8080<br/>Flask Web Decoy"]
+        FTP["FTP Trap :2721<br/>pyftpdlib"]
+        SMTP["SMTP Trap :2725<br/>aiosmtpd Sinkhole"]
     end
 
-    TrapMesh -->|Write-Only REST Proxy| Diode["Data Diode & Ingestion"]:::ingestion
-    Diode -->|Persist Logs| DB[(PostgreSQL 15)]:::ingestion
-
-    subgraph IntelligenceEngine ["Layer 2: ML Inference & Correlation"]
-        DB -->|Batch Poll & Stream| Analyzer["Threat Analyzer"]:::ml
-        Analyzer <-->|23D Vector Extraction| MLEnsemble["ML Pipeline\n(Isolation Forest + RF + LSTM)"]:::ml
-        MLEnsemble -->|Threat Score + SHAP XAI| Analyzer
-        Analyzer -->|Threshold Trigger Score >= 85| DBSCAN["Campaign Clustering (DBSCAN)"]:::ml
+    subgraph Layer2["Layer 2: Ingestion & Telemetry Bus"]
+        Gateway["Ingestion Gateway<br/>HMAC-SHA256 & UUIDv7"]
+        Spool["1 GB Disk Spool<br/>Network Fault Fallback"]
+        RedisStream["Redis Streams<br/>events:stream & PEL/DLQ"]
+        Postgres[("PostgreSQL 15<br/>Relational Log Store")]
     end
 
-    subgraph SentinelPipeline ["Layer 3: Sentinel Autonomous Threat Core"]
-        DBSCAN -->|Campaign Clusters| SentinelSvc["Sentinel Service"]:::sentinel
-        SentinelSvc --> Mitre["MITRE ATT&CK Mapper\n(12 Techniques / 8 Tactics)"]:::sentinel
-        Mitre --> RuleGen["IDS Rule Generator\n(Snort 2.9/3.0 + Sigma YAML)"]:::sentinel
-        Mitre --> STIXGen["STIX 2.1 Builder\n(Indicators + Patterns + TLP)"]:::sentinel
-        Mitre --> PBGen["Playbook Generator\n(Jinja2 Engine)"]:::sentinel
-        PBGen <-->|Optional Narrative Context| LLM["Ollama / Mistral 7B\n(AI Narrative Engine)"]:::sentinel
-        SentinelSvc --> Scorer["4-Signal Confidence Scorer\n(CRITICAL / HIGH / MED / LOW)"]:::sentinel
-        
-        RuleGen --> SentinelDB[(Sentinel DB)]:::ingestion
-        STIXGen --> SentinelDB
-        PBGen --> SentinelDB
-        Scorer --> SentinelDB
+    subgraph Layer3["Layer 3: Telemetry & Machine Learning"]
+        Extractor["12D Feature Extractor<br/>Sliding Window Statistics"]
+        Ensemble["Hybrid ML Ensemble<br/>0.85 RF + 0.15 Calibrated IF"]
+        SHAP["SHAP TreeExplainer<br/>Local Attribution"]
+        DBSCAN["Log-Standardized DBSCAN<br/>Campaign Clustering"]
     end
 
-    subgraph SOCWorkbench ["Layer 4: Operations, Presentation & Dissemination"]
-        API["FastAPI REST & WebSocket Core"]:::ops
-        SentinelDB <-->|REST API| API
-        API <-->|WebSocket Stream| Dashboard["React 19 NOC Dashboard"]:::ops
-        API <-->|REST State Management| SentinelUI["Sentinel Management Console"]:::ops
-        SentinelUI -->|Analyst Approval / Reject| API
-        API -->|STIX 2.1 Collection Queries| TAXII["TAXII 2.1 Feed Server"]:::sharing
-        API -->|CEF / Syslog Stream| SIEM["External SIEM / SOAR (Splunk/ELK)"]:::sharing
-        API -->|SMTP Notifications| EmailAlerts["Email Alert Engine"]:::sharing
+    subgraph Layer4["Layer 4: Sentinel Threat Intelligence Core"]
+        Mitre["MITRE ATT&CK Mapper<br/>12 Techniques / 8 Tactics"]
+        Scorer["4-Signal Confidence Scorer<br/>Weighted Multi-Factor"]
+        Rules["Rule Generator<br/>Snort 2.9/3.0 & Sigma YAML"]
+        STIX["STIX 2.1 Builder<br/>CTI JSON Bundles"]
+        Playbook["Jinja2 Playbook Engine<br/>Containment Runbooks"]
+        LLM["Local Ollama / Mistral 7B<br/>Advisory Summaries (Optional)"]
     end
-```
 
-### End-to-End Threat Processing Sequence
+    subgraph Layer5["Layer 5: Analyst Interface & Integration"]
+        API["FastAPI REST & WebSocket Hub"]
+        Dashboard["React 19 Dashboard<br/>Live Events & Sentinel UI"]
+        TAXII["TAXII 2.1 Feed Server<br/>RESTful Discovery & Query"]
+    end
 
-1. **Adversary Engagement**: Attacker probes honeypot services (e.g., automated credential brute-force on port 2222 or SQLi payload against port 8080).
-2. **Telemetry Ingestion**: The honeypot traps commands, headers, hashes, and session metadata, forwarding events via an unprivileged write-only proxy into PostgreSQL 15.
-3. **23D Feature Vectorization & ML Scoring**: The `ThreatAnalyzer` extracts 23 behavioral features and evaluates them through the Isolation Forest + Random Forest ensemble (sub-15ms inference).
-4. **Campaign Clustering**: DBSCAN groups related multi-IP events occurring within spatial and temporal windows into structured attack campaigns.
-5. **Sentinel ATT&CK Mapping**: The `MitreMapper` resolves the specific attack pattern into an official ATT&CK technique (e.g., `T1110.001` - Brute Force: Password Guessing).
-6. **Automated Rule & Intelligence Synthesis**:
-   - `RuleGenerator` builds production-ready Snort (flow-tracking, SIDs) and Sigma rules.
-   - `STIXBuilder` packages standardized OASIS STIX 2.1 bundles with IOC indicators.
-   - `PlaybookGenerator` renders Jinja2 incident response runbooks (optionally enhanced with Mistral 7B LLM narrative synthesis).
-   - `ConfidenceScorer` computes composite severity across cluster size, ML scores, IOC density, and multi-protocol factors.
-7. **SOC Review & Threat Sharing**: Alerts and playbooks populate the React 19 Sentinel Dashboard. Analysts perform one-click approvals, export rules in ZIP/PDF/JSON/STIX format, or stream intelligence live via TAXII 2.1 collections and SIEM loggers.
-
----
-
-## 🛡️ Sentinel Layer & MITRE ATT&CK Matrix
-
-The Sentinel Layer is PhantomNet's automated cyber threat intelligence (CTI) engine, transforming raw trap detections into structured, actionable enterprise defense artifacts.
-
-### 🎯 MITRE ATT&CK Technique Mapping Matrix
-
-PhantomNet maps 12 distinct attack signatures across 8 ATT&CK tactics:
-
-| Attack Signature | ATT&CK ID | Technique Name | Tactic | Default Severity | Target Protocol |
-| :--- | :---: | :--- | :--- | :---: | :---: |
-| `SSH_AUTH_FAILURE` | **T1110.001** | Password Guessing | Credential Access | `HIGH` | SSH (:2222) |
-| `SSH_HIGH_ACTIVITY` | **T1021.004** | SSH Lateral Movement | Lateral Movement | `MEDIUM` | SSH (:2222) |
-| `HTTP_SQL_INJECTION` | **T1190** | Exploit Public-Facing App | Initial Access | `CRITICAL` | HTTP (:8080) |
-| `HTTP_XSS_ATTEMPT` | **T1059.007** | JavaScript Interpreter | Execution | `HIGH` | HTTP (:8080) |
-| `HTTP_PATH_TRAVERSAL` | **T1083** | File & Directory Discovery | Discovery | `HIGH` | HTTP (:8080) |
-| `HTTP_SCANNER_BEHAVIOR` | **T1046** | Network Service Discovery | Discovery | `MEDIUM` | HTTP (:8080) |
-| `FTP_DATA_EXFILTRATION` | **T1048.003** | Exfiltration Over Non-C2 | Exfiltration | `CRITICAL` | FTP (:2121) |
-| `SMTP_LARGE_PAYLOAD` | **T1071.003** | Mail Protocol C2 | Command and Control | `HIGH` | SMTP (:2525) |
-| `DISTRIBUTED_BRUTE_FORCE` | **T1110.004** | Credential Stuffing | Credential Access | `CRITICAL` | Multi-IP SSH/HTTP |
-| `LOW_AND_SLOW_SCAN` | **T1595.001** | Active IP Block Scanning | Reconnaissance | `MEDIUM` | All Protocols |
-| `MULTI_PROTOCOL_ATTACK` | **T1046** | Network Service Scanning | Discovery | `HIGH` | Multi-Port Mesh |
-| `HIGH_FREQUENCY_ATTACK` | **T1498** | Network Denial of Service | Impact | `CRITICAL` | All Protocols |
-
-### 📐 4-Signal Confidence Scoring Model
-
-Every generated playbook is evaluated against a 4-signal weighted confidence algorithm:
-
-$$\text{Confidence} = 0.35 \times S_{\text{cluster}} + 0.35 \times S_{\text{ML}} + 0.20 \times S_{\text{IOC}} + 0.10 \times S_{\text{protocol}}$$
-
-| Signal Dimension | Weight | Mathematical Formulation / Evaluation |
-| :--- | :---: | :--- |
-| **Cluster Volume ($S_{\text{cluster}}$)** | **35%** | Scaled logarithmically based on the total number of correlated events in the DBSCAN cluster. |
-| **ML Threat Score ($S_{\text{ML}}$)** | **35%** | Mean normalized anomaly score ($\mu$) from the Isolation Forest + Random Forest ensemble. |
-| **IOC Density ($S_{\text{IOC}}$)** | **20%** | Ratio of unique indicator IPs/hashes relative to total connection attempts. |
-| **Multi-Protocol Factor ($S_{\text{protocol}}$)** | **10%** | Multiplier bonus applied when attacks span multiple honeypot vectors (e.g., SSH + HTTP). |
-
-- **Severity Thresholds**: `CRITICAL` ($\ge 0.80$) • `HIGH` ($\ge 0.60$) • `MEDIUM` ($\ge 0.40$) • `LOW` ($< 0.40$)
-
-### 📝 Auto-Generated Detection Formats
-
-#### 1. Snort 2.9 / 3.0 Rules
-- Includes bidirectional flow tracking (`flow:to_server,established`), mapped classtypes, severity priorities, MITRE external URLs, and thread-safe sequential SIDs ($1000001+$):
-```snort
-alert tcp any any -> $HOME_NET 2222 (msg:"PHANTOMNET [T1110.001] SSH Brute Force Campaign Detected"; flow:to_server,established; threshold:type both,track by_src,count 5,seconds 60; classtype:attempted-admin; priority:1; reference:url,attack.mitre.org/techniques/T1110/001; sid:1000142; rev:1;)
-```
-
-#### 2. Sigma YAML Rules
-- Standardized YAML detection definitions compatible with Splunk, Elastic, Sentinel, and QRadar converters:
-```yaml
-title: PhantomNet - SQL Injection Exploit Attempt (T1190)
-id: 7f3b892a-4c21-419b-98f3-8b7a912e4310
-status: production
-description: Auto-generated detection for SQL Injection against HTTP honeypot
-author: PhantomNet Sentinel Autonomous Core
-references:
-  - https://attack.mitre.org/techniques/T1190/
-logsource:
-  category: webserver
-  service: http
-detection:
-  selection:
-    c-uri|contains:
-      - "UNION SELECT"
-      - "' OR 1=1"
-      - "INFORMATION_SCHEMA"
-  condition: selection
-level: critical
-tags:
-  - attack.initial_access
-  - attack.t1190
-```
-
-#### 3. OASIS STIX 2.1 & TAXII 2.1
-- Produces complete STIX 2.1 JSON bundles linked with `Identity`, `AttackPattern`, `Indicator`, and `Relationship` objects. Bundles are queried directly by external TAXII 2.1 clients (e.g., `taxii2-client`):
-```json
-{
-  "type": "bundle",
-  "id": "bundle--3b89419a-9e12-4c28-98f1-28147d3910ab",
-  "objects": [
-    {
-      "type": "identity",
-      "id": "identity--f431f809-377b-45e0-aa1c-6a4751cae5ff",
-      "name": "PhantomNet Autonomous Sentinel Core",
-      "identity_class": "system"
-    },
-    {
-      "type": "attack-pattern",
-      "id": "attack-pattern--8a129ef3-412e-48a1-9b93-84192bda9112",
-      "name": "Brute Force: Password Guessing",
-      "external_references": [
-        { "source_name": "mitre-attack", "external_id": "T1110.001" }
-      ]
-    }
-  ]
-}
+    SSH & HTTP & FTP & SMTP -->|Signed POST /api/v1/ingest/event| Gateway
+    Gateway -.->|Outage| Spool
+    Spool -.->|Reconnected Drain| Gateway
+    Gateway -->|XADD| RedisStream
+    Gateway -->|Persist| Postgres
+    RedisStream --> Extractor
+    Extractor --> Ensemble
+    Ensemble --> SHAP
+    Ensemble -->|Elevated Threats| DBSCAN
+    DBSCAN --> Mitre
+    Mitre --> Scorer
+    Mitre --> Rules
+    Mitre --> STIX
+    Mitre --> Playbook
+    LLM -.->|Narrative Context| Playbook
+    Playbook & Rules & STIX --> API
+    API <-->|WebSocket| Dashboard
+    API --> TAXII
 ```
 
 ---
 
-## 💻 SOC Dashboard & Analyst Workflows
+## 5. Core Components
 
-The React 19 Sentinel Dashboard provides an enterprise-ready command center for SOC analysts:
+### Honeypot Deception Grid
 
-### 🎬 Animated Interactive Walkthroughs
+All decoy listeners are implemented in modular Python scripts and containerized with defense-in-depth isolation controls:
 
-| Sentinel V3 Playbook & Rule Inspection | NOC Operations & Campaign Analytics |
+- **SSH Trap (`Host :2722` / `Container :2222`)**: Emulated terminal using [Paramiko](https://www.paramiko.org/). Captures usernames, passwords, keystroke timing, executed bash commands, download URLs, and honeyfile interactions.
+- **HTTP Trap (`:8080`)**: Web decoy using [Flask](https://flask.palletsprojects.com/). Emulates vulnerable endpoints and administrative panels, capturing SQL injection strings, path traversals, XSS attempts, user-agents, and scanner signatures.
+- **FTP Trap (`Host :2721` / `Container :2121`)**: Deceptive FTP daemon using [pyftpdlib](https://github.com/giampaolo/pyftpdlib). Emulates anonymous and credentialed authentication, capturing command sequences, passive data connections (`:30000-30020`), and uploaded payloads.
+- **SMTP Trap (`Host :2725` / `Container :2525`)**: Asynchronous mail sinkhole using [aiosmtpd](https://aiosmtpd.readthedocs.io/). Captures client hostnames, envelope addresses, email headers, body content, and multipart payload sizes.
+
+**Container Security Controls**:
+- Decoy containers execute under a dedicated non-root service account (`UID 10001:10001`).
+- Docker Compose drops all Linux capabilities (`cap_drop: ALL`).
+- Container root filesystems are mounted read-only (`read_only: true`), with ephemeral scratch space restricted to memory-backed `tmpfs` mounts.
+- Deception listeners reside on an isolated internal bridge (`honeypot_net`, `internal: true`) that lacks network routes to PostgreSQL or Redis.
+
+### Event Ingestion & Buffering Pipeline
+
+- **HMAC Origin Authentication**: Envelopes sent to `/api/v1/ingest/event` require an `X-Honeypot-Signature` (HMAC-SHA256 of the request body) and an `X-Honeypot-Timestamp` header. Requests outside a 300-second window are rejected to prevent replay attacks.
+- **Idempotent Ingestion**: Ingested events carry an RFC 9562 UUIDv7. PostgreSQL enforces a `UNIQUE(event_id)` constraint, preventing duplicate event creation during network retries.
+- **Redis Streams & Consumer Groups**: Events are queued in Redis Streams (`events:stream`). Consumer workers track unacknowledged deliveries in the Pending Entries List (PEL). Stalled messages are reclaimed via `XCLAIM`, and messages exceeding three delivery attempts route to `events:dlq`.
+- **Local Disk Spooling**: During network partitions or gateway unavailability, honeypot daemons buffer events to a bounded 1 GB local disk spool (`/tmp/spool`) and automatically drain the backlog upon reconnection.
+
+### Machine Learning Detection Pipeline
+
+#### Feature Engineering & Reconciliation
+Earlier repository documentation claimed a 23-dimensional feature space, which represented unbuilt documentation debt rather than executable code. Early prototype scripts used 15 socket features that suffered from circular target leakage (`threat_score`, $R^2=0.998$) and direct label proxies (`is_malicious`).
+
+During forensic remediation, these were replaced with an audited `FeatureExtractor` (`backend/ml/feature_extractor.py`) enforcing a **12-dimensional continuous flow schema** ([FEATURE_SPEC.md](FEATURE_SPEC.md)):
+
+| Index | Feature Name | Data Type | Physical Unit | Permitted Range | Ingestion Source |
+| :---: | :--- | :---: | :---: | :---: | :--- |
+| **0** | `packet_size` | `float64` | Bytes | $[0, 65535]$ | Packet length header |
+| **1** | `flow_duration` | `float64` | Seconds | $[0.0, 86400.0]$ | Flow duration tracker |
+| **2** | `packet_rate` | `float64` | Packets/sec | $[0.0, 10^7]$ | Sliding window rate |
+| **3** | `byte_rate` | `float64` | Bytes/sec | $[0.0, 10^9]$ | Sliding window rate |
+| **4** | `syn_ratio` | `float64` | Ratio | $[0.0, 1.0]$ | TCP control flags ratio |
+| **5** | `ack_ratio` | `float64` | Ratio | $[0.0, 1.0]$ | TCP control flags ratio |
+| **6** | `payload_entropy` | `float64` | Bits/byte | $[0.0, 8.0]$ | Shannon entropy of payload |
+| **7** | `failed_logins` | `float64` | Integer count | $[0, 10^5]$ | Windowed auth failure counter |
+| **8** | `port_diversity` | `float64` | Integer count | $[1, 65535]$ | Unique destination ports visited |
+| **9** | `inter_arrival_mean` | `float64` | Seconds | $[0.0, 3600.0]$ | Mean inter-arrival time $\Delta t$ |
+| **10** | `window_size_mean` | `float64` | Bytes | $[0, 65535]$ | Mean TCP advertised window |
+| **11** | `ttl_mean` | `float64` | Hop count | $[0, 255]$ | Mean IPv4 TTL / IPv6 Hop Limit |
+
+All 12 features are computed solely from transport headers and windowed stream statistics. No post-detection attributes or labels enter the feature matrix.
+
+#### Threat Detection Models
+- **Supervised Random Forest**: 100 decision trees (`RandomForestClassifier`, max depth 12) trained on labeled flow records, producing class probability $P_{\text{RF}} \in [0.0, 1.0]$.
+- **Unsupervised Isolation Forest**: Evaluates statistical deviation from baseline traffic patterns (`IsolationForest`, 100 estimators, contamination 0.05), producing a calibrated anomaly score $S_{\text{IF}} \in [0.0, 1.0]$.
+- **Hybrid Ensemble Formula**: Combines both models to balance supervised pattern recognition with anomaly suppression:
+  $$S_{\text{composite}} = 0.85 \times P_{\text{RF}} + 0.15 \times S_{\text{IF}}$$
+- **Explainability (SHAP)**: For elevated alerts, `TreeExplainer` calculates local additive feature attributions ($\sum_{i=1}^{12} \phi_i + \phi_0 = f(x)$) with verified mathematical local additivity ($|\sum \phi_i + \phi_0 - f(x)| < 1.42 \times 10^{-6}$), allowing analysts to inspect the specific flow dimensions driving the alert.
+
+### Campaign Correlation
+
+Standard Euclidean DBSCAN originally collapsed to 100% noise because destination ports ($0–65535$) and packet lengths ($0–65535$) overwhelmed small-scale features like event rates ($0–10$).
+
+The remediated clustering pipeline (`backend/ml_engine/campaign_clustering.py`) applies:
+- Logarithmic scaling: $\log(1 + \text{length})$ and $\log(1 + \text{dst\_port})$.
+- Behavioral inputs: `burst_rate_10s`, `packet_size_variance`, `inter_arrival_std`, and `payload_entropy`.
+- Standardized Euclidean scaling: `StandardScaler()` with hyper-parameters calibrated to $\epsilon = 0.80$ and $\text{min\_samples} = 4$.
+
+In benchmark evaluation, this configuration isolated the 3 evaluated attack vectors (SSH brute force, web SQLi, and FTP scans) with 95.04% homogeneity, zero cross-campaign false merges, and a 17.0% natural outlier/noise rate.
+
+### Sentinel Threat Intelligence Core
+
+- **Deterministic MITRE ATT&CK Mapping**: Maps 12 attack signatures to enterprise ATT&CK techniques across 8 tactics:
+  - `SSH_AUTH_FAILURE` $\to$ **T1110.001** (Password Guessing)
+  - `SSH_HIGH_ACTIVITY` $\to$ **T1021.004** (Remote Services: SSH)
+  - `HTTP_SQL_INJECTION` $\to$ **T1190** (Exploit Public-Facing Application)
+  - `HTTP_XSS_ATTEMPT` $\to$ **T1059.007** (JavaScript Interpreter)
+  - `HTTP_PATH_TRAVERSAL` $\to$ **T1083** (File & Directory Discovery)
+  - `HTTP_SCANNER_BEHAVIOR` $\to$ **T1046** (Network Service Discovery)
+  - `FTP_DATA_EXFILTRATION` $\to$ **T1048.003** (Exfiltration Over Non-C2 Protocol)
+  - `SMTP_LARGE_PAYLOAD` $\to$ **T1071.003** (Mail Protocols)
+  - `DISTRIBUTED_BRUTE_FORCE` $\to$ **T1110.004** (Credential Stuffing)
+  - `LOW_AND_SLOW_SCAN` $\to$ **T1595.001** (Active Scanning: IP Blocks)
+  - `MULTI_PROTOCOL_ATTACK` $\to$ **T1046** (Network Service Discovery)
+  - `HIGH_FREQUENCY_ATTACK` $\to$ **T1498** (Network Denial of Service)
+- **4-Signal Confidence Scoring**:
+  $$\text{Confidence} = 0.35 \times S_{\text{cluster}} + 0.35 \times S_{\text{ML}} + 0.20 \times S_{\text{IOC}} + 0.10 \times S_{\text{protocol}}$$
+  Severity tiers: `CRITICAL` ($\ge 0.80$), `HIGH` ($\ge 0.60$), `MEDIUM` ($\ge 0.40$), `LOW` ($< 0.40$).
+- **Defensive Rule Synthesis**: Generates syntax-valid Snort 2.9/3.0 rules with flow tracking and Sigma YAML detection signatures.
+- **Threat Sharing**: Builds OASIS STIX 2.1 JSON bundles with TLP markings and serves collections through a native TAXII 2.1 REST server (`/taxii2/`).
+- **Optional Local LLM**: Integrates containerized Ollama running Mistral 7B for advisory text summaries. Operates purely locally with no cloud data transmission; deterministic Jinja2 templates provide complete offline fallback.
+
+### Analyst Dashboard
+
+The analyst interface is built as a single-page React 19 application (`frontend-dev/phantomnet-dashboard/`):
+
+| Operations Overview & Telemetry | Honeypot Node Status Monitor |
 | :---: | :---: |
-| ![Sentinel V3 Demo](demos/sentinel_v3_demo.gif) | ![Dashboard Walkthrough](demos/demo_dashboard_walkthrough.gif) |
-| *Playbook inspection, Snort/Sigma previews, and approval workflow* | *NOC metrics, interactive ATT&CK matrix, and campaign timeline* |
+| ![SOC Overview](docs/images/overview_dashboard.png) | ![Honeypot Monitor](docs/images/honeypot_monitor.png) |
+| *Real-time event stream, threat breakdown, and system counters* | *Listener statuses across SSH, HTTP, FTP, and SMTP containers* |
 
-| End-to-End Incident Pipeline | TAXII 2.1 Threat Feed Exchange |
+| ML Threat Analytics & Feature Space | Threat Hunting Workbench |
 | :---: | :---: |
-| ![E2E Pipeline Demo](demos/demo_pipeline_e2e.gif) | ![TAXII 2.1 Exchange](demos/demo_ids_taxii.gif) |
-| *Ingestion from Honeypots to Sentinel LLM Playbook synthesis* | *Real-time STIX 2.1 bundle dissemination via TAXII 2.1* |
+| ![ML Analytics](docs/images/ml_analytics.png) | ![Threat Hunting](docs/images/threat_hunting.png) |
+| *12D feature distributions, anomaly curves, and SHAP weights* | *Query builder, IOC watchlist, case management, and history* |
+
+- **Real-Time Telemetry**: WebSocket client receiving event records with automatic reconnection.
+- **Sentinel Playbook Review**: Queue supporting single and batch approval/rejection workflows with reviewer attribution.
+- **Interactive ATT&CK Heatmap**: Visual matrix tracking technique coverage across 8 enterprise tactics.
+- **Threat Hunting**: Structured parameter search, case evidence association (`InvestigationCase`), and IOC watchlists.
+- **Multi-Format Export**: Generates PDF runbooks, raw JSON, Snort rule text, and STIX 2.1 bundles directly from the UI.
 
 ---
 
-### 1. Operations Overview & Live Telemetry
-Real-time monitoring of active honeypot nodes, live incoming attack telemetry, threat level breakdown, and system health status.
+## 6. Experimental Evaluation
 
-![SOC Overview Dashboard](docs/images/overview_dashboard.png)
+> **Evaluation Context**: The measurements below describe the evaluated benchmark configuration on the project's curated dataset and should not be interpreted as a guarantee of performance on unseen real-world networks.
 
----
+### Dataset & Methodology
+- **Benchmark Dataset**: `data/remediated_dataset_v3.csv` (SHA-256: `390f653966410e70a386ffbfaf6ab381ff9e647a2c4da179a2ad37d46d7bb363`).
+- **Sample Distribution**: 5,000 total socket events (3,500 Benign / 1,500 Attack flows).
+- **Validation Protocol**: 30 independent stratified Monte Carlo splits (80% train / 20% test, $N_{\text{test}}=1,000$). Verified zero target or label leakage; maximum single-feature predictive accuracy is bounded at $\le 73.6\%$.
 
-### 2. Honeypot Deception Grid Monitor
-Protocol-level trap telemetry (SSH, HTTP, FTP, SMTP), active listener statuses, and container node health metrics.
+### Classification Results (N=30 Independent Splits)
 
-![Honeypot Monitor](docs/images/honeypot_monitor.png)
+| Model Architecture | Accuracy | Precision | Recall | F1-Score | ROC-AUC | False Positive Rate (FPR) |
+| :--- | :---: | :---: | :---: | :---: | :---: | :---: |
+| **Standalone Random Forest** | 93.27% ± 0.61% | 97.11% ± 1.08% | **79.96% ± 2.20%** | **0.8768 ± 0.0126** | **0.9827 ± 0.0024** | 1.03% ± 0.40% |
+| **Standalone Isolation Forest** | 73.32% ± 1.09% | 66.99% ± 6.07% | 22.04% ± 2.73% | 0.3308 ± 0.0343 | 0.6465 ± 0.0204 | 4.70% ± 1.14% |
+| **Calibrated Hybrid Ensemble**<br>*(0.85 RF + 0.15 Calibrated IF)* | **92.73% ± 0.62%** | **97.82% ± 0.95%** | 77.50% ± 2.30% | 0.8646 ± 0.0132 | 0.9808 ± 0.0029 | **0.75% ± 0.34%** |
+| **Statistical Delta vs RF** | *-0.54%* | **+0.71% ($p < 10^{-8}$)** | *-2.46% ($p < 10^{-6}$)* | *-0.0122* | *-0.0019* | **-0.28% ($p = 1.73 \times 10^{-6}$)** |
 
----
+### Precision / Recall Trade-Off Analysis
+The hybrid ensemble is designed to act as an **alert-noise suppression filter**. Incorporating the calibrated Isolation Forest reduces the False Positive Rate from 1.03% to 0.75% (Wilcoxon signed-rank test $W = 0.0, p = 1.73 \times 10^{-6}$) and increases precision to 97.82%.
 
-### 3. Real-Time ML Threat Analytics & XAI
-23D vector scoring distribution, feature importance attributions, and anomaly confidence curves.
+However, this involves an empirical detection trade-off: recall drops from 79.96% to 77.50%. Approximately 22.5% of low-signal or borderline anomalies fall below the detection threshold. The earlier claim of universal ensemble superiority across all metrics is refuted; the ensemble trades recall to achieve higher precision.
 
-![ML Threat Analytics](docs/images/ml_analytics.png)
+### Runtime Latency Observations
 
----
-
-### 4. Sentinel Playbook Workspace (List View)
-Centralized queue of auto-generated incident playbooks with filterable status metrics (Pending, Approved, Rejected, Average Confidence):
-
-![Sentinel Management Console](docs/images/sentinel_dashboard_dark.png)
-
----
-
-### 5. Sentinel Playbook Inspection (Detail View)
-Analysts inspect rendered Markdown playbooks, AI narratives, and generated detection rules across tabbed preview interfaces:
-
-![Playbook Detail Viewer](docs/images/sentinel_playbook_viewer.png)
-
----
-
-### 6. MITRE ATT&CK Heatmap & Campaign Progression
-Visual threat analytics displaying real-time technique coverage and temporal attack progression:
-
-| Interactive ATT&CK Matrix Heatmap | Temporal Campaign Timeline |
-| :--- | :--- |
-| ![ATT&CK Heatmap](docs/images/mitre_matrix_heatmap.png) | ![Campaign Timeline](docs/images/campaign_timeline.png) |
+Measurements recorded across benchmark runs (`latency_observations.csv`):
+- **In-Memory Rule Scoring**: **0.071 ms** (fast-path signature and threshold lookups).
+- **12D Feature Extraction**: **0.065 ms** (sliding window feature calculation).
+- **Full Ensemble Tree Inference**: **28.3 ms** (complete Random Forest and Isolation Forest tree evaluations).
+- **E2E Autonomous Pipeline Loop**: **< 45 ms** (batch of 15 events from raw packet ingestion to STIX/Sigma export).
+- **Sustained Ingestion Load**: **500 eps sustained** with 0 observed event loss (p95 acknowledgment latency: **11.09 ms**; measured headroom ceiling: 6,646.9 eps).
 
 ---
 
-### 7. Batch Approval Workflow & Export Engine
-Multi-select playbook approval workflows and multi-format export panels (PDF, JSON, STIX 2.1):
+## 7. Security Design
 
-| Batch Approval Workflow | PDF Export & History Dialog |
-| :--- | :--- |
-| ![Batch Approval Workflow](docs/images/batch_approval_workflow.png) | ![PDF Export Dialog](docs/images/pdf_export_dialog.png) |
+PhantomNet incorporates defense-in-depth isolation controls:
 
----
-
-### 8. Dark & Light Theme System Comparison
-Fully responsive dual-theme cybersecurity interface supporting ambient dark mode and high-contrast light mode:
-
-![Dark vs Light Theme Comparison](docs/images/dark_light_theme_comparison.png)
+1. **Container Hardening**: Deception containers run as non-root (`UID 10001`), drop all Linux capabilities (`cap_drop: ALL`), disable privilege escalation (`no-new-privileges: true`), and mount root filesystems read-only.
+2. **Network Segmentation**: Deception listeners reside on an isolated bridge (`honeypot_net`, `internal: true`) without access to PostgreSQL or Redis.
+3. **Gateway Origin Authentication**: Ingested envelopes require HMAC-SHA256 signatures and integer epoch timestamps within a 300-second window.
+4. **Credential Sanitization**: Cleartext passwords submitted during authentication attempts are redacted at the gateway before database persistence.
+5. **Authentication & RBAC**: REST endpoints enforce JWT authentication with role hierarchy: `Admin`, `Analyst`, and `Viewer`. Refresh tokens are managed in cryptographic families; token reuse invalidates the entire family.
+6. **Active Defense Guardrails**: The experimental IP blocking endpoint (`POST /active-defense/block/{ip}`) requires an `Admin` role and an `X-Step-Up-Token` header. It rejects block requests targeting RFC 1918 private subnets, loopbacks, or multicast addresses to prevent self-denial of service.
+7. **Tamper-Resistant Audit Ledger**: Administrative actions are logged to an append-only audit table secured by SHA-256 cryptographic hash chaining.
 
 ---
 
-## 🛠️ Tech Stack
+## 8. Technology Stack
 
-| Layer / Subsystem | Technology | Version | Architectural Purpose & Rationale |
-| :--- | :--- | :--- | :--- |
-| **Backend Framework** | [FastAPI](https://fastapi.tiangolo.com/) | `0.104+` | High-performance asynchronous REST API, WebSocket streams, and native OpenAPI validation. |
-| **ASGI Web Server** | [Uvicorn](https://www.uvicorn.org/) | `0.24+` | Lightweight, high-throughput asynchronous server running uvloop. |
-| **Primary Database** | [PostgreSQL](https://www.postgresql.org/) | `15-alpine` | Relational ACID storage, JSONB support for payload metadata, and complex joins for correlation. |
-| **ORM & Migrations** | [SQLAlchemy](https://www.sqlalchemy.org/) / [Alembic](https://alembic.sqlalchemy.org/) | `2.0+` / `1.12+` | Declarative models, connection pooling, and automated schema migrations. |
-| **ML Inference Core** | [Scikit-Learn](https://scikit-learn.org/) | `1.3+` | Serialized Isolation Forest anomaly detection and Random Forest multi-class classification. |
-| **Neural Forecasting** | [TensorFlow / Keras](https://www.tensorflow.org/) | `2.14+` | Recurrent LSTM neural network for temporal traffic volume forecasting. |
-| **Explainable AI (XAI)** | [SHAP](https://shap.readthedocs.io/) | `0.43+` | TreeExplainer calculating exact feature Shapley values for analyst transparency. |
-| **AI / Local LLM** | [Ollama](https://ollama.ai/) / Mistral 7B | `Latest` | Local, air-gapped LLM inference for playbook narrative generation with zero external cloud dependencies. |
-| **Frontend Framework** | [React](https://react.dev/) | `19.2+` | Component-based UI with modern React hooks, concurrent rendering, and real-time state management. |
-| **Frontend Tooling** | [Vite](https://vitejs.dev/) | `5.0+` | Ultra-fast HMR and optimized production bundle compilation. |
-| **Styling & Icons** | [TailwindCSS](https://tailwindcss.com/) / [Lucide](https://lucide.dev/) | `4.0+` / `0.29+` | Modern responsive dark/light cybersecurity design system and vector iconography. |
-| **Data Visualization** | [Recharts](https://recharts.org/) | `2.10+` | Responsive SVG charts for campaign timelines, radar plots, and threat density curves. |
-| **Protocol Emulation** | [Paramiko](https://www.paramiko.org/) / [pyftpdlib](https://github.com/giampaolo/pyftpdlib) / [aiosmtpd](https://aiosmtpd.readthedocs.io/) | `3.4+` / `1.5+` / `1.4+` | Authentic interactive SSH, FTP, and SMTP protocol handling and telemetry capture. |
-| **Threat Standards** | [stix2](https://github.com/oasis-open/cti-python-stix2) / [PyYAML](https://pyyaml.org/) / [Jinja2](https://jinja.palletsprojects.com/) | `3.0+` / `6.0+` / `3.1+` | OASIS STIX 2.1 JSON packaging, Sigma rule serialization, and dynamic playbook rendering. |
-| **Containerization** | [Docker](https://www.docker.com/) / Compose | `24.0+` / `v2.20+` | Isolated multi-container deployment with unprivileged capability dropping. |
+Versions verified from repository manifests (`requirements.txt` and `package.json`):
 
----
-
-## ⚡ Quick Start & Docker Deployment
-
-### 📋 Prerequisites
-
-- **Docker Engine**: `24.0+` & **Docker Compose**: `v2.0+`
-- **Python**: `3.11+` *(for native local development)*
-- **Node.js**: `18.0+` & `npm 9.0+` *(for frontend development)*
-- **System Specifications**: Minimum 4 vCPU, 8GB RAM, 50GB Disk *(16GB RAM recommended if running local Ollama LLM)*
+| Subsystem | Technology | Verified Version | Purpose in PhantomNet |
+| :--- | :--- | :---: | :--- |
+| **Backend Framework** | [FastAPI](https://fastapi.tiangolo.com/) | `0.124.0` | Asynchronous REST routing, WebSocket streaming, dependency injection |
+| **ASGI Server** | [Uvicorn](https://www.uvicorn.org/) | `0.38.0` | High-throughput asynchronous server running uvloop |
+| **Relational Database** | [PostgreSQL](https://www.postgresql.org/) | `15-alpine` | Primary relational event and configuration storage |
+| **ORM & Migrations** | [SQLAlchemy](https://www.sqlalchemy.org/) / [Alembic](https://alembic.sqlalchemy.org/) | `2.0.44` / `1.18.3` | Declarative models and schema migration lifecycle |
+| **Streaming Buffer** | [Redis](https://redis.io/) | `7-alpine` | Stream event buffering (`events:stream`), consumer groups, PEL, and DLQ |
+| **Machine Learning** | [Scikit-Learn](https://scikit-learn.org/) | `1.8.0` | Supervised `RandomForestClassifier` and calibrated `IsolationForest` |
+| **Explainable AI (XAI)**| [SHAP](https://shap.readthedocs.io/) | `>=0.46.0` | `TreeExplainer` calculating local additive feature contributions |
+| **Numerical Processing**| [NumPy](https://numpy.org/) / [Pandas](https://pandas.pydata.org/) | `2.3.5` / `2.3.3` | Matrix operations, sliding window statistics, and statistical tests |
+| **SSH Decoy** | [Paramiko](https://www.paramiko.org/) | `4.0.0` | Interactive SSH protocol emulation and keystroke session recording |
+| **HTTP Decoy** | [Flask](https://flask.palletsprojects.com/) | `3.1.2` | Web vulnerability decoy services and exploit payload trapping |
+| **FTP Decoy** | [pyftpdlib](https://github.com/giampaolo/pyftpdlib) | `>=2.0.1` | Passive FTP daemon handling authentication and dropped file trapping |
+| **SMTP Decoy** | [aiosmtpd](https://aiosmtpd.readthedocs.io/) | `>=1.4.6` | Asynchronous SMTP sinkhole trap logging headers and mail envelopes |
+| **Threat Intelligence** | [stix2](https://github.com/oasis-open/cti-python-stix2) | `>=3.0.2` | OASIS STIX 2.1 JSON intelligence bundle packaging |
+| | [taxii2-client](https://github.com/oasis-open/cti-taxii-client) | `>=2.3.0` | TAXII 2.1 client testing and feed verification |
+| | [PyYAML](https://pyyaml.org/) / [Jinja2](https://jinja.palletsprojects.com/) | `6.0.3` / `3.1.6` | Sigma rule serialization and incident playbook rendering |
+| **Frontend Framework** | [React](https://react.dev/) | `19.2.0` | Component UI with concurrent rendering and real-time state |
+| **Frontend Tooling** | [Vite](https://vitejs.dev/) | `7.2.5` | Bundler with HMR and production asset compilation |
+| **Styling & Icons** | [Tailwind CSS](https://tailwindcss.com/) / [Lucide](https://lucide.dev/) | `4.1.18` / `0.575.0` | Responsive layout system and vector icons |
+| **Visual Analytics** | [Recharts](https://recharts.org/) / [React-Leaflet](https://react-leaflet.js.org/) | `3.7.0` / `5.0.0` | Threat progression charts, radar plots, and GeoIP mapping |
+| **Container Engine** | [Docker](https://www.docker.com/) / Compose | `24.0+` / `v2.20+` | Multi-container isolation, capability dropping, and volume mounts |
 
 ---
 
-### 🐳 1. Production Docker Deployment (Recommended)
+## 9. Quick Start Guide
 
-Clone the repository, configure your environment variables, and launch the complete stack:
+### Prerequisites
+- **Docker Engine**: Version `24.0+` with **Docker Compose** `v2.20+`
+- **Python**: Version `3.11+` *(for native development)*
+- **Node.js**: Version `20.0+` with `npm 10.0+` *(for frontend development)*
+- **Hardware Minimum**: 4 vCPU cores, 8 GB RAM, 20 GB free disk space *(16 GB RAM recommended if running local Ollama LLM)*
+
+---
+
+### Option A: Docker Compose Deployment (Recommended)
+
+1. **Clone the Repository**:
+   ```bash
+   git clone https://github.com/sriram21-09/PhantomNet.git
+   cd PhantomNet
+   ```
+
+2. **Configure Environment Variables**:
+   ```bash
+   cp .env.example .env
+   ```
+   > [!WARNING]
+   > Open `.env` and replace default development secrets before running containers:
+   > - `POSTGRES_PASSWORD`: Strong password for the database.
+   > - `JWT_SECRET`: Random 64-character hex string for signing session tokens.
+   > - `HONEYPOT_SECRET_KEY`: Random shared secret for HMAC-SHA256 origin authentication.
+
+3. **Build and Launch Containers**:
+   ```bash
+   docker compose build
+   docker compose up -d
+   ```
+
+4. **Verify Container Health**:
+   ```bash
+   docker compose ps
+   ```
+
+5. **Exposed Network Ports**:
+   - **React Dashboard**: `http://localhost:3000`
+   - **FastAPI Core & API Docs**: `http://localhost:8000` (Swagger UI at `http://localhost:8000/docs`)
+   - **SSH Honeypot**: `localhost:2722` (Maps to container port 2222)
+   - **HTTP Honeypot**: `http://localhost:8080` (Maps to container port 8080)
+   - **FTP Honeypot**: `localhost:2721` (Passive ports: `30000-30020`)
+   - **SMTP Honeypot**: `localhost:2725` (Maps to container port 2525)
+   - **Ollama LLM (Optional)**: `http://localhost:11434`
+
+---
+
+### Option B: Native Local Development
 
 ```bash
-# 1. Clone the PhantomNet repository
-git clone https://github.com/sriram21-09/PhantomNet.git
-cd PhantomNet
-
-# 2. Copy the environment configuration template
-cp .env.example .env
-
-# 3. Secure your environment variables
-# Ensure you set strong credentials for POSTGRES_PASSWORD, JWT_SECRET, and API_KEY
-nano .env
-
-# 4. Build and deploy all production containers in detached mode
-docker-compose -f docker-compose.prod.yml build --no-cache
-docker-compose -f docker-compose.prod.yml up -d
-
-# 5. Verify system health
-curl -s http://localhost:8000/api/v1/system/health | jq
-```
-
-#### Exposed Service Ports in Production
-
-| Container Service | Host Port | Protocol / Purpose |
-| :--- | :--- | :--- |
-| **React Frontend** | `http://localhost:80` (or `:3000` in dev) | Web Application & Sentinel Dashboard |
-| **FastAPI Core API** | `http://localhost:8000` | REST API, OpenAPI Docs (`/docs`), WebSocket Stream |
-| **SSH Honeypot** | `localhost:2222` | Emulated SSH Terminal Trap |
-| **HTTP Honeypot** | `http://localhost:8080` | Emulated Web Application Trap |
-| **FTP Honeypot** | `localhost:2121` (`:30000-30020`) | Emulated FTP Data & Auth Trap |
-| **SMTP Honeypot** | `localhost:2525` | Emulated Mail Sinkhole Trap |
-| **Ollama LLM Engine** | `http://localhost:11434` | Local AI Narrative Inference Container |
-
----
-
-### 💻 2. Local Development Setup (Native Mode)
-
-If you prefer to run services natively on your host machine for development:
-
-#### A. Backend API & Intelligence Core
-```bash
-cd backend
+# Backend Setup
 python -m venv .venv
-
-# On Linux / macOS:
-source .venv/bin/activate
-# On Windows PowerShell:
-# .\.venv\Scripts\Activate.ps1
-
-# Install backend dependencies
+source .venv/bin/activate       # On Linux / macOS (.venv\Scripts\Activate.ps1 on Windows)
 pip install -r requirements.txt
+cp .env.example .env
+alembic -c backend/alembic.ini upgrade head
+cd backend && uvicorn main:app --host 0.0.0.0 --port 8000 --reload
 
-# Run database migrations
-alembic upgrade head
-
-# Start FastAPI development server with live reload
-uvicorn main:app --host 0.0.0.0 --port 8000 --reload
-```
-
-#### B. React Frontend Application
-```bash
+# Frontend Setup (in separate terminal)
 cd frontend-dev/phantomnet-dashboard
-
-# Install frontend dependencies
-npm install
-
-# Start Vite development server
-npm run dev
-# Accessible at http://localhost:5173
-```
-
-#### C. Optional Local Ollama AI Setup
-```bash
-# Pull and start Mistral 7B model locally
-ollama run mistral
+npm install && npm run dev
 ```
 
 ---
 
-### 🧪 3. Data Seeding & Attack Simulation
-
-To populate the database with realistic sample attack telemetry or execute live multi-vector attack simulations against your running honeypots:
-
+### Health Probes
 ```bash
-# Populate database with historical baseline attacks and pre-computed playbooks
-python populate_db.py
+# Check process liveness
+curl -s http://localhost:8000/health/live | jq
 
-# Simulate live multi-vector attacks against running honeypots (SSH, HTTP, FTP)
-python scripts/simulate_attacker.py --target localhost --rate aggressive
+# Check readiness (evaluates PostgreSQL, Redis, and degraded state)
+curl -s http://localhost:8000/health/ready | jq
 
-# Test email alerting engine configuration
-python scripts/send_test_email.py --recipient soc-analyst@example.com
-```
-
----
-
-## ⚙️ Environment Configuration
-
-All system configurations are managed through `.env`. Below is a comprehensive reference of available variables:
-
-| Category | Environment Variable | Default Value | Description / Usage |
-| :--- | :--- | :--- | :--- |
-| **Database** | `DATABASE_URL` | `postgresql://postgres:postgres@localhost:5432/phantomnet` | Full database connection string (PostgreSQL or SQLite fallback). |
-| | `DB_HOST` / `DB_PORT` | `postgres` / `5432` | PostgreSQL server hostname and listening port. |
-| | `POSTGRES_USER` | `postgres` | PostgreSQL root username. |
-| | `POSTGRES_PASSWORD` | `postgres` | Strong database password (change in production). |
-| | `POSTGRES_DB` | `phantomnet` | Database schema name. |
-| **API Core** | `API_HOST` / `API_PORT` | `0.0.0.0` / `8000` | FastAPI network binding interface and listening port. |
-| | `ENVIRONMENT` | `production` | Environment profile (`development`, `staging`, `production`). |
-| | `JWT_SECRET` | `your-super-secret-jwt-key` | 64-character cryptographic key for JWT signature validation. |
-| | `JWT_EXPIRY_DAYS` | `7` | Access token expiration lifetime in days. |
-| | `API_KEY` | `pn_live_secret_key` | Master programmatic API key for external SIEM/SOAR ingestion. |
-| **Sentinel Core** | `SENTINEL_ENABLED` | `true` | Toggles automatic Sentinel playbook synthesis upon campaign trigger. |
-| | `SENTINEL_AUTO_GEN_ENABLED` | `false` | Enables APScheduler background periodic generation cycles. |
-| | `SENTINEL_AUTO_GEN_INTERVAL_MINUTES`| `30` | Interval in minutes between automated playbook generation runs. |
-| **Local AI Engine** | `SENTINEL_LLM_ENABLED` | `false` | Enables AI-enhanced narrative generation inside incident playbooks. |
-| | `SENTINEL_LLM_HOST` | `http://ollama:11434` | HTTP endpoint for the Ollama inference container. |
-| | `SENTINEL_LLM_MODEL` | `mistral` | Local LLM model tag (`mistral`, `gemma:2b`, etc.). |
-| **Email Alerts** | `SENTINEL_EMAIL_ALERTS_ENABLED` | `false` | Toggles automated SMTP alerts for critical incident playbooks. |
-| | `SENTINEL_EMAIL_SMTP_HOST` | `smtp.gmail.com` | Outgoing SMTP mail server hostname. |
-| | `SENTINEL_EMAIL_SMTP_PORT` | `587` | Outgoing SMTP mail server port (587 for TLS, 465 for SSL). |
-| | `SENTINEL_EMAIL_SEVERITY_THRESHOLD`| `CRITICAL` | Minimum severity triggering email dispatches (`CRITICAL`, `HIGH`, `MEDIUM`). |
-| **Threat Intel** | `ABUSE_IPDB_KEY` | *(optional)* | AbuseIPDB API key for automatic external IP reputation lookup. |
-| | `ALIENVAULT_OTX_KEY` | *(optional)* | AlienVault OTX API key for threat pulse correlation. |
-
----
-
-## 📡 API Reference & Integration
-
-PhantomNet provides a fully documented REST API with OpenAPI/Swagger specifications at `http://localhost:8000/docs`.
-
-### Key Sentinel & Threat Intelligence Endpoints
-
-| Method | Endpoint Route | Description & Parameters |
-| :--- | :--- | :--- |
-| `GET` | `/api/sentinel/playbooks` | List playbooks with pagination (`limit`, `offset`), `status`, `tactic`, and `search`. |
-| `GET` | `/api/sentinel/playbooks/{id}` | Retrieve complete playbook details including rendered Markdown and rule metadata. |
-| `GET` | `/api/sentinel/stats` | Pipeline statistics (total playbooks, approved count, pending review, average confidence). |
-| `GET` | `/api/sentinel/mitre/matrix` | Aggregated ATT&CK matrix heatmap with technique coverage and event counts. |
-| `POST` | `/api/sentinel/generate` | Trigger manual playbook generation for specific IP/event clusters. |
-| `PATCH` | `/api/sentinel/playbooks/{id}/approve` | Approve a pending playbook (attaches analyst ID and review timestamp). |
-| `PATCH` | `/api/sentinel/playbooks/{id}/reject` | Reject a pending playbook with audit reason logging. |
-| `POST` | `/api/sentinel/playbooks/batch/approve`| Batch approve an array of playbook IDs. |
-| `POST` | `/api/sentinel/playbooks/{id}/export` | Export playbook in requested format (`format=md`, `json`, `stix`, `pdf`). |
-| `GET` | `/api/sentinel/rules/snort` | List all synthesized Snort 2.9/3.0 rules. |
-| `GET` | `/api/sentinel/rules/sigma` | List all synthesized Sigma YAML rules. |
-| `GET` | `/taxii2/` | TAXII 2.1 Server Discovery endpoint. |
-| `GET` | `/taxii2/root/collections/{id}/objects/` | Query STIX 2.1 threat intelligence objects via TAXII 2.1 feed collections. |
-
-### CLI Integration Examples (`curl`)
-
-```bash
-# 1. Inspect System Health
+# High-level system health summary
 curl -s http://localhost:8000/api/v1/system/health | jq
-
-# 2. Query Sentinel Pipeline Statistics
-curl -s -H "Authorization: Bearer pn_live_secret_key" \
-     http://localhost:8000/api/sentinel/stats | jq
-
-# 3. Manually Trigger Sentinel Playbook Generation for a Suspicious Campaign
-curl -X POST "http://localhost:8000/api/sentinel/generate" \
-     -H "Authorization: Bearer pn_live_secret_key" \
-     -H "Content-Type: application/json" \
-     -d '{
-       "source_ips": ["185.220.101.5"],
-       "target_ports": [2222],
-       "protocols": ["TCP"],
-       "event_count": 120
-     }' | jq
-
-# 4. Export Playbook as a Standalone STIX 2.1 Bundle
-curl -X POST "http://localhost:8000/api/sentinel/playbooks/1/export?format=stix" \
-     -H "Authorization: Bearer pn_live_secret_key" -o playbook_1_stix.json
-
-# 5. Query the Live TAXII 2.1 Threat Collection
-curl -s -H "Accept: application/taxii+json;version=2.1" \
-     http://localhost:8000/taxii2/root/collections/default/objects/ | jq
 ```
 
 ---
 
-## 📁 Project Structure
+## 10. Testing & Verification
 
-```text
-PhantomNet/
-├── backend/                             # FastAPI Backend & Intelligence Services
-│   ├── api/                             # REST & WebSocket API Controllers
-│   │   ├── sentinel.py                  # Sentinel Layer REST API (16 endpoints)
-│   │   ├── taxii.py                     # TAXII 2.1 Threat Sharing Server
-│   │   ├── threat.py                    # Threat Analysis & Scoring Routes
-│   │   ├── analytics.py                 # Campaign & Metric Analytics
-│   │   └── websocket.py                 # Real-Time WebSocket Streaming Hub
-│   ├── database/                        # Database Connection & SQLAlchemy Models
-│   │   ├── database.py                  # Engine & Session Management
-│   │   └── models.py                    # PostgreSQL Tables (Events, Clusters, Logs)
-│   ├── honeypots/                       # Honeypot Service Implementations
-│   │   ├── ssh/                         # Paramiko Interactive Shell Trap (:2222)
-│   │   ├── http/                        # Flask Web Application Trap (:8080)
-│   │   ├── ftp/                         # pyftpdlib Data & Malware Trap (:2121)
-│   │   └── smtp/                        # aiosmtpd Phishing Sinkhole (:2525)
-│   ├── ml_engine/                       # ML Detection & Explainability Pipelines
-│   │   ├── feature_extractor.py         # 23D Feature Vectorization
-│   │   ├── isolation_forest.py          # Anomaly Detection Inference
-│   │   ├── random_forest.py             # Supervised Threat Classification
-│   │   ├── lstm_forecaster.py           # Temporal Volume Prediction
-│   │   └── shap_explainer.py            # SHAP Feature Attribution Logic
-│   ├── sentinel/                        # Autonomous Threat Intelligence Subsystem
-│   │   ├── mitre_mapper.py              # 12 ATT&CK Technique Mapping Engine
-│   │   ├── rule_generator.py            # Snort & Sigma IDS Rule Synthesizer
-│   │   ├── playbook_generator.py        # Jinja2 Response Playbook Builder
-│   │   ├── llm_service.py               # Ollama / Mistral 7B AI Narrative Engine
-│   │   ├── stix_enhanced.py             # OASIS STIX 2.1 Bundle Serializer
-│   │   ├── confidence_scoring.py        # 4-Signal Confidence Scoring Algorithm
-│   │   ├── email_alerts.py              # Outgoing SMTP Alert Notification Service
-│   │   ├── models.py                    # SentinelPlaybook & AuditLog ORM Schemas
-│   │   └── templates/                   # Jinja2 Markdown & YAML Templates
-│   ├── tests/                           # Comprehensive Pytest Suites (94%+ coverage)
-│   └── main.py                          # ASGI Entrypoint & Router Assembly
-├── frontend-dev/phantomnet-dashboard/   # Modern React 19 Frontend
-│   ├── src/
-│   │   ├── components/                  # UI Components (NOC Feed, Charts, Modals)
-│   │   │   └── sentinel/                # PlaybookViewer, RulePreview, ApprovalControls
-│   │   ├── pages/                       # View Pages (SentinelDashboard, Overview, Analytics)
-│   │   └── services/                    # Axios API Clients & WebSocket Connectors
-│   └── package.json                     # Frontend Dependencies & Scripts
-├── docs/                                # Technical Architecture & Developer Guides
-│   ├── system_architecture.md           # System Architecture & Design Philosophy
-│   ├── ml_pipeline.md                   # ML Pipeline & Model Training Specifications
-│   ├── rule_generation.md               # Snort/Sigma Rule Generation Deep-Dive
-│   ├── playbook_templates.md            # Jinja2 Playbook Authoring Guide
-│   ├── llm_integration.md               # Ollama Mistral LLM Integration Guide
-│   ├── taxii_interoperability.md        # STIX 2.1 & TAXII 2.1 Threat Sharing Spec
-│   ├── production_deployment_guide.md   # Enterprise Production Hardening & Ops
-│   └── DOCKER_GUIDE.md                  # Comprehensive Docker Compose Manual
-├── ml_models/                           # Serialized ML Model Artifacts (Git LFS)
-├── scripts/                             # Utility & Testing Automation Scripts
-│   ├── simulate_attacker.py             # Multi-Protocol Attack Generator
-│   ├── send_test_email.py               # SMTP Alert Validator
-│   └── clear_db.py                      # Database Cleanup Utility
-├── docker-compose.yml                   # Base Multi-Container Configuration
-├── docker-compose.prod.yml              # Production Hardened Docker Compose Overrides
-├── populate_db.py                       # Historical Seed & Demonstration Ingestion
-├── requirements.txt                     # Backend Dependencies
-└── README.md                            # Main Documentation & Overview
+The repository test suite covers API authentication, feature contracts, machine learning validation, container hardening, and end-to-end pipeline execution:
+
+```bash
+# Run the complete test suite
+pytest
+
+# 1. API Security & RBAC Tests
+pytest tests/api/test_auth.py tests/api/test_rbac.py tests/api/test_websocket_auth.py
+
+# 2. Authoritative 12D Feature Schema Contract Tests
+pytest tests/ml/test_remediated_feature_extractor.py tests/ml/test_feature_schema_contract.py
+
+# 3. Machine Learning Walk-Forward Validation & Adversarial Tests
+pytest tests/ml/test_walk_forward_benchmark.py tests/ml/test_adversarial.py
+
+# 4. Container Hardening & Network Isolation Probes
+pytest tests/ops/test_container_hardening.py tests/ops/test_network_isolation.py
+
+# 5. End-to-End Autonomous SOAR Pipeline Test (14/14 automated stages)
+pytest tests/e2e/test_full_pipeline_e2e.py
+
+# 6. Sustained Ingestion Load Benchmark (500 eps sustained)
+pytest tests/load_tests/test_sustained_500eps.py
 ```
 
 ---
 
-## 🔒 Security Architecture & Hardening
+## 11. Known Limitations
 
-PhantomNet is built from the ground up on defense-in-depth principles to protect the host infrastructure while exposing realistic attack surfaces:
-
-- **Unprivileged Container Isolation**: All honeypot services execute with dropped Linux capabilities (`--cap-drop=ALL`), non-root users, disabled privilege escalation (`--security-opt=no-new-privileges`), and read-only container root filesystems.
-- **Write-Only Data Diode Architecture**: Honeypot containers possess zero read access to backend databases or internal network segments. Logs and session metadata are strictly forwarded across an isolated internal bridge via write-only API proxies.
-- **Strict Input Validation & Rate Limiting**: All API endpoints enforce strict Pydantic v2 schemas and token-bucket rate limiting to mitigate denial-of-service attempts.
-- **Local AI Privacy Assurance**: The integrated Ollama LLM runs completely offline within a local container, ensuring sensitive incident context, attacker telemetry, and internal network IP addresses are never transmitted to external cloud providers.
-- **Role-Based Access Control (RBAC)**: Enforces granular JWT-authenticated roles: `Admin` (full system configuration), `Analyst` (playbook review, approve/reject, exports), and `Viewer` (read-only telemetry).
-
----
-
-## 🗺️ Project Roadmap & Milestone Progression
-
-```
-[Month 1: Foundation] ──► [Month 2: ML Core] ──► [Month 3: Clustering] ──► [Month 4: Sentinel] ──► [Month 5: Scaling] ──► [Month 6: Production V3]
-  Honeypot Grid             IF + RF + LSTM        DBSCAN Campaigns        MITRE Mapping + Rules   TAXII + LLM AI         Hardening + Release
-```
-
-| Phase | Milestone | Core Deliverables & Achievements | Status |
-| :---: | :--- | :--- | :---: |
-| **Month 1** | Foundation & Deception Grid | Multi-protocol honeypots (SSH, HTTP, FTP, SMTP), PostgreSQL schema, FastAPI backend, React NOC dashboard. | ✅ Complete |
-| **Month 2** | ML Threat Detection | 23D feature extraction, Isolation Forest + Random Forest ensemble, LSTM traffic forecasting, SHAP XAI tooltips. | ✅ Complete |
-| **Month 3** | Campaign Clustering & SIEM | DBSCAN multi-IP campaign correlation, CEF/Syslog streaming exporter, Splunk / ELK integrations. | ✅ Complete |
-| **Month 4** | Sentinel Intelligence Layer | 12 MITRE ATT&CK mappings, automated Snort/Sigma rule synthesis, Jinja2 playbooks, 4-signal scoring, Sentinel UI. | ✅ Complete |
-| **Month 5** | Advanced Intel & AI Enhancement | Local Ollama Mistral 7B LLM narrative synthesis, OASIS STIX 2.1 export, live TAXII 2.1 feed server, batch workflows. | ✅ Complete |
-| **Month 6** | Production Hardening & Delivery | Complete E2E regression verification, Cypress UI tests, PDF streaming exports, enterprise documentation, V3.0.0 Release. | ✅ Complete |
+1. **Synthetic & Semi-Synthetic Benchmark Data**: The evaluation dataset (`data/remediated_dataset_v3.csv`) contains 5,000 flow records derived from controlled attack simulations and benign background traffic. While verified free from label leakage, model generalization on uncurated live enterprise traffic remains subject to distribution shift.
+2. **Detection Recall Trade-Off**: Because the hybrid ensemble is tuned to minimize false alarms, approximately 22.5% of borderline or low-signal anomalies fall below the alert threshold and are deferred.
+3. **Medium-Interaction Emulation Scope**: Built-in honeypots emulate application-layer protocols (SSH shells, web endpoints, FTP commands, SMTP envelopes). They do not emulate kernel vulnerabilities, binary memory corruption, or industrial control system (SCADA/ICS) protocols.
+4. **Hardware Requirements for Local LLM**: Running the local Ollama instance with Mistral 7B requires at least 16 GB of host RAM for responsive inference. On resource-constrained systems, the pipeline operates in degraded mode using structured Jinja2 templates.
+5. **Experimental Status of LSTM**: The deep learning sequence predictor (`backend/ml_engine/lstm_model.py`) is an unvalidated research prototype and is not part of the primary classification pipeline.
+6. **Heuristic Origin of Thresholds**: Certain scoring constants (such as the 0.85/0.15 ensemble weighting and the 0.80 DBSCAN radius) were selected empirically for the benchmark dataset and may require recalibration on different network environments.
 
 ---
 
-## 📚 Technical Documentation Index
+## 12. Documentation Index
 
-For in-depth technical documentation, refer to the dedicated guides in the `docs/` repository:
+For in-depth architectural specifications and implementation guides, refer to the following repository documentation:
 
-- 📑 **[Master Final Project Report](docs/reports/MASTER_FINAL_PROJECT_REPORT.md)** — Consolidated camera-ready master report across Architecture, Security, ML/AI, and Frontend.
-- 🛡️ **[Documentation Audit & Sign-Off Report](docs/reports/DOCUMENTATION_AUDIT_SIGNOFF.md)** — Formal Week 23 documentation audit and certification sign-off.
-- 🏛️ **[System Architecture & Design Guide](docs/system_architecture.md)** — Architectural layers, data diode design, and threading models.
-- 🧠 **[Machine Learning & Inference Pipeline](docs/ml_pipeline.md)** — Feature definitions, model hyperparameters, and SHAP mathematical formulation.
-- 🤖 **[LLM Integration & AI Playbooks](docs/llm_integration.md)** — Ollama setup, Mistral prompt templates, few-shot conditioning, and fallback logic.
-- 📜 **[IDS Rule Generation Specifications](docs/rule_generation.md)** — Snort 2.9/3.0 syntax, Sigma YAML structures, and classtype dictionaries.
-- 📋 **[Incident Playbook Templates Guide](docs/playbook_templates.md)** — Jinja2 template inheritance, context variables, and runbook authoring.
-- 📡 **[TAXII 2.1 & STIX Threat Sharing](docs/taxii_interoperability.md)** — TAXII collection endpoints, STIX 2.1 schemas, and external client setup.
-- 🚀 **[Production Deployment & Hardening Guide](docs/production_deployment_guide.md)** — Enterprise deployment runbooks, monitoring, and secrets rotation.
-- 🐳 **[Docker Compose Operations Guide](docs/DOCKER_GUIDE.md)** — Multi-container orchestration, port mappings, and healthchecks.
-- 📖 **[API Documentation & Endpoint Reference](docs/api_documentation_v2.md)** — Complete OpenAPI REST and WebSocket endpoint specifications.
-- 🤝 **[Contribution Guidelines](docs/CONTRIBUTING.md)** & **[Security Policy](SECURITY.md)** — Code conventions and vulnerability disclosure policy.
+- [System Architecture Guide](docs/system_architecture.md) — Architectural layers, data diode design, and thread models.
+- [REST API Reference & OpenAPI Specification](docs/api_documentation_v2.md) — Endpoint specifications for ingestion, Sentinel, admin, and WebSockets.
+- [TAXII 2.1 & STIX Interoperability Guide](docs/taxii_interoperability.md) — Server discovery, collections, and STIX 2.1 schemas.
+- [Canonical Feature Contract Specification](FEATURE_SPEC.md) — Mathematical definitions for the authoritative 12D feature schema.
+- [Model Card](MODEL_CARD.md) — Quantitative model metrics, evaluation procedures, and limitations.
+- [Research Claims Forensic Audit](RESEARCH_CLAIMS_AUDIT.md) — Comprehensive audit reconciling historical claims against empirical artifacts.
+- [Claim-to-Evidence Traceability Matrix](CLAIM_EVIDENCE_MATRIX.md) — Chain of custody connecting experimental claims to evidence files.
+- [Docker Operations & Deployment Guide](docs/DOCKER_GUIDE.md) — Multi-container topology, port mappings, and volume mounts.
+- [Contributing Guidelines](docs/CONTRIBUTING.md) — Branch conventions, coding standards, and pull request requirements.
+- [Security Policy](SECURITY.md) — Vulnerability reporting and disclosure guidelines.
 
 ---
 
-## 👥 Engineering Team
+## 13. Project Roadmap
 
-PhantomNet was developed as an advanced cybersecurity engineering platform by a team of four:
+- **Additional Protocol Emulators**: Implementing medium-interaction listeners for Remote Desktop Protocol (RDP, port 3389) and Server Message Block (SMB, port 445).
+- **Graph Neural Network (GNN) Campaign Correlation**: Exploring GNN architectures to model multi-hop lateral movement across distributed sensor grids.
+- **Inbound TAXII 2.1 Polling**: Adding client-side TAXII polling to subscribe to external threat intelligence feeds directly.
+- **Kubernetes Helm Packaging**: Developing Helm charts with horizontal pod autoscaling for the ingestion gateway and consumer workers.
+- **Dynamic Threshold Adaptation**: Investigating rolling baseline estimation to automatically adapt classification thresholds to long-term network drift.
 
-| Name | Role | Core Engineering Focus | GitHub Profile |
+---
+
+## 14. Engineering Team
+
+PhantomNet was developed as a university cybersecurity capstone and research engineering project by a team of four students:
+
+| Name | Role | Primary Engineering Responsibilities | GitHub Profile |
 | :--- | :--- | :--- | :--- |
-| **Kasukurthi Sriram** | **Team Lead & Security Architect** | System Architecture, Sentinel Autonomous Pipeline, ATT&CK Mapping & STIX/TAXII Core | [@sriram21-09](https://github.com/sriram21-09) |
-| **Muramreddy Vivekananda Reddy** | **Security & Infrastructure Engineer** | Container Deception Grid, Protocol Emulation, Security Hardening & IDS Rules | [@VivekanandaReddy2006](https://github.com/VivekanandaReddy2006) |
-| **Nattala Vikranth Chakravarthi** | **AI/ML & Threat Intelligence Engineer** | ML Ensemble Pipeline, Feature Extraction, LSTM Forecasting & LLM Reasoning | [@vikranthN101](https://github.com/vikranthN101) |
-| **Satti Sai Ram Manideep Reddy** | **Frontend & UI/UX Engineer** | React 19 NOC Dashboard, Sentinel Management Console, WebSockets & Visual Analytics | [@sairammanideepreddy2123](https://github.com/sairammanideepreddy2123) |
+| **Kasukurthi Sriram** | **Team Lead & System Architect** | System architecture, FastAPI ingestion gateway, Sentinel autonomous pipeline, MITRE ATT&CK mapping, STIX/TAXII core | [@sriram21-09](https://github.com/sriram21-09) |
+| **Muramreddy Vivekananda Reddy** | **Security & Infrastructure Engineer** | Multi-protocol honeypot listeners, Docker container hardening, network segmentation, and Snort/Sigma rule synthesis | [@VivekanandaReddy2006](https://github.com/VivekanandaReddy2006) |
+| **Nattala Vikranth Chakravarthi** | **AI/ML & Threat Detection Engineer** | Authoritative 12D feature extractor, Random Forest / Isolation Forest ensemble, DBSCAN clustering, and empirical benchmarks | [@vikranthN101](https://github.com/vikranthN101) |
+| **Satti Sai Ram Manideep Reddy** | **Frontend & UI/UX Engineer** | React 19 dashboard, WebSocket live telemetry feeds, Sentinel review workbench, and visual analytics | [@sairammanideepreddy2123](https://github.com/sairammanideepreddy2123) |
 
 ---
 
-<div align="center">
-  <img src="https://img.shields.io/badge/License-MIT-009688?style=for-the-badge&logo=opensourceinitiative&logoColor=white" alt="License" />
-  <p><b>PhantomNet Active Cyber Defense Platform</b> &bull; Copyright &copy; 2026 PhantomNet Engineering Team</p>
-  <i>"Turn your network into an intelligent, autonomous weapon against the adversary."</i>
-</div>
+## 15. License
+
+This project is open-source and distributed under the terms of the **MIT License**. See repository documentation and headers for full licensing terms.
